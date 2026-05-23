@@ -21,6 +21,7 @@ npm-debug.log*
 .idea/
 *.swp
 .DS_Store
+.claude
 
 # Go
 *.test
