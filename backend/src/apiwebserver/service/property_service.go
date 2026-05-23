@@ -1,0 +1,305 @@
+package service
+
+import (
+	"crypto/rand"
+	"errors"
+	"fmt"
+	"mime/multipart"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"time"
+
+	"gorm.io/gorm"
+
+	"github.com/wealthy-prime/backend/src/apperror"
+	"github.com/wealthy-prime/backend/src/database"
+	"github.com/wealthy-prime/backend/src/database/model"
+)
+
+type PropertyService struct {
+	db *gorm.DB
+}
+
+func NewPropertyService() *PropertyService {
+	return &PropertyService{db: database.DB}
+}
+
+type PropertyFilter struct {
+	Type     string
+	Location string
+	Search   string
+	MinPrice string
+	MaxPrice string
+}
+
+type CreatePropertyInput struct {
+	Title              string
+	ProjectName        string
+	Location           string
+	Price              float64
+	Type               model.PropertyType
+	SizeSqm            float64
+	OwnerInfo          string
+	RentalPeriodMonths *int
+	AgentID            *uint
+	Images             []*multipart.FileHeader
+}
+
+type UpdateStatusInput struct {
+	Status  model.PropertyStatus
+	SlipFile *multipart.FileHeader
+}
+
+// ListProperties returns properties visible to the public (status != pending_approve).
+func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.PropertyDto, error) {
+	query := s.db.Model(&model.Property{}).
+		Preload("Images").
+		Preload("Agent").
+		Where("status != ?", model.StatusPendingApprove)
+
+	if filter.Type != "" {
+		query = query.Where("type = ?", filter.Type)
+	}
+	if filter.Location != "" {
+		query = query.Where("location ILIKE ?", "%"+filter.Location+"%")
+	}
+	if filter.Search != "" {
+		s := "%" + filter.Search + "%"
+		query = query.Where("title ILIKE ? OR project_name ILIKE ? OR location ILIKE ?", s, s, s)
+	}
+	if filter.MinPrice != "" {
+		if min, err := strconv.ParseFloat(filter.MinPrice, 64); err == nil {
+			query = query.Where("price >= ?", min)
+		}
+	}
+	if filter.MaxPrice != "" {
+		if max, err := strconv.ParseFloat(filter.MaxPrice, 64); err == nil {
+			query = query.Where("price <= ?", max)
+		}
+	}
+
+	var properties []model.Property
+	if err := query.Find(&properties).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to list properties")
+	}
+
+	dtos := make([]model.PropertyDto, len(properties))
+	for i, p := range properties {
+		dtos[i] = *p.ToDto()
+	}
+	return dtos, nil
+}
+
+// GetProperty returns a single property with images and agent preloaded.
+func (s *PropertyService) GetProperty(id uint) (*model.PropertyDto, error) {
+	var p model.Property
+	err := s.db.Preload("Images").Preload("Agent").First(&p, id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, apperror.NotFound("property")
+	}
+	if err != nil {
+		return nil, apperror.Wrap(err, 500, "database error fetching property")
+	}
+	return p.ToDto(), nil
+}
+
+// GetPropertyReviews returns all reviews for a property.
+func (s *PropertyService) GetPropertyReviews(propertyID uint) ([]model.ReviewDto, error) {
+	var reviews []model.Review
+	if err := s.db.Preload("User").Where("property_id = ?", propertyID).Find(&reviews).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to fetch reviews")
+	}
+	dtos := make([]model.ReviewDto, len(reviews))
+	for i, r := range reviews {
+		dtos[i] = *r.ToDto()
+	}
+	return dtos, nil
+}
+
+// DuplicateCheck checks if a property with the same project name + owner info exists.
+func (s *PropertyService) DuplicateCheck(projectName, ownerInfo string) (bool, error) {
+	var count int64
+	err := s.db.Model(&model.Property{}).
+		Where("project_name = ? AND owner_info = ?", projectName, ownerInfo).
+		Count(&count).Error
+	if err != nil {
+		return false, apperror.Wrap(err, 500, "database error checking duplicate")
+	}
+	return count > 0, nil
+}
+
+// CreateProperty saves a new property and its images to uploads/.
+func (s *PropertyService) CreateProperty(input CreatePropertyInput) (*model.PropertyDto, error) {
+	// Save images first
+	var images []model.PropertyImage
+	for _, fh := range input.Images {
+		url, err := saveUpload(fh, "uploads")
+		if err != nil {
+			return nil, apperror.Wrap(err, 500, "failed to save image")
+		}
+		images = append(images, model.PropertyImage{URL: url})
+	}
+
+	p := model.Property{
+		Title:              input.Title,
+		ProjectName:        input.ProjectName,
+		Location:           input.Location,
+		Price:              input.Price,
+		Type:               input.Type,
+		SizeSqm:            input.SizeSqm,
+		AgentID:            input.AgentID,
+		OwnerInfo:          input.OwnerInfo,
+		RentalPeriodMonths: input.RentalPeriodMonths,
+		Status:             model.StatusPendingApprove,
+		Images:             images,
+	}
+
+	if err := s.db.Create(&p).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to create property")
+	}
+
+	// Re-fetch with relations
+	return s.GetProperty(p.ID)
+}
+
+// UpdateStatus allows an agent to update only their own property's status and attach a slip.
+func (s *PropertyService) UpdateStatus(propertyID, agentID uint, input UpdateStatusInput) (*model.PropertyDto, error) {
+	var p model.Property
+	err := s.db.First(&p, propertyID).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, apperror.NotFound("property")
+	}
+	if err != nil {
+		return nil, apperror.Wrap(err, 500, "database error")
+	}
+
+	// Agent can only update their own property
+	if p.AgentID == nil || *p.AgentID != agentID {
+		return nil, apperror.Forbidden("you do not own this property")
+	}
+
+	updates := map[string]interface{}{"status": input.Status}
+
+	if input.SlipFile != nil {
+		slipURL, err := saveUpload(input.SlipFile, "uploads")
+		if err != nil {
+			return nil, apperror.Wrap(err, 500, "failed to save slip file")
+		}
+		updates["slip_url"] = slipURL
+	}
+
+	if err := s.db.Model(&p).Updates(updates).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to update property status")
+	}
+
+	return s.GetProperty(propertyID)
+}
+
+// GetAgentProperties returns all properties for a given agent.
+func (s *PropertyService) GetAgentProperties(agentID uint) ([]model.PropertyDto, error) {
+	var properties []model.Property
+	if err := s.db.Preload("Images").Preload("Agent").
+		Where("agent_id = ?", agentID).Find(&properties).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to fetch agent properties")
+	}
+	dtos := make([]model.PropertyDto, len(properties))
+	for i, p := range properties {
+		dtos[i] = *p.ToDto()
+	}
+	return dtos, nil
+}
+
+// GetPendingProperties returns all pending_approve properties (admin).
+func (s *PropertyService) GetPendingProperties() ([]model.PropertyDto, error) {
+	var properties []model.Property
+	if err := s.db.Preload("Images").Preload("Agent").
+		Where("status = ?", model.StatusPendingApprove).Find(&properties).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to fetch pending properties")
+	}
+	dtos := make([]model.PropertyDto, len(properties))
+	for i, p := range properties {
+		dtos[i] = *p.ToDto()
+	}
+	return dtos, nil
+}
+
+// ApproveProperty sets status to reserved (approve) or available (reject).
+func (s *PropertyService) ApproveProperty(propertyID uint, action string) (*model.PropertyDto, error) {
+	var p model.Property
+	err := s.db.First(&p, propertyID).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, apperror.NotFound("property")
+	}
+	if err != nil {
+		return nil, apperror.Wrap(err, 500, "database error")
+	}
+
+	var newStatus model.PropertyStatus
+	switch action {
+	case "approve":
+		newStatus = model.StatusReserved
+	case "reject":
+		newStatus = model.StatusAvailable
+	default:
+		return nil, apperror.BadRequest("action must be 'approve' or 'reject'")
+	}
+
+	if err := s.db.Model(&p).Update("status", newStatus).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to update property status")
+	}
+
+	return s.GetProperty(propertyID)
+}
+
+// saveUpload stores a multipart file to the given dir and returns the relative URL.
+func saveUpload(fh *multipart.FileHeader, dir string) (string, error) {
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return "", fmt.Errorf("mkdir %s: %w", dir, err)
+	}
+
+	ext := filepath.Ext(fh.Filename)
+	if ext == "" {
+		ext = ".bin"
+	}
+	// Use allowed extensions only for safety
+	ext = strings.ToLower(ext)
+	allowed := map[string]bool{".jpg": true, ".jpeg": true, ".png": true, ".gif": true, ".webp": true, ".pdf": true}
+	if !allowed[ext] {
+		ext = ".bin"
+	}
+
+	// Generate unique filename
+	b := make([]byte, 8)
+	rand.Read(b)
+	filename := fmt.Sprintf("%d_%x%s", time.Now().UnixNano(), b, ext)
+	dst := filepath.Join(dir, filename)
+
+	src, err := fh.Open()
+	if err != nil {
+		return "", fmt.Errorf("open upload: %w", err)
+	}
+	defer src.Close()
+
+	dstFile, err := os.Create(dst)
+	if err != nil {
+		return "", fmt.Errorf("create file %s: %w", dst, err)
+	}
+	defer dstFile.Close()
+
+	buf := make([]byte, 32*1024)
+	for {
+		n, readErr := src.Read(buf)
+		if n > 0 {
+			if _, writeErr := dstFile.Write(buf[:n]); writeErr != nil {
+				return "", fmt.Errorf("write file: %w", writeErr)
+			}
+		}
+		if readErr != nil {
+			break
+		}
+	}
+
+	return "/uploads/" + filename, nil
+}

@@ -1,0 +1,44 @@
+import { useController, type Control, type FieldValues, type Path } from 'react-hook-form'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils'
+
+interface FormInputProps<T extends FieldValues> {
+  control: Control<T>
+  name: Path<T>
+  label: string
+  placeholder?: string
+  required?: boolean
+  disabled?: boolean
+  type?: string
+}
+
+export function FormInput<T extends FieldValues>({
+  control,
+  name,
+  label,
+  placeholder,
+  required,
+  disabled,
+  type = 'text',
+}: FormInputProps<T>) {
+  const { field, fieldState } = useController({ control, name })
+
+  return (
+    <div className="space-y-1.5">
+      <Label>
+        {label}
+        {required && <span className="text-red-500 ml-0.5">*</span>}
+      </Label>
+      <Input
+        {...field}
+        type={type}
+        placeholder={placeholder}
+        disabled={disabled}
+        value={field.value ?? ''}
+        className={cn(fieldState.error && 'border-red-500', disabled && 'bg-gray-100')}
+      />
+      {fieldState.error && <p className="text-sm text-red-500">{fieldState.error.message}</p>}
+    </div>
+  )
+}

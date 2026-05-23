@@ -1,0 +1,38 @@
+FROM golang:1.25-alpine AS builder
+
+WORKDIR /build
+
+# Install build dependencies
+RUN apk add --no-cache git
+
+# Cache dependencies
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy source
+COPY . .
+
+# Build binary
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o server ./src
+
+# ---
+
+FROM alpine:3.20 AS runner
+
+WORKDIR /app
+
+# Install CA certificates and timezone data
+RUN apk add --no-cache ca-certificates tzdata
+
+# Copy binary from builder
+COPY --from=builder /build/server ./server
+
+# Copy example config (override with volume or env vars in production)
+COPY config.example.ini ./config.ini
+
+# Create uploads directory
+RUN mkdir -p uploads
+
+EXPOSE 8080
+
+CMD ["./server"]

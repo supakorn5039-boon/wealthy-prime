@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build outputs
+dist/
+build/
+*.exe
+*.bin
+
+# Environment files (keep .env.production but not local secrets)
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Go
+*.test
+coverage.out

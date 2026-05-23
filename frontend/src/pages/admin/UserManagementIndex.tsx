@@ -1,0 +1,124 @@
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
+import { Pencil } from 'lucide-react'
+import { z } from 'zod'
+import { useTranslation } from 'react-i18next'
+import { AdminService } from '@/services/AdminService'
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
+import { EmptyState } from '@/components/shared/EmptyState'
+import { PageTitle } from '@/components/shared/PageTitle'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { FormInput } from '@/components/form/FormInput'
+import { formatDate } from '@/utils/date'
+import type { AuthUser } from '@/types/Auth'
+
+const editUserSchema = z.object({
+  name: z.string().min(1),
+  phone: z.string().min(1),
+})
+type EditUserSchema = z.infer<typeof editUserSchema>
+
+function EditUserModal({ user, open, onClose }: { user: AuthUser; open: boolean; onClose: () => void }) {
+  const { t } = useTranslation()
+  const queryClient = useQueryClient()
+
+  const { control, handleSubmit } = useForm<EditUserSchema>({
+    resolver: zodResolver(editUserSchema),
+    defaultValues: { name: user.name, phone: user.phone },
+  })
+
+  const mutation = useMutation({
+    mutationFn: (values: EditUserSchema) => AdminService.updateUser(user.id, values),
+    onSuccess: () => {
+      toast.success(t('admin.updateSuccess'))
+      queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.USERS] })
+      onClose()
+    },
+    onError: () => toast.error(t('common.error')),
+  })
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t('admin.editTitle')} {user.name}</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit((values) => mutation.mutate(values))} className="space-y-4">
+          <FormInput control={control} name="name" label={t('admin.nameLabel')} required />
+          <FormInput control={control} name="phone" label={t('admin.phoneLabel')} required />
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onClose}>{t('common.cancel')}</Button>
+            <Button type="submit" disabled={mutation.isPending}>
+              {mutation.isPending ? t('common.saving') : t('common.save')}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+export default function UserManagementIndex() {
+  const { t } = useTranslation()
+  const [editingUser, setEditingUser] = useState<AuthUser | null>(null)
+
+  const { data: users = [], isLoading } = useQuery({
+    queryKey: [AdminService.QUERY_KEYS.USERS],
+    queryFn: AdminService.getUsers,
+  })
+
+  const userOnly = users.filter((u) => u.role === 'user')
+
+  return (
+    <div className="max-w-5xl mx-auto">
+      <PageTitle title={t('admin.usersTitle')} subtitle={`${userOnly.length} ${t('admin.people')}`} />
+
+      {isLoading ? (
+        <LoadingSpinner text={t('common.loading')} />
+      ) : userOnly.length === 0 ? (
+        <EmptyState title={t('admin.noUsers')} />
+      ) : (
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('common.name')}</TableHead>
+                  <TableHead>{t('common.email')}</TableHead>
+                  <TableHead>{t('common.phone')}</TableHead>
+                  <TableHead>{t('common.createdAt')}</TableHead>
+                  <TableHead className="text-right">{t('common.edit')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {userOnly.map((u) => (
+                  <TableRow key={u.id}>
+                    <TableCell className="font-medium">{u.name}</TableCell>
+                    <TableCell>{u.email}</TableCell>
+                    <TableCell>{u.phone}</TableCell>
+                    <TableCell>{formatDate(u.createdAt)}</TableCell>
+                    <TableCell className="text-right">
+                      <Button size="sm" variant="ghost" onClick={() => setEditingUser(u)}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+
+      {editingUser && (
+        <EditUserModal user={editingUser} open={!!editingUser} onClose={() => setEditingUser(null)} />
+      )}
+    </div>
+  )
+}
