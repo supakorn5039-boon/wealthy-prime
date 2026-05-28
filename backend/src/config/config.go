@@ -112,7 +112,7 @@ func buildDSN() string {
 		" password=" + App.Database.Password +
 		" dbname=" + App.Database.Database +
 		" port=" + App.Database.Port +
-		" sslmode=disable TimeZone=UTC"
+		" sslmode=require TimeZone=UTC"
 }
 
 func getVal(section *ini.Section, key, defaultVal string) string {
