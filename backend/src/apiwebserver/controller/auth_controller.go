@@ -3,21 +3,37 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 
+	"github.com/wealthy-prime/backend/src/apiwebserver/middleware"
 	"github.com/wealthy-prime/backend/src/apiwebserver/service"
 )
 
 type AuthController struct {
-	svc *service.AuthService
+	svc      *service.AuthService
+	adminSvc *service.AdminService
 }
 
 func NewAuthController() *AuthController {
-	return &AuthController{svc: service.NewAuthService()}
+	return &AuthController{
+		svc:      service.NewAuthService(),
+		adminSvc: service.NewAdminService(),
+	}
 }
 
 func (ctrl *AuthController) RegisterRoutes(r *gin.RouterGroup) {
 	auth := r.Group("/auth")
 	auth.POST("/register", ctrl.register)
 	auth.POST("/login", ctrl.login)
+	auth.GET("/profile", middleware.Protected(), ctrl.profile)
+}
+
+func (ctrl *AuthController) profile(c *gin.Context) {
+	userID := middleware.GetUserID(c)
+	user, err := ctrl.adminSvc.GetUser(userID)
+	if err != nil {
+		errorResponse(c, err)
+		return
+	}
+	successResponse(c, user)
 }
 
 func (ctrl *AuthController) register(c *gin.Context) {

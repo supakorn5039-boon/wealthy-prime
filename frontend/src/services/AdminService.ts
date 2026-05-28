@@ -68,7 +68,7 @@ export const AdminService = {
       mockStore.removePending(Number(id))
       return
     }
-    await fetchClient.post(API.ADMIN_PENDING_APPROVE(id))
+    await fetchClient.patch(API.ADMIN_PROPERTY_APPROVE(id), { action: 'approve' })
   },
 
   rejectPending: async (id: number | string): Promise<void> => {
@@ -77,7 +77,7 @@ export const AdminService = {
       mockStore.removePending(Number(id))
       return
     }
-    await fetchClient.post(API.ADMIN_PENDING_REJECT(id))
+    await fetchClient.patch(API.ADMIN_PROPERTY_APPROVE(id), { action: 'reject' })
   },
 
   getAgents: async (): Promise<AuthUser[]> => {
@@ -118,7 +118,7 @@ export const AdminService = {
 
   reassignCase: async (bookingId: number | string, newAgentId: number | string): Promise<void> => {
     if (IS_MOCK) return
-    await fetchClient.post(API.ADMIN_REASSIGN, { bookingId, newAgentId })
+    await fetchClient.post(API.ADMIN_REASSIGN(bookingId), { agent_id: Number(newAgentId) })
   },
 
   getFinancial: async (): Promise<FinancialRecord[]> => {

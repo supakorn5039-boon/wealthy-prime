@@ -60,8 +60,14 @@ export const AgentService = {
       mockStore.addReviewLink(link)
       return link
     }
-    const res = await fetchClient.post<ApiResponse<ReviewLink>>(API.AGENT_REVIEW_LINK, { propertyId })
-    return res.data.data
+    const res = await fetchClient.get<ApiResponse<{ url: string }>>(API.AGENT_REVIEW_LINK(propertyId))
+    return {
+      token: '',
+      url: res.data.data.url,
+      propertyId: Number(propertyId),
+      propertyTitle: '',
+      expiresAt: '',
+    }
   },
 
   getReviewLinks: async (): Promise<ReviewLink[]> => {
@@ -69,7 +75,6 @@ export const AgentService = {
       const { mockStore } = await import('@/mocks/data')
       return mockStore.getReviewLinks()
     }
-    const res = await fetchClient.get<ApiResponse<ReviewLink[]>>(API.AGENT_REVIEW_LINK)
-    return res.data.data
+    return []
   },
 }
