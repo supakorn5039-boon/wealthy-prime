@@ -19,6 +19,11 @@ func MountAPIWebServer(r *gin.Engine) {
 	r.Use(corsMiddleware())
 	r.Use(middleware.SecurityHeaders())
 
+	// Health check endpoint
+	r.GET("/healthz", func(c *gin.Context) {
+		c.JSON(200, gin.H{"status": "ok"})
+	})
+
 	// Serve uploaded files
 	r.Static("/uploads", "./uploads")
 
