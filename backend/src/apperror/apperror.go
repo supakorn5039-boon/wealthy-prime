@@ -1,7 +1,6 @@
 package apperror
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 )
@@ -65,16 +64,3 @@ func Conflict(message string) *AppError {
 	return &AppError{Status: http.StatusConflict, Message: message}
 }
 
-// Internal returns a 500 AppError.
-func Internal(message string) *AppError {
-	return &AppError{Status: http.StatusInternalServerError, Message: message}
-}
-
-// Is satisfies errors.Is for AppError type matching.
-func Is(err error) (*AppError, bool) {
-	var appErr *AppError
-	if errors.As(err, &appErr) {
-		return appErr, true
-	}
-	return nil, false
-}

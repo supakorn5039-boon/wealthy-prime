@@ -1,0 +1,34 @@
+pre-commit:
+  parallel: true
+  commands:
+    frontend-typecheck:
+      root: frontend/
+      glob: "*.{ts,tsx}"
+      run: npx tsc --noEmit
+
+    frontend-lint:
+      root: frontend/
+      glob: "*.{ts,tsx}"
+      run: npx eslint {staged_files} --fix
+      stage_fixed: true
+
+    backend-vet:
+      root: backend/
+      glob: "*.go"
+      run: go vet ./...
+
+    backend-fmt:
+      root: backend/
+      glob: "*.go"
+      run: gofmt -w {staged_files}
+      stage_fixed: true
+
+pre-push:
+  parallel: true
+  commands:
+    backend-build:
+      root: backend/
+      run: go build ./...
+    frontend-build:
+      root: frontend/
+      run: npm run build

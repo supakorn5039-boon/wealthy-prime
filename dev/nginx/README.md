@@ -1,6 +1,6 @@
 # Local dev: `wealthy.local` via nginx
 
-Serve the full app at `http://wealthy.local` instead of `localhost:5173` / `localhost:8080`. No CORS headaches — frontend and API share an origin.
+Serve the full app at `http://wealthy.local` instead of `localhost:3000` / `localhost:8080`. No CORS headaches — frontend and API share an origin.
 
 ## One-time setup
 
@@ -51,7 +51,7 @@ open http://wealthy.local
 
 ## Troubleshooting
 
-- **502 Bad Gateway** → Vite or backend isn't running. Check ports 5173 / 8080.
+- **502 Bad Gateway** → Vite or backend isn't running. Check ports 3000 / 8080.
 - **Permission denied on port 80** → use `sudo brew services start nginx`, or change `listen 80` → `listen 8000` in the conf and visit `http://wealthy.local:8000`.
 - **HMR not connecting** → make sure the `Upgrade`/`Connection` headers in the config are present (they are).
 - **CORS error** → confirm `backend/config.ini` `allowed_origins` includes `http://wealthy.local`.

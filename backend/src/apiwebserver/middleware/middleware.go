@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"slices"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -13,7 +14,6 @@ import (
 const (
 	CtxUserID = "user_id"
 	CtxRole   = "role"
-	CtxEmail  = "email"
 )
 
 // Protected validates a Bearer JWT and sets user_id, role, email in the Gin context.
@@ -39,7 +39,6 @@ func Protected() gin.HandlerFunc {
 
 		c.Set(CtxUserID, claims.ID)
 		c.Set(CtxRole, claims.Role)
-		c.Set(CtxEmail, claims.Email)
 		c.Next()
 	}
 }
@@ -59,11 +58,9 @@ func Rbac(roles ...model.UserRole) gin.HandlerFunc {
 			return
 		}
 
-		for _, allowed := range roles {
-			if userRole == allowed {
-				c.Next()
-				return
-			}
+		if slices.Contains(roles, userRole) {
+			c.Next()
+			return
 		}
 
 		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "insufficient permissions"})

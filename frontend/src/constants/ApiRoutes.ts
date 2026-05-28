@@ -7,7 +7,6 @@ export const API = {
   // Properties (public)
   PROPERTIES: '/properties',
   PROPERTY_DETAIL: (id: number | string) => `/properties/${id}`,
-  PROPERTY_IMAGES: (id: number | string) => `/properties/${id}/images`,
   PROPERTY_STATUS: (id: number | string) => `/properties/${id}/status`,
   PROPERTY_REVIEWS: (id: number | string) => `/properties/${id}/reviews`,
 
