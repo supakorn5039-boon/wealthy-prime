@@ -66,7 +66,6 @@ export const useAuthStore = create<AuthState>()(
         rehydrateUser: async () => {
           const { token } = get()
           if (!token) return
-          if (import.meta.env.VITE_MOCK_API === 'true') return
           try {
             const { fetchClient } = await import('@/utils/axios')
             const res = await fetchClient.get<{ data: AuthUser }>('/auth/profile')

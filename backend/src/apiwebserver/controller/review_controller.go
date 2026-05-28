@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/wealthy-prime/backend/src/apiwebserver/middleware"
+	"github.com/wealthy-prime/backend/src/apiwebserver/service"
 	"github.com/wealthy-prime/backend/src/apperror"
 	"github.com/wealthy-prime/backend/src/database"
 	"github.com/wealthy-prime/backend/src/database/model"
@@ -19,9 +20,32 @@ func NewReviewController() *ReviewController {
 }
 
 func (ctrl *ReviewController) RegisterRoutes(r *gin.RouterGroup) {
-	// Authenticated users can submit reviews via the review link token
+	// Public: resolve a review-link token into property info (no auth needed)
+	r.GET("/reviews/token/:token", ctrl.resolveToken)
+
+	// Authenticated users can submit reviews
 	reviews := r.Group("/reviews", middleware.Protected())
 	reviews.POST("", ctrl.createReview)
+}
+
+func (ctrl *ReviewController) resolveToken(c *gin.Context) {
+	token := c.Param("token")
+	propertyID, _, err := service.ParseReviewToken(token)
+	if err != nil {
+		errorResponse(c, err)
+		return
+	}
+
+	var prop model.Property
+	if err := database.DB.First(&prop, propertyID).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		errorResponse(c, apperror.NotFound("property"))
+		return
+	}
+
+	successResponse(c, gin.H{
+		"propertyId":    prop.ID,
+		"propertyTitle": prop.Title,
+	})
 }
 
 type createReviewInput struct {
