@@ -123,6 +123,39 @@ func (s *BookingService) GetUserBookings(userID uint) ([]model.BookingDto, error
 	return dtos, nil
 }
 
+// GetUserBooking returns a single booking owned by the given user.
+func (s *BookingService) GetUserBooking(userID, bookingID uint) (*model.BookingDto, error) {
+	var booking model.Booking
+	err := s.db.Preload("User").Preload("Property").Preload("AssignedAgent").
+		Where("user_id = ? AND id = ?", userID, bookingID).First(&booking).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, apperror.NotFound("booking")
+	}
+	if err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to fetch booking")
+	}
+	return booking.ToDto(), nil
+}
+
+// UpdateUserBookingStatus changes the status of a user's own booking
+// (currently only used for self-cancellation).
+func (s *BookingService) UpdateUserBookingStatus(userID, bookingID uint, status model.BookingStatus) (*model.BookingDto, error) {
+	var booking model.Booking
+	err := s.db.Where("user_id = ? AND id = ?", userID, bookingID).First(&booking).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, apperror.NotFound("booking")
+	}
+	if err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to fetch booking")
+	}
+
+	if err := s.db.Model(&booking).Update("status", status).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to update booking")
+	}
+
+	return s.GetUserBooking(userID, bookingID)
+}
+
 func uintToStr(v uint) string {
 	return strconv.FormatUint(uint64(v), 10)
 }
