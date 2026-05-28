@@ -11,7 +11,7 @@ const finalRoutes = routes.map((route) => ({
     route.layout === RouteLayout.BLANK ? (
       <BlankLayout>{route.element}</BlankLayout>
     ) : route.layout === RouteLayout.PROTECTED ? (
-      <ProtectedAuthRoute>
+      <ProtectedAuthRoute allowedRoles={route.allowedRoles}>
         <DefaultLayout>{route.element}</DefaultLayout>
       </ProtectedAuthRoute>
     ) : (

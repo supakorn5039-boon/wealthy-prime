@@ -4,12 +4,20 @@ import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '@/store/authStore'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { ROUTES } from '@/constants/Routes'
+import type { UserRole } from '@/types/Auth'
 
 interface ProtectedAuthRouteProps {
   children: React.ReactNode
+  allowedRoles?: UserRole[]
 }
 
-export function ProtectedAuthRoute({ children }: ProtectedAuthRouteProps) {
+const roleHomePage: Record<UserRole, string> = {
+  admin: ROUTES.ADMIN_DASHBOARD,
+  agent: ROUTES.AGENT_DASHBOARD,
+  user: ROUTES.HOME,
+}
+
+export function ProtectedAuthRoute({ children, allowedRoles }: ProtectedAuthRouteProps) {
   const { t } = useTranslation()
   const { token, user, isHydrated, requestAuthFromOtherTabs } = useAuthStore()
   const location = useLocation()
@@ -26,6 +34,10 @@ export function ProtectedAuthRoute({ children }: ProtectedAuthRouteProps) {
 
   if (!token || !user) {
     return <Navigate to={ROUTES.LOGIN} state={{ from: location }} replace />
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to={roleHomePage[user.role] ?? ROUTES.HOME} replace />
   }
 
   return <>{children}</>

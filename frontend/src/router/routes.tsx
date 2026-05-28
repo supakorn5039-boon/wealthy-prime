@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import { ROUTES, RouteLayout } from '@/constants/Routes'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import lazyWithReload from '@/utils/lazyWithReload'
+import type { UserRole } from '@/types/Auth'
 
 const MapIndex = lazyWithReload(() => import('@/pages/map/MapIndex'))
 const LoginIndex = lazyWithReload(() => import('@/pages/login/LoginIndex'))
@@ -36,7 +37,12 @@ export interface AppRoute {
   path: string
   element: React.ReactNode
   layout: RouteLayout
+  allowedRoles?: UserRole[]
 }
+
+const USER_ONLY: UserRole[] = ['user']
+const AGENT_ONLY: UserRole[] = ['agent']
+const ADMIN_ONLY: UserRole[] = ['admin']
 
 export const routes: AppRoute[] = [
   { path: ROUTES.HOME, element: wrap(<HomeIndex />), layout: RouteLayout.PUBLIC },
@@ -47,26 +53,26 @@ export const routes: AppRoute[] = [
   { path: ROUTES.REVIEW, element: wrap(<ReviewIndex />), layout: RouteLayout.BLANK },
 
   // User protected
-  { path: ROUTES.WISHLIST, element: wrap(<WishlistIndex />), layout: RouteLayout.PROTECTED },
-  { path: ROUTES.HISTORY, element: wrap(<HistoryIndex />), layout: RouteLayout.PROTECTED },
-  { path: ROUTES.CONTACTS, element: wrap(<ContactsIndex />), layout: RouteLayout.PROTECTED },
+  { path: ROUTES.WISHLIST, element: wrap(<WishlistIndex />), layout: RouteLayout.PROTECTED, allowedRoles: USER_ONLY },
+  { path: ROUTES.HISTORY, element: wrap(<HistoryIndex />), layout: RouteLayout.PROTECTED, allowedRoles: USER_ONLY },
+  { path: ROUTES.CONTACTS, element: wrap(<ContactsIndex />), layout: RouteLayout.PROTECTED, allowedRoles: USER_ONLY },
 
   // Agent protected
-  { path: ROUTES.AGENT_DASHBOARD, element: wrap(<AgentDashboardIndex />), layout: RouteLayout.PROTECTED },
-  { path: ROUTES.AGENT_PROPERTIES, element: wrap(<MyPropertiesIndex />), layout: RouteLayout.PROTECTED },
-  { path: ROUTES.AGENT_ADD_PROPERTY, element: wrap(<AddPropertyIndex />), layout: RouteLayout.PROTECTED },
-  { path: ROUTES.AGENT_CONTACT_HISTORY, element: wrap(<ContactHistoryIndex />), layout: RouteLayout.PROTECTED },
-  { path: ROUTES.AGENT_REVIEW_LINK, element: wrap(<ReviewLinkIndex />), layout: RouteLayout.PROTECTED },
-  { path: ROUTES.AGENT_LEADS, element: wrap(<LeadsIndex />), layout: RouteLayout.PROTECTED },
-  { path: ROUTES.AGENT_PROFILE, element: wrap(<AgentProfileIndex />), layout: RouteLayout.PROTECTED },
-  { path: ROUTES.AGENT_OVERVIEW, element: wrap(<AgentOverviewIndex />), layout: RouteLayout.PROTECTED },
-  { path: ROUTES.AGENT_OWNER_LOG, element: wrap(<OwnerLogIndex />), layout: RouteLayout.PROTECTED },
+  { path: ROUTES.AGENT_DASHBOARD, element: wrap(<AgentDashboardIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
+  { path: ROUTES.AGENT_PROPERTIES, element: wrap(<MyPropertiesIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
+  { path: ROUTES.AGENT_ADD_PROPERTY, element: wrap(<AddPropertyIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
+  { path: ROUTES.AGENT_CONTACT_HISTORY, element: wrap(<ContactHistoryIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
+  { path: ROUTES.AGENT_REVIEW_LINK, element: wrap(<ReviewLinkIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
+  { path: ROUTES.AGENT_LEADS, element: wrap(<LeadsIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
+  { path: ROUTES.AGENT_PROFILE, element: wrap(<AgentProfileIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
+  { path: ROUTES.AGENT_OVERVIEW, element: wrap(<AgentOverviewIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
+  { path: ROUTES.AGENT_OWNER_LOG, element: wrap(<OwnerLogIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
 
   // Admin protected
-  { path: ROUTES.ADMIN_DASHBOARD, element: wrap(<AdminDashboardIndex />), layout: RouteLayout.PROTECTED },
-  { path: ROUTES.ADMIN_PENDING, element: wrap(<PendingApprovalsIndex />), layout: RouteLayout.PROTECTED },
-  { path: ROUTES.ADMIN_AGENTS, element: wrap(<AgentManagementIndex />), layout: RouteLayout.PROTECTED },
-  { path: ROUTES.ADMIN_USERS, element: wrap(<UserManagementIndex />), layout: RouteLayout.PROTECTED },
-  { path: ROUTES.ADMIN_REASSIGN, element: wrap(<CaseReassignmentIndex />), layout: RouteLayout.PROTECTED },
-  { path: ROUTES.ADMIN_FINANCIAL, element: wrap(<FinancialIndex />), layout: RouteLayout.PROTECTED },
+  { path: ROUTES.ADMIN_DASHBOARD, element: wrap(<AdminDashboardIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
+  { path: ROUTES.ADMIN_PENDING, element: wrap(<PendingApprovalsIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
+  { path: ROUTES.ADMIN_AGENTS, element: wrap(<AgentManagementIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
+  { path: ROUTES.ADMIN_USERS, element: wrap(<UserManagementIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
+  { path: ROUTES.ADMIN_REASSIGN, element: wrap(<CaseReassignmentIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
+  { path: ROUTES.ADMIN_FINANCIAL, element: wrap(<FinancialIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
 ]

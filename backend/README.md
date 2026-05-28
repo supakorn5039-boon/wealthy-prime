@@ -140,17 +140,30 @@ backend/
 ## 🚀 วิธีรัน
 
 ```bash
-# คัดลอก environment config
+# 1. คัดลอก environment config
 cp .env.example .env
 
-# รัน PostgreSQL (Docker)
-docker compose up -d db
+# 2. รัน PostgreSQL (Docker)
+docker compose up -d postgres
 
-# รัน migration
-go run ./migrations
-
-# รัน API server
-go run ./cmd/main.go
+# 3. รันเซิร์ฟเวอร์ (migration + seeder จะรันอัตโนมัติเมื่อ start)
+make dev
+# หรือ: go run ./src
 ```
+
+### Available make targets
+
+| Command | What it does |
+|---------|--------------|
+| `make dev` | Start the API server (auto-runs migration + seeder) |
+| `make migrate` | Run database migration only |
+| `make seed` | Run seeders only (creates admin user) |
+| `make build` | Compile production binary `./server` |
+
+### Local config
+
+- `config.ini` holds defaults for local dev. Environment variables override every value.
+- The config loader walks up to 3 parent directories looking for `config.ini`, so `go run .` works from both `backend/` and `backend/src/`.
+- Default `ssl_mode=disable` is for local Postgres. Production sets `DATABASE_URL` (Neon) which carries its own `sslmode=require`.
 
 > Frontend ดูรายละเอียดที่ `../frontend/README.md`

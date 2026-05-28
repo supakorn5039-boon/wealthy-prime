@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"gopkg.in/ini.v1"
@@ -21,6 +22,7 @@ type DatabaseConfig struct {
 	User     string
 	Password string
 	Database string
+	SSLMode  string
 	DSN      string
 }
 
@@ -37,9 +39,10 @@ type AppConfig struct {
 var App AppConfig
 
 func Load(path string) {
-	cfg, err := ini.LooseLoad(path)
+	resolved := resolveConfigPath(path)
+	cfg, err := ini.LooseLoad(resolved)
 	if err != nil {
-		log.Printf("[config] could not load %s, using defaults and env vars: %v", path, err)
+		log.Printf("[config] could not load %s, using defaults and env vars: %v", resolved, err)
 		cfg = ini.Empty()
 	}
 
@@ -74,6 +77,7 @@ func Load(path string) {
 	App.Database.User = getVal(dbSection, "user", "postgres")
 	App.Database.Password = getVal(dbSection, "password", "postgres")
 	App.Database.Database = getVal(dbSection, "database", "wealthy_prime")
+	App.Database.SSLMode = getVal(dbSection, "ssl_mode", "disable")
 
 	// Override database config with env vars
 	if v := os.Getenv("DB_HOST"); v != "" {
@@ -90,6 +94,9 @@ func Load(path string) {
 	}
 	if v := os.Getenv("DB_NAME"); v != "" {
 		App.Database.Database = v
+	}
+	if v := os.Getenv("DB_SSL_MODE"); v != "" {
+		App.Database.SSLMode = v
 	}
 
 	// Build DSN
@@ -112,7 +119,31 @@ func buildDSN() string {
 		" password=" + App.Database.Password +
 		" dbname=" + App.Database.Database +
 		" port=" + App.Database.Port +
-		" sslmode=require TimeZone=UTC"
+		" sslmode=" + App.Database.SSLMode +
+		" TimeZone=UTC"
+}
+
+// resolveConfigPath checks the given path, then walks up to 3 parent directories
+// so the app loads config.ini whether run from backend/ or backend/src/.
+func resolveConfigPath(path string) string {
+	if filepath.IsAbs(path) {
+		return path
+	}
+	if _, err := os.Stat(path); err == nil {
+		return path
+	}
+	dir, err := os.Getwd()
+	if err != nil {
+		return path
+	}
+	for range 3 {
+		dir = filepath.Dir(dir)
+		candidate := filepath.Join(dir, path)
+		if _, err := os.Stat(candidate); err == nil {
+			return candidate
+		}
+	}
+	return path
 }
 
 func getVal(section *ini.Section, key, defaultVal string) string {
