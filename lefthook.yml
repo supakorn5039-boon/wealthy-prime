@@ -26,6 +26,9 @@ pre-commit:
 pre-push:
   parallel: true
   commands:
+    backend-test:
+      root: backend/
+      run: go test ./...
     backend-build:
       root: backend/
       run: go build ./...
