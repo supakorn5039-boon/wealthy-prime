@@ -28,6 +28,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatDateTime } from "@/utils/date";
+import { PageContainer } from '@/components/shared/PageContainer'
 
 export default function CaseReassignmentIndex() {
   const { t } = useTranslation();
@@ -76,7 +77,7 @@ export default function CaseReassignmentIndex() {
   if (isLoading) return <LoadingSpinner text={t("common.loading")} />;
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <PageContainer size="7xl">
       <PageTitle
         title={t("admin.reassignTitle")}
         subtitle={t("admin.reassignSubtitle")}
@@ -169,6 +170,6 @@ export default function CaseReassignmentIndex() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </PageContainer>
   );
 }

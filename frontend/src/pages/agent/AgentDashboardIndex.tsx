@@ -5,6 +5,7 @@ import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveCo
 import { AgentService } from '@/services/AgentService'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { PageTitle } from '@/components/shared/PageTitle'
+import { PageContainer } from '@/components/shared/PageContainer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuthStore } from '@/store/authStore'
 
@@ -57,7 +58,7 @@ export default function AgentDashboardIndex() {
   ]
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <PageContainer size="5xl" className="space-y-6">
       <PageTitle
         title={t('agent.welcome', { name: user?.name ?? '' })}
         subtitle={t('agent.subtitle')}
@@ -132,6 +133,6 @@ export default function AgentDashboardIndex() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageContainer>
   )
 }

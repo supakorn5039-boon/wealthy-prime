@@ -13,6 +13,7 @@ import { WishlistButton } from '@/components/WishlistButton'
 import { StarRating } from '@/components/StarRating'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { PageContainer } from '@/components/shared/PageContainer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -72,7 +73,7 @@ export default function PropertyDetailIndex() {
       : 0
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <PageContainer size="5xl" className="space-y-6">
       <PropertyGallery images={property.imageUrls} title={property.title} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -215,6 +216,6 @@ export default function PropertyDetailIndex() {
         propertyId={property.id}
         propertyTitle={property.title}
       />
-    </div>
+    </PageContainer>
   )
 }

@@ -10,6 +10,7 @@ import { PropertyService } from '@/services/PropertyService'
 import { PropertyStatusBadge } from '@/components/shared/StatusBadge'
 import { PageTitle } from '@/components/shared/PageTitle'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
+import { PageContainer } from '@/components/shared/PageContainer'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -80,7 +81,7 @@ export default function MapIndex() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-4">
+    <PageContainer size="7xl" className="space-y-4">
       <PageTitle title={t('nav.map')} subtitle={t('map.subtitle')} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -252,6 +253,6 @@ export default function MapIndex() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </PageContainer>
   )
 }

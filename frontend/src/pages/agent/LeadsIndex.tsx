@@ -4,6 +4,7 @@ import { AgentService } from '@/services/AgentService'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { PageTitle } from '@/components/shared/PageTitle'
+import { PageContainer } from '@/components/shared/PageContainer'
 import { Card, CardContent } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
@@ -18,7 +19,7 @@ export default function LeadsIndex() {
   })
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <PageContainer size="5xl">
       <PageTitle title={t('agent.leadsTitle')} subtitle={t('agent.leadsSubtitle')} />
 
       {isLoading ? (
@@ -57,6 +58,6 @@ export default function LeadsIndex() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </PageContainer>
   )
 }

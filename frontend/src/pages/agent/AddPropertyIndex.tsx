@@ -14,6 +14,7 @@ import { FormTextarea } from '@/components/form/FormTextarea'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PageTitle } from '@/components/shared/PageTitle'
+import { PageContainer } from '@/components/shared/PageContainer'
 import { propertySchema, type PropertySchema } from '@/dto/PropertyValidation'
 import { ROUTES } from '@/constants/Routes'
 
@@ -91,7 +92,7 @@ export default function AddPropertyIndex() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <PageContainer size="2xl">
       <PageTitle title={t('property.addTitle')} subtitle={t('property.addSubtitle')} />
 
       <form onSubmit={handleSubmit((values) => mutation.mutate(values))} className="space-y-6">
@@ -172,6 +173,6 @@ export default function AddPropertyIndex() {
           </Button>
         </div>
       </form>
-    </div>
+    </PageContainer>
   )
 }

@@ -9,6 +9,7 @@ import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { PageTitle } from '@/components/shared/PageTitle'
+import { PageContainer } from '@/components/shared/PageContainer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { formatPrice, formatDate } from '@/utils/date'
@@ -48,7 +49,7 @@ export default function PendingApprovalsIndex() {
   if (isLoading) return <LoadingSpinner text={t('common.loading')} />
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <PageContainer size="5xl">
       <PageTitle
         title={t('admin.pendingTitle')}
         subtitle={`${pendings.length} ${t('admin.pendingCount')}`}
@@ -114,6 +115,6 @@ export default function PendingApprovalsIndex() {
           ))}
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }

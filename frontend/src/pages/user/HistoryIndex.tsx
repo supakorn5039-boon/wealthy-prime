@@ -8,6 +8,7 @@ import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { PageTitle } from '@/components/shared/PageTitle'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
+import { PageContainer } from '@/components/shared/PageContainer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -32,7 +33,7 @@ export default function HistoryIndex() {
   })
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <PageContainer size="5xl">
       <PageTitle title={t('history.title')} subtitle={t('history.subtitle')} />
 
       {isLoading ? (
@@ -82,6 +83,6 @@ export default function HistoryIndex() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </PageContainer>
   )
 }

@@ -8,6 +8,7 @@ import { PropertyService } from '@/services/PropertyService'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { PageTitle } from '@/components/shared/PageTitle'
+import { PageContainer } from '@/components/shared/PageContainer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -43,7 +44,7 @@ export default function ReviewLinkIndex() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <PageContainer size="3xl">
       <PageTitle title={t('agent.reviewLinkTitle')} subtitle={t('agent.reviewLinkSubtitle')} />
 
       <Card className="mb-6">
@@ -112,6 +113,6 @@ export default function ReviewLinkIndex() {
           </div>
         )}
       </div>
-    </div>
+    </PageContainer>
   )
 }

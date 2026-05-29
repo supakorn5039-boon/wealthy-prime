@@ -6,6 +6,7 @@ import { BookingStatusBadge } from '@/components/shared/StatusBadge'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { PageTitle } from '@/components/shared/PageTitle'
+import { PageContainer } from '@/components/shared/PageContainer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { formatDateTime } from '@/utils/date'
@@ -21,7 +22,7 @@ export default function ContactsIndex() {
   const contacted = bookings.filter((b) => b.assignedAgentId)
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <PageContainer size="4xl">
       <PageTitle title={t('contacts.title')} subtitle={t('contacts.subtitle')} />
 
       {isLoading ? (
@@ -61,6 +62,6 @@ export default function ContactsIndex() {
           ))}
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }

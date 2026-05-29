@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { AdminService } from '@/services/AdminService'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { PageTitle } from '@/components/shared/PageTitle'
+import { PageContainer } from '@/components/shared/PageContainer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatPrice } from '@/utils/date'
 
@@ -41,7 +42,7 @@ export default function AdminDashboardIndex() {
   }))
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <PageContainer size="6xl" className="space-y-6">
       <PageTitle title={t('admin.dashboardTitle')} subtitle={t('admin.dashboardSubtitle')} />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -97,6 +98,6 @@ export default function AdminDashboardIndex() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageContainer>
   )
 }

@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { UserCircle, Mail, Phone as PhoneIcon, Shield } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { PageTitle } from '@/components/shared/PageTitle'
+import { PageContainer } from '@/components/shared/PageContainer'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
@@ -12,7 +13,7 @@ export default function AgentProfileIndex() {
   if (!user) return null
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <PageContainer size="2xl">
       <PageTitle title={t('agent.profileTitle')} subtitle={`1 ${t('agent.profileCount')}`} />
 
       <Card>
@@ -43,6 +44,6 @@ export default function AgentProfileIndex() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </PageContainer>
   )
 }

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Search } from 'lucide-react'
 import { PageTitle } from '@/components/shared/PageTitle'
+import { PageContainer } from '@/components/shared/PageContainer'
 import { Input } from '@/components/ui/input'
 
 export default function OwnerLogIndex() {
@@ -9,7 +10,7 @@ export default function OwnerLogIndex() {
   const [search, setSearch] = useState('')
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <PageContainer size="5xl">
       <PageTitle title={t('agent.ownerLogTitle')} />
 
       <div className="relative mb-6">
@@ -25,6 +26,6 @@ export default function OwnerLogIndex() {
       <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
         <p className="text-lg">{t('agent.ownerLogEmpty')}</p>
       </div>
-    </div>
+    </PageContainer>
   )
 }

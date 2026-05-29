@@ -7,6 +7,7 @@ import { PropertyFilter } from '@/components/property/PropertyFilter'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { PageTitle } from '@/components/shared/PageTitle'
+import { PageContainer } from '@/components/shared/PageContainer'
 import type { PropertyListParams } from '@/types/Property'
 
 export default function HomeIndex() {
@@ -25,7 +26,7 @@ export default function HomeIndex() {
   const properties = data?.data ?? []
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <PageContainer size="7xl" className="space-y-6">
       <PageTitle
         title={t('home.title')}
         subtitle={t('home.subtitle')}
@@ -50,6 +51,6 @@ export default function HomeIndex() {
           </div>
         </>
       )}
-    </div>
+    </PageContainer>
   )
 }

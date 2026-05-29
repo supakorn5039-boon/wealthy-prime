@@ -7,6 +7,7 @@ import { PropertyCard } from '@/components/property/PropertyCard'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { PageTitle } from '@/components/shared/PageTitle'
+import { PageContainer } from '@/components/shared/PageContainer'
 
 export default function WishlistIndex() {
   const { t } = useTranslation()
@@ -27,7 +28,7 @@ export default function WishlistIndex() {
   })
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <PageContainer size="7xl">
       <PageTitle title={t('wishlist.title')} subtitle={t('wishlist.count', { count: wishlist.length })} />
 
       {isLoading ? (
@@ -53,6 +54,6 @@ export default function WishlistIndex() {
           ))}
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }
