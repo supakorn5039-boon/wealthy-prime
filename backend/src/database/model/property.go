@@ -47,25 +47,31 @@ type PropertyImage struct {
 	URL        string `gorm:"not null"`
 }
 
+type PropertyImageDto struct {
+	ID  uint   `json:"id"`
+	URL string `json:"url"`
+}
+
 type PropertyDto struct {
-	ID                 uint           `json:"id"`
-	Title              string         `json:"title"`
-	ProjectName        string         `json:"projectName"`
-	Location           string         `json:"location"`
-	Price              float64        `json:"price"`
-	Type               PropertyType   `json:"type"`
-	SizeSqm            float64        `json:"sizeSqm"`
-	AgentID            *uint          `json:"agentId"`
-	AgentName          string         `json:"agentName"`
-	OwnerInfo          string         `json:"ownerInfo"`
-	RentalPeriodMonths *int           `json:"rentalPeriodMonths"`
-	SlipURL            string         `json:"slipUrl"`
-	Lat                *float64       `json:"lat"`
-	Lng                *float64       `json:"lng"`
-	Status             PropertyStatus `json:"status"`
-	ImageURLs          []string       `json:"imageUrls"`
-	CreatedAt          string         `json:"createdAt"`
-	UpdatedAt          string         `json:"updatedAt"`
+	ID                 uint               `json:"id"`
+	Title              string             `json:"title"`
+	ProjectName        string             `json:"projectName"`
+	Location           string             `json:"location"`
+	Price              float64            `json:"price"`
+	Type               PropertyType       `json:"type"`
+	SizeSqm            float64            `json:"sizeSqm"`
+	AgentID            *uint              `json:"agentId"`
+	AgentName          string             `json:"agentName"`
+	OwnerInfo          string             `json:"ownerInfo"`
+	RentalPeriodMonths *int               `json:"rentalPeriodMonths"`
+	SlipURL            string             `json:"slipUrl"`
+	Lat                *float64           `json:"lat"`
+	Lng                *float64           `json:"lng"`
+	Status             PropertyStatus     `json:"status"`
+	ImageURLs          []string           `json:"imageUrls"`
+	Images             []PropertyImageDto `json:"images"`
+	CreatedAt          string             `json:"createdAt"`
+	UpdatedAt          string             `json:"updatedAt"`
 }
 
 func (p *Property) ToDto() *PropertyDto {
@@ -85,6 +91,7 @@ func (p *Property) ToDto() *PropertyDto {
 		Lng:                p.Lng,
 		Status:             p.Status,
 		ImageURLs:          []string{},
+		Images:             []PropertyImageDto{},
 		CreatedAt:          p.CreatedAt.Format(time.RFC3339),
 		UpdatedAt:          p.UpdatedAt.Format(time.RFC3339),
 	}
@@ -92,7 +99,9 @@ func (p *Property) ToDto() *PropertyDto {
 		dto.AgentName = p.Agent.Name
 	}
 	for _, img := range p.Images {
-		dto.ImageURLs = append(dto.ImageURLs, absoluteURL(img.URL))
+		url := absoluteURL(img.URL)
+		dto.ImageURLs = append(dto.ImageURLs, url)
+		dto.Images = append(dto.Images, PropertyImageDto{ID: img.ID, URL: url})
 	}
 	return dto
 }

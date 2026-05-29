@@ -126,6 +126,7 @@
     "lng": "Longitude",
     "coordsHint": "Add coordinates to show this property on the map (optional).",
     "noCoordsAvailable": "No coordinates set for this property yet",
+    "imagesMarkedForDeletion": "{{count}} image(s) marked for deletion — will be removed on save",
     "slip": "Booking Evidence (Slip)",
     "newStatus": "New Status",
     "sendRequest": "Send Request",

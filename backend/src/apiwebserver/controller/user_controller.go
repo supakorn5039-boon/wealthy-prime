@@ -42,7 +42,7 @@ func (ctrl *UserController) RegisterRoutes(r *gin.RouterGroup) {
 	user.POST("/bookings", ctrl.createBookings)
 	user.GET("/bookings", ctrl.listBookings)
 	user.GET("/bookings/:id", ctrl.getBooking)
-	user.PATCH("/bookings/:id", ctrl.updateBooking)
+	user.PUT("/bookings/:id", ctrl.updateBooking)
 	user.GET("/contacts", ctrl.getContacts)
 
 	user.POST("/inquiries", ctrl.createInquiry)

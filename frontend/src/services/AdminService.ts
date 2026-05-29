@@ -45,11 +45,11 @@ export const AdminService = {
   },
 
   approvePending: async (id: number | string): Promise<void> => {
-    await fetchClient.patch(API.ADMIN_PROPERTY_APPROVE(id), { action: 'approve' })
+    await fetchClient.put(API.ADMIN_PROPERTY_APPROVE(id), { action: 'approve' })
   },
 
   rejectPending: async (id: number | string): Promise<void> => {
-    await fetchClient.patch(API.ADMIN_PROPERTY_APPROVE(id), { action: 'reject' })
+    await fetchClient.put(API.ADMIN_PROPERTY_APPROVE(id), { action: 'reject' })
   },
 
   getAgents: async (): Promise<AuthUser[]> => {
@@ -58,7 +58,7 @@ export const AdminService = {
   },
 
   updateAgent: async (id: number | string, payload: Partial<AuthUser>): Promise<AuthUser> => {
-    const res = await fetchClient.patch<ApiResponse<AuthUser>>(API.ADMIN_AGENT_DETAIL(id), payload)
+    const res = await fetchClient.put<ApiResponse<AuthUser>>(API.ADMIN_AGENT_DETAIL(id), payload)
     return res.data.data
   },
 
@@ -68,7 +68,7 @@ export const AdminService = {
   },
 
   updateUser: async (id: number | string, payload: Partial<AuthUser>): Promise<AuthUser> => {
-    const res = await fetchClient.patch<ApiResponse<AuthUser>>(API.ADMIN_USER_DETAIL(id), payload)
+    const res = await fetchClient.put<ApiResponse<AuthUser>>(API.ADMIN_USER_DETAIL(id), payload)
     return res.data.data
   },
 

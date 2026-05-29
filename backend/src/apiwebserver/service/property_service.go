@@ -67,6 +67,7 @@ type UpdatePropertyInput struct {
 	Lat                *float64
 	Lng                *float64
 	NewImages          []*multipart.FileHeader
+	DeleteImageIDs     []uint
 }
 
 // ListProperties returns properties visible to the public (status != pending_approve).
@@ -264,6 +265,14 @@ func (s *PropertyService) UpdateProperty(propertyID, callerID uint, role model.U
 
 	if err := s.db.Model(&p).Updates(updates).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "failed to update property")
+	}
+
+	if len(input.DeleteImageIDs) > 0 {
+		if err := s.db.
+			Where("property_id = ? AND id IN ?", p.ID, input.DeleteImageIDs).
+			Delete(&model.PropertyImage{}).Error; err != nil {
+			return nil, apperror.Wrap(err, 500, "failed to delete images")
+		}
 	}
 
 	for _, fh := range input.NewImages {

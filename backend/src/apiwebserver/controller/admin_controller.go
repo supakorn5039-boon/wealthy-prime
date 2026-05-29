@@ -25,16 +25,16 @@ func (ctrl *AdminController) RegisterRoutes(r *gin.RouterGroup) {
 	admin.GET("/dashboard", ctrl.getDashboard)
 
 	admin.GET("/properties/pending", ctrl.getPendingProperties)
-	admin.PATCH("/properties/:id/approve", ctrl.approveProperty)
+	admin.PUT("/properties/:id/approve", ctrl.approveProperty)
 
 	admin.GET("/agents", ctrl.listAgents)
 	admin.GET("/agents/:id", ctrl.getAgent)
-	admin.PATCH("/agents/:id", ctrl.updateAgent)
+	admin.PUT("/agents/:id", ctrl.updateAgent)
 	admin.POST("/agents/:id/role", ctrl.updateAgentRole)
 
 	admin.GET("/users", ctrl.listUsers)
 	admin.GET("/users/:id", ctrl.getUser)
-	admin.PATCH("/users/:id", ctrl.updateUser)
+	admin.PUT("/users/:id", ctrl.updateUser)
 
 	admin.POST("/bookings/:id/reassign", ctrl.reassignBooking)
 

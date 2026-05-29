@@ -25,7 +25,7 @@ export const AgentService = {
   },
 
   updateContactNote: async (contactId: number | string, note: string): Promise<void> => {
-    await fetchClient.patch(API.AGENT_CONTACT_NOTE(contactId), { note })
+    await fetchClient.put(API.AGENT_CONTACT_NOTE(contactId), { note })
   },
 
   generateReviewLink: async (propertyId: number | string): Promise<ReviewLink> => {

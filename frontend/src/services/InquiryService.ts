@@ -19,7 +19,7 @@ export const InquiryService = {
   },
 
   updateStatus: async (id: number | string, status: InquiryStatus): Promise<Inquiry> => {
-    const res = await fetchClient.patch<ApiResponse<Inquiry>>(API.AGENT_INQUIRY_STATUS(id), { status })
+    const res = await fetchClient.put<ApiResponse<Inquiry>>(API.AGENT_INQUIRY_STATUS(id), { status })
     return res.data.data
   },
 }

@@ -126,6 +126,7 @@
     "lng": "经度",
     "coordsHint": "填写坐标以在地图上显示此房产（可选）",
     "noCoordsAvailable": "此房产暂无坐标",
+    "imagesMarkedForDeletion": "已标记删除 {{count}} 张图片 — 保存后将被移除",
     "slip": "预订凭证（收据）",
     "newStatus": "新状态",
     "sendRequest": "提交请求",

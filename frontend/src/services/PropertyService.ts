@@ -78,8 +78,11 @@ export const PropertyService = {
     if (payload.lng !== undefined && payload.lng !== null) {
       formData.append('lng', String(payload.lng))
     }
+    if (payload.deleteImageIds && payload.deleteImageIds.length > 0) {
+      formData.append('delete_image_ids', payload.deleteImageIds.join(','))
+    }
     newImages.forEach((img) => formData.append('images', img))
-    const res = await fetchClient.patch<ApiResponse<Property>>(API.AGENT_PROPERTY_DETAIL(id), formData, {
+    const res = await fetchClient.put<ApiResponse<Property>>(API.AGENT_PROPERTY_DETAIL(id), formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
     return res.data.data
@@ -90,7 +93,7 @@ export const PropertyService = {
     formData.append('status', payload.status)
     if (payload.slipFile) formData.append('slip', payload.slipFile)
     if (payload.rentalPeriodMonths) formData.append('rental_period_months', String(payload.rentalPeriodMonths))
-    const res = await fetchClient.patch<ApiResponse<Property>>(API.AGENT_PROPERTY_STATUS(id), formData, {
+    const res = await fetchClient.put<ApiResponse<Property>>(API.AGENT_PROPERTY_STATUS(id), formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
     return res.data.data

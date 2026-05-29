@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { MapPin, Maximize2, ShoppingCart, Phone, MessageCircle } from 'lucide-react'
+import { MapPin, Maximize2, ShoppingCart, Phone, MessageCircle, Pencil } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { MapContainer, TileLayer, Marker } from 'react-leaflet'
@@ -11,6 +11,7 @@ import { PropertyService } from '@/services/PropertyService'
 import { ReviewService } from '@/services/ReviewService'
 import { PropertyGallery } from '@/components/property/PropertyGallery'
 import { ContactAgentDialog } from '@/components/property/ContactAgentDialog'
+import { EditPropertyDialog } from '@/components/property/EditPropertyDialog'
 import { PropertyStatusBadge } from '@/components/shared/StatusBadge'
 import { WishlistButton } from '@/components/WishlistButton'
 import { StarRating } from '@/components/StarRating'
@@ -46,6 +47,7 @@ export default function PropertyDetailIndex() {
   const { addItem, openCart } = useCartStore()
   const { user } = useAuthStore()
   const [contactOpen, setContactOpen] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
 
   const { data: property, isLoading } = useQuery({
     queryKey: [PropertyService.QUERY_KEYS.DETAIL, id],
@@ -88,6 +90,11 @@ export default function PropertyDetailIndex() {
     reviews.length > 0
       ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
       : 0
+
+  const canEdit =
+    !!user &&
+    (user.role === 'admin' ||
+      (user.role === 'agent' && property.agentId === user.id))
 
   return (
     <PageContainer size="5xl" className="space-y-6">
@@ -222,9 +229,15 @@ export default function PropertyDetailIndex() {
                   {t('property.contactAgent')}
                 </Button>
                 {property.agentName && (
-                  <Button variant="ghost" className="w-full text-green-600 hover:text-green-700 hover:bg-green-50">
+                  <Button className="w-full bg-[#06C755] hover:bg-[#05a847] text-white">
                     <MessageCircle className="h-4 w-4 mr-2" />
                     {t('property.lineContact')}
+                  </Button>
+                )}
+                {canEdit && (
+                  <Button variant="outline" className="w-full" onClick={() => setEditOpen(true)}>
+                    <Pencil className="h-4 w-4 mr-2" />
+                    {t('common.edit')}
                   </Button>
                 )}
               </div>
@@ -244,6 +257,14 @@ export default function PropertyDetailIndex() {
         propertyId={property.id}
         propertyTitle={property.title}
       />
+
+      {canEdit && editOpen && (
+        <EditPropertyDialog
+          property={property}
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+        />
+      )}
     </PageContainer>
   )
 }

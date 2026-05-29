@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -35,15 +36,15 @@ func (ctrl *AgentController) RegisterRoutes(r *gin.RouterGroup) {
 
 	agent.GET("/properties", ctrl.listProperties)
 	agent.POST("/properties", ctrl.createProperty)
-	agent.PATCH("/properties/:id", ctrl.editProperty)
-	agent.PATCH("/properties/:id/status", ctrl.updateStatus)
+	agent.PUT("/properties/:id", ctrl.editProperty)
+	agent.PUT("/properties/:id/status", ctrl.updateStatus)
 	agent.DELETE("/properties/:id", ctrl.deleteProperty)
 
 	agent.GET("/contacts", ctrl.getContacts)
-	agent.PATCH("/contacts/:bookingId/note", ctrl.updateNote)
+	agent.PUT("/contacts/:bookingId/note", ctrl.updateNote)
 
 	agent.GET("/inquiries", ctrl.listInquiries)
-	agent.PATCH("/inquiries/:id/status", ctrl.updateInquiryStatus)
+	agent.PUT("/inquiries/:id/status", ctrl.updateInquiryStatus)
 
 	agent.GET("/review-link/:propertyId", ctrl.getReviewLink)
 }
@@ -213,6 +214,12 @@ func (ctrl *AgentController) editProperty(c *gin.Context) {
 		return
 	}
 
+	deleteImageIDs, err := parseImageIDs(form.Value["delete_image_ids"])
+	if err != nil {
+		badRequest(c, err.Error())
+		return
+	}
+
 	dto, err := ctrl.propertySvc.UpdateProperty(propertyID, agentID, role, service.UpdatePropertyInput{
 		Title:              title,
 		ProjectName:        projectName,
@@ -225,6 +232,7 @@ func (ctrl *AgentController) editProperty(c *gin.Context) {
 		Lat:                lat,
 		Lng:                lng,
 		NewImages:          form.File["images"],
+		DeleteImageIDs:     deleteImageIDs,
 	})
 	if err != nil {
 		errorResponse(c, err)
@@ -394,6 +402,35 @@ func formVal(values map[string][]string, key string) string {
 		return vals[0]
 	}
 	return ""
+}
+
+// parseImageIDs accepts repeated form values OR a single comma-separated value
+// and returns the deduplicated list of positive uint IDs.
+func parseImageIDs(raw []string) ([]uint, error) {
+	if len(raw) == 0 {
+		return nil, nil
+	}
+	seen := map[uint]struct{}{}
+	out := []uint{}
+	for _, v := range raw {
+		for _, part := range strings.Split(v, ",") {
+			part = strings.TrimSpace(part)
+			if part == "" {
+				continue
+			}
+			n, err := strconv.ParseUint(part, 10, 64)
+			if err != nil || n == 0 {
+				return nil, fmt.Errorf("invalid image id: %q", part)
+			}
+			id := uint(n)
+			if _, ok := seen[id]; ok {
+				continue
+			}
+			seen[id] = struct{}{}
+			out = append(out, id)
+		}
+	}
+	return out, nil
 }
 
 // parseLatLng extracts optional lat/lng form values. Both must be supplied

@@ -26,6 +26,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
   const queryClient = useQueryClient()
   const [newImages, setNewImages] = useState<File[]>([])
   const [previews, setPreviews] = useState<string[]>([])
+  const [removedImageIds, setRemovedImageIds] = useState<number[]>([])
   const fileRef = useRef<HTMLInputElement>(null)
 
   const typeOptions = [
@@ -67,6 +68,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
           rentalPeriodMonths: values.rentalPeriodMonths ? Number(values.rentalPeriodMonths) : undefined,
           lat: values.lat ? Number(values.lat) : undefined,
           lng: values.lng ? Number(values.lng) : undefined,
+          deleteImageIds: removedImageIds.length > 0 ? removedImageIds : undefined,
         },
         newImages,
       ),
@@ -77,6 +79,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
       queryClient.invalidateQueries({ queryKey: [PropertyService.QUERY_KEYS.DETAIL, property.id] })
       setNewImages([])
       setPreviews([])
+      setRemovedImageIds([])
       onClose()
     },
     onError: () => toast.error(t('common.error')),
@@ -120,16 +123,31 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
           <p className="text-xs text-gray-500 -mt-2">{t('property.coordsHint')}</p>
           <FormTextarea control={control} name="ownerInfo" label={t('property.ownerInfo')} required rows={3} />
 
-          {property.imageUrls && property.imageUrls.length > 0 && (
+          {property.images && property.images.length > 0 && (
             <div className="space-y-2">
               <p className="text-sm font-medium text-gray-700">{t('property.existingImages')}</p>
               <div className="flex flex-wrap gap-2">
-                {property.imageUrls.map((url, i) => (
-                  <div key={i} className="w-20 h-20 rounded-lg overflow-hidden border">
-                    <img src={resolveImageUrl(url)} alt={`existing-${i}`} className="w-full h-full object-cover" />
-                  </div>
-                ))}
+                {property.images
+                  .filter((img) => !removedImageIds.includes(img.id))
+                  .map((img) => (
+                    <div key={img.id} className="relative w-20 h-20 rounded-lg overflow-hidden border">
+                      <img src={resolveImageUrl(img.url)} alt={`existing-${img.id}`} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setRemovedImageIds((prev) => [...prev, img.id])}
+                        title={t('common.delete')}
+                        className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5 hover:bg-black/80"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
               </div>
+              {removedImageIds.length > 0 && (
+                <p className="text-xs text-orange-600">
+                  {t('property.imagesMarkedForDeletion', { count: removedImageIds.length })}
+                </p>
+              )}
             </div>
           )}
 

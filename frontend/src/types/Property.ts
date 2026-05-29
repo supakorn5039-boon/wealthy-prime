@@ -1,6 +1,11 @@
 export type PropertyType = 'buy' | 'rent'
 export type PropertyStatus = 'available' | 'pending_approve' | 'reserved' | 'sold'
 
+export interface PropertyImage {
+  id: number
+  url: string
+}
+
 export interface Property {
   id: number
   title: string
@@ -16,6 +21,7 @@ export interface Property {
   slipUrl?: string
   status: PropertyStatus
   imageUrls?: string[]
+  images?: PropertyImage[]
   rating?: number
   reviewCount?: number
   lat?: number
@@ -64,6 +70,7 @@ export interface EditPropertyPayload {
   rentalPeriodMonths?: number
   lat?: number
   lng?: number
+  deleteImageIds?: number[]
 }
 
 export interface AgentDashboardStats {

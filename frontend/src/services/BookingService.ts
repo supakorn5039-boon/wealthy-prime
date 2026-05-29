@@ -30,6 +30,6 @@ export const BookingService = {
   },
 
   cancel: async (id: number | string): Promise<void> => {
-    await fetchClient.patch(API.BOOKING_DETAIL(id), { status: 'cancelled' })
+    await fetchClient.put(API.BOOKING_DETAIL(id), { status: 'cancelled' })
   },
 }

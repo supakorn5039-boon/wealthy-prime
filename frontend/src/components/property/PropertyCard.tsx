@@ -1,11 +1,14 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Maximize2, Star, ShoppingCart } from "lucide-react";
+import { MapPin, Maximize2, Star, ShoppingCart, Pencil } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PropertyStatusBadge } from "@/components/shared/StatusBadge";
 import { WishlistButton } from "@/components/WishlistButton";
+import { EditPropertyDialog } from "@/components/property/EditPropertyDialog";
 import { useCartStore } from "@/hooks/useCartStore";
+import { useAuthStore } from "@/store/authStore";
 import { formatPrice } from "@/utils/date";
 import { resolveImageUrl } from "@/utils/imageUrl";
 import { toast } from "sonner";
@@ -18,6 +21,13 @@ interface PropertyCardProps {
 export function PropertyCard({ property }: PropertyCardProps) {
   const { t } = useTranslation();
   const { addItem, openCart } = useCartStore();
+  const { user } = useAuthStore();
+  const [editOpen, setEditOpen] = useState(false);
+
+  const canEdit =
+    !!user &&
+    (user.role === "admin" ||
+      (user.role === "agent" && property.agentId === user.id));
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -50,7 +60,21 @@ export function PropertyCard({ property }: PropertyCardProps) {
           <div className="absolute top-2 left-2">
             <PropertyStatusBadge status={property.status} />
           </div>
-          <div className="absolute top-2 right-2">
+          <div className="absolute top-2 right-2 flex items-center gap-1.5">
+            {canEdit && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setEditOpen(true);
+                }}
+                title={t("common.edit")}
+                className="bg-white/80 hover:bg-white rounded-full p-1.5 text-gray-700 hover:text-primary shadow-sm"
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
+            )}
             <WishlistButton
               propertyId={property.id}
               className="bg-white/80 hover:bg-white"
@@ -116,6 +140,14 @@ export function PropertyCard({ property }: PropertyCardProps) {
           </Button>
         )}
       </CardContent>
+
+      {canEdit && editOpen && (
+        <EditPropertyDialog
+          property={property}
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+        />
+      )}
     </Card>
   );
 }
