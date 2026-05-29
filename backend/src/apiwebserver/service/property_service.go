@@ -318,7 +318,7 @@ func (s *PropertyService) GetPendingProperties() ([]model.PropertyDto, error) {
 	return dtos, nil
 }
 
-// ApproveProperty sets status to reserved (approve) or available (reject).
+// ApproveProperty marks a pending property as available (approve) or deletes it (reject).
 func (s *PropertyService) ApproveProperty(propertyID uint, action string) (*model.PropertyDto, error) {
 	var p model.Property
 	err := s.db.First(&p, propertyID).Error
@@ -329,21 +329,20 @@ func (s *PropertyService) ApproveProperty(propertyID uint, action string) (*mode
 		return nil, apperror.Wrap(err, 500, "database error")
 	}
 
-	var newStatus model.PropertyStatus
 	switch action {
 	case "approve":
-		newStatus = model.StatusReserved
+		if err := s.db.Model(&p).Update("status", model.StatusAvailable).Error; err != nil {
+			return nil, apperror.Wrap(err, 500, "failed to update property status")
+		}
+		return s.GetProperty(propertyID)
 	case "reject":
-		newStatus = model.StatusAvailable
+		if err := s.db.Delete(&p).Error; err != nil {
+			return nil, apperror.Wrap(err, 500, "failed to delete rejected property")
+		}
+		return nil, nil
 	default:
 		return nil, apperror.BadRequest("action must be 'approve' or 'reject'")
 	}
-
-	if err := s.db.Model(&p).Update("status", newStatus).Error; err != nil {
-		return nil, apperror.Wrap(err, 500, "failed to update property status")
-	}
-
-	return s.GetProperty(propertyID)
 }
 
 // saveUpload stores a multipart file to the given dir and returns the relative URL.

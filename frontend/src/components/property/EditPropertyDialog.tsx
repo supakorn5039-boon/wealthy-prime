@@ -12,6 +12,7 @@ import { FormTextarea } from '@/components/form/FormTextarea'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { propertySchema, type PropertySchema } from '@/dto/PropertyValidation'
+import { resolveImageUrl } from '@/utils/imageUrl'
 import type { Property } from '@/types/Property'
 
 interface Props {
@@ -106,7 +107,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
           </div>
           <FormSelect control={control} name="type" label={t('property.typeCol')} options={typeOptions} required />
           {propertyType === 'rent' && (
-            <FormInput control={control} name="rentalPeriodMonths" label={t('property.rentalPeriod')} type="number" min={1} step={1} />
+            <FormInput control={control} name="rentalPeriodMonths" label={t('property.rentalPeriod')} type="number" min={1} step={1} required />
           )}
           <FormTextarea control={control} name="ownerInfo" label={t('property.ownerInfo')} required rows={3} />
 
@@ -116,7 +117,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
               <div className="flex flex-wrap gap-2">
                 {property.imageUrls.map((url, i) => (
                   <div key={i} className="w-20 h-20 rounded-lg overflow-hidden border">
-                    <img src={url} alt={`existing-${i}`} className="w-full h-full object-cover" />
+                    <img src={resolveImageUrl(url)} alt={`existing-${i}`} className="w-full h-full object-cover" />
                   </div>
                 ))}
               </div>

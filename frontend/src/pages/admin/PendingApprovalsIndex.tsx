@@ -12,6 +12,7 @@ import { PageTitle } from '@/components/shared/PageTitle'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { formatPrice, formatDate } from '@/utils/date'
+import { resolveImageUrl } from '@/utils/imageUrl'
 
 export default function PendingApprovalsIndex() {
   const { t } = useTranslation()
@@ -73,7 +74,7 @@ export default function PendingApprovalsIndex() {
                       <p>{t('admin.submittedAt')}: {formatDate(pending.createdAt)}</p>
                     </div>
                     {pending.slipUrl && (
-                      <a href={pending.slipUrl} target="_blank" rel="noopener noreferrer"
+                      <a href={resolveImageUrl(pending.slipUrl)} target="_blank" rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
                         <ExternalLink className="h-3.5 w-3.5" />
                         {t('admin.viewSlip')}

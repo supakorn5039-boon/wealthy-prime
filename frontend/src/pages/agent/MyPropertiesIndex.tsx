@@ -160,7 +160,10 @@ export default function MyPropertiesIndex() {
                       </div>
                     </TableCell>
                     <TableCell>{t(`property.${p.type}`)}</TableCell>
-                    <TableCell>{formatPrice(p.price)}</TableCell>
+                    <TableCell>
+                      {formatPrice(p.price)}
+                      {p.type === 'rent' && <span className="ml-1 text-xs text-gray-400">/ {t('property.perMonth')}</span>}
+                    </TableCell>
                     <TableCell><PropertyStatusBadge status={p.status} /></TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">

@@ -107,7 +107,7 @@ export default function AddPropertyIndex() {
             </div>
             <FormSelect control={control} name="type" label={t('property.typeCol')} options={typeOptions} required />
             {propertyType === 'rent' && (
-              <FormInput control={control} name="rentalPeriodMonths" label={t('property.rentalPeriod')} type="number" placeholder="12" min={1} step={1} />
+              <FormInput control={control} name="rentalPeriodMonths" label={t('property.rentalPeriod')} type="number" placeholder="12" min={1} step={1} required />
             )}
           </CardContent>
         </Card>

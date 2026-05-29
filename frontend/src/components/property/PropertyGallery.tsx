@@ -2,15 +2,17 @@ import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { resolveImageUrl } from '@/utils/imageUrl'
 
 interface PropertyGalleryProps {
   images?: string[]
   title?: string
 }
 
-export function PropertyGallery({ images = [], title }: PropertyGalleryProps) {
+export function PropertyGallery({ images: rawImages = [], title }: PropertyGalleryProps) {
   const [current, setCurrent] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
+  const images = rawImages.map(resolveImageUrl)
 
   if (images.length === 0) {
     return (

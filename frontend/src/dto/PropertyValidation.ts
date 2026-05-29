@@ -23,10 +23,14 @@ export const propertySchema = z
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'พื้นที่ต้องมากกว่า 0', path: ['sizeSqm'] })
       }
     }
-    if (data.rentalPeriodMonths) {
-      const months = Number(data.rentalPeriodMonths)
-      if (isNaN(months) || months <= 0 || !Number.isInteger(months)) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'ระยะเวลาต้องเป็นจำนวนเต็มบวก', path: ['rentalPeriodMonths'] })
+    if (data.type === 'rent') {
+      if (!data.rentalPeriodMonths) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'กรุณากรอกระยะเวลาเช่า', path: ['rentalPeriodMonths'] })
+      } else {
+        const months = Number(data.rentalPeriodMonths)
+        if (isNaN(months) || months <= 0 || !Number.isInteger(months)) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'ระยะเวลาต้องเป็นจำนวนเต็มบวก', path: ['rentalPeriodMonths'] })
+        }
       }
     }
   })

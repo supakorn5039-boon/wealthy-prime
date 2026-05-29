@@ -112,7 +112,10 @@ export default function MapIndex() {
                   >
                     <Popup>
                       <div className="text-sm font-medium">{p.title}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">{formatPrice(p.price)}</div>
+                      <div className="text-xs text-gray-500 mt-0.5">
+                        {formatPrice(p.price)}
+                        {p.type === 'rent' && <span className="ml-1">/ {t('property.perMonth')}</span>}
+                      </div>
                     </Popup>
                   </Marker>
                 ))}
@@ -153,7 +156,10 @@ export default function MapIndex() {
                       <MapPin className="h-3 w-3 flex-shrink-0" />
                       <span className="line-clamp-1">{p.location}</span>
                     </div>
-                    <p className="text-primary font-semibold text-sm mt-1">{formatPrice(p.price)}</p>
+                    <p className="text-primary font-semibold text-sm mt-1">
+                      {formatPrice(p.price)}
+                      {p.type === 'rent' && <span className="ml-1 text-xs font-normal text-gray-500">/ {t('property.perMonth')}</span>}
+                    </p>
                   </div>
                   <div className="flex flex-col items-end gap-1.5 shrink-0">
                     <PropertyStatusBadge status={p.status} />

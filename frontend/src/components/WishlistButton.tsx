@@ -50,7 +50,11 @@ export function WishlistButton({ propertyId, className }: WishlistButtonProps) {
       variant="ghost"
       size="icon"
       className={cn('rounded-full', className)}
-      onClick={() => (isWishlisted ? removeMutation.mutate() : addMutation.mutate())}
+      onClick={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        isWishlisted ? removeMutation.mutate() : addMutation.mutate()
+      }}
       disabled={addMutation.isPending || removeMutation.isPending}
     >
       <Heart

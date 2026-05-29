@@ -7,6 +7,7 @@ import { PropertyStatusBadge } from '@/components/shared/StatusBadge'
 import { WishlistButton } from '@/components/WishlistButton'
 import { useCartStore } from '@/hooks/useCartStore'
 import { formatPrice } from '@/utils/date'
+import { resolveImageUrl } from '@/utils/imageUrl'
 import { toast } from 'sonner'
 import type { Property } from '@/types/Property'
 
@@ -37,7 +38,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
         <div className="relative aspect-video bg-gray-100 overflow-hidden">
           {property.imageUrls?.[0] ? (
             <img
-              src={property.imageUrls[0]}
+              src={resolveImageUrl(property.imageUrls[0])}
               alt={property.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
@@ -84,20 +85,23 @@ export function PropertyCard({ property }: PropertyCardProps) {
             )}
           </div>
         )}
-        <div className="flex items-center justify-between mt-3">
-          <div>
-            <p className="text-lg font-bold text-primary">{formatPrice(property.price)}</p>
-            {property.type === 'rent' && property.rentalPeriodMonths && (
-              <p className="text-xs text-gray-400">{property.rentalPeriodMonths} {t('property.months')}</p>
+        <div className="mt-3">
+          <p className="text-lg font-bold text-primary break-words">
+            {formatPrice(property.price)}
+            {property.type === 'rent' && (
+              <span className="ml-1 text-xs font-normal text-gray-500">/ {t('property.perMonth')}</span>
             )}
-          </div>
-          {property.status === 'available' && (
-            <Button size="sm" variant="outline" onClick={handleAddToCart}>
-              <ShoppingCart className="h-4 w-4 mr-1" />
-              {t('property.addToCart')}
-            </Button>
+          </p>
+          {property.type === 'rent' && property.rentalPeriodMonths && (
+            <p className="text-xs text-gray-400">{property.rentalPeriodMonths} {t('property.months')}</p>
           )}
         </div>
+        {property.status === 'available' && (
+          <Button size="sm" variant="outline" className="w-full mt-3" onClick={handleAddToCart}>
+            <ShoppingCart className="h-4 w-4 mr-1" />
+            {t('property.addToCart')}
+          </Button>
+        )}
       </CardContent>
     </Card>
   )
