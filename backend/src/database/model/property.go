@@ -35,6 +35,8 @@ type Property struct {
 	OwnerInfo          string         `gorm:"not null"`
 	RentalPeriodMonths *int
 	SlipURL            string
+	Lat                *float64
+	Lng                *float64
 	Status             PropertyStatus `gorm:"type:varchar(20);not null;default:'available'"`
 	Images             []PropertyImage `gorm:"foreignKey:PropertyID"`
 }
@@ -58,6 +60,8 @@ type PropertyDto struct {
 	OwnerInfo          string         `json:"ownerInfo"`
 	RentalPeriodMonths *int           `json:"rentalPeriodMonths"`
 	SlipURL            string         `json:"slipUrl"`
+	Lat                *float64       `json:"lat"`
+	Lng                *float64       `json:"lng"`
 	Status             PropertyStatus `json:"status"`
 	ImageURLs          []string       `json:"imageUrls"`
 	CreatedAt          string         `json:"createdAt"`
@@ -77,6 +81,8 @@ func (p *Property) ToDto() *PropertyDto {
 		OwnerInfo:          p.OwnerInfo,
 		RentalPeriodMonths: p.RentalPeriodMonths,
 		SlipURL:            absoluteURL(p.SlipURL),
+		Lat:                p.Lat,
+		Lng:                p.Lng,
 		Status:             p.Status,
 		ImageURLs:          []string{},
 		CreatedAt:          p.CreatedAt.Format(time.RFC3339),

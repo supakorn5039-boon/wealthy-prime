@@ -43,6 +43,8 @@ type CreatePropertyInput struct {
 	SizeSqm            float64
 	OwnerInfo          string
 	RentalPeriodMonths *int
+	Lat                *float64
+	Lng                *float64
 	AgentID            *uint
 	Images             []*multipart.FileHeader
 }
@@ -62,6 +64,8 @@ type UpdatePropertyInput struct {
 	SizeSqm            float64
 	OwnerInfo          string
 	RentalPeriodMonths *int
+	Lat                *float64
+	Lng                *float64
 	NewImages          []*multipart.FileHeader
 }
 
@@ -165,6 +169,8 @@ func (s *PropertyService) CreateProperty(input CreatePropertyInput) (*model.Prop
 		AgentID:            input.AgentID,
 		OwnerInfo:          input.OwnerInfo,
 		RentalPeriodMonths: input.RentalPeriodMonths,
+		Lat:                input.Lat,
+		Lng:                input.Lng,
 		Status:             model.StatusPendingApprove,
 		Images:             images,
 	}
@@ -244,6 +250,12 @@ func (s *PropertyService) UpdateProperty(propertyID, callerID uint, role model.U
 	}
 	if input.RentalPeriodMonths != nil {
 		updates["rental_period_months"] = *input.RentalPeriodMonths
+	}
+	if input.Lat != nil {
+		updates["lat"] = *input.Lat
+	}
+	if input.Lng != nil {
+		updates["lng"] = *input.Lng
 	}
 
 	if p.Status == model.StatusAvailable || p.Status == model.StatusReserved {

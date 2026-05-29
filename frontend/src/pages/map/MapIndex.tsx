@@ -67,17 +67,17 @@ export default function MapIndex() {
     queryFn: () => PropertyService.list({}),
   })
 
-  const properties = (data?.data ?? []).filter(p => p.lat && p.lng)
+  const properties = (data?.data ?? []).filter(p => p.lat != null && p.lng != null)
 
   function handleMarkerClick(p: Property) {
     setSelected(p)
     setModalOpen(true)
-    if (p.lat && p.lng) setFlyTarget([p.lat, p.lng])
+    if (p.lat != null && p.lng != null) setFlyTarget([p.lat, p.lng])
   }
 
   function handleListClick(p: Property) {
     setSelected(p)
-    if (p.lat && p.lng) setFlyTarget([p.lat, p.lng])
+    if (p.lat != null && p.lng != null) setFlyTarget([p.lat, p.lng])
   }
 
   return (

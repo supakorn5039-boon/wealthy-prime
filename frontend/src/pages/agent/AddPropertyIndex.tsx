@@ -44,6 +44,8 @@ export default function AddPropertyIndex() {
       ownerInfo: '',
       ownerExtraDetail: '',
       rentalPeriodMonths: '',
+      lat: '',
+      lng: '',
     },
   })
 
@@ -62,6 +64,8 @@ export default function AddPropertyIndex() {
           ownerInfo: values.ownerInfo,
           ownerExtraDetail: values.ownerExtraDetail ?? '',
           rentalPeriodMonths: values.rentalPeriodMonths ? Number(values.rentalPeriodMonths) : undefined,
+          lat: values.lat ? Number(values.lat) : undefined,
+          lng: values.lng ? Number(values.lng) : undefined,
         },
         images,
       ),
@@ -110,6 +114,11 @@ export default function AddPropertyIndex() {
             {propertyType === 'rent' && (
               <FormInput control={control} name="rentalPeriodMonths" label={t('property.rentalPeriod')} type="number" placeholder="12" min={1} step={1} required />
             )}
+            <div className="grid grid-cols-2 gap-4">
+              <FormInput control={control} name="lat" label={t('property.lat')} type="number" placeholder="13.7563" step="any" />
+              <FormInput control={control} name="lng" label={t('property.lng')} type="number" placeholder="100.5018" step="any" />
+            </div>
+            <p className="text-xs text-gray-500 -mt-2">{t('property.coordsHint')}</p>
           </CardContent>
         </Card>
 

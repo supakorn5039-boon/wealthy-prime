@@ -11,6 +11,8 @@ export const propertySchema = z
     ownerInfo: z.string().min(1, 'กรุณากรอกข้อมูลเจ้าของทรัพย์'),
     ownerExtraDetail: z.string().optional(),
     rentalPeriodMonths: z.string().optional(),
+    lat: z.string().optional(),
+    lng: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     const price = Number(data.price)
@@ -31,6 +33,23 @@ export const propertySchema = z
         if (isNaN(months) || months <= 0 || !Number.isInteger(months)) {
           ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'ระยะเวลาต้องเป็นจำนวนเต็มบวก', path: ['rentalPeriodMonths'] })
         }
+      }
+    }
+    const hasLat = !!data.lat
+    const hasLng = !!data.lng
+    if (hasLat !== hasLng) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'กรุณากรอกทั้ง lat และ lng', path: [hasLat ? 'lng' : 'lat'] })
+    }
+    if (hasLat) {
+      const lat = Number(data.lat)
+      if (isNaN(lat) || lat < -90 || lat > 90) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'lat ต้องอยู่ระหว่าง -90 ถึง 90', path: ['lat'] })
+      }
+    }
+    if (hasLng) {
+      const lng = Number(data.lng)
+      if (isNaN(lng) || lng < -180 || lng > 180) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'lng ต้องอยู่ระหว่าง -180 ถึง 180', path: ['lng'] })
       }
     }
   })

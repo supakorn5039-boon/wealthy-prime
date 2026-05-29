@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -114,6 +115,12 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 		rentalPeriodMonths = &n
 	}
 
+	lat, lng, err := parseLatLng(form.Value)
+	if err != nil {
+		badRequest(c, err.Error())
+		return
+	}
+
 	// Duplicate check
 	isDuplicate, err := ctrl.propertySvc.DuplicateCheck(projectName, ownerInfo)
 	if err != nil {
@@ -137,6 +144,8 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 		AgentID:            &agentID,
 		OwnerInfo:          ownerInfo,
 		RentalPeriodMonths: rentalPeriodMonths,
+		Lat:                lat,
+		Lng:                lng,
 		Images:             images,
 	})
 	if err != nil {
@@ -198,6 +207,12 @@ func (ctrl *AgentController) editProperty(c *gin.Context) {
 		rentalPeriodMonths = &n
 	}
 
+	lat, lng, err := parseLatLng(form.Value)
+	if err != nil {
+		badRequest(c, err.Error())
+		return
+	}
+
 	dto, err := ctrl.propertySvc.UpdateProperty(propertyID, agentID, role, service.UpdatePropertyInput{
 		Title:              title,
 		ProjectName:        projectName,
@@ -207,6 +222,8 @@ func (ctrl *AgentController) editProperty(c *gin.Context) {
 		SizeSqm:            sizeSqm,
 		OwnerInfo:          ownerInfo,
 		RentalPeriodMonths: rentalPeriodMonths,
+		Lat:                lat,
+		Lng:                lng,
 		NewImages:          form.File["images"],
 	})
 	if err != nil {
@@ -377,4 +394,26 @@ func formVal(values map[string][]string, key string) string {
 		return vals[0]
 	}
 	return ""
+}
+
+// parseLatLng extracts optional lat/lng form values. Both must be supplied
+// together (a single coordinate without its pair is meaningless), or both omitted.
+func parseLatLng(values map[string][]string) (*float64, *float64, error) {
+	latStr := formVal(values, "lat")
+	lngStr := formVal(values, "lng")
+	if latStr == "" && lngStr == "" {
+		return nil, nil, nil
+	}
+	if latStr == "" || lngStr == "" {
+		return nil, nil, fmt.Errorf("lat and lng must be provided together")
+	}
+	lat, err := strconv.ParseFloat(latStr, 64)
+	if err != nil || lat < -90 || lat > 90 {
+		return nil, nil, fmt.Errorf("lat must be a number between -90 and 90")
+	}
+	lng, err := strconv.ParseFloat(lngStr, 64)
+	if err != nil || lng < -180 || lng > 180 {
+		return nil, nil, fmt.Errorf("lng must be a number between -180 and 180")
+	}
+	return &lat, &lng, nil
 }

@@ -45,6 +45,12 @@ export const PropertyService = {
     if (payload.rentalPeriodMonths !== undefined && payload.rentalPeriodMonths !== null) {
       formData.append('rental_period_months', String(payload.rentalPeriodMonths))
     }
+    if (payload.lat !== undefined && payload.lat !== null) {
+      formData.append('lat', String(payload.lat))
+    }
+    if (payload.lng !== undefined && payload.lng !== null) {
+      formData.append('lng', String(payload.lng))
+    }
     images.forEach((img) => formData.append('images', img))
     const res = await fetchClient.post<ApiResponse<Property>>(API.AGENT_PROPERTIES, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -65,6 +71,12 @@ export const PropertyService = {
     }
     if (payload.rentalPeriodMonths !== undefined && payload.rentalPeriodMonths !== null) {
       formData.append('rental_period_months', String(payload.rentalPeriodMonths))
+    }
+    if (payload.lat !== undefined && payload.lat !== null) {
+      formData.append('lat', String(payload.lat))
+    }
+    if (payload.lng !== undefined && payload.lng !== null) {
+      formData.append('lng', String(payload.lng))
     }
     newImages.forEach((img) => formData.append('images', img))
     const res = await fetchClient.patch<ApiResponse<Property>>(API.AGENT_PROPERTY_DETAIL(id), formData, {

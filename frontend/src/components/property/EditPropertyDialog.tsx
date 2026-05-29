@@ -45,6 +45,8 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
       ownerInfo: property.ownerInfo,
       ownerExtraDetail: '',
       rentalPeriodMonths: property.rentalPeriodMonths ? String(property.rentalPeriodMonths) : '',
+      lat: property.lat !== undefined && property.lat !== null ? String(property.lat) : '',
+      lng: property.lng !== undefined && property.lng !== null ? String(property.lng) : '',
     },
   })
 
@@ -63,6 +65,8 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
           sizeSqm: values.sizeSqm ? Number(values.sizeSqm) : undefined,
           ownerInfo: values.ownerInfo,
           rentalPeriodMonths: values.rentalPeriodMonths ? Number(values.rentalPeriodMonths) : undefined,
+          lat: values.lat ? Number(values.lat) : undefined,
+          lng: values.lng ? Number(values.lng) : undefined,
         },
         newImages,
       ),
@@ -109,6 +113,11 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
           {propertyType === 'rent' && (
             <FormInput control={control} name="rentalPeriodMonths" label={t('property.rentalPeriod')} type="number" min={1} step={1} required />
           )}
+          <div className="grid grid-cols-2 gap-3">
+            <FormInput control={control} name="lat" label={t('property.lat')} type="number" placeholder="13.7563" step="any" />
+            <FormInput control={control} name="lng" label={t('property.lng')} type="number" placeholder="100.5018" step="any" />
+          </div>
+          <p className="text-xs text-gray-500 -mt-2">{t('property.coordsHint')}</p>
           <FormTextarea control={control} name="ownerInfo" label={t('property.ownerInfo')} required rows={3} />
 
           {property.imageUrls && property.imageUrls.length > 0 && (

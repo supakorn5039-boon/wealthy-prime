@@ -43,6 +43,8 @@ export interface CreatePropertyPayload {
   ownerInfo: string
   ownerExtraDetail?: string
   rentalPeriodMonths?: number
+  lat?: number
+  lng?: number
 }
 
 export interface UpdatePropertyStatusPayload {
@@ -60,6 +62,8 @@ export interface EditPropertyPayload {
   sizeSqm?: number
   ownerInfo: string
   rentalPeriodMonths?: number
+  lat?: number
+  lng?: number
 }
 
 export interface AgentDashboardStats {

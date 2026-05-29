@@ -1,36 +1,36 @@
-import { Link } from 'react-router-dom'
-import { MapPin, Maximize2, Star, ShoppingCart } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { PropertyStatusBadge } from '@/components/shared/StatusBadge'
-import { WishlistButton } from '@/components/WishlistButton'
-import { useCartStore } from '@/hooks/useCartStore'
-import { formatPrice } from '@/utils/date'
-import { resolveImageUrl } from '@/utils/imageUrl'
-import { toast } from 'sonner'
-import type { Property } from '@/types/Property'
+import { Link } from "react-router-dom";
+import { MapPin, Maximize2, Star, ShoppingCart } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { PropertyStatusBadge } from "@/components/shared/StatusBadge";
+import { WishlistButton } from "@/components/WishlistButton";
+import { useCartStore } from "@/hooks/useCartStore";
+import { formatPrice } from "@/utils/date";
+import { resolveImageUrl } from "@/utils/imageUrl";
+import { toast } from "sonner";
+import type { Property } from "@/types/Property";
 
 interface PropertyCardProps {
-  property: Property
+  property: Property;
 }
 
 export function PropertyCard({ property }: PropertyCardProps) {
-  const { t } = useTranslation()
-  const { addItem, openCart } = useCartStore()
+  const { t } = useTranslation();
+  const { addItem, openCart } = useCartStore();
 
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     addItem({
       propertyId: property.id,
       propertyTitle: property.title,
       propertyPrice: property.price,
       propertyType: property.type,
       appointmentDate: null,
-    })
-    openCart()
-    toast.success(t('property.addedToCart'))
-  }
+    });
+    openCart();
+    toast.success(t("property.addedToCart"));
+  };
 
   return (
     <Card className="group overflow-hidden hover:shadow-md transition-shadow">
@@ -51,7 +51,10 @@ export function PropertyCard({ property }: PropertyCardProps) {
             <PropertyStatusBadge status={property.status} />
           </div>
           <div className="absolute top-2 right-2">
-            <WishlistButton propertyId={property.id} className="bg-white/80 hover:bg-white" />
+            <WishlistButton
+              propertyId={property.id}
+              className="bg-white/80 hover:bg-white"
+            />
           </div>
           <div className="absolute bottom-2 left-2">
             <span className="text-xs bg-black/60 text-white px-2 py-1 rounded">
@@ -73,36 +76,46 @@ export function PropertyCard({ property }: PropertyCardProps) {
         {property.sizeSqm && (
           <div className="flex items-center gap-1 mt-0.5 text-gray-500 text-xs">
             <Maximize2 className="h-3 w-3" />
-            <span>{property.sizeSqm} {t('property.sqm')}</span>
+            <span>
+              {property.sizeSqm} {t("property.sqm")}
+            </span>
           </div>
         )}
-        {(property.rating !== undefined && property.rating > 0) && (
+        {property.rating !== undefined && property.rating > 0 && (
           <div className="flex items-center gap-1 mt-1">
             <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-            <span className="text-sm font-medium">{property.rating.toFixed(1)}</span>
+            <span className="text-sm font-medium">
+              {property.rating.toFixed(1)}
+            </span>
             {property.reviewCount !== undefined && (
-              <span className="text-xs text-gray-400">({property.reviewCount})</span>
+              <span className="text-xs text-gray-400">
+                ({property.reviewCount})
+              </span>
             )}
           </div>
         )}
         <div className="mt-3">
           <p className="text-lg font-bold text-primary break-words">
             {formatPrice(property.price)}
-            {property.type === 'rent' && (
-              <span className="ml-1 text-xs font-normal text-gray-500">/ {t('property.perMonth')}</span>
+            {property.type === "rent" && (
+              <span className="ml-1 text-xs font-normal text-gray-500">
+                / {t("property.perMonth")} ({property.rentalPeriodMonths} เดือน)
+              </span>
             )}
           </p>
-          {property.type === 'rent' && property.rentalPeriodMonths && (
-            <p className="text-xs text-gray-400">{property.rentalPeriodMonths} {t('property.months')}</p>
-          )}
         </div>
-        {property.status === 'available' && (
-          <Button size="sm" variant="outline" className="w-full mt-3" onClick={handleAddToCart}>
+        {property.status === "available" && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full mt-3"
+            onClick={handleAddToCart}
+          >
             <ShoppingCart className="h-4 w-4 mr-1" />
-            {t('property.addToCart')}
+            {t("property.addToCart")}
           </Button>
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -4,6 +4,9 @@ import { useQuery } from '@tanstack/react-query'
 import { MapPin, Maximize2, ShoppingCart, Phone, MessageCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
+import { MapContainer, TileLayer, Marker } from 'react-leaflet'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 import { PropertyService } from '@/services/PropertyService'
 import { ReviewService } from '@/services/ReviewService'
 import { PropertyGallery } from '@/components/property/PropertyGallery'
@@ -21,6 +24,20 @@ import { useCartStore } from '@/hooks/useCartStore'
 import { useAuthStore } from '@/store/authStore'
 import { formatPrice, formatDate } from '@/utils/date'
 import { ROUTES } from '@/constants/Routes'
+
+const pinIcon = L.divIcon({
+  className: '',
+  html: `<div style="
+    background:#6366f1;
+    width:28px;height:28px;
+    border-radius:50% 50% 50% 0;
+    transform:rotate(-45deg);
+    border:3px solid white;
+    box-shadow:0 2px 6px rgba(0,0,0,0.3);
+  "></div>`,
+  iconSize: [28, 28],
+  iconAnchor: [14, 28],
+})
 
 export default function PropertyDetailIndex() {
   const { t } = useTranslation()
@@ -126,13 +143,24 @@ export default function PropertyDetailIndex() {
               <CardTitle className="text-base">{t('property.map')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="aspect-video rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
-                <iframe
-                  title="map"
-                  src={`https://maps.google.com/maps?q=${encodeURIComponent(property.location)}&output=embed`}
-                  className="w-full h-full border-0"
-                  loading="lazy"
-                />
+              <div className="aspect-video rounded-md overflow-hidden bg-gray-100">
+                {property.lat != null && property.lng != null ? (
+                  <MapContainer
+                    center={[property.lat, property.lng]}
+                    zoom={16}
+                    scrollWheelZoom={false}
+                    style={{ width: '100%', height: '100%' }}
+                    attributionControl={false}
+                  >
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <Marker position={[property.lat, property.lng]} icon={pinIcon} />
+                  </MapContainer>
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 text-sm gap-2">
+                    <MapPin className="h-6 w-6" />
+                    <span>{t('property.noCoordsAvailable')}</span>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
