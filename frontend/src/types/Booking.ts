@@ -5,12 +5,10 @@ export interface Booking {
   userId: number
   userName?: string
   userPhone?: string
-  userLineId?: string
   propertyId: number
   propertyTitle?: string
   appointmentDate: string
   note?: string
-  agentNote?: string
   status: BookingStatus
   assignedAgentId?: number
   agentName?: string

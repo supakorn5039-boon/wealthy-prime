@@ -24,7 +24,7 @@ function NoteEditor({ contact, onDone }: { contact: Booking; onDone: () => void 
 
   const { control, handleSubmit } = useForm<AgentNoteSchema>({
     resolver: zodResolver(agentNoteSchema),
-    defaultValues: { note: contact.agentNote ?? '' },
+    defaultValues: { note: contact.note ?? '' },
   })
 
   const mutation = useMutation({
@@ -91,9 +91,6 @@ export default function ContactHistoryIndex() {
                       <div>
                         <p className="font-medium">{contact.userName ?? '-'}</p>
                         <p className="text-xs text-gray-400">{contact.userPhone ?? ''}</p>
-                        {contact.userLineId && (
-                          <p className="text-xs text-green-600">LINE: {contact.userLineId}</p>
-                        )}
                       </div>
                     </TableCell>
                     <TableCell>{contact.propertyTitle ?? `#${contact.propertyId}`}</TableCell>
@@ -104,7 +101,7 @@ export default function ContactHistoryIndex() {
                         <NoteEditor contact={contact} onDone={() => setEditingId(null)} />
                       ) : (
                         <p className="text-sm text-gray-600 line-clamp-2">
-                          {contact.agentNote ?? <span className="text-gray-300">-</span>}
+                          {contact.note ?? <span className="text-gray-300">-</span>}
                         </p>
                       )}
                     </TableCell>

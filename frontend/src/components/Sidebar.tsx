@@ -1,7 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
-  Home,
   Heart,
   History,
   Phone,
@@ -19,6 +18,7 @@ import {
   LogOut,
   X,
   Crown,
+  MessageSquare,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
@@ -42,17 +42,16 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const location = useLocation()
 
   const userMenu: MenuItem[] = [
-    { labelKey: 'sidebar.back', href: ROUTES.HOME, icon: <Home className="h-4 w-4" /> },
     { labelKey: 'sidebar.wishlist', href: ROUTES.WISHLIST, icon: <Heart className="h-4 w-4" /> },
     { labelKey: 'sidebar.bookingHistory', href: ROUTES.HISTORY, icon: <History className="h-4 w-4" /> },
     { labelKey: 'sidebar.contactHistory', href: ROUTES.CONTACTS, icon: <Phone className="h-4 w-4" /> },
   ]
 
   const agentMenu: MenuItem[] = [
-    { labelKey: 'sidebar.back', href: ROUTES.HOME, icon: <Home className="h-4 w-4" /> },
     { labelKey: 'sidebar.dashboard', href: ROUTES.AGENT_DASHBOARD, icon: <LayoutDashboard className="h-4 w-4" /> },
     { labelKey: 'sidebar.allProperties', href: ROUTES.AGENT_PROPERTIES, icon: <Building2 className="h-4 w-4" /> },
     { labelKey: 'sidebar.visitRequests', href: ROUTES.AGENT_CONTACT_HISTORY, icon: <Calendar className="h-4 w-4" /> },
+    { labelKey: 'sidebar.inquiries', href: ROUTES.AGENT_INQUIRIES, icon: <MessageSquare className="h-4 w-4" /> },
     { labelKey: 'sidebar.leads', href: ROUTES.AGENT_LEADS, icon: <Users className="h-4 w-4" /> },
     { labelKey: 'sidebar.agentProfile', href: ROUTES.AGENT_PROFILE, icon: <UserCircle className="h-4 w-4" /> },
     { labelKey: 'sidebar.agentOverview', href: ROUTES.AGENT_OVERVIEW, icon: <BarChart2 className="h-4 w-4" /> },
@@ -68,10 +67,10 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     { labelKey: 'sidebar.financialReport', href: ROUTES.ADMIN_FINANCIAL, icon: <DollarSign className="h-4 w-4" /> },
     { labelKey: 'sidebar.allProperties', href: ROUTES.AGENT_PROPERTIES, icon: <Building2 className="h-4 w-4" /> },
     { labelKey: 'sidebar.visitRequests', href: ROUTES.AGENT_CONTACT_HISTORY, icon: <Calendar className="h-4 w-4" /> },
+    { labelKey: 'sidebar.inquiries', href: ROUTES.AGENT_INQUIRIES, icon: <MessageSquare className="h-4 w-4" /> },
     { labelKey: 'sidebar.leads', href: ROUTES.AGENT_LEADS, icon: <Users className="h-4 w-4" /> },
     { labelKey: 'sidebar.agentOverview', href: ROUTES.AGENT_OVERVIEW, icon: <BarChart2 className="h-4 w-4" /> },
     { labelKey: 'sidebar.ownerLog', href: ROUTES.AGENT_OWNER_LOG, icon: <Eye className="h-4 w-4" /> },
-    { labelKey: 'sidebar.back', href: ROUTES.HOME, icon: <Home className="h-4 w-4" /> },
   ]
 
   const menu =

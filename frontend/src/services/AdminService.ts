@@ -13,15 +13,7 @@ export interface AdminDashboardData {
   agentLeaderboard: { agentId: number; agentName: string; closedCount: number }[]
 }
 
-export interface PendingApproval {
-  id: number
-  property: Property
-  requestedStatus: string
-  slipUrl?: string
-  agentId: number
-  agentName: string
-  createdAt: string
-}
+export type PendingApproval = Property
 
 export interface FinancialRecord {
   id: number

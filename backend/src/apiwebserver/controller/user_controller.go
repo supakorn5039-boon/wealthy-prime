@@ -16,10 +16,14 @@ import (
 
 type UserController struct {
 	bookingSvc *service.BookingService
+	inquirySvc *service.InquiryService
 }
 
 func NewUserController() *UserController {
-	return &UserController{bookingSvc: service.NewBookingService()}
+	return &UserController{
+		bookingSvc: service.NewBookingService(),
+		inquirySvc: service.NewInquiryService(),
+	}
 }
 
 func (ctrl *UserController) RegisterRoutes(r *gin.RouterGroup) {
@@ -40,6 +44,8 @@ func (ctrl *UserController) RegisterRoutes(r *gin.RouterGroup) {
 	user.GET("/bookings/:id", ctrl.getBooking)
 	user.PATCH("/bookings/:id", ctrl.updateBooking)
 	user.GET("/contacts", ctrl.getContacts)
+
+	user.POST("/inquiries", ctrl.createInquiry)
 }
 
 // Wishlist
@@ -250,4 +256,21 @@ func (ctrl *UserController) getContacts(c *gin.Context) {
 	}
 
 	successResponse(c, dtos)
+}
+
+func (ctrl *UserController) createInquiry(c *gin.Context) {
+	userID := middleware.GetUserID(c)
+
+	var input service.CreateInquiryInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		badRequest(c, err.Error())
+		return
+	}
+
+	dto, err := ctrl.inquirySvc.CreateInquiry(userID, input)
+	if err != nil {
+		errorResponse(c, err)
+		return
+	}
+	created(c, dto)
 }

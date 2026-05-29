@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { MapPin, Maximize2, ShoppingCart, Phone, MessageCircle } from 'lucide-react'
@@ -6,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { PropertyService } from '@/services/PropertyService'
 import { ReviewService } from '@/services/ReviewService'
 import { PropertyGallery } from '@/components/property/PropertyGallery'
+import { ContactAgentDialog } from '@/components/property/ContactAgentDialog'
 import { PropertyStatusBadge } from '@/components/shared/StatusBadge'
 import { WishlistButton } from '@/components/WishlistButton'
 import { StarRating } from '@/components/StarRating'
@@ -25,6 +27,7 @@ export default function PropertyDetailIndex() {
   const navigate = useNavigate()
   const { addItem, openCart } = useCartStore()
   const { user } = useAuthStore()
+  const [contactOpen, setContactOpen] = useState(false)
 
   const { data: property, isLoading } = useQuery({
     queryKey: [PropertyService.QUERY_KEYS.DETAIL, id],
@@ -57,7 +60,7 @@ export default function PropertyDetailIndex() {
       navigate(ROUTES.LOGIN)
       return
     }
-    toast.info(t('property.contactSent'))
+    setContactOpen(true)
   }
 
   if (isLoading) return <LoadingSpinner text={t('common.loading')} />
@@ -205,6 +208,13 @@ export default function PropertyDetailIndex() {
           </Card>
         </div>
       </div>
+
+      <ContactAgentDialog
+        open={contactOpen}
+        onOpenChange={setContactOpen}
+        propertyId={property.id}
+        propertyTitle={property.title}
+      />
     </div>
   )
 }

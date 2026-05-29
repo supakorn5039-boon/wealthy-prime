@@ -28,6 +28,9 @@ func Run(db *gorm.DB) {
 	if err := migrateBrowseHistory(db); err != nil {
 		log.Fatalf("[migration] browse_history: %v", err)
 	}
+	if err := migrateInquiries(db); err != nil {
+		log.Fatalf("[migration] inquiries: %v", err)
+	}
 
 	log.Println("[migration] all migrations completed")
 }

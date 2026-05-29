@@ -11,7 +11,6 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { PageTitle } from '@/components/shared/PageTitle'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { formatPrice, formatDate } from '@/utils/date'
 
 export default function PendingApprovalsIndex() {
@@ -64,15 +63,12 @@ export default function PendingApprovalsIndex() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0 space-y-2">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-semibold">{pending.property.title}</h3>
-                      <PropertyStatusBadge status={pending.property.status} />
-                      <Badge variant="warning">
-                        {t('admin.requestChangeTo')}: {pending.requestedStatus}
-                      </Badge>
+                      <h3 className="font-semibold">{pending.title}</h3>
+                      <PropertyStatusBadge status={pending.status} />
                     </div>
                     <div className="text-sm text-gray-600 space-y-0.5">
-                      <p>{t('admin.projectLabel')}: {pending.property.projectName}</p>
-                      <p>{t('admin.priceLabel')}: {formatPrice(pending.property.price)}</p>
+                      <p>{t('admin.projectLabel')}: {pending.projectName}</p>
+                      <p>{t('admin.priceLabel')}: {formatPrice(pending.price)}</p>
                       <p>{t('admin.agentLabel')}: {pending.agentName}</p>
                       <p>{t('admin.submittedAt')}: {formatDate(pending.createdAt)}</p>
                     </div>
@@ -93,7 +89,7 @@ export default function PendingApprovalsIndex() {
                         </Button>
                       }
                       title={t('admin.confirmApproveTitle')}
-                      description={t('admin.confirmApproveDesc', { title: pending.property.title })}
+                      description={t('admin.confirmApproveDesc', { title: pending.title })}
                       confirmLabel={t('admin.approve')}
                       onConfirm={() => approveMutation.mutate(pending.id)}
                     />

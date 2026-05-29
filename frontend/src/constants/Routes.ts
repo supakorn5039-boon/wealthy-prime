@@ -26,6 +26,7 @@ export const ROUTES = {
   AGENT_PROPERTIES: '/agent/properties',
   AGENT_ADD_PROPERTY: '/agent/properties/add',
   AGENT_CONTACT_HISTORY: '/agent/contacts',
+  AGENT_INQUIRIES: '/agent/inquiries',
   AGENT_REVIEW_LINK: '/agent/review-link',
   AGENT_LEADS: '/agent/leads',
   AGENT_PROFILE: '/agent/profile',

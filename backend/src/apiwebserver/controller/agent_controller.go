@@ -13,12 +13,14 @@ import (
 type AgentController struct {
 	svc         *service.AgentService
 	propertySvc *service.PropertyService
+	inquirySvc  *service.InquiryService
 }
 
 func NewAgentController() *AgentController {
 	return &AgentController{
 		svc:         service.NewAgentService(),
 		propertySvc: service.NewPropertyService(),
+		inquirySvc:  service.NewInquiryService(),
 	}
 }
 
@@ -32,11 +34,15 @@ func (ctrl *AgentController) RegisterRoutes(r *gin.RouterGroup) {
 
 	agent.GET("/properties", ctrl.listProperties)
 	agent.POST("/properties", ctrl.createProperty)
+	agent.PATCH("/properties/:id", ctrl.editProperty)
 	agent.PATCH("/properties/:id/status", ctrl.updateStatus)
 	agent.DELETE("/properties/:id", ctrl.deleteProperty)
 
 	agent.GET("/contacts", ctrl.getContacts)
 	agent.PATCH("/contacts/:bookingId/note", ctrl.updateNote)
+
+	agent.GET("/inquiries", ctrl.listInquiries)
+	agent.PATCH("/inquiries/:id/status", ctrl.updateInquiryStatus)
 
 	agent.GET("/review-link/:propertyId", ctrl.getReviewLink)
 }
@@ -139,6 +145,76 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 	}
 
 	created(c, dto)
+}
+
+func (ctrl *AgentController) editProperty(c *gin.Context) {
+	agentID := middleware.GetUserID(c)
+	role := middleware.GetRole(c)
+	propertyID, err := parseUintParam(c, "id")
+	if err != nil {
+		badRequest(c, "invalid property id")
+		return
+	}
+
+	form, err := c.MultipartForm()
+	if err != nil {
+		badRequest(c, "multipart form required")
+		return
+	}
+
+	title := formVal(form.Value, "title")
+	projectName := formVal(form.Value, "project_name")
+	location := formVal(form.Value, "location")
+	ownerInfo := formVal(form.Value, "owner_info")
+	propType := formVal(form.Value, "type")
+	if title == "" || projectName == "" || location == "" || ownerInfo == "" || propType == "" {
+		badRequest(c, "title, project_name, location, owner_info, and type are required")
+		return
+	}
+
+	price, err := strconv.ParseFloat(formVal(form.Value, "price"), 64)
+	if err != nil || price <= 0 {
+		badRequest(c, "valid price is required")
+		return
+	}
+
+	var sizeSqm float64
+	if s := formVal(form.Value, "size_sqm"); s != "" {
+		v, err := strconv.ParseFloat(s, 64)
+		if err != nil || v < 0 {
+			badRequest(c, "size_sqm must be a non-negative number")
+			return
+		}
+		sizeSqm = v
+	}
+
+	var rentalPeriodMonths *int
+	if r := formVal(form.Value, "rental_period_months"); r != "" {
+		n, err := strconv.Atoi(r)
+		if err != nil || n <= 0 {
+			badRequest(c, "rental_period_months must be a positive integer")
+			return
+		}
+		rentalPeriodMonths = &n
+	}
+
+	dto, err := ctrl.propertySvc.UpdateProperty(propertyID, agentID, role, service.UpdatePropertyInput{
+		Title:              title,
+		ProjectName:        projectName,
+		Location:           location,
+		Price:              price,
+		Type:               model.PropertyType(propType),
+		SizeSqm:            sizeSqm,
+		OwnerInfo:          ownerInfo,
+		RentalPeriodMonths: rentalPeriodMonths,
+		NewImages:          form.File["images"],
+	})
+	if err != nil {
+		errorResponse(c, err)
+		return
+	}
+
+	successResponse(c, dto)
 }
 
 func (ctrl *AgentController) updateStatus(c *gin.Context) {
@@ -259,6 +335,40 @@ func (ctrl *AgentController) getReviewLink(c *gin.Context) {
 	}
 
 	successResponse(c, gin.H{"url": url})
+}
+
+func (ctrl *AgentController) listInquiries(c *gin.Context) {
+	agentID := middleware.GetUserID(c)
+	dtos, err := ctrl.inquirySvc.GetAgentInquiries(agentID)
+	if err != nil {
+		errorResponse(c, err)
+		return
+	}
+	successResponse(c, dtos)
+}
+
+func (ctrl *AgentController) updateInquiryStatus(c *gin.Context) {
+	agentID := middleware.GetUserID(c)
+	inquiryID, err := parseUintParam(c, "id")
+	if err != nil {
+		badRequest(c, "invalid inquiry id")
+		return
+	}
+
+	var body struct {
+		Status model.InquiryStatus `json:"status" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		badRequest(c, err.Error())
+		return
+	}
+
+	dto, err := ctrl.inquirySvc.UpdateInquiryStatus(agentID, inquiryID, body.Status)
+	if err != nil {
+		errorResponse(c, err)
+		return
+	}
+	successResponse(c, dto)
 }
 
 // formVal safely reads a form value by key.

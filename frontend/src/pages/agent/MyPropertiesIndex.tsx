@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, Trash2, Pencil } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PropertyService } from '@/services/PropertyService'
@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
+import { EditPropertyDialog } from '@/components/property/EditPropertyDialog'
 import { FormSelect } from '@/components/form/FormSelect'
 import { FormInput } from '@/components/form/FormInput'
 import { formatPrice } from '@/utils/date'
@@ -95,6 +96,7 @@ export default function MyPropertiesIndex() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null)
+  const [editTarget, setEditTarget] = useState<Property | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Property | null>(null)
 
   const { data: properties = [], isLoading } = useQuery({
@@ -162,6 +164,10 @@ export default function MyPropertiesIndex() {
                     <TableCell><PropertyStatusBadge status={p.status} /></TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
+                        <Button size="sm" variant="outline" onClick={() => setEditTarget(p)}>
+                          <Pencil className="h-4 w-4 mr-1" />
+                          {t('common.edit')}
+                        </Button>
                         <Button size="sm" variant="outline" onClick={() => setSelectedProperty(p)}>
                           {t('property.updateStatus')}
                         </Button>
@@ -180,6 +186,10 @@ export default function MyPropertiesIndex() {
 
       {selectedProperty && (
         <StatusModal property={selectedProperty} open={!!selectedProperty} onClose={() => setSelectedProperty(null)} />
+      )}
+
+      {editTarget && (
+        <EditPropertyDialog property={editTarget} open={!!editTarget} onClose={() => setEditTarget(null)} />
       )}
 
       <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>

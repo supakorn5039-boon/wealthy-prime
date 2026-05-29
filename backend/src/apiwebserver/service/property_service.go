@@ -53,6 +53,18 @@ type UpdateStatusInput struct {
 	RentalPeriodMonths *int
 }
 
+type UpdatePropertyInput struct {
+	Title              string
+	ProjectName        string
+	Location           string
+	Price              float64
+	Type               model.PropertyType
+	SizeSqm            float64
+	OwnerInfo          string
+	RentalPeriodMonths *int
+	NewImages          []*multipart.FileHeader
+}
+
 // ListProperties returns properties visible to the public (status != pending_approve).
 func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.PropertyDto, error) {
 	query := s.db.Model(&model.Property{}).
@@ -197,6 +209,59 @@ func (s *PropertyService) UpdateStatus(propertyID, agentID uint, input UpdateSta
 
 	if err := s.db.Model(&p).Updates(updates).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "failed to update property status")
+	}
+
+	return s.GetProperty(propertyID)
+}
+
+// UpdateProperty edits a property's core fields. Owning agent or admin only.
+// New images are appended. If the property was published (available/reserved),
+// status flips back to pending_approve so admin re-reviews the edit.
+func (s *PropertyService) UpdateProperty(propertyID, callerID uint, role model.UserRole, input UpdatePropertyInput) (*model.PropertyDto, error) {
+	var p model.Property
+	err := s.db.First(&p, propertyID).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, apperror.NotFound("property")
+	}
+	if err != nil {
+		return nil, apperror.Wrap(err, 500, "database error")
+	}
+
+	if role != model.RoleAdmin {
+		if p.AgentID == nil || *p.AgentID != callerID {
+			return nil, apperror.Forbidden("you do not own this property")
+		}
+	}
+
+	updates := map[string]interface{}{
+		"title":        input.Title,
+		"project_name": input.ProjectName,
+		"location":     input.Location,
+		"price":        input.Price,
+		"type":         input.Type,
+		"size_sqm":     input.SizeSqm,
+		"owner_info":   input.OwnerInfo,
+	}
+	if input.RentalPeriodMonths != nil {
+		updates["rental_period_months"] = *input.RentalPeriodMonths
+	}
+
+	if p.Status == model.StatusAvailable || p.Status == model.StatusReserved {
+		updates["status"] = model.StatusPendingApprove
+	}
+
+	if err := s.db.Model(&p).Updates(updates).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to update property")
+	}
+
+	for _, fh := range input.NewImages {
+		url, err := saveUpload(fh, "uploads")
+		if err != nil {
+			return nil, apperror.Wrap(err, 500, "failed to save image")
+		}
+		if err := s.db.Create(&model.PropertyImage{PropertyID: p.ID, URL: url}).Error; err != nil {
+			return nil, apperror.Wrap(err, 500, "failed to attach image")
+		}
 	}
 
 	return s.GetProperty(propertyID)

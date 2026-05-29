@@ -17,6 +17,7 @@ const AgentDashboardIndex = lazyWithReload(() => import('@/pages/agent/AgentDash
 const MyPropertiesIndex = lazyWithReload(() => import('@/pages/agent/MyPropertiesIndex'))
 const AddPropertyIndex = lazyWithReload(() => import('@/pages/agent/AddPropertyIndex'))
 const ContactHistoryIndex = lazyWithReload(() => import('@/pages/agent/ContactHistoryIndex'))
+const InquiriesIndex = lazyWithReload(() => import('@/pages/agent/InquiriesIndex'))
 const ReviewLinkIndex = lazyWithReload(() => import('@/pages/agent/ReviewLinkIndex'))
 const LeadsIndex = lazyWithReload(() => import('@/pages/agent/LeadsIndex'))
 const AgentProfileIndex = lazyWithReload(() => import('@/pages/agent/AgentProfileIndex'))
@@ -62,6 +63,7 @@ export const routes: AppRoute[] = [
   { path: ROUTES.AGENT_PROPERTIES, element: wrap(<MyPropertiesIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
   { path: ROUTES.AGENT_ADD_PROPERTY, element: wrap(<AddPropertyIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
   { path: ROUTES.AGENT_CONTACT_HISTORY, element: wrap(<ContactHistoryIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
+  { path: ROUTES.AGENT_INQUIRIES, element: wrap(<InquiriesIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
   { path: ROUTES.AGENT_REVIEW_LINK, element: wrap(<ReviewLinkIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
   { path: ROUTES.AGENT_LEADS, element: wrap(<LeadsIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
   { path: ROUTES.AGENT_PROFILE, element: wrap(<AgentProfileIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },

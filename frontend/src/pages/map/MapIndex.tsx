@@ -97,11 +97,9 @@ export default function MapIndex() {
                 zoom={12}
                 style={{ width: '100%', height: '100%' }}
                 scrollWheelZoom
+                attributionControl={false}
               >
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                />
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
                 {flyTarget && <FlyTo position={flyTarget} key={flyTarget.join(',')} />}
 

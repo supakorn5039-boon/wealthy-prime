@@ -51,6 +51,17 @@ export interface UpdatePropertyStatusPayload {
   rentalPeriodMonths?: number
 }
 
+export interface EditPropertyPayload {
+  title: string
+  projectName: string
+  location: string
+  price: number
+  type: PropertyType
+  sizeSqm?: number
+  ownerInfo: string
+  rentalPeriodMonths?: number
+}
+
 export interface AgentDashboardStats {
   totalProperties: number
   reservedProperties: number

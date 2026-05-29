@@ -25,9 +25,9 @@ func NewAgentService() *AgentService {
 }
 
 type AgentDashboard struct {
-	Total     int64 `json:"total"`
-	Reserved  int64 `json:"reserved"`
-	Available int64 `json:"available"`
+	TotalProperties     int64 `json:"totalProperties"`
+	ReservedProperties  int64 `json:"reservedProperties"`
+	AvailableProperties int64 `json:"availableProperties"`
 }
 
 // GetDashboard returns property counts for the agent.
@@ -45,9 +45,9 @@ func (s *AgentService) GetDashboard(agentID uint) (*AgentDashboard, error) {
 	}
 
 	return &AgentDashboard{
-		Total:     total,
-		Reserved:  reserved,
-		Available: available,
+		TotalProperties:     total,
+		ReservedProperties:  reserved,
+		AvailableProperties: available,
 	}, nil
 }
 

@@ -28,40 +28,67 @@ type PropertyStatusCount struct {
 }
 
 type AgentLeaderEntry struct {
-	AgentID   uint   `json:"agentId"`
-	AgentName string `json:"agentName"`
-	SoldCount int64  `json:"soldCount"`
+	AgentID     uint   `json:"agentId"`
+	AgentName   string `json:"agentName"`
+	ClosedCount int64  `json:"closedCount"`
 }
 
 type AdminDashboard struct {
-	PropertyCounts []PropertyStatusCount `json:"propertyCounts"`
-	AgentLeader    []AgentLeaderEntry    `json:"agentLeaderboard"`
+	TotalProperties     int64                 `json:"totalProperties"`
+	TotalUsers          int64                 `json:"totalUsers"`
+	TotalAgents         int64                 `json:"totalAgents"`
+	TotalRevenue        float64               `json:"totalRevenue"`
+	PropertyStatusChart []PropertyStatusCount `json:"propertyStatusChart"`
+	AgentLeaderboard    []AgentLeaderEntry    `json:"agentLeaderboard"`
 }
 
-// GetDashboard returns property counts by status and agent leaderboard.
+// GetDashboard returns top-line counts, property status chart, and agent leaderboard.
 func (s *AdminService) GetDashboard() (*AdminDashboard, error) {
-	var counts []PropertyStatusCount
+	var totalProperties, totalUsers, totalAgents int64
+	if err := s.db.Model(&model.Property{}).Count(&totalProperties).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to count properties")
+	}
+	if err := s.db.Model(&model.User{}).Where("role = ?", model.RoleUser).Count(&totalUsers).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to count users")
+	}
+	if err := s.db.Model(&model.User{}).Where("role = ?", model.RoleAgent).Count(&totalAgents).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to count agents")
+	}
+
+	var totalRevenue float64
+	if err := s.db.Model(&model.Property{}).
+		Where("status = ?", model.StatusSold).
+		Select("COALESCE(SUM(price), 0)").
+		Scan(&totalRevenue).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to sum revenue")
+	}
+
+	var chart []PropertyStatusCount
 	if err := s.db.Model(&model.Property{}).
 		Select("status, COUNT(*) as count").
 		Group("status").
-		Scan(&counts).Error; err != nil {
-		return nil, apperror.Wrap(err, 500, "failed to count properties")
+		Scan(&chart).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to count property statuses")
 	}
 
 	var leaderboard []AgentLeaderEntry
 	if err := s.db.Model(&model.Property{}).
-		Select("agent_id, users.name as agent_name, COUNT(properties.id) as sold_count").
+		Select("agent_id, users.name as agent_name, COUNT(properties.id) as closed_count").
 		Joins("JOIN users ON users.id = properties.agent_id").
 		Where("properties.status = ? AND properties.agent_id IS NOT NULL AND properties.deleted_at IS NULL AND users.deleted_at IS NULL", model.StatusSold).
 		Group("properties.agent_id, users.name").
-		Order("sold_count DESC").
+		Order("closed_count DESC").
 		Scan(&leaderboard).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "failed to fetch agent leaderboard")
 	}
 
 	return &AdminDashboard{
-		PropertyCounts: counts,
-		AgentLeader:    leaderboard,
+		TotalProperties:     totalProperties,
+		TotalUsers:          totalUsers,
+		TotalAgents:         totalAgents,
+		TotalRevenue:        totalRevenue,
+		PropertyStatusChart: chart,
+		AgentLeaderboard:    leaderboard,
 	}, nil
 }
 
@@ -103,18 +130,40 @@ func (s *AdminService) ReassignBooking(bookingID, agentID uint) (*model.BookingD
 	return full.ToDto(), nil
 }
 
-// GetFinancialReport returns all sold properties with agent info.
-func (s *AdminService) GetFinancialReport() ([]model.PropertyDto, error) {
+type FinancialRecord struct {
+	ID            uint    `json:"id"`
+	PropertyID    uint    `json:"propertyId"`
+	PropertyTitle string  `json:"propertyTitle"`
+	AgentName     string  `json:"agentName"`
+	Amount        float64 `json:"amount"`
+	Type          string  `json:"type"`
+	ClosedAt      string  `json:"closedAt"`
+}
+
+// GetFinancialReport returns sold properties shaped as FinancialRecord rows.
+func (s *AdminService) GetFinancialReport() ([]FinancialRecord, error) {
 	var properties []model.Property
-	if err := s.db.Preload("Images").Preload("Agent").
+	if err := s.db.Preload("Agent").
 		Where("status = ?", model.StatusSold).Find(&properties).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "failed to fetch financial report")
 	}
-	dtos := make([]model.PropertyDto, len(properties))
+	records := make([]FinancialRecord, len(properties))
 	for i, p := range properties {
-		dtos[i] = *p.ToDto()
+		agentName := ""
+		if p.Agent != nil {
+			agentName = p.Agent.Name
+		}
+		records[i] = FinancialRecord{
+			ID:            p.ID,
+			PropertyID:    p.ID,
+			PropertyTitle: p.Title,
+			AgentName:     agentName,
+			Amount:        p.Price,
+			Type:          string(p.Type),
+			ClosedAt:      p.UpdatedAt.Format("2006-01-02"),
+		}
 	}
-	return dtos, nil
+	return records, nil
 }
 
 // ExportFinancial streams an xlsx file of sold properties.

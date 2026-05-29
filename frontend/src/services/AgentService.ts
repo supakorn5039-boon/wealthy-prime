@@ -5,9 +5,7 @@ import type { Booking } from '@/types/Booking'
 import type { ReviewLink } from '@/types/Review'
 import type { ApiResponse } from '@/types/Commons'
 
-export interface ContactCase extends Booking {
-  agentNote?: string
-}
+export type ContactCase = Booking
 
 export const AgentService = {
   QUERY_KEYS: {
