@@ -35,9 +35,9 @@ export function PropertyCard({ property }: PropertyCardProps) {
     <Card className="group overflow-hidden hover:shadow-md transition-shadow">
       <Link to={`/property/${property.id}`}>
         <div className="relative aspect-video bg-gray-100 overflow-hidden">
-          {property.images?.[0] ? (
+          {property.imageUrls?.[0] ? (
             <img
-              src={property.images[0]}
+              src={property.imageUrls[0]}
               alt={property.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />

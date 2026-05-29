@@ -7,7 +7,6 @@ export const API = {
   // Properties (public)
   PROPERTIES: '/properties',
   PROPERTY_DETAIL: (id: number | string) => `/properties/${id}`,
-  PROPERTY_STATUS: (id: number | string) => `/properties/${id}/status`,
   PROPERTY_REVIEWS: (id: number | string) => `/properties/${id}/reviews`,
 
   // User scoped
@@ -26,6 +25,8 @@ export const API = {
   // Agent
   AGENT_DASHBOARD: '/agent/dashboard',
   AGENT_PROPERTIES: '/agent/properties',
+  AGENT_PROPERTY_DETAIL: (id: number | string) => `/agent/properties/${id}`,
+  AGENT_PROPERTY_STATUS: (id: number | string) => `/agent/properties/${id}/status`,
   AGENT_CONTACTS: '/agent/contacts',
   AGENT_CONTACT_NOTE: (id: number | string) => `/agent/contacts/${id}/note`,
   AGENT_REVIEW_LINK: (propertyId: number | string) => `/agent/review-link/${propertyId}`,

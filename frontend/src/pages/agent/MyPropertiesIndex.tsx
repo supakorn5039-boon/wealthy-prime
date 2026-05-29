@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { Plus } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PropertyService } from '@/services/PropertyService'
@@ -14,7 +14,7 @@ import { PageTitle } from '@/components/shared/PageTitle'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { FormSelect } from '@/components/form/FormSelect'
 import { FormInput } from '@/components/form/FormInput'
 import { formatPrice } from '@/utils/date'
@@ -47,6 +47,8 @@ function StatusModal({ property, open, onClose }: { property: Property; open: bo
     onSuccess: () => {
       toast.success(t('property.requestSent'))
       queryClient.invalidateQueries({ queryKey: [PropertyService.QUERY_KEYS.AGENT_LIST] })
+      queryClient.invalidateQueries({ queryKey: [PropertyService.QUERY_KEYS.LIST] })
+      queryClient.invalidateQueries({ queryKey: [PropertyService.QUERY_KEYS.DETAIL, property.id] })
       onClose()
     },
     onError: () => toast.error(t('common.error')),
@@ -59,11 +61,12 @@ function StatusModal({ property, open, onClose }: { property: Property; open: bo
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t('property.updateStatusTitle')}: {property.title}</DialogTitle>
+          <DialogDescription>{t('property.updateStatusDesc')}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit((values) => mutation.mutate(values))} className="space-y-4">
           <FormSelect control={control} name="status" label={t('property.newStatus')} options={statusOptions} required />
           {property.type === 'rent' && status === 'pending_approve' && (
-            <FormInput control={control} name="rentalPeriodMonths" label={t('property.rentalPeriod')} type="number" placeholder="6" />
+            <FormInput control={control} name="rentalPeriodMonths" label={t('property.rentalPeriod')} type="number" placeholder="6" min={1} step={1} />
           )}
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-gray-700">
@@ -90,11 +93,24 @@ function StatusModal({ property, open, onClose }: { property: Property; open: bo
 
 export default function MyPropertiesIndex() {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<Property | null>(null)
 
   const { data: properties = [], isLoading } = useQuery({
     queryKey: [PropertyService.QUERY_KEYS.AGENT_LIST],
     queryFn: PropertyService.getAgentProperties,
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => PropertyService.delete(id),
+    onSuccess: () => {
+      toast.success(t('common.deleted'))
+      queryClient.invalidateQueries({ queryKey: [PropertyService.QUERY_KEYS.AGENT_LIST] })
+      queryClient.invalidateQueries({ queryKey: [PropertyService.QUERY_KEYS.LIST] })
+      setDeleteTarget(null)
+    },
+    onError: () => toast.error(t('common.error')),
   })
 
   return (
@@ -145,9 +161,14 @@ export default function MyPropertiesIndex() {
                     <TableCell>{formatPrice(p.price)}</TableCell>
                     <TableCell><PropertyStatusBadge status={p.status} /></TableCell>
                     <TableCell className="text-right">
-                      <Button size="sm" variant="outline" onClick={() => setSelectedProperty(p)}>
-                        {t('property.updateStatus')}
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button size="sm" variant="outline" onClick={() => setSelectedProperty(p)}>
+                          {t('property.updateStatus')}
+                        </Button>
+                        <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700" onClick={() => setDeleteTarget(p)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -160,6 +181,27 @@ export default function MyPropertiesIndex() {
       {selectedProperty && (
         <StatusModal property={selectedProperty} open={!!selectedProperty} onClose={() => setSelectedProperty(null)} />
       )}
+
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('property.deleteTitle')}</DialogTitle>
+            <DialogDescription>
+              {t('property.deleteConfirm', { title: deleteTarget?.title ?? '' })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>{t('common.cancel')}</Button>
+            <Button
+              variant="destructive"
+              disabled={deleteMutation.isPending}
+              onClick={() => deleteTarget && deleteMutation.mutate(deleteTarget.id)}
+            >
+              {deleteMutation.isPending ? t('common.deleting') : t('common.delete')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

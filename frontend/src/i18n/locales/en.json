@@ -40,6 +40,8 @@
     "cancel": "Cancel",
     "edit": "Edit",
     "delete": "Delete",
+    "deleting": "Deleting...",
+    "deleted": "Deleted",
     "confirm": "Confirm",
     "search": "Search",
     "noData": "No data found",
@@ -52,6 +54,7 @@
     "email": "Email",
     "createdAt": "Registered",
     "status": "Status",
+    "role": "Role",
     "actions": "Actions"
   },
   "auth": {
@@ -93,6 +96,8 @@
   "property": {
     "buy": "Buy",
     "rent": "Rent",
+    "deleteTitle": "Delete property",
+    "deleteConfirm": "Are you sure you want to delete \"{{title}}\"? This action cannot be undone.",
     "status": {
       "available": "Available",
       "pending_approve": "Pending Approval",
@@ -125,6 +130,7 @@
     "requestSent": "Status update request sent. Awaiting admin approval.",
     "noData": "No properties found",
     "updateStatusTitle": "Update Status",
+    "updateStatusDesc": "Submit the payment slip to request a status change for this property.",
     "myPropertiesTitle": "My Properties",
     "addTitle": "Add New Property",
     "addSubtitle": "Fill in the details for the property you want to list",

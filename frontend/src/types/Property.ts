@@ -15,7 +15,7 @@ export interface Property {
   rentalPeriodMonths?: number
   slipUrl?: string
   status: PropertyStatus
-  images?: string[]
+  imageUrls?: string[]
   rating?: number
   reviewCount?: number
   lat?: number

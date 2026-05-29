@@ -14,12 +14,18 @@ fetchClient.interceptors.request.use((config) => {
   return config
 })
 
+const AUTH_ENDPOINTS = ['/auth/login', '/auth/register']
+
 fetchClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
-      useAuthStore.getState().logout()
-      window.location.href = '/login'
+      const url = error.config?.url ?? ''
+      const isAuthEndpoint = AUTH_ENDPOINTS.some((path) => url.endsWith(path))
+      if (!isAuthEndpoint) {
+        useAuthStore.getState().logout()
+        window.location.href = '/login'
+      }
     }
     return Promise.reject(error)
   }

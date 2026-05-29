@@ -2,3 +2,4 @@ config.ini
 .env
 uploads/*
 !uploads/.gitkeep
+src/uploads/

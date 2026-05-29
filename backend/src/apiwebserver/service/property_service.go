@@ -48,8 +48,9 @@ type CreatePropertyInput struct {
 }
 
 type UpdateStatusInput struct {
-	Status  model.PropertyStatus
-	SlipFile *multipart.FileHeader
+	Status             model.PropertyStatus
+	SlipFile           *multipart.FileHeader
+	RentalPeriodMonths *int
 }
 
 // ListProperties returns properties visible to the public (status != pending_approve).
@@ -190,11 +191,38 @@ func (s *PropertyService) UpdateStatus(propertyID, agentID uint, input UpdateSta
 		updates["slip_url"] = slipURL
 	}
 
+	if input.RentalPeriodMonths != nil {
+		updates["rental_period_months"] = *input.RentalPeriodMonths
+	}
+
 	if err := s.db.Model(&p).Updates(updates).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "failed to update property status")
 	}
 
 	return s.GetProperty(propertyID)
+}
+
+// DeleteProperty soft-deletes a property. Owning agent or admin only.
+func (s *PropertyService) DeleteProperty(propertyID, callerID uint, role model.UserRole) error {
+	var p model.Property
+	err := s.db.First(&p, propertyID).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return apperror.NotFound("property")
+	}
+	if err != nil {
+		return apperror.Wrap(err, 500, "database error")
+	}
+
+	if role != model.RoleAdmin {
+		if p.AgentID == nil || *p.AgentID != callerID {
+			return apperror.Forbidden("you do not own this property")
+		}
+	}
+
+	if err := s.db.Delete(&p).Error; err != nil {
+		return apperror.Wrap(err, 500, "failed to delete property")
+	}
+	return nil
 }
 
 // GetAgentProperties returns all properties for a given agent.

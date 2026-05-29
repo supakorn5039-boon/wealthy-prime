@@ -13,8 +13,15 @@ export const PropertyService = {
   },
 
   list: async (params?: PropertyListParams): Promise<ApiListResponse<Property>> => {
+    const p = params ?? {}
+    const queryParams = {
+      type: p.type,
+      search: p.search,
+      min_price: p.minPrice,
+      max_price: p.maxPrice,
+    }
     const res = await fetchClient.get<ApiListResponse<Property>>(API.PROPERTIES, {
-      params: cleanParams((params ?? {}) as Record<string, unknown>),
+      params: cleanParams(queryParams as Record<string, unknown>),
     })
     return res.data
   },
@@ -24,18 +31,22 @@ export const PropertyService = {
     return res.data.data
   },
 
-  create: async (payload: CreatePropertyPayload): Promise<Property> => {
-    const res = await fetchClient.post<ApiResponse<Property>>(API.PROPERTIES, payload)
-    return res.data.data
-  },
-
   createWithImages: async (payload: CreatePropertyPayload, images: File[]): Promise<Property> => {
     const formData = new FormData()
-    Object.entries(payload).forEach(([key, val]) => {
-      if (val !== undefined && val !== null) formData.append(key, String(val))
-    })
+    formData.append('title', payload.title)
+    formData.append('project_name', payload.projectName)
+    formData.append('location', payload.location)
+    formData.append('price', String(payload.price))
+    formData.append('type', payload.type)
+    formData.append('owner_info', payload.ownerInfo)
+    if (payload.sizeSqm !== undefined && payload.sizeSqm !== null) {
+      formData.append('size_sqm', String(payload.sizeSqm))
+    }
+    if (payload.rentalPeriodMonths !== undefined && payload.rentalPeriodMonths !== null) {
+      formData.append('rental_period_months', String(payload.rentalPeriodMonths))
+    }
     images.forEach((img) => formData.append('images', img))
-    const res = await fetchClient.post<ApiResponse<Property>>(API.PROPERTIES, formData, {
+    const res = await fetchClient.post<ApiResponse<Property>>(API.AGENT_PROPERTIES, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
     return res.data.data
@@ -45,15 +56,15 @@ export const PropertyService = {
     const formData = new FormData()
     formData.append('status', payload.status)
     if (payload.slipFile) formData.append('slip', payload.slipFile)
-    if (payload.rentalPeriodMonths) formData.append('rentalPeriodMonths', String(payload.rentalPeriodMonths))
-    const res = await fetchClient.patch<ApiResponse<Property>>(API.PROPERTY_STATUS(id), formData, {
+    if (payload.rentalPeriodMonths) formData.append('rental_period_months', String(payload.rentalPeriodMonths))
+    const res = await fetchClient.patch<ApiResponse<Property>>(API.AGENT_PROPERTY_STATUS(id), formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
     return res.data.data
   },
 
   delete: async (id: number | string): Promise<void> => {
-    await fetchClient.delete(API.PROPERTY_DETAIL(id))
+    await fetchClient.delete(API.AGENT_PROPERTY_DETAIL(id))
   },
 
   getAgentProperties: async (): Promise<Property[]> => {

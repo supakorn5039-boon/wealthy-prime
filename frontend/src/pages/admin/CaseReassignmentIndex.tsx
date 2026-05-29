@@ -34,9 +34,14 @@ export default function CaseReassignmentIndex() {
   const reassignMutation = useMutation({
     mutationFn: ({ bookingId, newAgentId }: { bookingId: number; newAgentId: string }) =>
       AdminService.reassignCase(bookingId, newAgentId),
-    onSuccess: () => {
+    onSuccess: (_data, vars) => {
       toast.success(t('admin.reassignSuccess'))
       queryClient.invalidateQueries({ queryKey: [BookingService.QUERY_KEYS.LIST] })
+      setSelectedAgentId((prev) => {
+        const next = { ...prev }
+        delete next[vars.bookingId]
+        return next
+      })
     },
     onError: () => toast.error(t('common.error')),
   })
@@ -74,7 +79,7 @@ export default function CaseReassignmentIndex() {
                     <TableCell>{booking.propertyTitle ?? `#${booking.propertyId}`}</TableCell>
                     <TableCell>{formatDateTime(booking.appointmentDate)}</TableCell>
                     <TableCell><BookingStatusBadge status={booking.status} /></TableCell>
-                    <TableCell>{booking.assignedAgentName ?? '-'}</TableCell>
+                    <TableCell>{booking.agentName ?? '-'}</TableCell>
                     <TableCell>
                       <Select
                         value={selectedAgentId[booking.id] ?? ''}

@@ -11,6 +11,7 @@ build/
 # Environment files (keep .env.production but not local secrets)
 .env.local
 .env.*.local
+frontend/.env
 
 # Logs
 *.log

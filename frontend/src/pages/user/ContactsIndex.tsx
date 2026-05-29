@@ -45,8 +45,8 @@ export default function ContactsIndex() {
                     <p className="text-sm text-gray-500">
                       {t('contacts.appointmentDate')} {formatDateTime(booking.appointmentDate)}
                     </p>
-                    {booking.assignedAgentName && (
-                      <p className="text-sm text-primary">{t('contacts.agentLabel')} {booking.assignedAgentName}</p>
+                    {booking.agentName && (
+                      <p className="text-sm text-primary">{t('contacts.agentLabel')} {booking.agentName}</p>
                     )}
                     {booking.note && (
                       <p className="text-sm text-gray-600 bg-gray-50 rounded p-2 mt-2">

@@ -13,6 +13,7 @@ import { PageTitle } from '@/components/shared/PageTitle'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { FormInput } from '@/components/form/FormInput'
 import { formatDate } from '@/utils/date'
@@ -73,15 +74,16 @@ export default function UserManagementIndex() {
     queryFn: AdminService.getUsers,
   })
 
-  const userOnly = users.filter((u) => u.role === 'user')
+  const roleBadgeVariant = (role: AuthUser['role']) =>
+    role === 'admin' ? 'destructive' : role === 'agent' ? 'default' : 'secondary'
 
   return (
     <div className="max-w-5xl mx-auto">
-      <PageTitle title={t('admin.usersTitle')} subtitle={`${userOnly.length} ${t('admin.people')}`} />
+      <PageTitle title={t('admin.usersTitle')} subtitle={`${users.length} ${t('admin.people')}`} />
 
       {isLoading ? (
         <LoadingSpinner text={t('common.loading')} />
-      ) : userOnly.length === 0 ? (
+      ) : users.length === 0 ? (
         <EmptyState title={t('admin.noUsers')} />
       ) : (
         <Card>
@@ -92,16 +94,20 @@ export default function UserManagementIndex() {
                   <TableHead>{t('common.name')}</TableHead>
                   <TableHead>{t('common.email')}</TableHead>
                   <TableHead>{t('common.phone')}</TableHead>
+                  <TableHead>{t('common.role')}</TableHead>
                   <TableHead>{t('common.createdAt')}</TableHead>
                   <TableHead className="text-right">{t('common.edit')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {userOnly.map((u) => (
+                {users.map((u) => (
                   <TableRow key={u.id}>
                     <TableCell className="font-medium">{u.name}</TableCell>
                     <TableCell>{u.email}</TableCell>
                     <TableCell>{u.phone}</TableCell>
+                    <TableCell>
+                      <Badge variant={roleBadgeVariant(u.role)}>{t(`role.${u.role}`)}</Badge>
+                    </TableCell>
                     <TableCell>{formatDate(u.createdAt)}</TableCell>
                     <TableCell className="text-right">
                       <Button size="sm" variant="ghost" onClick={() => setEditingUser(u)}>

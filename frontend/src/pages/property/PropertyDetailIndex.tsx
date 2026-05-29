@@ -70,7 +70,7 @@ export default function PropertyDetailIndex() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <PropertyGallery images={property.images} title={property.title} />
+      <PropertyGallery images={property.imageUrls} title={property.title} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">

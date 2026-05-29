@@ -10,13 +10,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { FormInput } from '@/components/form/FormInput'
 import { FormSelect } from '@/components/form/FormSelect'
 import { AuthService } from '@/services/AuthService'
-import { useAuthStore } from '@/store/authStore'
 import { registerSchema, type RegisterSchema } from '@/dto/AuthValidation'
 import { ROUTES } from '@/constants/Routes'
 
 export default function RegisterIndex() {
   const { t } = useTranslation()
-  const { login } = useAuthStore()
   const navigate = useNavigate()
 
   const roleOptions = [
@@ -31,10 +29,9 @@ export default function RegisterIndex() {
 
   const mutation = useMutation({
     mutationFn: AuthService.register,
-    onSuccess: (data) => {
-      login(data.token, data.user)
+    onSuccess: () => {
       toast.success(t('auth.registerSuccess'))
-      navigate(ROUTES.HOME)
+      navigate(ROUTES.LOGIN, { replace: true })
     },
     onError: () => toast.error(t('auth.registerError')),
   })

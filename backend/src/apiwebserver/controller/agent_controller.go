@@ -33,6 +33,7 @@ func (ctrl *AgentController) RegisterRoutes(r *gin.RouterGroup) {
 	agent.GET("/properties", ctrl.listProperties)
 	agent.POST("/properties", ctrl.createProperty)
 	agent.PATCH("/properties/:id/status", ctrl.updateStatus)
+	agent.DELETE("/properties/:id", ctrl.deleteProperty)
 
 	agent.GET("/contacts", ctrl.getContacts)
 	agent.PATCH("/contacts/:bookingId/note", ctrl.updateNote)
@@ -89,14 +90,22 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 
 	var sizeSqm float64
 	if s := formVal(form.Value, "size_sqm"); s != "" {
-		sizeSqm, _ = strconv.ParseFloat(s, 64)
+		v, err := strconv.ParseFloat(s, 64)
+		if err != nil || v < 0 {
+			badRequest(c, "size_sqm must be a non-negative number")
+			return
+		}
+		sizeSqm = v
 	}
 
 	var rentalPeriodMonths *int
 	if r := formVal(form.Value, "rental_period_months"); r != "" {
-		if n, err := strconv.Atoi(r); err == nil {
-			rentalPeriodMonths = &n
+		n, err := strconv.Atoi(r)
+		if err != nil || n <= 0 {
+			badRequest(c, "rental_period_months must be a positive integer")
+			return
 		}
+		rentalPeriodMonths = &n
 	}
 
 	// Duplicate check
@@ -160,6 +169,15 @@ func (ctrl *AgentController) updateStatus(c *gin.Context) {
 		input.SlipFile = slipFiles[0]
 	}
 
+	if r := formVal(form.Value, "rental_period_months"); r != "" {
+		n, err := strconv.Atoi(r)
+		if err != nil || n <= 0 {
+			badRequest(c, "rental_period_months must be a positive integer")
+			return
+		}
+		input.RentalPeriodMonths = &n
+	}
+
 	dto, err := ctrl.propertySvc.UpdateStatus(propertyID, agentID, input)
 	if err != nil {
 		errorResponse(c, err)
@@ -167,6 +185,23 @@ func (ctrl *AgentController) updateStatus(c *gin.Context) {
 	}
 
 	successResponse(c, dto)
+}
+
+func (ctrl *AgentController) deleteProperty(c *gin.Context) {
+	agentID := middleware.GetUserID(c)
+	role := middleware.GetRole(c)
+	propertyID, err := parseUintParam(c, "id")
+	if err != nil {
+		badRequest(c, "invalid property id")
+		return
+	}
+
+	if err := ctrl.propertySvc.DeleteProperty(propertyID, agentID, role); err != nil {
+		errorResponse(c, err)
+		return
+	}
+
+	c.JSON(200, gin.H{"success": true})
 }
 
 func (ctrl *AgentController) getContacts(c *gin.Context) {

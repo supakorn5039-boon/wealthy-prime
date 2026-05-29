@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { CheckCircle, XCircle, ExternalLink } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { AdminService } from '@/services/AdminService'
+import { PropertyService } from '@/services/PropertyService'
 import { PropertyStatusBadge } from '@/components/shared/StatusBadge'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
@@ -27,6 +28,8 @@ export default function PendingApprovalsIndex() {
     onSuccess: () => {
       toast.success(t('admin.approveSuccess'))
       queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.PENDING] })
+      queryClient.invalidateQueries({ queryKey: [PropertyService.QUERY_KEYS.LIST] })
+      queryClient.invalidateQueries({ queryKey: [PropertyService.QUERY_KEYS.AGENT_LIST] })
     },
     onError: () => toast.error(t('common.error')),
   })
@@ -36,6 +39,8 @@ export default function PendingApprovalsIndex() {
     onSuccess: () => {
       toast.success(t('admin.rejectSuccess'))
       queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.PENDING] })
+      queryClient.invalidateQueries({ queryKey: [PropertyService.QUERY_KEYS.LIST] })
+      queryClient.invalidateQueries({ queryKey: [PropertyService.QUERY_KEYS.AGENT_LIST] })
     },
     onError: () => toast.error(t('common.error')),
   })

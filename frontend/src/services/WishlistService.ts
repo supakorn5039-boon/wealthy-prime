@@ -14,7 +14,7 @@ export const WishlistService = {
   },
 
   add: async (propertyId: number | string): Promise<void> => {
-    await fetchClient.post(API.WISHLIST, { propertyId })
+    await fetchClient.post(API.WISHLIST, { property_id: Number(propertyId) })
   },
 
   remove: async (propertyId: number | string): Promise<void> => {

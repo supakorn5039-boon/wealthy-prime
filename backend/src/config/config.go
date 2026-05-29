@@ -14,6 +14,7 @@ type ServerConfig struct {
 	Production    bool
 	JWTSecret     string
 	ReviewSecret  string
+	PublicBaseURL string
 }
 
 type DatabaseConfig struct {
@@ -51,6 +52,7 @@ func Load(path string) {
 	App.Server.Production = serverSection.Key("production").MustBool(false)
 	App.Server.JWTSecret = getVal(serverSection, "jwt_secret", "")
 	App.Server.ReviewSecret = getVal(serverSection, "review_secret", "")
+	App.Server.PublicBaseURL = strings.TrimRight(getVal(serverSection, "public_base_url", ""), "/")
 
 	// Override with environment variables
 	if v := os.Getenv("JWT_SECRET"); v != "" {
@@ -61,6 +63,9 @@ func Load(path string) {
 	}
 	if v := os.Getenv("PORT"); v != "" {
 		App.Server.Port = v
+	}
+	if v := os.Getenv("PUBLIC_BASE_URL"); v != "" {
+		App.Server.PublicBaseURL = strings.TrimRight(v, "/")
 	}
 
 	if App.Server.JWTSecret == "" {

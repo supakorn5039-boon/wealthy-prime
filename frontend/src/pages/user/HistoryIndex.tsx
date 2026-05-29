@@ -61,7 +61,7 @@ export default function HistoryIndex() {
                   <TableRow key={booking.id}>
                     <TableCell className="font-medium">{booking.propertyTitle ?? `#${booking.propertyId}`}</TableCell>
                     <TableCell>{formatDateTime(booking.appointmentDate)}</TableCell>
-                    <TableCell>{booking.assignedAgentName ?? '-'}</TableCell>
+                    <TableCell>{booking.agentName ?? '-'}</TableCell>
                     <TableCell><BookingStatusBadge status={booking.status} /></TableCell>
                     <TableCell className="text-right">
                       {booking.status === 'pending' && (

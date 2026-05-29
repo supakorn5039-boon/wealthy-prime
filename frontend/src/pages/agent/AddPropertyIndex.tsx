@@ -102,12 +102,12 @@ export default function AddPropertyIndex() {
             <FormInput control={control} name="projectName" label={t('property.projectName')} placeholder={t('property.projectName')} required />
             <FormInput control={control} name="location" label={t('property.location')} placeholder={t('property.location')} required />
             <div className="grid grid-cols-2 gap-4">
-              <FormInput control={control} name="price" label={t('property.priceLabel')} type="number" placeholder="0" required />
-              <FormInput control={control} name="sizeSqm" label={t('property.size')} type="number" placeholder="0" />
+              <FormInput control={control} name="price" label={t('property.priceLabel')} type="number" placeholder="0" min={0} step="any" required />
+              <FormInput control={control} name="sizeSqm" label={t('property.size')} type="number" placeholder="0" min={0} step="any" />
             </div>
             <FormSelect control={control} name="type" label={t('property.typeCol')} options={typeOptions} required />
             {propertyType === 'rent' && (
-              <FormInput control={control} name="rentalPeriodMonths" label={t('property.rentalPeriod')} type="number" placeholder="12" />
+              <FormInput control={control} name="rentalPeriodMonths" label={t('property.rentalPeriod')} type="number" placeholder="12" min={1} step={1} />
             )}
           </CardContent>
         </Card>

@@ -1,9 +1,12 @@
 package model
 
 import (
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
+
+	"github.com/wealthy-prime/backend/src/config"
 )
 
 type PropertyStatus string
@@ -73,7 +76,7 @@ func (p *Property) ToDto() *PropertyDto {
 		AgentID:            p.AgentID,
 		OwnerInfo:          p.OwnerInfo,
 		RentalPeriodMonths: p.RentalPeriodMonths,
-		SlipURL:            p.SlipURL,
+		SlipURL:            absoluteURL(p.SlipURL),
 		Status:             p.Status,
 		ImageURLs:          []string{},
 		CreatedAt:          p.CreatedAt.Format(time.RFC3339),
@@ -83,7 +86,27 @@ func (p *Property) ToDto() *PropertyDto {
 		dto.AgentName = p.Agent.Name
 	}
 	for _, img := range p.Images {
-		dto.ImageURLs = append(dto.ImageURLs, img.URL)
+		dto.ImageURLs = append(dto.ImageURLs, absoluteURL(img.URL))
 	}
 	return dto
+}
+
+// absoluteURL prefixes a relative upload path with the configured public base URL.
+// If the path is already absolute (http/https) or empty, it is returned unchanged.
+// If no public base URL is configured, the path is returned unchanged (caller-side proxy resolves it).
+func absoluteURL(p string) string {
+	if p == "" {
+		return p
+	}
+	if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
+		return p
+	}
+	base := config.App.Server.PublicBaseURL
+	if base == "" {
+		return p
+	}
+	if !strings.HasPrefix(p, "/") {
+		p = "/" + p
+	}
+	return base + p
 }

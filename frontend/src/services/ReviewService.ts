@@ -22,7 +22,12 @@ export const ReviewService = {
   },
 
   create: async (payload: CreateReviewPayload): Promise<Review> => {
-    const res = await fetchClient.post<ApiResponse<Review>>(API.REVIEWS, payload)
+    const body = {
+      property_id: payload.propertyId,
+      rating: payload.rating,
+      comment: payload.comment,
+    }
+    const res = await fetchClient.post<ApiResponse<Review>>(API.REVIEWS, body)
     return res.data.data
   },
 }

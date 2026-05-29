@@ -11,6 +11,9 @@ interface FormInputProps<T extends FieldValues> {
   required?: boolean
   disabled?: boolean
   type?: string
+  min?: number | string
+  max?: number | string
+  step?: number | string
 }
 
 export function FormInput<T extends FieldValues>({
@@ -21,6 +24,9 @@ export function FormInput<T extends FieldValues>({
   required,
   disabled,
   type = 'text',
+  min,
+  max,
+  step,
 }: FormInputProps<T>) {
   const { field, fieldState } = useController({ control, name })
 
@@ -36,6 +42,14 @@ export function FormInput<T extends FieldValues>({
         placeholder={placeholder}
         disabled={disabled}
         value={field.value ?? ''}
+        min={min}
+        max={max}
+        step={step}
+        onKeyDown={(e) => {
+          if (type === 'number' && (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+')) {
+            e.preventDefault()
+          }
+        }}
         className={cn(fieldState.error && 'border-red-500', disabled && 'bg-gray-100')}
       />
       {fieldState.error && <p className="text-sm text-red-500">{fieldState.error.message}</p>}

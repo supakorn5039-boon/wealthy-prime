@@ -40,6 +40,8 @@
     "cancel": "取消",
     "edit": "编辑",
     "delete": "删除",
+    "deleting": "删除中...",
+    "deleted": "已删除",
     "confirm": "确认",
     "search": "搜索",
     "noData": "未找到数据",
@@ -52,6 +54,7 @@
     "email": "邮箱",
     "createdAt": "注册时间",
     "status": "状态",
+    "role": "角色",
     "actions": "操作"
   },
   "auth": {
@@ -93,6 +96,8 @@
   "property": {
     "buy": "购买",
     "rent": "租赁",
+    "deleteTitle": "删除房产",
+    "deleteConfirm": "确认删除 \"{{title}}\"？此操作不可撤销。",
     "status": {
       "available": "空置",
       "pending_approve": "待审批",
@@ -125,6 +130,7 @@
     "requestSent": "状态更新请求已发送，等待管理员审批",
     "noData": "未找到房产",
     "updateStatusTitle": "更新状态",
+    "updateStatusDesc": "请上传付款单据以申请更新该房产的状态。",
     "myPropertiesTitle": "我的房产",
     "addTitle": "添加新房产",
     "addSubtitle": "填写您要注册的房产详情",

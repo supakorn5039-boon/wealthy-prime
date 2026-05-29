@@ -10,8 +10,13 @@ export const BookingService = {
   },
 
   create: async (payload: CreateBookingPayload): Promise<Booking> => {
-    const res = await fetchClient.post<ApiResponse<Booking>>(API.BOOKINGS, payload)
-    return res.data.data
+    const body = {
+      property_ids: [payload.propertyId],
+      appointment_date: payload.appointmentDate,
+      note: payload.note,
+    }
+    const res = await fetchClient.post<ApiResponse<Booking[]>>(API.BOOKINGS, body)
+    return res.data.data[0]
   },
 
   list: async (): Promise<Booking[]> => {

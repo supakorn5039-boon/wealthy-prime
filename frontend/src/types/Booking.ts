@@ -13,7 +13,7 @@ export interface Booking {
   agentNote?: string
   status: BookingStatus
   assignedAgentId?: number
-  assignedAgentName?: string
+  agentName?: string
   createdAt: string
 }
 
