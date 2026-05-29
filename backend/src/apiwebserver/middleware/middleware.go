@@ -58,7 +58,7 @@ func Rbac(roles ...model.UserRole) gin.HandlerFunc {
 			return
 		}
 
-		if slices.Contains(roles, userRole) {
+		if userRole == model.RoleAdmin || slices.Contains(roles, userRole) {
 			c.Next()
 			return
 		}

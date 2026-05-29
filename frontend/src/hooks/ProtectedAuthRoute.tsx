@@ -36,7 +36,7 @@ export function ProtectedAuthRoute({ children, allowedRoles }: ProtectedAuthRout
     return <Navigate to={ROUTES.LOGIN} state={{ from: location }} replace />
   }
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
+  if (allowedRoles && user.role !== 'admin' && !allowedRoles.includes(user.role)) {
     return <Navigate to={roleHomePage[user.role] ?? ROUTES.HOME} replace />
   }
 
