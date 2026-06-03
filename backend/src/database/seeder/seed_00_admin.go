@@ -36,7 +36,7 @@ func seedAdmin(db *gorm.DB) {
 		Name:         "System Admin",
 		Email:        adminEmail,
 		PasswordHash: hash,
-		Phone:        "0000000000",
+		Phone:        "0811111111",
 		Role:         model.RoleAdmin,
 	}
 

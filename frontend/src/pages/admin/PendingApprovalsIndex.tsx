@@ -49,7 +49,7 @@ export default function PendingApprovalsIndex() {
   if (isLoading) return <LoadingSpinner text={t('common.loading')} />
 
   return (
-    <PageContainer size="5xl">
+    <PageContainer size="7xl">
       <PageTitle
         title={t('admin.pendingTitle')}
         subtitle={`${pendings.length} ${t('admin.pendingCount')}`}

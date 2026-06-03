@@ -19,5 +19,5 @@ interface PageContainerProps {
 }
 
 export function PageContainer({ children, size = '5xl', className }: PageContainerProps) {
-  return <div className={cn(SIZE_CLASS[size], 'mx-auto', className)}>{children}</div>
+  return <div className={cn(SIZE_CLASS[size], 'mx-auto px-4 sm:px-6 py-4 sm:py-6', className)}>{children}</div>
 }

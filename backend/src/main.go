@@ -18,6 +18,7 @@ import (
 	"github.com/wealthy-prime/backend/src/database/migration"
 	"github.com/wealthy-prime/backend/src/database/seeder"
 	"github.com/wealthy-prime/backend/src/pkg"
+	"github.com/wealthy-prime/backend/src/pkg/email"
 	"github.com/wealthy-prime/backend/src/security"
 )
 
@@ -49,6 +50,23 @@ func main() {
 			return
 		case "migrate:status":
 			log.Println("using GORM AutoMigrate — no migration status tracking")
+			return
+		case "test-email":
+			if len(os.Args) < 3 {
+				log.Fatal("usage: go run . test-email <recipient@example.com>")
+			}
+			to := os.Args[2]
+			sender := email.New()
+			err := sender.Send(email.Message{
+				To:       to,
+				Subject:  "Wealthy Prime Estate — test email",
+				TextBody: "This is a test email from the Wealthy Prime Estate backend. If you got this, SMTP is configured correctly.",
+				HTMLBody: "<p>This is a <strong>test email</strong> from the Wealthy Prime Estate backend.</p><p>If you got this, SMTP is configured correctly.</p>",
+			})
+			if err != nil {
+				log.Fatalf("test-email failed: %v", err)
+			}
+			log.Printf("test-email sent to %s", to)
 			return
 		default:
 			log.Fatalf("unknown command: %s", os.Args[1])

@@ -23,7 +23,7 @@ export const ReviewService = {
 
   create: async (payload: CreateReviewPayload): Promise<Review> => {
     const body = {
-      property_id: payload.propertyId,
+      token: payload.token,
       rating: payload.rating,
       comment: payload.comment,
     }

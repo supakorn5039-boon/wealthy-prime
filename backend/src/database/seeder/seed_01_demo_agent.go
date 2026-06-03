@@ -27,9 +27,12 @@ func seedDemoAgent(db *gorm.DB) uint {
 
 	agent := model.User{
 		Name:         "Demo Agent",
+		FirstName:    "Demo",
+		LastName:     "Agent",
 		Email:        demoAgentEmail,
 		PasswordHash: hash,
 		Phone:        "0811111111",
+		AgentCode:    "A100001",
 		Role:         model.RoleAgent,
 	}
 	if err := db.Create(&agent).Error; err != nil {

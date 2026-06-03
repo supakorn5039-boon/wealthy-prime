@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatDate } from '@/utils/date'
+import { copyToClipboard } from '@/utils/copyToClipboard'
 
 export default function ReviewLinkIndex() {
   const { t } = useTranslation()
@@ -40,7 +41,9 @@ export default function ReviewLinkIndex() {
   })
 
   const copyLink = (url: string) => {
-    navigator.clipboard.writeText(url).then(() => toast.success(t('agent.linkCopied')))
+    copyToClipboard(url)
+      .then(() => toast.success(t('agent.linkCopied')))
+      .catch(() => toast.error(t('common.error')))
   }
 
   return (

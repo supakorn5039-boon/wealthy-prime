@@ -10,7 +10,7 @@ export default function OwnerLogIndex() {
   const [search, setSearch] = useState('')
 
   return (
-    <PageContainer size="5xl">
+    <PageContainer size="7xl">
       <PageTitle title={t('agent.ownerLogTitle')} />
 
       <div className="relative mb-6">

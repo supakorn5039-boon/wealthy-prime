@@ -23,7 +23,8 @@ func (ctrl *ReviewController) RegisterRoutes(r *gin.RouterGroup) {
 	// Public: resolve a review-link token into property info (no auth needed)
 	r.GET("/reviews/token/:token", ctrl.resolveToken)
 
-	// Authenticated users can submit reviews
+	// Submission requires login. The token still authorizes which property is
+	// being reviewed — never trust a client-supplied property_id.
 	reviews := r.Group("/reviews", middleware.Protected())
 	reviews.POST("", ctrl.createReview)
 }
@@ -49,9 +50,9 @@ func (ctrl *ReviewController) resolveToken(c *gin.Context) {
 }
 
 type createReviewInput struct {
-	PropertyID uint   `json:"property_id" binding:"required"`
-	Rating     int    `json:"rating"      binding:"required,min=1,max=5"`
-	Comment    string `json:"comment"`
+	Token   string `json:"token"   binding:"required"`
+	Rating  int    `json:"rating"  binding:"required,min=1,max=5"`
+	Comment string `json:"comment"`
 }
 
 func (ctrl *ReviewController) createReview(c *gin.Context) {
@@ -63,15 +64,23 @@ func (ctrl *ReviewController) createReview(c *gin.Context) {
 		return
 	}
 
-	// Verify property exists
+	// Token is the source of truth for which property is being reviewed —
+	// never trust a client-supplied property_id, which would let anyone with
+	// a single valid token post reviews on other properties.
+	propertyID, _, err := service.ParseReviewToken(input.Token)
+	if err != nil {
+		errorResponse(c, err)
+		return
+	}
+
 	var prop model.Property
-	if err := database.DB.First(&prop, input.PropertyID).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+	if err := database.DB.First(&prop, propertyID).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		errorResponse(c, apperror.NotFound("property"))
 		return
 	}
 
 	review := model.Review{
-		PropertyID: input.PropertyID,
+		PropertyID: propertyID,
 		UserID:     userID,
 		Rating:     input.Rating,
 		Comment:    input.Comment,

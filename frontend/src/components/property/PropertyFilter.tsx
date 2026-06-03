@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Search, SlidersHorizontal, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
@@ -18,6 +18,12 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
   const [minPrice, setMinPrice] = useState(initialValues?.minPrice?.toString() ?? '')
   const [maxPrice, setMaxPrice] = useState(initialValues?.maxPrice?.toString() ?? '')
   const [showAdvanced, setShowAdvanced] = useState(false)
+
+  // Keep inputs in sync when filters are updated externally (e.g. Buy/Rent quick toggle on Home).
+  useEffect(() => setType(initialValues?.type ?? ''), [initialValues?.type])
+  useEffect(() => setSearch(initialValues?.search ?? ''), [initialValues?.search])
+  useEffect(() => setMinPrice(initialValues?.minPrice?.toString() ?? ''), [initialValues?.minPrice])
+  useEffect(() => setMaxPrice(initialValues?.maxPrice?.toString() ?? ''), [initialValues?.maxPrice])
 
   const handleApply = () => {
     onFilter({

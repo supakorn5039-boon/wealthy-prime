@@ -1,7 +1,7 @@
 {
   "nav": {
     "home": "หน้าแรก",
-    "search": "ค้นหาสังหา",
+    "search": "ค้นหาอสังหา",
     "map": "แผนที่",
     "login": "เข้าสู่ระบบ",
     "register": "สมัครสมาชิก",
@@ -10,17 +10,19 @@
   "role": {
     "user": "ผู้ใช้งาน",
     "agent": "เอเจนต์",
-    "admin": "ผู้ดูแลระบบ"
+    "admin": "ผู้ดูแลระบบ",
+    "superadmin": "ผู้ดูแลระบบใหญ่"
   },
   "sidebar": {
     "back": "กลับหน้าแรก",
+    "personalInfo": "ข้อมูลส่วนตัว",
     "dashboard": "แดชบอร์ด",
     "allProperties": "อสังหาทั้งหมด",
     "visitRequests": "คำขอเยี่ยมชม",
     "inquiries": "การติดต่อสอบถาม",
     "leads": "ลูกค้า/Leads",
     "agentProfile": "ตัวแทน",
-    "agentOverview": "ภาพรวมเอเจน",
+    "agentOverview": "ภาพรวมเอเจนต์",
     "ownerLog": "Log ดูข้อมูลเจ้าของ",
     "addProperty": "เพิ่มทรัพย์สิน",
     "reviewLink": "สร้างลิงก์รีวิว",
@@ -43,6 +45,8 @@
     "delete": "ลบ",
     "deleting": "กำลังลบ...",
     "deleted": "ลบสำเร็จ",
+    "copy": "คัดลอก",
+    "copied": "คัดลอกแล้ว",
     "confirm": "ยืนยัน",
     "search": "ค้นหา",
     "noData": "ไม่พบข้อมูล",
@@ -56,7 +60,9 @@
     "createdAt": "สมัครเมื่อ",
     "status": "สถานะ",
     "role": "บทบาท",
-    "actions": "การจัดการ"
+    "actions": "การจัดการ",
+    "view": "ดูรายละเอียด",
+    "phaseNext": "ฟีเจอร์นี้จะเปิดในเฟสถัดไป"
   },
   "auth": {
     "loginTitle": "เข้าสู่ระบบ",
@@ -67,8 +73,17 @@
     "passwordPlaceholder": "รหัสผ่าน",
     "name": "ชื่อ-นามสกุล",
     "namePlaceholder": "ชื่อ นามสกุล",
-    "phone": "เบอร์โทรศัพท์",
+    "firstName": "ชื่อ",
+    "firstNamePlaceholder": "ชื่อ",
+    "lastName": "นามสกุล",
+    "lastNamePlaceholder": "นามสกุล",
+    "phone": "เบอร์ติดต่อ",
     "phonePlaceholder": "0812345678",
+    "secondaryPhone": "เบอร์ติดต่อสำรอง",
+    "lineId": "Line ID",
+    "facebook": "Facebook",
+    "wechat": "WeChat",
+    "whatsapp": "WhatsApp",
     "registerTitle": "สมัครสมาชิก",
     "registerSubtitle": "สร้างบัญชีใหม่เพื่อเริ่มใช้งาน",
     "roleLabel": "สมัครในฐานะ",
@@ -88,11 +103,29 @@
     "loginError": "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
     "registerError": "เกิดข้อผิดพลาด อาจมีบัญชีนี้อยู่แล้ว"
   },
+  "profile": {
+    "title": "ข้อมูลส่วนตัว",
+    "subtitle": "ดูและอัปเดตข้อมูลบัญชีของคุณ",
+    "identitySection": "ข้อมูลผู้ใช้",
+    "contactSection": "ช่องทางการติดต่อ",
+    "agentSection": "ข้อมูลเอเจนต์",
+    "activitySection": "กิจกรรมของฉัน",
+    "agentCode": "รหัสตัวแทน",
+    "memberSince": "สมาชิกตั้งแต่",
+    "updateSuccess": "บันทึกข้อมูลแล้ว"
+  },
   "booking": {
     "pending": "รอดำเนินการ",
     "assigned": "กำลังดำเนินการ",
     "completed": "เสร็จสิ้น",
     "cancelled": "ยกเลิก"
+  },
+  "workStatus": {
+    "contacted": "ติดต่อแล้ว",
+    "visited": "พาไปเยี่ยมชม",
+    "booked": "จองแล้ว",
+    "closed_deal": "ปิดดีล",
+    "customer_cancelled": "ลูกค้ายกเลิกนัดหมาย"
   },
   "property": {
     "buy": "ซื้อ",
@@ -104,12 +137,55 @@
       "pending_approve": "รออนุมัติ",
       "reserved": "จอง",
       "sold": "ขายแล้ว",
-      "rented": "เช่าแล้ว"
+      "rented": "เช่าแล้ว",
+      "unavailable": "ไม่ว่าง",
+      "owner_update": "เจ้าของอัปเดต"
     },
+    "kindLabel": "ประเภททรัพย์",
+    "kind": {
+      "condo": "คอนโด",
+      "house": "บ้าน",
+      "townhouse": "ทาวน์เฮาส์"
+    },
+    "listingLabel": "ประเภทรายการ",
+    "listing": {
+      "rent": "เช่า",
+      "sell": "ขาย",
+      "both": "เช่าและขาย"
+    },
+    "province": "จังหวัด",
+    "district": "เขต",
+    "selectProvinceFirst": "กรุณาเลือกจังหวัดก่อน",
+    "googleMapUrl": "URL Google Map",
+    "btsMrt": "BTS / MRT ใกล้เคียง",
+    "bedrooms": "จำนวนห้องนอน",
+    "bathrooms": "จำนวนห้องน้ำ",
+    "floor": "ชั้น",
+    "minContract": "สัญญาขั้นต่ำ (เดือน)",
+    "petsLabel": "สัตว์เลี้ยง",
+    "pets": {
+      "allowed": "อนุญาต",
+      "not_allowed": "ไม่อนุญาต"
+    },
+    "furnitureLabel": "เฟอร์นิเจอร์",
+    "furniture": {
+      "full": "ตกแต่งครบ",
+      "partial": "มีบางส่วน",
+      "none": "ไม่มี"
+    },
+    "adCaption": "คำเปรยโฆษณา",
+    "locationSection": "ที่ตั้ง",
+    "specsSection": "รายละเอียดทรัพย์",
+    "ownerName": "ชื่อเจ้าของทรัพย์",
+    "ownerPhone": "เบอร์โทรเจ้าของ",
+    "ownerLineId": "Line ID เจ้าของ",
+    "ownerEmail": "Email เจ้าของ",
+    "ownerFacebook": "Facebook เจ้าของ",
+    "ownerWechat": "WeChat เจ้าของ",
+    "ownerWhatsapp": "WhatsApp เจ้าของ",
     "code": "รหัส",
     "project": "โครงการ",
     "typeCol": "ประเภท",
-    "district": "เขต",
     "price": "ราคา/เช่า",
     "statusCol": "สถานะ",
     "management": "การจัดการ",
@@ -216,16 +292,21 @@
     "noteLabel": "โน้ต",
     "notePlaceholder": "เพิ่มโน้ต...",
     "noteSaved": "บันทึกโน้ตเรียบร้อย",
+    "workStatusCol": "สถานะการทำงาน",
+    "workStatusPlaceholder": "อัปเดตสถานะ",
+    "workStatusSaved": "บันทึกสถานะแล้ว",
     "ownerInfo": "ข้อมูลเจ้าของ",
     "ownerInfoWarning": "การเปิดดูข้อมูลนี้ถูกบันทึก Log และแจ้งให้ Admin ทราบ",
     "ownerLogTitle": "Log การเปิดดูข้อมูลเจ้าของ",
     "ownerLogEmpty": "ยังไม่มี Log",
-    "ownerLogSearch": "ค้นหาเอเจน / อสังหา / เจ้าของ...",
+    "ownerLogSearch": "ค้นหาเอเจนต์ / อสังหา / เจ้าของ...",
     "leadsTitle": "ลูกค้า/Leads",
     "leadsSubtitle": "รายชื่อลูกค้าที่ติดต่อเข้ามา",
+    "addLead": "เพิ่ม Lead",
+    "visitRequestsCount": "{{count}} คำขอทั้งหมด",
     "profileTitle": "ตัวแทน",
     "profileCount": "ตัวแทน",
-    "overviewTitle": "ภาพรวมเอเจน",
+    "overviewTitle": "ภาพรวมเอเจนต์",
     "overviewSubtitle": "สถิติเอเจนต์ทั้งหมด",
     "reviewLink": "สร้างลิงก์รีวิว",
     "noLeads": "ยังไม่มีลูกค้า",
@@ -315,6 +396,19 @@
   "home": {
     "title": "ค้นหาทรัพย์สิน",
     "subtitle": "อสังหาริมทรัพย์คุณภาพ ซื้อ-ขาย-เช่า ครบในที่เดียว",
+    "heroTitle": "ค้นหา\nอสังหาริมทรัพย์\nในฝันของคุณ",
+    "heroSubtitle": "เลือกที่พักอาศัยที่ใช่ ใกล้เส้นทางรถไฟฟ้า BTS/MRT",
+    "heroSearchPlaceholder": "ค้นหาทำเล, BTS, เขต...",
+    "heroSearchCta": "ค้นหา",
+    "featuredTitle": "อสังหาริมทรัพย์แนะนำ",
+    "searchResultsTitle": "ผลการค้นหา",
+    "featuredSeeAll": "ดูทั้งหมด",
+    "chip": {
+      "condo": "คอนโด",
+      "house": "บ้าน",
+      "townhouse": "ทาวน์เฮาส์",
+      "premium": "พรีเมียม"
+    },
     "foundCount": "พบ {{count}} รายการ",
     "searchPlaceholder": "ค้นหาโครงการ, ทำเล...",
     "filterType": "ประเภท",
@@ -324,7 +418,17 @@
     "minPrice": "ราคาต่ำสุด",
     "maxPrice": "ราคาสูงสุด",
     "noResults": "ไม่พบอสังหาริมทรัพย์",
-    "tryAdjust": "ลองปรับเงื่อนไขการค้นหา"
+    "tryAdjust": "ลองปรับเงื่อนไขการค้นหา",
+    "mapHint": "เลื่อนเมาส์บนหมุดเพื่อดูข้อมูล — คลิกเพื่อเปิดรายละเอียด"
+  },
+  "footer": {
+    "tagline": "ค้นหาอสังหาริมทรัพย์คุณภาพ ครอบคลุมทั้งกรุงเทพและปริมณฑล พร้อมเอเจนต์มืออาชีพดูแลคุณ",
+    "tagShort": "ที่พักในฝัน เริ่มต้นที่นี่",
+    "quickLinks": "ลิงก์ด่วน",
+    "contact": "ติดต่อเรา",
+    "forAgents": "สำหรับเอเจนต์",
+    "registerAgent": "สมัครเอเจนต์",
+    "rightsReserved": "สงวนลิขสิทธิ์"
   },
   "cart": {
     "title": "ตะกร้าของฉัน",
@@ -342,7 +446,11 @@
     "loginRequired": "กรุณาเข้าสู่ระบบก่อน",
     "success": "ส่งคำขอนัดหมายเรียบร้อย",
     "error": "เกิดข้อผิดพลาด กรุณาลองใหม่",
-    "selectDateRequired": "กรุณาเลือกวันนัดสำหรับ \"{{title}}\""
+    "selectDateRequired": "กรุณาเลือกวันนัดสำหรับ \"{{title}}\"",
+    "contactSection": "ข้อมูลผู้นัดหมาย",
+    "contactPrefilledHint": "ดึงจากข้อมูลส่วนตัวของคุณ — แก้ไขได้หากต้องการให้เอเจนต์ติดต่อทางอื่น",
+    "latestContact": "เบอร์หรือช่องทางการติดต่อล่าสุด",
+    "latestContactHint": "เบอร์หรือช่องทางที่เอเจนต์สามารถติดต่อคุณได้ในขณะนี้ (ค่าเริ่มต้นใช้เบอร์หลัก)"
   },
   "wishlist": {
     "title": "รายการโปรด",
@@ -389,6 +497,8 @@
     "willBeShown": "รีวิวของคุณจะถูกแสดงในหน้าทรัพย์สินนี้",
     "invalidLink": "ลิงก์ไม่ถูกต้องหรือหมดอายุแล้ว",
     "requestNewLink": "กรุณาขอลิงก์รีวิวใหม่จากเอเจนต์",
-    "linkExpired": "เกิดข้อผิดพลาด ลิงก์อาจหมดอายุแล้ว"
+    "linkExpired": "เกิดข้อผิดพลาด ลิงก์อาจหมดอายุแล้ว",
+    "loginRequiredTitle": "เข้าสู่ระบบเพื่อรีวิว",
+    "loginRequiredDesc": "กรุณาเข้าสู่ระบบหรือสมัครสมาชิกก่อนเขียนรีวิว"
   }
 }

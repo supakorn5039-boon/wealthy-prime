@@ -1,20 +1,23 @@
-import { useTranslation } from 'react-i18next'
-import { UserCircle, Mail, Phone as PhoneIcon, Shield } from 'lucide-react'
-import { useAuthStore } from '@/store/authStore'
-import { PageTitle } from '@/components/shared/PageTitle'
-import { PageContainer } from '@/components/shared/PageContainer'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { useTranslation } from "react-i18next";
+import { UserCircle, Mail, Phone as PhoneIcon, Shield } from "lucide-react";
+import { useAuthStore } from "@/store/authStore";
+import { PageTitle } from "@/components/shared/PageTitle";
+import { PageContainer } from "@/components/shared/PageContainer";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default function AgentProfileIndex() {
-  const { t } = useTranslation()
-  const { user } = useAuthStore()
+  const { t } = useTranslation();
+  const { user } = useAuthStore();
 
-  if (!user) return null
+  if (!user) return null;
 
   return (
-    <PageContainer size="2xl">
-      <PageTitle title={t('agent.profileTitle')} subtitle={`1 ${t('agent.profileCount')}`} />
+    <PageContainer size="7xl">
+      <PageTitle
+        title={t("agent.profileTitle")}
+        subtitle={`1 ${t("agent.profileCount")}`}
+      />
 
       <Card>
         <CardContent className="p-6">
@@ -25,7 +28,10 @@ export default function AgentProfileIndex() {
             <div className="flex-1 space-y-3">
               <div>
                 <h2 className="text-xl font-bold">{user.name}</h2>
-                <Badge variant={user.role === 'admin' ? 'destructive' : 'secondary'} className="mt-1">
+                <Badge
+                  variant={user.role === "admin" ? "destructive" : "secondary"}
+                  className="mt-1"
+                >
                   <Shield className="h-3 w-3 mr-1" />
                   {t(`role.${user.role}`)}
                 </Badge>
@@ -45,5 +51,5 @@ export default function AgentProfileIndex() {
         </CardContent>
       </Card>
     </PageContainer>
-  )
+  );
 }

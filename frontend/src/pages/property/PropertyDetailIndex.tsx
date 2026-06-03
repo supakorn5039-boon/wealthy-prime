@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { MapPin, Maximize2, ShoppingCart, Phone, MessageCircle, Pencil } from 'lucide-react'
+import { MapPin, Maximize2, ShoppingCart, Phone, MessageCircle, Pencil, Copy, Bed, Bath, Building, Train, PawPrint, Sofa, FileText } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { MapContainer, TileLayer, Marker } from 'react-leaflet'
@@ -18,6 +18,7 @@ import { StarRating } from '@/components/StarRating'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { PageContainer } from '@/components/shared/PageContainer'
+import { copyToClipboard } from '@/utils/copyToClipboard'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -44,6 +45,7 @@ export default function PropertyDetailIndex() {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
   const { addItem, openCart } = useCartStore()
   const { user } = useAuthStore()
   const [contactOpen, setContactOpen] = useState(false)
@@ -74,10 +76,20 @@ export default function PropertyDetailIndex() {
     toast.success(t('property.addedToCart'))
   }
 
+  const handleCopyCaption = async () => {
+    if (!property?.adCaption) return
+    try {
+      await copyToClipboard(property.adCaption)
+      toast.success(t('common.copied'))
+    } catch {
+      toast.error(t('common.error'))
+    }
+  }
+
   const handleContact = () => {
     if (!user) {
       toast.error(t('cart.loginRequired'))
-      navigate(ROUTES.LOGIN)
+      navigate(ROUTES.LOGIN, { state: { from: location } })
       return
     }
     setContactOpen(true)
@@ -97,7 +109,7 @@ export default function PropertyDetailIndex() {
       (user.role === 'agent' && property.agentId === user.id))
 
   return (
-    <PageContainer size="5xl" className="space-y-6">
+    <PageContainer size="7xl" className="space-y-6">
       <PropertyGallery images={property.imageUrls} title={property.title} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -144,6 +156,67 @@ export default function PropertyDetailIndex() {
               )}
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">{t('property.specsSection')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3 text-sm">
+                {property.kind && (
+                  <DetailItem icon={<Building className="h-4 w-4" />} label={t('property.kindLabel')} value={t(`property.kind.${property.kind}`, { defaultValue: property.kind })} />
+                )}
+                {property.listing && (
+                  <DetailItem icon={<FileText className="h-4 w-4" />} label={t('property.listingLabel')} value={t(`property.listing.${property.listing}`, { defaultValue: property.listing })} />
+                )}
+                {property.bedrooms != null && (
+                  <DetailItem icon={<Bed className="h-4 w-4" />} label={t('property.bedrooms')} value={String(property.bedrooms)} />
+                )}
+                {property.bathrooms != null && (
+                  <DetailItem icon={<Bath className="h-4 w-4" />} label={t('property.bathrooms')} value={String(property.bathrooms)} />
+                )}
+                {property.floor != null && (
+                  <DetailItem icon={<Building className="h-4 w-4" />} label={t('property.floor')} value={String(property.floor)} />
+                )}
+                {property.sizeSqm != null && (
+                  <DetailItem icon={<Maximize2 className="h-4 w-4" />} label={t('property.size')} value={`${property.sizeSqm} ${t('property.sqm')}`} />
+                )}
+                {property.minContract != null && property.minContract > 0 && (
+                  <DetailItem icon={<FileText className="h-4 w-4" />} label={t('property.minContract')} value={`${property.minContract} ${t('property.months')}`} />
+                )}
+                {property.pets && (
+                  <DetailItem icon={<PawPrint className="h-4 w-4" />} label={t('property.petsLabel')} value={t(`property.pets.${property.pets}`, { defaultValue: property.pets })} />
+                )}
+                {property.furniture && (
+                  <DetailItem icon={<Sofa className="h-4 w-4" />} label={t('property.furnitureLabel')} value={t(`property.furniture.${property.furniture}`, { defaultValue: property.furniture })} />
+                )}
+                {property.btsMrt && (
+                  <DetailItem icon={<Train className="h-4 w-4" />} label={t('property.btsMrt')} value={property.btsMrt} />
+                )}
+                {property.province && (
+                  <DetailItem icon={<MapPin className="h-4 w-4" />} label={t('property.province')} value={property.province} />
+                )}
+                {property.district && (
+                  <DetailItem icon={<MapPin className="h-4 w-4" />} label={t('property.district')} value={property.district} />
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {property.adCaption && (
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-base">{t('property.adCaption')}</CardTitle>
+                <Button variant="ghost" size="sm" onClick={handleCopyCaption}>
+                  <Copy className="h-3.5 w-3.5 mr-1.5" />
+                  {t('common.copy')}
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <p className="whitespace-pre-line text-sm text-gray-700">{property.adCaption}</p>
+              </CardContent>
+            </Card>
+          )}
 
           <Card>
             <CardHeader>
@@ -266,5 +339,17 @@ export default function PropertyDetailIndex() {
         />
       )}
     </PageContainer>
+  )
+}
+
+function DetailItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="flex items-start gap-2 min-w-0">
+      <span className="text-primary mt-0.5 shrink-0">{icon}</span>
+      <div className="min-w-0">
+        <p className="text-xs text-gray-500">{label}</p>
+        <p className="text-sm font-medium text-gray-900 truncate">{value}</p>
+      </div>
+    </div>
   )
 }

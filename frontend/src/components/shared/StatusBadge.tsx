@@ -8,6 +8,8 @@ const propertyVariantMap: Record<PropertyStatus, 'success' | 'warning' | 'info' 
   pending_approve: 'warning',
   reserved: 'info',
   sold: 'destructive',
+  unavailable: 'secondary',
+  owner_update: 'warning',
 }
 
 const bookingVariantMap: Record<BookingStatus, 'success' | 'warning' | 'info' | 'destructive' | 'secondary'> = {

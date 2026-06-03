@@ -10,6 +10,7 @@ const RegisterIndex = lazyWithReload(() => import('@/pages/register/RegisterInde
 const HomeIndex = lazyWithReload(() => import('@/pages/home/HomeIndex'))
 const PropertyDetailIndex = lazyWithReload(() => import('@/pages/property/PropertyDetailIndex'))
 const ReviewIndex = lazyWithReload(() => import('@/pages/review/ReviewIndex'))
+const ProfileIndex = lazyWithReload(() => import('@/pages/user/ProfileIndex'))
 const WishlistIndex = lazyWithReload(() => import('@/pages/user/WishlistIndex'))
 const HistoryIndex = lazyWithReload(() => import('@/pages/user/HistoryIndex'))
 const ContactsIndex = lazyWithReload(() => import('@/pages/user/ContactsIndex'))
@@ -52,6 +53,9 @@ export const routes: AppRoute[] = [
   { path: ROUTES.REGISTER, element: wrap(<RegisterIndex />), layout: RouteLayout.BLANK },
   { path: ROUTES.PROPERTY_DETAIL, element: wrap(<PropertyDetailIndex />), layout: RouteLayout.PUBLIC },
   { path: ROUTES.REVIEW, element: wrap(<ReviewIndex />), layout: RouteLayout.BLANK },
+
+  // Personal info — available to all authenticated roles
+  { path: ROUTES.PROFILE, element: wrap(<ProfileIndex />), layout: RouteLayout.PROTECTED },
 
   // User protected
   { path: ROUTES.WISHLIST, element: wrap(<WishlistIndex />), layout: RouteLayout.PROTECTED, allowedRoles: USER_ONLY },

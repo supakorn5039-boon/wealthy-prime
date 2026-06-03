@@ -1,8 +1,41 @@
 import { fetchClient } from '@/utils/axios'
 import { API } from '@/constants/ApiRoutes'
 import { cleanParams } from '@/utils/serviceHelpers'
-import type { Property, PropertyListParams, CreatePropertyPayload, UpdatePropertyStatusPayload, EditPropertyPayload } from '@/types/Property'
+import type { Property, PropertyListParams, CreatePropertyPayload, UpdatePropertyStatusPayload, EditPropertyPayload, PropertyFormFields } from '@/types/Property'
 import type { ApiResponse, ApiListResponse } from '@/types/Commons'
+
+function appendCommonFields(fd: FormData, payload: PropertyFormFields) {
+  fd.append('title', payload.title)
+  fd.append('project_name', payload.projectName)
+  fd.append('location', payload.location ?? '')
+  fd.append('price', String(payload.price))
+  fd.append('owner_info', payload.ownerInfo)
+  if (payload.sizeSqm != null) fd.append('size_sqm', String(payload.sizeSqm))
+  if (payload.lat != null) fd.append('lat', String(payload.lat))
+  if (payload.lng != null) fd.append('lng', String(payload.lng))
+
+  if (payload.kind) fd.append('kind', payload.kind)
+  if (payload.listing) fd.append('listing', payload.listing)
+  if (payload.province) fd.append('province', payload.province)
+  if (payload.district) fd.append('district', payload.district)
+  if (payload.googleMapUrl) fd.append('google_map_url', payload.googleMapUrl)
+  if (payload.btsMrt) fd.append('bts_mrt', payload.btsMrt)
+  if (payload.bedrooms != null) fd.append('bedrooms', String(payload.bedrooms))
+  if (payload.bathrooms != null) fd.append('bathrooms', String(payload.bathrooms))
+  if (payload.floor != null) fd.append('floor', String(payload.floor))
+  if (payload.minContract != null) fd.append('min_contract', String(payload.minContract))
+  if (payload.pets) fd.append('pets', payload.pets)
+  if (payload.furniture) fd.append('furniture', payload.furniture)
+  if (payload.adCaption) fd.append('ad_caption', payload.adCaption)
+
+  if (payload.ownerName) fd.append('owner_name', payload.ownerName)
+  if (payload.ownerPhone) fd.append('owner_phone', payload.ownerPhone)
+  if (payload.ownerLineId) fd.append('owner_line_id', payload.ownerLineId)
+  if (payload.ownerEmail) fd.append('owner_email', payload.ownerEmail)
+  if (payload.ownerFacebook) fd.append('owner_facebook', payload.ownerFacebook)
+  if (payload.ownerWechat) fd.append('owner_wechat', payload.ownerWechat)
+  if (payload.ownerWhatsapp) fd.append('owner_whatsapp', payload.ownerWhatsapp)
+}
 
 export const PropertyService = {
   QUERY_KEYS: {
@@ -33,24 +66,7 @@ export const PropertyService = {
 
   createWithImages: async (payload: CreatePropertyPayload, images: File[]): Promise<Property> => {
     const formData = new FormData()
-    formData.append('title', payload.title)
-    formData.append('project_name', payload.projectName)
-    formData.append('location', payload.location)
-    formData.append('price', String(payload.price))
-    formData.append('type', payload.type)
-    formData.append('owner_info', payload.ownerInfo)
-    if (payload.sizeSqm !== undefined && payload.sizeSqm !== null) {
-      formData.append('size_sqm', String(payload.sizeSqm))
-    }
-    if (payload.rentalPeriodMonths !== undefined && payload.rentalPeriodMonths !== null) {
-      formData.append('rental_period_months', String(payload.rentalPeriodMonths))
-    }
-    if (payload.lat !== undefined && payload.lat !== null) {
-      formData.append('lat', String(payload.lat))
-    }
-    if (payload.lng !== undefined && payload.lng !== null) {
-      formData.append('lng', String(payload.lng))
-    }
+    appendCommonFields(formData, payload)
     images.forEach((img) => formData.append('images', img))
     const res = await fetchClient.post<ApiResponse<Property>>(API.AGENT_PROPERTIES, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -60,24 +76,7 @@ export const PropertyService = {
 
   edit: async (id: number | string, payload: EditPropertyPayload, newImages: File[] = []): Promise<Property> => {
     const formData = new FormData()
-    formData.append('title', payload.title)
-    formData.append('project_name', payload.projectName)
-    formData.append('location', payload.location)
-    formData.append('price', String(payload.price))
-    formData.append('type', payload.type)
-    formData.append('owner_info', payload.ownerInfo)
-    if (payload.sizeSqm !== undefined && payload.sizeSqm !== null) {
-      formData.append('size_sqm', String(payload.sizeSqm))
-    }
-    if (payload.rentalPeriodMonths !== undefined && payload.rentalPeriodMonths !== null) {
-      formData.append('rental_period_months', String(payload.rentalPeriodMonths))
-    }
-    if (payload.lat !== undefined && payload.lat !== null) {
-      formData.append('lat', String(payload.lat))
-    }
-    if (payload.lng !== undefined && payload.lng !== null) {
-      formData.append('lng', String(payload.lng))
-    }
+    appendCommonFields(formData, payload)
     if (payload.deleteImageIds && payload.deleteImageIds.length > 0) {
       formData.append('delete_image_ids', payload.deleteImageIds.join(','))
     }

@@ -1,7 +1,7 @@
 import { fetchClient } from '@/utils/axios'
 import { API } from '@/constants/ApiRoutes'
 import type { AgentDashboardStats } from '@/types/Property'
-import type { Booking } from '@/types/Booking'
+import type { AppointmentWorkStatus, Booking } from '@/types/Booking'
 import type { ReviewLink } from '@/types/Review'
 import type { ApiResponse } from '@/types/Commons'
 
@@ -26,6 +26,10 @@ export const AgentService = {
 
   updateContactNote: async (contactId: number | string, note: string): Promise<void> => {
     await fetchClient.put(API.AGENT_CONTACT_NOTE(contactId), { note })
+  },
+
+  updateWorkStatus: async (contactId: number | string, workStatus: AppointmentWorkStatus): Promise<void> => {
+    await fetchClient.put(API.AGENT_CONTACT_WORK_STATUS(contactId), { workStatus })
   },
 
   generateReviewLink: async (propertyId: number | string): Promise<ReviewLink> => {

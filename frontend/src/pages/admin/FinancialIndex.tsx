@@ -38,7 +38,7 @@ export default function FinancialIndex() {
   const totalRevenue = records.reduce((sum, r) => sum + r.amount, 0)
 
   return (
-    <PageContainer size="5xl">
+    <PageContainer size="7xl">
       <PageTitle
         title={t('admin.financialTitle')}
         subtitle={`${t('admin.totalRevenue')}: ${formatPrice(totalRevenue)}`}

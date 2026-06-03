@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { Plus, Trash2, Pencil } from 'lucide-react'
+import { Plus, Trash2, Pencil, Eye, UploadCloud } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PropertyService } from '@/services/PropertyService'
@@ -117,7 +117,7 @@ export default function MyPropertiesIndex() {
   })
 
   return (
-    <PageContainer size="5xl">
+    <PageContainer size="7xl">
       <PageTitle
         title={t('property.myPropertiesTitle')}
         actions={
@@ -144,16 +144,21 @@ export default function MyPropertiesIndex() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t('property.title')}</TableHead>
+                  <TableHead>{t('property.code')}</TableHead>
+                  <TableHead>{t('property.project')}</TableHead>
                   <TableHead>{t('property.typeCol')}</TableHead>
+                  <TableHead>{t('property.district')}</TableHead>
                   <TableHead>{t('property.price')}</TableHead>
-                  <TableHead>{t('common.status')}</TableHead>
-                  <TableHead className="text-right">{t('common.actions')}</TableHead>
+                  <TableHead>{t('property.statusCol')}</TableHead>
+                  <TableHead className="text-right">{t('property.management')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {properties.map((p) => (
                   <TableRow key={p.id}>
+                    <TableCell className="font-mono text-sm text-gray-600">
+                      {p.propertyCode ?? '-'}
+                    </TableCell>
                     <TableCell>
                       <div>
                         <p className="font-medium">{p.title}</p>
@@ -161,21 +166,26 @@ export default function MyPropertiesIndex() {
                       </div>
                     </TableCell>
                     <TableCell>{t(`property.${p.type}`)}</TableCell>
+                    <TableCell className="text-sm">{p.district || '-'}</TableCell>
                     <TableCell>
                       {formatPrice(p.price)}
                       {p.type === 'rent' && <span className="ml-1 text-xs text-gray-400">/ {t('property.perMonth')}</span>}
                     </TableCell>
                     <TableCell><PropertyStatusBadge status={p.status} /></TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button size="sm" variant="outline" onClick={() => setEditTarget(p)}>
-                          <Pencil className="h-4 w-4 mr-1" />
-                          {t('common.edit')}
+                      <div className="flex justify-end gap-1">
+                        <Link to={`/property/${p.id}`}>
+                          <Button size="icon" variant="ghost" title={t('common.view')}>
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </Link>
+                        <Button size="icon" variant="ghost" title={t('common.edit')} onClick={() => setEditTarget(p)}>
+                          <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => setSelectedProperty(p)}>
-                          {t('property.updateStatus')}
+                        <Button size="icon" variant="ghost" title={t('property.updateStatus')} onClick={() => setSelectedProperty(p)}>
+                          <UploadCloud className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700" onClick={() => setDeleteTarget(p)}>
+                        <Button size="icon" variant="ghost" className="text-red-600 hover:text-red-700 hover:bg-red-50" title={t('common.delete')} onClick={() => setDeleteTarget(p)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>

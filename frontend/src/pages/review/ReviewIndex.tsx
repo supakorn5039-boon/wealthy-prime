@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { Star, Crown } from 'lucide-react'
+import { Star, Crown, LogIn } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ReviewService } from '@/services/ReviewService'
 import { Button } from '@/components/ui/button'
@@ -13,10 +13,15 @@ import { FormTextarea } from '@/components/form/FormTextarea'
 import { StarRating } from '@/components/StarRating'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { reviewSchema, type ReviewSchema } from '@/dto/ReviewValidation'
+import { useAuthStore } from '@/store/authStore'
+import { ROUTES } from '@/constants/Routes'
 
 export default function ReviewIndex() {
   const { t } = useTranslation()
   const { token } = useParams<{ token: string }>()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { user } = useAuthStore()
   const [submitted, setSubmitted] = useState(false)
 
   const { data, isLoading, error } = useQuery({
@@ -70,6 +75,44 @@ export default function ReviewIndex() {
             <Star className="h-12 w-12 text-yellow-400 mx-auto mb-4 fill-yellow-400" />
             <p className="text-xl font-bold">{t('review.thankYou')}</p>
             <p className="text-sm text-gray-500 mt-2">{t('review.willBeShown')}</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="w-full max-w-md px-4">
+        <div className="flex justify-center mb-6">
+          <div className="flex items-center gap-2 text-primary">
+            <Crown className="h-7 w-7" />
+            <span className="text-xl font-bold">Wealthy Prime Estate</span>
+          </div>
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('review.loginRequiredTitle')}</CardTitle>
+            <CardDescription>{t('review.loginRequiredDesc')}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button
+              className="w-full"
+              onClick={() => navigate(ROUTES.LOGIN, { state: { from: location } })}
+            >
+              <LogIn className="h-4 w-4 mr-2" />
+              {t('nav.login')}
+            </Button>
+            <p className="text-center text-sm text-gray-500">
+              {t('auth.noAccount')}{' '}
+              <Link
+                to={ROUTES.REGISTER}
+                state={{ from: location }}
+                className="text-primary hover:underline font-medium"
+              >
+                {t('auth.registerLink')}
+              </Link>
+            </p>
           </CardContent>
         </Card>
       </div>

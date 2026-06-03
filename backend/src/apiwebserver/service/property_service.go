@@ -14,6 +14,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/wealthy-prime/backend/src/apperror"
+	"github.com/wealthy-prime/backend/src/config"
 	"github.com/wealthy-prime/backend/src/database"
 	"github.com/wealthy-prime/backend/src/database/model"
 )
@@ -34,7 +35,7 @@ type PropertyFilter struct {
 	MaxPrice string
 }
 
-type CreatePropertyInput struct {
+type PropertyFields struct {
 	Title              string
 	ProjectName        string
 	Location           string
@@ -45,8 +46,34 @@ type CreatePropertyInput struct {
 	RentalPeriodMonths *int
 	Lat                *float64
 	Lng                *float64
-	AgentID            *uint
-	Images             []*multipart.FileHeader
+
+	Kind         model.PropertyKind
+	Listing      model.ListingType
+	Province     string
+	District     string
+	GoogleMapURL string
+	BtsMrt       string
+	Bedrooms     int
+	Bathrooms    int
+	Floor        int
+	MinContract  int
+	Pets         model.PetPolicy
+	Furniture    model.FurniturePolicy
+	AdCaption    string
+
+	OwnerName     string
+	OwnerPhone    string
+	OwnerLineID   string
+	OwnerEmail    string
+	OwnerFacebook string
+	OwnerWechat   string
+	OwnerWhatsapp string
+}
+
+type CreatePropertyInput struct {
+	PropertyFields
+	AgentID *uint
+	Images  []*multipart.FileHeader
 }
 
 type UpdateStatusInput struct {
@@ -56,18 +83,9 @@ type UpdateStatusInput struct {
 }
 
 type UpdatePropertyInput struct {
-	Title              string
-	ProjectName        string
-	Location           string
-	Price              float64
-	Type               model.PropertyType
-	SizeSqm            float64
-	OwnerInfo          string
-	RentalPeriodMonths *int
-	Lat                *float64
-	Lng                *float64
-	NewImages          []*multipart.FileHeader
-	DeleteImageIDs     []uint
+	PropertyFields
+	NewImages      []*multipart.FileHeader
+	DeleteImageIDs []uint
 }
 
 // ListProperties returns properties visible to the public (status != pending_approve).
@@ -77,8 +95,14 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 		Preload("Agent").
 		Where("status != ?", model.StatusPendingApprove)
 
-	if filter.Type != "" {
-		query = query.Where("type = ?", filter.Type)
+	// The public Hero filter sends ?type=buy or ?type=rent. We translate this
+	// to a listing-based query so that properties listed as "both" (rent and
+	// sell) appear under both tabs.
+	switch filter.Type {
+	case "buy":
+		query = query.Where("listing IN ?", []string{string(model.ListingSell), string(model.ListingBoth)})
+	case "rent":
+		query = query.Where("listing IN ?", []string{string(model.ListingRent), string(model.ListingBoth)})
 	}
 	if filter.Location != "" {
 		query = query.Where("location ILIKE ?", "%"+filter.Location+"%")
@@ -153,7 +177,7 @@ func (s *PropertyService) CreateProperty(input CreatePropertyInput) (*model.Prop
 	// Save images first
 	var images []model.PropertyImage
 	for _, fh := range input.Images {
-		url, err := saveUpload(fh, "uploads")
+		url, err := saveUpload(fh, config.App.Server.UploadDir)
 		if err != nil {
 			return nil, apperror.Wrap(err, 500, "failed to save image")
 		}
@@ -174,6 +198,28 @@ func (s *PropertyService) CreateProperty(input CreatePropertyInput) (*model.Prop
 		Lng:                input.Lng,
 		Status:             model.StatusPendingApprove,
 		Images:             images,
+
+		Kind:         input.Kind,
+		Listing:      input.Listing,
+		Province:     input.Province,
+		District:     input.District,
+		GoogleMapURL: input.GoogleMapURL,
+		BtsMrt:       input.BtsMrt,
+		Bedrooms:     input.Bedrooms,
+		Bathrooms:    input.Bathrooms,
+		Floor:        input.Floor,
+		MinContract:  input.MinContract,
+		Pets:         input.Pets,
+		Furniture:    input.Furniture,
+		AdCaption:    input.AdCaption,
+
+		OwnerName:     input.OwnerName,
+		OwnerPhone:    input.OwnerPhone,
+		OwnerLineID:   input.OwnerLineID,
+		OwnerEmail:    input.OwnerEmail,
+		OwnerFacebook: input.OwnerFacebook,
+		OwnerWechat:   input.OwnerWechat,
+		OwnerWhatsapp: input.OwnerWhatsapp,
 	}
 
 	if err := s.db.Create(&p).Error; err != nil {
@@ -203,7 +249,7 @@ func (s *PropertyService) UpdateStatus(propertyID, agentID uint, input UpdateSta
 	updates := map[string]interface{}{"status": input.Status}
 
 	if input.SlipFile != nil {
-		slipURL, err := saveUpload(input.SlipFile, "uploads")
+		slipURL, err := saveUpload(input.SlipFile, config.App.Server.UploadDir)
 		if err != nil {
 			return nil, apperror.Wrap(err, 500, "failed to save slip file")
 		}
@@ -240,14 +286,45 @@ func (s *PropertyService) UpdateProperty(propertyID, callerID uint, role model.U
 		}
 	}
 
+	// Type is derived from Listing — frontend no longer sends it on edit.
+	derivedType := input.Type
+	if derivedType == "" {
+		switch input.Listing {
+		case model.ListingSell:
+			derivedType = model.TypeBuy
+		case model.ListingRent, model.ListingBoth:
+			derivedType = model.TypeRent
+		}
+	}
+
 	updates := map[string]interface{}{
-		"title":        input.Title,
-		"project_name": input.ProjectName,
-		"location":     input.Location,
-		"price":        input.Price,
-		"type":         input.Type,
-		"size_sqm":     input.SizeSqm,
-		"owner_info":   input.OwnerInfo,
+		"title":          input.Title,
+		"project_name":   input.ProjectName,
+		"location":       input.Location,
+		"price":          input.Price,
+		"type":           derivedType,
+		"size_sqm":       input.SizeSqm,
+		"owner_info":     input.OwnerInfo,
+		"kind":           input.Kind,
+		"listing":        input.Listing,
+		"province":       input.Province,
+		"district":       input.District,
+		"google_map_url": input.GoogleMapURL,
+		"bts_mrt":        input.BtsMrt,
+		"bedrooms":       input.Bedrooms,
+		"bathrooms":      input.Bathrooms,
+		"floor":          input.Floor,
+		"min_contract":   input.MinContract,
+		"pets":           input.Pets,
+		"furniture":      input.Furniture,
+		"ad_caption":     input.AdCaption,
+		"owner_name":     input.OwnerName,
+		"owner_phone":    input.OwnerPhone,
+		"owner_line_id":  input.OwnerLineID,
+		"owner_email":    input.OwnerEmail,
+		"owner_facebook": input.OwnerFacebook,
+		"owner_wechat":   input.OwnerWechat,
+		"owner_whatsapp": input.OwnerWhatsapp,
 	}
 	if input.RentalPeriodMonths != nil {
 		updates["rental_period_months"] = *input.RentalPeriodMonths
@@ -276,7 +353,7 @@ func (s *PropertyService) UpdateProperty(propertyID, callerID uint, role model.U
 	}
 
 	for _, fh := range input.NewImages {
-		url, err := saveUpload(fh, "uploads")
+		url, err := saveUpload(fh, config.App.Server.UploadDir)
 		if err != nil {
 			return nil, apperror.Wrap(err, 500, "failed to save image")
 		}

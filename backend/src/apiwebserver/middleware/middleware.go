@@ -16,6 +16,33 @@ const (
 	CtxRole   = "role"
 )
 
+// OptionalAuth reads a Bearer JWT IF present and sets user_id/role in the context.
+// Unlike Protected, it never aborts: missing or invalid tokens just leave the
+// context empty. Use this on public endpoints that change behavior based on role
+// (e.g., hiding owner info from anonymous viewers).
+func OptionalAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.Next()
+			return
+		}
+		parts := strings.SplitN(authHeader, " ", 2)
+		if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
+			c.Next()
+			return
+		}
+		claims, err := security.ValidateToken(parts[1])
+		if err != nil {
+			c.Next()
+			return
+		}
+		c.Set(CtxUserID, claims.ID)
+		c.Set(CtxRole, claims.Role)
+		c.Next()
+	}
+}
+
 // Protected validates a Bearer JWT and sets user_id, role, email in the Gin context.
 func Protected() gin.HandlerFunc {
 	return func(c *gin.Context) {

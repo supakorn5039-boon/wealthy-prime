@@ -42,6 +42,7 @@ func (ctrl *AgentController) RegisterRoutes(r *gin.RouterGroup) {
 
 	agent.GET("/contacts", ctrl.getContacts)
 	agent.PUT("/contacts/:bookingId/note", ctrl.updateNote)
+	agent.PUT("/contacts/:bookingId/work-status", ctrl.updateWorkStatus)
 
 	agent.GET("/inquiries", ctrl.listInquiries)
 	agent.PUT("/inquiries/:id/status", ctrl.updateInquiryStatus)
@@ -82,10 +83,11 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 	projectName := formVal(form.Value, "project_name")
 	location := formVal(form.Value, "location")
 	ownerInfo := formVal(form.Value, "owner_info")
+	// `type` is no longer sent by the frontend; it is derived from `listing` server-side.
 	propType := formVal(form.Value, "type")
 
-	if title == "" || projectName == "" || location == "" || ownerInfo == "" || propType == "" {
-		badRequest(c, "title, project_name, location, owner_info, and type are required")
+	if title == "" || projectName == "" || location == "" || ownerInfo == "" {
+		badRequest(c, "title, project_name, location, and owner_info are required")
 		return
 	}
 
@@ -135,19 +137,12 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 
 	images := form.File["images"]
 
+	fields := buildPropertyFields(form.Value, title, projectName, location, ownerInfo, price, sizeSqm, model.PropertyType(propType), rentalPeriodMonths, lat, lng)
+
 	dto, err := ctrl.propertySvc.CreateProperty(service.CreatePropertyInput{
-		Title:              title,
-		ProjectName:        projectName,
-		Location:           location,
-		Price:              price,
-		Type:               model.PropertyType(propType),
-		SizeSqm:            sizeSqm,
-		AgentID:            &agentID,
-		OwnerInfo:          ownerInfo,
-		RentalPeriodMonths: rentalPeriodMonths,
-		Lat:                lat,
-		Lng:                lng,
-		Images:             images,
+		PropertyFields: fields,
+		AgentID:        &agentID,
+		Images:         images,
 	})
 	if err != nil {
 		errorResponse(c, err)
@@ -176,9 +171,10 @@ func (ctrl *AgentController) editProperty(c *gin.Context) {
 	projectName := formVal(form.Value, "project_name")
 	location := formVal(form.Value, "location")
 	ownerInfo := formVal(form.Value, "owner_info")
+	// `type` is derived from `listing` server-side; not required from frontend.
 	propType := formVal(form.Value, "type")
-	if title == "" || projectName == "" || location == "" || ownerInfo == "" || propType == "" {
-		badRequest(c, "title, project_name, location, owner_info, and type are required")
+	if title == "" || projectName == "" || location == "" || ownerInfo == "" {
+		badRequest(c, "title, project_name, location, and owner_info are required")
 		return
 	}
 
@@ -220,19 +216,12 @@ func (ctrl *AgentController) editProperty(c *gin.Context) {
 		return
 	}
 
+	fields := buildPropertyFields(form.Value, title, projectName, location, ownerInfo, price, sizeSqm, model.PropertyType(propType), rentalPeriodMonths, lat, lng)
+
 	dto, err := ctrl.propertySvc.UpdateProperty(propertyID, agentID, role, service.UpdatePropertyInput{
-		Title:              title,
-		ProjectName:        projectName,
-		Location:           location,
-		Price:              price,
-		Type:               model.PropertyType(propType),
-		SizeSqm:            sizeSqm,
-		OwnerInfo:          ownerInfo,
-		RentalPeriodMonths: rentalPeriodMonths,
-		Lat:                lat,
-		Lng:                lng,
-		NewImages:          form.File["images"],
-		DeleteImageIDs:     deleteImageIDs,
+		PropertyFields: fields,
+		NewImages:      form.File["images"],
+		DeleteImageIDs: deleteImageIDs,
 	})
 	if err != nil {
 		errorResponse(c, err)
@@ -340,6 +329,30 @@ func (ctrl *AgentController) updateNote(c *gin.Context) {
 	successResponse(c, dto)
 }
 
+func (ctrl *AgentController) updateWorkStatus(c *gin.Context) {
+	agentID := middleware.GetUserID(c)
+	bookingID, err := parseUintParam(c, "bookingId")
+	if err != nil {
+		badRequest(c, "invalid booking id")
+		return
+	}
+
+	var body struct {
+		WorkStatus model.AppointmentWorkStatus `json:"workStatus" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		badRequest(c, err.Error())
+		return
+	}
+
+	dto, err := ctrl.svc.UpdateWorkStatus(agentID, bookingID, body.WorkStatus)
+	if err != nil {
+		errorResponse(c, err)
+		return
+	}
+	successResponse(c, dto)
+}
+
 func (ctrl *AgentController) getReviewLink(c *gin.Context) {
 	agentID := middleware.GetUserID(c)
 	propertyID, err := parseUintParam(c, "propertyId")
@@ -431,6 +444,56 @@ func parseImageIDs(raw []string) ([]uint, error) {
 		}
 	}
 	return out, nil
+}
+
+// buildPropertyFields assembles the shared PropertyFields struct from
+// the multipart form values, layering the required fields on top of the optional ones.
+func buildPropertyFields(
+	values map[string][]string,
+	title, projectName, location, ownerInfo string,
+	price, sizeSqm float64,
+	propType model.PropertyType,
+	rentalPeriodMonths *int,
+	lat, lng *float64,
+) service.PropertyFields {
+	atoi := func(s string) int {
+		n, _ := strconv.Atoi(s)
+		return n
+	}
+	return service.PropertyFields{
+		Title:              title,
+		ProjectName:        projectName,
+		Location:           location,
+		Price:              price,
+		Type:               propType,
+		SizeSqm:            sizeSqm,
+		OwnerInfo:          ownerInfo,
+		RentalPeriodMonths: rentalPeriodMonths,
+		Lat:                lat,
+		Lng:                lng,
+
+		Kind:         model.PropertyKind(formVal(values, "kind")),
+		Listing:      model.ListingType(formVal(values, "listing")),
+		Province:     formVal(values, "province"),
+		District:     formVal(values, "district"),
+		GoogleMapURL: formVal(values, "google_map_url"),
+		BtsMrt:       formVal(values, "bts_mrt"),
+		Bedrooms:     atoi(formVal(values, "bedrooms")),
+		Bathrooms:    atoi(formVal(values, "bathrooms")),
+		Floor:        atoi(formVal(values, "floor")),
+		MinContract:  atoi(formVal(values, "min_contract")),
+		Pets:         model.PetPolicy(formVal(values, "pets")),
+		Furniture:    model.FurniturePolicy(formVal(values, "furniture")),
+		AdCaption:    formVal(values, "ad_caption"),
+
+		OwnerName:     formVal(values, "owner_name"),
+		OwnerPhone:    formVal(values, "owner_phone"),
+		OwnerLineID:   formVal(values, "owner_line_id"),
+		OwnerEmail:    formVal(values, "owner_email"),
+		OwnerFacebook: formVal(values, "owner_facebook"),
+		OwnerWechat:   formVal(values, "owner_wechat"),
+		OwnerWhatsapp: formVal(values, "owner_whatsapp"),
+	}
 }
 
 // parseLatLng extracts optional lat/lng form values. Both must be supplied

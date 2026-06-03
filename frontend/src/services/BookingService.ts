@@ -14,6 +14,16 @@ export const BookingService = {
       property_ids: [payload.propertyId],
       appointment_date: payload.appointmentDate,
       note: payload.note,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+      phone: payload.phone,
+      secondaryPhone: payload.secondaryPhone,
+      latestContact: payload.latestContact,
+      lineId: payload.lineId,
+      email: payload.email,
+      facebook: payload.facebook,
+      wechat: payload.wechat,
+      whatsapp: payload.whatsapp,
     }
     const res = await fetchClient.post<ApiResponse<Booking[]>>(API.BOOKINGS, body)
     return res.data.data[0]

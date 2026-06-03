@@ -10,6 +10,9 @@ export const ROUTES = {
   LOGIN: '/login',
   REGISTER: '/register',
 
+  // Personal info (shared)
+  PROFILE: '/profile',
+
   // User
   WISHLIST: '/wishlist',
   HISTORY: '/history',

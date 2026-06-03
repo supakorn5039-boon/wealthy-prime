@@ -58,7 +58,7 @@ export default function AgentDashboardIndex() {
   ]
 
   return (
-    <PageContainer size="5xl" className="space-y-6">
+    <PageContainer size="7xl" className="space-y-6">
       <PageTitle
         title={t('agent.welcome', { name: user?.name ?? '' })}
         subtitle={t('agent.subtitle')}

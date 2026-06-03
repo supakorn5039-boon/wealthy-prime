@@ -1,6 +1,10 @@
 package controller
 
 import (
+	"fmt"
+	"regexp"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 
 	"github.com/wealthy-prime/backend/src/apiwebserver/middleware"
@@ -116,26 +120,17 @@ func (ctrl *AdminController) updateAgent(c *gin.Context) {
 		return
 	}
 
-	var body struct {
-		Name  string `json:"name"`
-		Phone string `json:"phone"`
-		Email string `json:"email"`
-	}
+	var body profileUpdateBody
 	if err := c.ShouldBindJSON(&body); err != nil {
 		badRequest(c, err.Error())
 		return
 	}
+	if err := body.validate(); err != nil {
+		badRequest(c, err.Error())
+		return
+	}
 
-	updates := map[string]interface{}{}
-	if body.Name != "" {
-		updates["name"] = body.Name
-	}
-	if body.Phone != "" {
-		updates["phone"] = body.Phone
-	}
-	if body.Email != "" {
-		updates["email"] = body.Email
-	}
+	updates := body.toUpdates()
 
 	dto, err := ctrl.svc.UpdateAgent(id, updates)
 	if err != nil {
@@ -198,26 +193,17 @@ func (ctrl *AdminController) updateUser(c *gin.Context) {
 		return
 	}
 
-	var body struct {
-		Name   string `json:"name"`
-		Phone  string `json:"phone"`
-		LineID string `json:"line_id"`
-	}
+	var body profileUpdateBody
 	if err := c.ShouldBindJSON(&body); err != nil {
 		badRequest(c, err.Error())
 		return
 	}
+	if err := body.validate(); err != nil {
+		badRequest(c, err.Error())
+		return
+	}
 
-	updates := map[string]interface{}{}
-	if body.Name != "" {
-		updates["name"] = body.Name
-	}
-	if body.Phone != "" {
-		updates["phone"] = body.Phone
-	}
-	if body.LineID != "" {
-		updates["line_id"] = body.LineID
-	}
+	updates := body.toUpdates()
 
 	dto, err := ctrl.svc.UpdateUser(id, updates)
 	if err != nil {
@@ -264,4 +250,90 @@ func (ctrl *AdminController) exportFinancial(c *gin.Context) {
 		errorResponse(c, err)
 		return
 	}
+}
+
+// profileUpdateBody captures the JSON shape used by admin updateUser / updateAgent
+// and by personal-info self-updates. Empty strings are dropped from the update map
+// so callers can do partial updates without overwriting existing values.
+type profileUpdateBody struct {
+	Name           string `json:"name"`
+	FirstName      string `json:"firstName"`
+	LastName       string `json:"lastName"`
+	Email          string `json:"email"`
+	Phone          string `json:"phone"`
+	SecondaryPhone string `json:"secondaryPhone"`
+	LineID         string `json:"lineId"`
+	Facebook       string `json:"facebook"`
+	Wechat         string `json:"wechat"`
+	Whatsapp       string `json:"whatsapp"`
+}
+
+func (b profileUpdateBody) toUpdates() map[string]any {
+	updates := map[string]any{}
+	setIfNotEmpty := func(key, v string) {
+		if v != "" {
+			updates[key] = v
+		}
+	}
+
+	// If firstName or lastName provided, sync the legacy Name field too.
+	if b.FirstName != "" || b.LastName != "" {
+		composed := b.FirstName
+		if b.FirstName != "" && b.LastName != "" {
+			composed = b.FirstName + " " + b.LastName
+		} else if b.FirstName == "" {
+			composed = b.LastName
+		}
+		updates["first_name"] = b.FirstName
+		updates["last_name"] = b.LastName
+		updates["name"] = composed
+	} else if b.Name != "" {
+		updates["name"] = b.Name
+	}
+
+	setIfNotEmpty("email", b.Email)
+	setIfNotEmpty("phone", b.Phone)
+	setIfNotEmpty("secondary_phone", b.SecondaryPhone)
+	setIfNotEmpty("line_id", b.LineID)
+	setIfNotEmpty("facebook", b.Facebook)
+	setIfNotEmpty("wechat", b.Wechat)
+	setIfNotEmpty("whatsapp", b.Whatsapp)
+	return updates
+}
+
+// Thai mobile phone: starts with 0, 9-10 digits total. Strips dashes/spaces first.
+var phoneFormat = regexp.MustCompile(`^0\d{8,9}$`)
+
+// validate enforces phone-format rules per requirement.md lines 5-6: both phone
+// and secondary phone must match Thai mobile format and must not be all-zeros.
+func (b profileUpdateBody) validate() error {
+	if b.Phone != "" {
+		if err := validatePhone("phone", b.Phone); err != nil {
+			return err
+		}
+	}
+	if b.SecondaryPhone != "" {
+		if err := validatePhone("secondaryPhone", b.SecondaryPhone); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func validatePhone(field, raw string) error {
+	cleaned := strings.NewReplacer("-", "", " ", "").Replace(raw)
+	if !phoneFormat.MatchString(cleaned) {
+		return fmt.Errorf("%s must be a valid Thai phone number (e.g., 0812345678)", field)
+	}
+	allZeros := true
+	for _, c := range cleaned {
+		if c != '0' {
+			allZeros = false
+			break
+		}
+	}
+	if allZeros {
+		return fmt.Errorf("%s cannot be all zeros", field)
+	}
+	return nil
 }

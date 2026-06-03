@@ -1,5 +1,13 @@
 export type BookingStatus = 'pending' | 'assigned' | 'completed' | 'cancelled'
 
+export type AppointmentWorkStatus =
+  | ''
+  | 'contacted'
+  | 'visited'
+  | 'booked'
+  | 'closed_deal'
+  | 'customer_cancelled'
+
 export interface Booking {
   id: number
   userId: number
@@ -7,11 +15,23 @@ export interface Booking {
   userPhone?: string
   propertyId: number
   propertyTitle?: string
+  propertyCode?: string
   appointmentDate: string
   note?: string
   status: BookingStatus
+  workStatus?: AppointmentWorkStatus
   assignedAgentId?: number
   agentName?: string
+  firstName?: string
+  lastName?: string
+  phone?: string
+  secondaryPhone?: string
+  latestContact?: string
+  lineId?: string
+  email?: string
+  facebook?: string
+  wechat?: string
+  whatsapp?: string
   createdAt: string
 }
 
@@ -19,6 +39,16 @@ export interface CreateBookingPayload {
   propertyId: number
   appointmentDate: string
   note?: string
+  firstName?: string
+  lastName?: string
+  phone?: string
+  secondaryPhone?: string
+  latestContact?: string
+  lineId?: string
+  email?: string
+  facebook?: string
+  wechat?: string
+  whatsapp?: string
 }
 
 export interface CartItem {

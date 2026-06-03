@@ -42,7 +42,7 @@ export default function AdminDashboardIndex() {
   }))
 
   return (
-    <PageContainer size="6xl" className="space-y-6">
+    <PageContainer size="7xl" className="space-y-6">
       <PageTitle title={t('admin.dashboardTitle')} subtitle={t('admin.dashboardSubtitle')} />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

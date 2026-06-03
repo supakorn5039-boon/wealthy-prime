@@ -79,7 +79,7 @@ export default function UserManagementIndex() {
     role === 'admin' ? 'destructive' : role === 'agent' ? 'default' : 'secondary'
 
   return (
-    <PageContainer size="5xl">
+    <PageContainer size="7xl">
       <PageTitle title={t('admin.usersTitle')} subtitle={`${users.length} ${t('admin.people')}`} />
 
       {isLoading ? (

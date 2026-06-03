@@ -85,7 +85,7 @@ export default function AgentManagementIndex() {
   })
 
   return (
-    <PageContainer size="5xl">
+    <PageContainer size="7xl">
       <PageTitle title={t('admin.agentsTitle')} subtitle={`${agents.length} ${t('admin.people')}`} />
 
       {isLoading ? (

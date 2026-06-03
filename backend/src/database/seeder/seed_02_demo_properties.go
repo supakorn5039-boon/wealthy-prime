@@ -33,11 +33,29 @@ func seedDemoProperties(db *gorm.DB, agentID uint) {
 		lng                *float64
 		status             model.PropertyStatus
 		imageURLs          []string
+
+		kind          model.PropertyKind
+		listing       model.ListingType
+		province      string
+		district      string
+		btsMrt        string
+		bedrooms      int
+		bathrooms     int
+		floor         int
+		minContract   int
+		pets          model.PetPolicy
+		furniture     model.FurniturePolicy
+		adCaption     string
+		ownerName     string
+		ownerPhone    string
+		ownerLineID   string
+		ownerEmail    string
+		ownerFacebook string
 	}{
 		{
 			title:       "Sky Loft 2BR Penthouse",
 			projectName: "Wealthy Heights Sukhumvit",
-			location:    "Khlong Toei, Bangkok",
+			location:    "คลองเตย, กรุงเทพมหานคร",
 			price:       12500000,
 			propType:    model.TypeBuy,
 			sizeSqm:     85,
@@ -51,14 +69,31 @@ func seedDemoProperties(db *gorm.DB, agentID uint) {
 				"https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1200&q=80",
 				"https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=1200&q=80",
 			},
+			kind:          model.KindCondo,
+			listing:       model.ListingSell,
+			province:      "กรุงเทพมหานคร",
+			district:      "คลองเตย",
+			btsMrt:        "อโศก (BTS), สุขุมวิท (MRT)",
+			bedrooms:      2,
+			bathrooms:     2,
+			floor:         28,
+			minContract:   12,
+			pets:          model.PetNotAllowed,
+			furniture:     model.FurnitureFull,
+			adCaption:     "ห้องเพดานสูง วิวเมือง ใกล้ BTS",
+			ownerName:     "คุณสมชาย",
+			ownerPhone:    "0820000001",
+			ownerLineID:   "somchai_h",
+			ownerEmail:    "somchai@example.com",
+			ownerFacebook: "facebook.com/somchai.h",
 		},
 		{
 			title:              "Riverside 1BR Condo",
 			projectName:        "Prime Riverside Residence",
-			location:           "Bang Rak, Bangkok",
+			location:           "บางรัก, กรุงเทพมหานคร",
 			price:              28000,
 			propType:           model.TypeRent,
-			sizeSqm:             42,
+			sizeSqm:            42,
 			ownerInfo:          "Khun Suda · 0820000002 · Line: suda_river",
 			rentalPeriodMonths: &rent12,
 			lat:                floatPtr(13.7308),
@@ -69,11 +104,28 @@ func seedDemoProperties(db *gorm.DB, agentID uint) {
 				"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200&q=80",
 				"https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=1200&q=80",
 			},
+			kind:          model.KindCondo,
+			listing:       model.ListingRent,
+			province:      "กรุงเทพมหานคร",
+			district:      "บางรัก",
+			btsMrt:        "สะพานตากสิน (BTS)",
+			bedrooms:      1,
+			bathrooms:     1,
+			floor:         15,
+			minContract:   12,
+			pets:          model.PetAllowed,
+			furniture:     model.FurniturePartial,
+			adCaption:     "วิวแม่น้ำเจ้าพระยา เหมาะเช่าระยะยาว",
+			ownerName:     "คุณสุดา",
+			ownerPhone:    "0820000002",
+			ownerLineID:   "suda_river",
+			ownerEmail:    "suda@example.com",
+			ownerFacebook: "facebook.com/suda.river",
 		},
 		{
 			title:       "Asoke Garden 3BR Family Home",
 			projectName: "Asoke Garden Villas",
-			location:    "Watthana, Bangkok",
+			location:    "วัฒนา, กรุงเทพมหานคร",
 			price:       8900000,
 			propType:    model.TypeBuy,
 			sizeSqm:     120,
@@ -88,6 +140,23 @@ func seedDemoProperties(db *gorm.DB, agentID uint) {
 				"https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1200&q=80",
 				"https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1200&q=80",
 			},
+			kind:          model.KindHouse,
+			listing:       model.ListingSell,
+			province:      "กรุงเทพมหานคร",
+			district:      "วัฒนา",
+			btsMrt:        "อโศก (BTS), เพชรบุรี (MRT)",
+			bedrooms:      3,
+			bathrooms:     3,
+			floor:         2,
+			minContract:   12,
+			pets:          model.PetAllowed,
+			furniture:     model.FurniturePartial,
+			adCaption:     "บ้านเดี่ยวพร้อมสวน ใกล้ห้างและรถไฟฟ้า",
+			ownerName:     "คุณอรุณ",
+			ownerPhone:    "0820000003",
+			ownerLineID:   "aroon_g",
+			ownerEmail:    "aroon@example.com",
+			ownerFacebook: "facebook.com/aroon.g",
 		},
 	}
 
@@ -112,6 +181,24 @@ func seedDemoProperties(db *gorm.DB, agentID uint) {
 			Lat:                d.lat,
 			Lng:                d.lng,
 			Status:             d.status,
+
+			Kind:          d.kind,
+			Listing:       d.listing,
+			Province:      d.province,
+			District:      d.district,
+			BtsMrt:        d.btsMrt,
+			Bedrooms:      d.bedrooms,
+			Bathrooms:     d.bathrooms,
+			Floor:         d.floor,
+			MinContract:   d.minContract,
+			Pets:          d.pets,
+			Furniture:     d.furniture,
+			AdCaption:     d.adCaption,
+			OwnerName:     d.ownerName,
+			OwnerPhone:    d.ownerPhone,
+			OwnerLineID:   d.ownerLineID,
+			OwnerEmail:    d.ownerEmail,
+			OwnerFacebook: d.ownerFacebook,
 		}
 		if err := db.Create(&p).Error; err != nil {
 			log.Printf("[seeder] failed to create demo property %q: %v", d.title, err)

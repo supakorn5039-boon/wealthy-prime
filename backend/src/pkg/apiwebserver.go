@@ -24,8 +24,8 @@ func MountAPIWebServer(r *gin.Engine) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
-	// Serve uploaded files
-	r.Static("/uploads", "./uploads")
+	// Serve uploaded files from the configured (absolute) upload directory.
+	r.Static("/uploads", config.App.Server.UploadDir)
 
 	// API routes
 	api := r.Group("/api")

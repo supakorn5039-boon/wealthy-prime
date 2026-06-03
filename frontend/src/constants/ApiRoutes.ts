@@ -30,6 +30,7 @@ export const API = {
   AGENT_PROPERTY_STATUS: (id: number | string) => `/agent/properties/${id}/status`,
   AGENT_CONTACTS: '/agent/contacts',
   AGENT_CONTACT_NOTE: (id: number | string) => `/agent/contacts/${id}/note`,
+  AGENT_CONTACT_WORK_STATUS: (id: number | string) => `/agent/contacts/${id}/work-status`,
   AGENT_INQUIRIES: '/agent/inquiries',
   AGENT_INQUIRY_STATUS: (id: number | string) => `/agent/inquiries/${id}/status`,
   AGENT_REVIEW_LINK: (propertyId: number | string) => `/agent/review-link/${propertyId}`,

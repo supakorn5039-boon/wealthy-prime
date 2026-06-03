@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { resolveImageUrl } from '@/utils/imageUrl'
+import { ImageWatermark } from '@/components/property/ImageWatermark'
 
 interface PropertyGalleryProps {
   images?: string[]
@@ -29,6 +30,7 @@ export function PropertyGallery({ images: rawImages = [], title }: PropertyGalle
     <>
       <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden group">
         <img src={images[current]} alt={`${title} - ${current + 1}`} className="w-full h-full object-cover" />
+        <ImageWatermark />
         {images.length > 1 && (
           <>
             <Button
@@ -87,7 +89,10 @@ export function PropertyGallery({ images: rawImages = [], title }: PropertyGalle
 
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
         <DialogContent className="max-w-4xl p-2">
-          <img src={images[current]} alt={title} className="w-full h-auto max-h-[80vh] object-contain" />
+          <div className="relative">
+            <img src={images[current]} alt={title} className="w-full h-auto max-h-[80vh] object-contain" />
+            <ImageWatermark />
+          </div>
         </DialogContent>
       </Dialog>
     </>

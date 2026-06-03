@@ -65,6 +65,33 @@ func (s *AgentService) GetContacts(agentID uint) ([]model.BookingDto, error) {
 	return dtos, nil
 }
 
+// UpdateWorkStatus updates the appointment work-status on a booking assigned to this agent.
+func (s *AgentService) UpdateWorkStatus(agentID, bookingID uint, ws model.AppointmentWorkStatus) (*model.BookingDto, error) {
+	var booking model.Booking
+	err := s.db.First(&booking, bookingID).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, apperror.NotFound("booking")
+	}
+	if err != nil {
+		return nil, apperror.Wrap(err, 500, "database error")
+	}
+
+	if booking.AssignedAgentID == nil || *booking.AssignedAgentID != agentID {
+		return nil, apperror.Forbidden("this booking is not assigned to you")
+	}
+
+	if err := s.db.Model(&booking).Update("work_status", ws).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to update work status")
+	}
+
+	var full model.Booking
+	if err := s.db.Preload("User").Preload("Property").Preload("AssignedAgent").
+		First(&full, bookingID).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to reload booking")
+	}
+	return full.ToDto(), nil
+}
+
 // UpdateNote updates the note on a booking assigned to this agent.
 func (s *AgentService) UpdateNote(agentID, bookingID uint, note string) (*model.BookingDto, error) {
 	var booking model.Booking

@@ -33,7 +33,7 @@ export default function HistoryIndex() {
   })
 
   return (
-    <PageContainer size="5xl">
+    <PageContainer size="7xl">
       <PageTitle title={t('history.title')} subtitle={t('history.subtitle')} />
 
       {isLoading ? (

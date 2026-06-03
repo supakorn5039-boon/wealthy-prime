@@ -32,7 +32,7 @@ export default function InquiriesIndex() {
   })
 
   return (
-    <PageContainer size="5xl">
+    <PageContainer size="7xl">
       <PageTitle title={t('inquiries.title')} subtitle={t('inquiries.subtitle')} />
 
       {isLoading ? (

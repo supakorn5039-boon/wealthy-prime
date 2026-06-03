@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"log"
 	"strconv"
 	"time"
 
@@ -10,20 +11,33 @@ import (
 	"github.com/wealthy-prime/backend/src/apperror"
 	"github.com/wealthy-prime/backend/src/database"
 	"github.com/wealthy-prime/backend/src/database/model"
+	"github.com/wealthy-prime/backend/src/pkg/email"
 )
 
 type BookingService struct {
-	db *gorm.DB
+	db     *gorm.DB
+	mailer email.Sender
 }
 
 func NewBookingService() *BookingService {
-	return &BookingService{db: database.DB}
+	return &BookingService{db: database.DB, mailer: email.New()}
 }
 
 type CreateBookingsInput struct {
 	PropertyIDs     []uint    `json:"property_ids" binding:"required,min=1"`
 	AppointmentDate time.Time `json:"appointment_date" binding:"required"`
 	Note            string    `json:"note"`
+
+	FirstName      string `json:"firstName"`
+	LastName       string `json:"lastName"`
+	Phone          string `json:"phone"`
+	SecondaryPhone string `json:"secondaryPhone"`
+	LatestContact  string `json:"latestContact"`
+	LineID         string `json:"lineId"`
+	Email          string `json:"email"`
+	Facebook       string `json:"facebook"`
+	Wechat         string `json:"wechat"`
+	Whatsapp       string `json:"whatsapp"`
 }
 
 // CreateBookings creates one booking per property ID, auto-assigning the least-loaded agent.
@@ -59,6 +73,16 @@ func (s *BookingService) CreateBookings(userID uint, input CreateBookingsInput) 
 			Note:            input.Note,
 			Status:          status,
 			AssignedAgentID: agentID,
+			FirstName:       input.FirstName,
+			LastName:        input.LastName,
+			Phone:           input.Phone,
+			SecondaryPhone:  input.SecondaryPhone,
+			LatestContact:   input.LatestContact,
+			LineID:          input.LineID,
+			Email:           input.Email,
+			Facebook:        input.Facebook,
+			Wechat:          input.Wechat,
+			Whatsapp:        input.Whatsapp,
 		}
 
 		if err := s.db.Create(&booking).Error; err != nil {
@@ -71,10 +95,41 @@ func (s *BookingService) CreateBookings(userID uint, input CreateBookingsInput) 
 			First(&full, booking.ID).Error; err != nil {
 			return nil, apperror.Wrap(err, 500, "failed to reload booking")
 		}
+
+		// Fire-and-forget notification to the assigned agent.
+		// Booking creation already succeeded — email failures must not roll it back.
+		s.notifyAgentAsync(full)
+
 		results = append(results, *full.ToDto())
 	}
 
 	return results, nil
+}
+
+// notifyAgentAsync sends the appointment notification on a goroutine so the
+// HTTP response doesn't wait on SMTP. Panics are swallowed and logged.
+func (s *BookingService) notifyAgentAsync(b model.Booking) {
+	if b.AssignedAgent == nil || b.AssignedAgent.Email == "" {
+		log.Printf("[email] skipping booking %d notification — no assigned agent or agent email", b.ID)
+		return
+	}
+	go func(b model.Booking) {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Printf("[email] panic while sending booking %d notification: %v", b.ID, r)
+			}
+		}()
+		msg, err := email.BuildAppointmentNotification(&b, b.AssignedAgent)
+		if err != nil {
+			log.Printf("[email] failed to build booking %d notification: %v", b.ID, err)
+			return
+		}
+		if err := s.mailer.Send(msg); err != nil {
+			log.Printf("[email] failed to send booking %d notification: %v", b.ID, err)
+			return
+		}
+		log.Printf("[email] booking %d notification sent to %s", b.ID, msg.To)
+	}(b)
 }
 
 // autoAssignAgent picks the agent globally with fewest pending bookings.

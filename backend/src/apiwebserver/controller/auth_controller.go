@@ -24,6 +24,7 @@ func (ctrl *AuthController) RegisterRoutes(r *gin.RouterGroup) {
 	auth.POST("/register", ctrl.register)
 	auth.POST("/login", ctrl.login)
 	auth.GET("/profile", middleware.Protected(), ctrl.profile)
+	auth.PUT("/profile", middleware.Protected(), ctrl.updateProfile)
 }
 
 func (ctrl *AuthController) profile(c *gin.Context) {
@@ -34,6 +35,33 @@ func (ctrl *AuthController) profile(c *gin.Context) {
 		return
 	}
 	successResponse(c, user)
+}
+
+func (ctrl *AuthController) updateProfile(c *gin.Context) {
+	userID := middleware.GetUserID(c)
+
+	var body profileUpdateBody
+	if err := c.ShouldBindJSON(&body); err != nil {
+		badRequest(c, err.Error())
+		return
+	}
+	if err := body.validate(); err != nil {
+		badRequest(c, err.Error())
+		return
+	}
+
+	updates := body.toUpdates()
+	if len(updates) == 0 {
+		badRequest(c, "no fields to update")
+		return
+	}
+
+	dto, err := ctrl.adminSvc.UpdateUser(userID, updates)
+	if err != nil {
+		errorResponse(c, err)
+		return
+	}
+	successResponse(c, dto)
 }
 
 func (ctrl *AuthController) register(c *gin.Context) {

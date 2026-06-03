@@ -10,10 +10,12 @@
   "role": {
     "user": "User",
     "agent": "Agent",
-    "admin": "Admin"
+    "admin": "Admin",
+    "superadmin": "Super Admin"
   },
   "sidebar": {
     "back": "Back to Home",
+    "personalInfo": "Personal Info",
     "dashboard": "Dashboard",
     "allProperties": "All Properties",
     "visitRequests": "Visit Requests",
@@ -43,6 +45,8 @@
     "delete": "Delete",
     "deleting": "Deleting...",
     "deleted": "Deleted",
+    "copy": "Copy",
+    "copied": "Copied",
     "confirm": "Confirm",
     "search": "Search",
     "noData": "No data found",
@@ -56,7 +60,9 @@
     "createdAt": "Registered",
     "status": "Status",
     "role": "Role",
-    "actions": "Actions"
+    "actions": "Actions",
+    "view": "View",
+    "phaseNext": "This feature ships in the next phase"
   },
   "auth": {
     "loginTitle": "Login",
@@ -67,8 +73,17 @@
     "passwordPlaceholder": "Password",
     "name": "Full Name",
     "namePlaceholder": "First Last",
+    "firstName": "First Name",
+    "firstNamePlaceholder": "First name",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Last name",
     "phone": "Phone Number",
     "phonePlaceholder": "0812345678",
+    "secondaryPhone": "Secondary Phone",
+    "lineId": "LINE ID",
+    "facebook": "Facebook",
+    "wechat": "WeChat",
+    "whatsapp": "WhatsApp",
     "registerTitle": "Register",
     "registerSubtitle": "Create a new account to get started",
     "roleLabel": "Register as",
@@ -88,11 +103,29 @@
     "loginError": "Incorrect email or password",
     "registerError": "An error occurred. Account may already exist"
   },
+  "profile": {
+    "title": "Personal Information",
+    "subtitle": "View and update your account details",
+    "identitySection": "Identity",
+    "contactSection": "Contact Channels",
+    "agentSection": "Agent Information",
+    "activitySection": "My Activity",
+    "agentCode": "Agent Code",
+    "memberSince": "Member since",
+    "updateSuccess": "Profile updated"
+  },
   "booking": {
     "pending": "Pending",
     "assigned": "In Progress",
     "completed": "Completed",
     "cancelled": "Cancelled"
+  },
+  "workStatus": {
+    "contacted": "Contacted",
+    "visited": "Visited",
+    "booked": "Booked",
+    "closed_deal": "Deal Closed",
+    "customer_cancelled": "Customer Cancelled"
   },
   "property": {
     "buy": "Buy",
@@ -104,12 +137,55 @@
       "pending_approve": "Pending Approval",
       "reserved": "Reserved",
       "sold": "Sold",
-      "rented": "Rented"
+      "rented": "Rented",
+      "unavailable": "Unavailable",
+      "owner_update": "Owner Update"
     },
+    "kindLabel": "Property Type",
+    "kind": {
+      "condo": "Condo",
+      "house": "House",
+      "townhouse": "Townhouse"
+    },
+    "listingLabel": "Listing Type",
+    "listing": {
+      "rent": "For Rent",
+      "sell": "For Sale",
+      "both": "Rent & Sell"
+    },
+    "province": "Province",
+    "district": "District",
+    "selectProvinceFirst": "Select province first",
+    "googleMapUrl": "Google Map URL",
+    "btsMrt": "Nearby BTS / MRT",
+    "bedrooms": "Bedrooms",
+    "bathrooms": "Bathrooms",
+    "floor": "Floor",
+    "minContract": "Minimum Contract (months)",
+    "petsLabel": "Pets",
+    "pets": {
+      "allowed": "Allowed",
+      "not_allowed": "Not Allowed"
+    },
+    "furnitureLabel": "Furniture",
+    "furniture": {
+      "full": "Fully Furnished",
+      "partial": "Partially Furnished",
+      "none": "Unfurnished"
+    },
+    "adCaption": "Advertisement Caption",
+    "locationSection": "Location",
+    "specsSection": "Specifications",
+    "ownerName": "Owner Name",
+    "ownerPhone": "Owner Phone",
+    "ownerLineId": "Owner LINE ID",
+    "ownerEmail": "Owner Email",
+    "ownerFacebook": "Owner Facebook",
+    "ownerWechat": "Owner WeChat",
+    "ownerWhatsapp": "Owner WhatsApp",
     "code": "Code",
     "project": "Project",
     "typeCol": "Type",
-    "district": "District",
     "price": "Price/Rent",
     "statusCol": "Status",
     "management": "Management",
@@ -216,6 +292,9 @@
     "noteLabel": "Note",
     "notePlaceholder": "Add note...",
     "noteSaved": "Note saved",
+    "workStatusCol": "Work Status",
+    "workStatusPlaceholder": "Update status",
+    "workStatusSaved": "Status updated",
     "ownerInfo": "Owner Info",
     "ownerInfoWarning": "Viewing this info is logged and Admin will be notified",
     "ownerLogTitle": "Owner Info View Log",
@@ -223,6 +302,8 @@
     "ownerLogSearch": "Search agent / property / owner...",
     "leadsTitle": "Customers/Leads",
     "leadsSubtitle": "List of customers who contacted",
+    "addLead": "Add Lead",
+    "visitRequestsCount": "{{count}} requests total",
     "profileTitle": "Agent Profile",
     "profileCount": "agent(s)",
     "overviewTitle": "Agent Overview",
@@ -315,6 +396,19 @@
   "home": {
     "title": "Property Search",
     "subtitle": "Quality real estate — buy, sell and rent all in one place",
+    "heroTitle": "Find your\ndream\nproperty",
+    "heroSubtitle": "Discover homes near BTS/MRT lines, picked by trusted local agents.",
+    "heroSearchPlaceholder": "Search area, BTS, district...",
+    "heroSearchCta": "Search",
+    "featuredTitle": "Featured Properties",
+    "searchResultsTitle": "Search Results",
+    "featuredSeeAll": "See all",
+    "chip": {
+      "condo": "Condo",
+      "house": "House",
+      "townhouse": "Townhouse",
+      "premium": "Premium"
+    },
     "foundCount": "Found {{count}} listings",
     "searchPlaceholder": "Search project, location...",
     "filterType": "Type",
@@ -324,7 +418,17 @@
     "minPrice": "Min Price",
     "maxPrice": "Max Price",
     "noResults": "No properties found",
-    "tryAdjust": "Try adjusting your search"
+    "tryAdjust": "Try adjusting your search",
+    "mapHint": "Hover a marker to preview a property — click to open it."
+  },
+  "footer": {
+    "tagline": "Curated properties across Bangkok and beyond, supported by professional agents who care.",
+    "tagShort": "Your dream home starts here.",
+    "quickLinks": "Quick Links",
+    "contact": "Contact Us",
+    "forAgents": "For Agents",
+    "registerAgent": "Become an agent",
+    "rightsReserved": "All rights reserved."
   },
   "cart": {
     "title": "My Cart",
@@ -342,7 +446,11 @@
     "loginRequired": "Please login first",
     "success": "Appointment request sent",
     "error": "An error occurred. Please try again",
-    "selectDateRequired": "Please select appointment date for \"{{title}}\""
+    "selectDateRequired": "Please select appointment date for \"{{title}}\"",
+    "contactSection": "Appointment Contact Info",
+    "contactPrefilledHint": "Pre-filled from your profile — edit if you want the agent to reach a different contact.",
+    "latestContact": "Latest reachable contact",
+    "latestContactHint": "Phone or channel where the agent can reach you right now (defaults to your primary phone)."
   },
   "wishlist": {
     "title": "Wishlist",
@@ -389,6 +497,8 @@
     "willBeShown": "Your review will be displayed on this property page",
     "invalidLink": "Invalid or expired link",
     "requestNewLink": "Please request a new review link from the agent",
-    "linkExpired": "An error occurred. The link may have expired."
+    "linkExpired": "An error occurred. The link may have expired.",
+    "loginRequiredTitle": "Sign in to leave a review",
+    "loginRequiredDesc": "Please sign in or create an account before submitting your review."
   }
 }
