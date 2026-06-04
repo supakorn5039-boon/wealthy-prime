@@ -65,6 +65,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     profileItem,
     { labelKey: 'sidebar.dashboard', href: ROUTES.ADMIN_DASHBOARD, icon: <LayoutDashboard className="h-4 w-4" /> },
     { labelKey: 'sidebar.pendingApproval', href: ROUTES.ADMIN_PENDING, icon: <ClipboardList className="h-4 w-4" /> },
+    { labelKey: 'sidebar.pendingUsers', href: ROUTES.ADMIN_PENDING_USERS, icon: <ClipboardList className="h-4 w-4" /> },
     { labelKey: 'sidebar.agentManagement', href: ROUTES.ADMIN_AGENTS, icon: <UserCog className="h-4 w-4" /> },
     { labelKey: 'sidebar.userManagement', href: ROUTES.ADMIN_USERS, icon: <Users className="h-4 w-4" /> },
     { labelKey: 'sidebar.caseTransfer', href: ROUTES.ADMIN_REASSIGN, icon: <ArrowLeftRight className="h-4 w-4" /> },

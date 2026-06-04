@@ -5,6 +5,7 @@ import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Crown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import axios from 'axios'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { FormInput } from '@/components/form/FormInput'
@@ -32,7 +33,13 @@ export default function LoginIndex() {
       toast.success(t('auth.welcomeUser', { name: data.user.name }))
       navigate(from, { replace: true })
     },
-    onError: () => toast.error(t('auth.loginError')),
+    onError: (err) => {
+      if (axios.isAxiosError(err) && err.response?.status === 403) {
+        toast.error(t('auth.loginPendingApproval'))
+        return
+      }
+      toast.error(t('auth.loginError'))
+    },
   })
 
   return (

@@ -36,6 +36,10 @@ func (ctrl *AdminController) RegisterRoutes(r *gin.RouterGroup) {
 	admin.PUT("/agents/:id", ctrl.updateAgent)
 	admin.POST("/agents/:id/role", ctrl.updateAgentRole)
 
+	admin.GET("/users/pending", ctrl.listPendingUsers)
+	admin.PUT("/users/:id/approve", ctrl.approveUser)
+	admin.PUT("/users/:id/reject", ctrl.rejectUser)
+
 	admin.GET("/users", ctrl.listUsers)
 	admin.GET("/users/:id", ctrl.getUser)
 	admin.PUT("/users/:id", ctrl.updateUser)
@@ -161,6 +165,42 @@ func (ctrl *AdminController) updateAgentRole(c *gin.Context) {
 		return
 	}
 	successResponse(c, dto)
+}
+
+func (ctrl *AdminController) listPendingUsers(c *gin.Context) {
+	dtos, err := ctrl.svc.ListPendingUsers()
+	if err != nil {
+		errorResponse(c, err)
+		return
+	}
+	successResponse(c, dtos)
+}
+
+func (ctrl *AdminController) approveUser(c *gin.Context) {
+	id, err := parseUintParam(c, "id")
+	if err != nil {
+		badRequest(c, "invalid user id")
+		return
+	}
+	dto, err := ctrl.svc.ApproveUser(id)
+	if err != nil {
+		errorResponse(c, err)
+		return
+	}
+	successResponse(c, dto)
+}
+
+func (ctrl *AdminController) rejectUser(c *gin.Context) {
+	id, err := parseUintParam(c, "id")
+	if err != nil {
+		badRequest(c, "invalid user id")
+		return
+	}
+	if err := ctrl.svc.RejectUser(id); err != nil {
+		errorResponse(c, err)
+		return
+	}
+	successResponse(c, gin.H{"ok": true})
 }
 
 func (ctrl *AdminController) listUsers(c *gin.Context) {

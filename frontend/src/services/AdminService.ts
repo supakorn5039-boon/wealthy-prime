@@ -29,6 +29,7 @@ export const AdminService = {
   QUERY_KEYS: {
     DASHBOARD: 'admin-dashboard',
     PENDING: 'admin-pending',
+    PENDING_USERS: 'admin-pending-users',
     AGENTS: 'admin-agents',
     USERS: 'admin-users',
     FINANCIAL: 'admin-financial',
@@ -65,6 +66,19 @@ export const AdminService = {
   getUsers: async (): Promise<AuthUser[]> => {
     const res = await fetchClient.get<ApiResponse<AuthUser[]>>(API.ADMIN_USERS)
     return res.data.data
+  },
+
+  getPendingUsers: async (): Promise<AuthUser[]> => {
+    const res = await fetchClient.get<ApiResponse<AuthUser[]>>(API.ADMIN_PENDING_USERS)
+    return res.data.data
+  },
+
+  approveUser: async (id: number | string): Promise<void> => {
+    await fetchClient.put(API.ADMIN_USER_APPROVE(id))
+  },
+
+  rejectUser: async (id: number | string): Promise<void> => {
+    await fetchClient.put(API.ADMIN_USER_REJECT(id))
   },
 
   updateUser: async (id: number | string, payload: Partial<AuthUser>): Promise<AuthUser> => {

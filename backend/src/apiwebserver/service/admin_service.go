@@ -15,11 +15,12 @@ import (
 )
 
 type AdminService struct {
-	db *gorm.DB
+	db         *gorm.DB
+	bookingSvc *BookingService
 }
 
 func NewAdminService() *AdminService {
-	return &AdminService{db: database.DB}
+	return &AdminService{db: database.DB, bookingSvc: NewBookingService()}
 }
 
 type PropertyStatusCount struct {
@@ -126,6 +127,11 @@ func (s *AdminService) ReassignBooking(bookingID, agentID uint) (*model.BookingD
 		First(&full, bookingID).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "failed to reload booking")
 	}
+
+	// Fire the agent notification only after an admin has explicitly assigned
+	// the booking. Reassign to a different agent re-fires the notification so
+	// the new agent learns about the appointment.
+	s.bookingSvc.NotifyAgentAssignedAsync(full)
 
 	return full.ToDto(), nil
 }
@@ -319,6 +325,57 @@ func (s *AdminService) GetUser(userID uint) (*model.UserDto, error) {
 		return nil, apperror.Wrap(err, 500, "database error")
 	}
 	return user.ToDto(), nil
+}
+
+// ListPendingUsers returns users/agents who registered but are not yet approved.
+// Admins are excluded — they are always approved.
+func (s *AdminService) ListPendingUsers() ([]model.UserDto, error) {
+	var users []model.User
+	if err := s.db.
+		Where("is_approved = ? AND role <> ?", false, model.RoleAdmin).
+		Order("created_at ASC").
+		Find(&users).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to list pending users")
+	}
+	dtos := make([]model.UserDto, len(users))
+	for i, u := range users {
+		dtos[i] = *u.ToDto()
+	}
+	return dtos, nil
+}
+
+// ApproveUser flips is_approved to true so the user can log in.
+func (s *AdminService) ApproveUser(userID uint) (*model.UserDto, error) {
+	var user model.User
+	err := s.db.First(&user, userID).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, apperror.NotFound("user")
+	}
+	if err != nil {
+		return nil, apperror.Wrap(err, 500, "database error")
+	}
+
+	if err := s.db.Model(&user).Update("is_approved", true).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to approve user")
+	}
+	user.IsApproved = true
+	return user.ToDto(), nil
+}
+
+// RejectUser soft-deletes a pending registration so it cannot log in or be re-approved.
+func (s *AdminService) RejectUser(userID uint) error {
+	var user model.User
+	err := s.db.First(&user, userID).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return apperror.NotFound("user")
+	}
+	if err != nil {
+		return apperror.Wrap(err, 500, "database error")
+	}
+	if err := s.db.Delete(&user).Error; err != nil {
+		return apperror.Wrap(err, 500, "failed to reject user")
+	}
+	return nil
 }
 
 // UpdateUser updates a user's profile fields.

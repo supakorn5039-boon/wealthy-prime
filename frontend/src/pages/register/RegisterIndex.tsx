@@ -46,7 +46,7 @@ export default function RegisterIndex() {
   const mutation = useMutation({
     mutationFn: AuthService.register,
     onSuccess: () => {
-      toast.success(t('auth.registerSuccess'))
+      toast.success(t('auth.registerPendingApproval'))
       navigate(ROUTES.LOGIN, { replace: true, state: from ? { from } : undefined })
     },
     onError: () => toast.error(t('auth.registerError')),

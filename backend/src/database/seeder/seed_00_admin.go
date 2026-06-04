@@ -38,6 +38,7 @@ func seedAdmin(db *gorm.DB) {
 		PasswordHash: hash,
 		Phone:        "0811111111",
 		Role:         model.RoleAdmin,
+		IsApproved:   true,
 	}
 
 	if err := db.Create(&admin).Error; err != nil {

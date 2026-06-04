@@ -30,6 +30,7 @@
     "bookingHistory": "ประวัติการจอง",
     "contactHistory": "ประวัติการติดต่อ",
     "pendingApproval": "รออนุมัติ",
+    "pendingUsers": "บัญชีรออนุมัติ",
     "agentManagement": "จัดการเอเจนต์",
     "userManagement": "จัดการผู้ใช้",
     "caseTransfer": "โอนย้ายเคส",
@@ -100,7 +101,9 @@
     "welcomeUser": "ยินดีต้อนรับ คุณ{{name}}",
     "loginSuccess": "เข้าสู่ระบบสำเร็จ",
     "registerSuccess": "สมัครสมาชิกเรียบร้อย ยินดีต้อนรับ!",
+    "registerPendingApproval": "ส่งคำขอสมัครเรียบร้อย แอดมินจะตรวจสอบบัญชีก่อนที่คุณจะเข้าสู่ระบบได้",
     "loginError": "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+    "loginPendingApproval": "บัญชีของคุณกำลังรอแอดมินอนุมัติ กรุณาลองใหม่ภายหลัง",
     "registerError": "เกิดข้อผิดพลาด อาจมีบัญชีนี้อยู่แล้ว"
   },
   "profile": {
@@ -391,7 +394,17 @@
     "roleLabel": "บทบาท",
     "nameLabel": "ชื่อ-นามสกุล",
     "phoneLabel": "เบอร์โทร",
-    "noData": "ยังไม่มีข้อมูล"
+    "noData": "ยังไม่มีข้อมูล",
+    "pendingUsersTitle": "บัญชีรออนุมัติ",
+    "pendingUsersCount": "บัญชีรอตรวจสอบ",
+    "noPendingUsers": "ไม่มีบัญชีที่รออนุมัติ",
+    "allUsersProcessed": "ดำเนินการครบทุกคำขอแล้ว",
+    "userApproveSuccess": "อนุมัติบัญชีแล้ว",
+    "userRejectSuccess": "ปฏิเสธคำขอสมัครแล้ว",
+    "confirmApproveUserTitle": "อนุมัติบัญชี",
+    "confirmApproveUserDesc": "อนุญาตให้ {{name}} เข้าสู่ระบบ?",
+    "confirmRejectUserTitle": "ปฏิเสธคำขอสมัคร",
+    "confirmRejectUserDesc": "ปฏิเสธและลบคำขอสมัครของ {{name}}? ไม่สามารถย้อนกลับได้"
   },
   "home": {
     "title": "ค้นหาทรัพย์สิน",

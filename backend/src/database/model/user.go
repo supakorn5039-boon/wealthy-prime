@@ -30,6 +30,11 @@ type User struct {
 	Whatsapp       string
 	AgentCode      string   `gorm:"index"`
 	Role           UserRole `gorm:"type:varchar(20);not null;default:'user'"`
+	// DO NOT add a `default` tag — GORM substitutes its default value
+	// for zero-value fields on INSERT, which would silently approve every
+	// self-registration (IsApproved=false is the zero value).
+	// Existing rows are grandfathered via raw SQL in migrateUsers.
+	IsApproved bool `gorm:"not null"`
 }
 
 type UserDto struct {
@@ -46,6 +51,7 @@ type UserDto struct {
 	Whatsapp       string   `json:"whatsapp"`
 	AgentCode      string   `json:"agentCode"`
 	Role           UserRole `json:"role"`
+	IsApproved     bool     `json:"isApproved"`
 	CreatedAt      string   `json:"createdAt"`
 }
 
@@ -64,6 +70,7 @@ func (u *User) ToDto() *UserDto {
 		Whatsapp:       u.Whatsapp,
 		AgentCode:      u.AgentCode,
 		Role:           u.Role,
+		IsApproved:     u.IsApproved,
 		CreatedAt:      u.CreatedAt.Format(time.RFC3339),
 	}
 }

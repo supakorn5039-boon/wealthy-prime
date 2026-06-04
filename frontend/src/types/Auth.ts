@@ -14,6 +14,7 @@ export interface AuthUser {
   whatsapp?: string
   agentCode?: string
   role: UserRole
+  isApproved?: boolean
   createdAt: string
 }
 

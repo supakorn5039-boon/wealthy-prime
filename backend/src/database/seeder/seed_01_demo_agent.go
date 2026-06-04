@@ -34,6 +34,7 @@ func seedDemoAgent(db *gorm.DB) uint {
 		Phone:        "0811111111",
 		AgentCode:    "A100001",
 		Role:         model.RoleAgent,
+		IsApproved:   true,
 	}
 	if err := db.Create(&agent).Error; err != nil {
 		log.Printf("[seeder] failed to create demo agent: %v", err)

@@ -30,6 +30,7 @@
     "bookingHistory": "Booking History",
     "contactHistory": "Contact History",
     "pendingApproval": "Pending Approval",
+    "pendingUsers": "Pending Registrations",
     "agentManagement": "Agent Management",
     "userManagement": "User Management",
     "caseTransfer": "Case Transfer",
@@ -100,7 +101,9 @@
     "welcomeUser": "Welcome, {{name}}",
     "loginSuccess": "Logged in successfully",
     "registerSuccess": "Registration complete. Welcome!",
+    "registerPendingApproval": "Registration submitted. An admin will review your account before you can log in.",
     "loginError": "Incorrect email or password",
+    "loginPendingApproval": "Your account is awaiting admin approval. Please try again later.",
     "registerError": "An error occurred. Account may already exist"
   },
   "profile": {
@@ -391,7 +394,17 @@
     "roleLabel": "Role",
     "nameLabel": "Full Name",
     "phoneLabel": "Phone",
-    "noData": "No data yet"
+    "noData": "No data yet",
+    "pendingUsersTitle": "Pending Registrations",
+    "pendingUsersCount": "people awaiting approval",
+    "noPendingUsers": "No pending registrations",
+    "allUsersProcessed": "All registrations have been processed",
+    "userApproveSuccess": "User approved",
+    "userRejectSuccess": "Registration rejected",
+    "confirmApproveUserTitle": "Approve registration",
+    "confirmApproveUserDesc": "Allow {{name}} to log in?",
+    "confirmRejectUserTitle": "Reject registration",
+    "confirmRejectUserDesc": "Reject and remove {{name}}'s registration? This cannot be undone."
   },
   "home": {
     "title": "Property Search",

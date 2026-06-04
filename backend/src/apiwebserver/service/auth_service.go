@@ -89,6 +89,7 @@ func (s *AuthService) Register(input RegisterInput) (*model.UserDto, error) {
 		Wechat:         input.Wechat,
 		Whatsapp:       input.Whatsapp,
 		Role:           input.Role,
+		IsApproved:     false,
 	}
 
 	if user.Role == model.RoleAgent {
@@ -141,6 +142,10 @@ func (s *AuthService) Login(input LoginInput) (*LoginResponse, error) {
 
 	if !security.CheckPassword(user.PasswordHash, input.Password) {
 		return nil, apperror.Unauthorized("invalid email or password")
+	}
+
+	if !user.IsApproved && user.Role != model.RoleAdmin {
+		return nil, apperror.Forbidden("Your account is awaiting admin approval")
 	}
 
 	token, err := security.GenerateJWT(user.ID, user.Role, user.Email)

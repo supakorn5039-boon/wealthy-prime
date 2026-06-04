@@ -30,6 +30,7 @@
     "bookingHistory": "预约历史",
     "contactHistory": "联系历史",
     "pendingApproval": "待审批",
+    "pendingUsers": "待审核注册",
     "agentManagement": "代理管理",
     "userManagement": "用户管理",
     "caseTransfer": "案例转移",
@@ -100,7 +101,9 @@
     "welcomeUser": "欢迎，{{name}}",
     "loginSuccess": "登录成功",
     "registerSuccess": "注册成功，欢迎！",
+    "registerPendingApproval": "注册已提交，管理员审核通过后方可登录。",
     "loginError": "邮箱或密码错误",
+    "loginPendingApproval": "您的账户正在等待管理员审批，请稍后再试。",
     "registerError": "发生错误，账户可能已存在"
   },
   "profile": {
@@ -391,7 +394,17 @@
     "roleLabel": "角色",
     "nameLabel": "全名",
     "phoneLabel": "电话",
-    "noData": "暂无数据"
+    "noData": "暂无数据",
+    "pendingUsersTitle": "待审核注册",
+    "pendingUsersCount": "位待审核",
+    "noPendingUsers": "暂无待审核注册",
+    "allUsersProcessed": "所有注册申请已处理",
+    "userApproveSuccess": "用户已审核通过",
+    "userRejectSuccess": "注册申请已拒绝",
+    "confirmApproveUserTitle": "审核通过",
+    "confirmApproveUserDesc": "允许 {{name}} 登录吗？",
+    "confirmRejectUserTitle": "拒绝注册",
+    "confirmRejectUserDesc": "拒绝并删除 {{name}} 的注册申请？此操作不可撤销。"
   },
   "home": {
     "title": "搜索房产",
