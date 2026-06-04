@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ShoppingCart, Menu, Crown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -22,7 +22,13 @@ export function Navbar({ onMenuClick }: NavbarProps) {
   const { user, logout } = useAuthStore()
   const { items, openCart } = useCartStore()
   const location = useLocation()
+  const navigate = useNavigate()
   const isUserRole = !user || user.role === 'user'
+
+  const handleLogout = () => {
+    logout()
+    navigate(ROUTES.HOME, { replace: true })
+  }
 
   const navLinks: NavLink[] = [
     { to: ROUTES.HOME, label: t('nav.home') },
@@ -100,7 +106,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
             <p className="text-xs text-white/60">{t(`role.${user.role}`)}</p>
           </div>
           <button
-            onClick={logout}
+            onClick={handleLogout}
             className="hidden sm:inline-flex rounded-full bg-white/10 hover:bg-white/20 text-white text-sm font-medium px-4 py-1.5"
           >
             {t('nav.logout')}

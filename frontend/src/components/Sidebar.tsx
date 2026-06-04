@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   Heart,
@@ -40,6 +40,12 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const { t } = useTranslation()
   const { user, logout } = useAuthStore()
   const location = useLocation()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    logout()
+    navigate(ROUTES.HOME, { replace: true })
+  }
 
   const profileItem: MenuItem = { labelKey: 'sidebar.personalInfo', href: ROUTES.PROFILE, icon: <UserCircle className="h-4 w-4" /> }
 
@@ -153,7 +159,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             </div>
           )}
           <button
-            onClick={logout}
+            onClick={handleLogout}
             title={t('sidebar.logout')}
             className={cn(
               'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium w-full text-red-400 hover:text-red-300 hover:bg-white/10 transition-colors whitespace-nowrap',
