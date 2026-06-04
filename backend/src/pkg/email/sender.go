@@ -16,6 +16,7 @@ type Sender interface {
 type Message struct {
 	To       string
 	ToName   string
+	Bcc      string // optional — blind-carbon-copy a monitoring/test recipient
 	Subject  string
 	HTMLBody string
 	TextBody string

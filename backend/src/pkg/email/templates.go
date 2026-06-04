@@ -52,11 +52,110 @@ func BuildAppointmentNotification(booking *model.Booking, agent *model.User) (Me
 	return Message{
 		To:       agent.Email,
 		ToName:   agent.Name,
+		Bcc:      config.App.SMTP.NotificationBcc,
 		Subject:  subject,
 		HTMLBody: htmlBuf.String(),
 		TextBody: textBuf.String(),
 	}, nil
 }
+
+// BuildAppointmentConfirmation renders the email a CUSTOMER receives when
+// they successfully schedule a property viewing — a polite confirmation of
+// the booking with the assigned agent's contact details.
+func BuildAppointmentConfirmation(booking *model.Booking, agent *model.User) (Message, error) {
+	property := booking.Property
+
+	customerName := strings.TrimSpace(strings.Join([]string{booking.FirstName, booking.LastName}, " "))
+	if customerName == "" {
+		customerName = booking.User.Name
+	}
+	toEmail := firstNonEmpty(booking.Email, booking.User.Email)
+	if toEmail == "" {
+		return Message{}, fmt.Errorf("no customer email available for booking %d", booking.ID)
+	}
+	apptTime := booking.AppointmentDate.In(time.FixedZone("ICT", 7*3600)).Format("2 Jan 2006 15:04 น.")
+
+	data := confirmationData{
+		CustomerName:  customerName,
+		PropertyTitle: property.Title,
+		PropertyCode:  property.PropertyCode,
+		Appointment:   apptTime,
+		AgentName:     agent.Name,
+		AgentPhone:    agent.Phone,
+		AgentEmail:    agent.Email,
+		Note:          strings.TrimSpace(booking.Note),
+		HistoryURL:    config.App.SMTP.AppURL + "/history",
+	}
+
+	var htmlBuf, textBuf bytes.Buffer
+	if err := confirmHTMLTpl.Execute(&htmlBuf, data); err != nil {
+		return Message{}, fmt.Errorf("render html: %w", err)
+	}
+	if err := confirmTextTpl.Execute(&textBuf, data); err != nil {
+		return Message{}, fmt.Errorf("render text: %w", err)
+	}
+
+	subject := fmt.Sprintf("[ยืนยันนัดหมาย] %s — %s", property.Title, apptTime)
+	return Message{
+		To:       toEmail,
+		ToName:   customerName,
+		Bcc:      config.App.SMTP.NotificationBcc,
+		Subject:  subject,
+		HTMLBody: htmlBuf.String(),
+		TextBody: textBuf.String(),
+	}, nil
+}
+
+type confirmationData struct {
+	CustomerName  string
+	PropertyTitle string
+	PropertyCode  string
+	Appointment   string
+	AgentName     string
+	AgentPhone    string
+	AgentEmail    string
+	Note          string
+	HistoryURL    string
+}
+
+var confirmHTMLTpl = template.Must(template.New("confirm_html").Parse(`<!doctype html>
+<html><body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; color:#222; max-width:600px; margin:0 auto; padding:24px;">
+  <h2 style="color:#1f2937;">ยืนยันการนัดชมทรัพย์</h2>
+  <p>สวัสดีคุณ {{.CustomerName}},</p>
+  <p>เราได้รับการนัดหมายชมทรัพย์ของคุณเรียบร้อยแล้ว รายละเอียดดังนี้:</p>
+  <table cellpadding="6" style="border-collapse:collapse; font-size:14px;">
+    <tr><td><strong>ทรัพย์</strong></td><td>{{.PropertyTitle}}{{if .PropertyCode}} <span style="color:#888;">(รหัส {{.PropertyCode}})</span>{{end}}</td></tr>
+    <tr><td><strong>วันนัดหมาย</strong></td><td>{{.Appointment}}</td></tr>
+    <tr><td><strong>ตัวแทนที่ดูแล</strong></td><td>{{.AgentName}}</td></tr>
+    {{if .AgentPhone}}<tr><td><strong>เบอร์ตัวแทน</strong></td><td>{{.AgentPhone}}</td></tr>{{end}}
+    {{if .AgentEmail}}<tr><td><strong>อีเมลตัวแทน</strong></td><td>{{.AgentEmail}}</td></tr>{{end}}
+    {{if .Note}}<tr><td><strong>หมายเหตุ</strong></td><td>{{.Note}}</td></tr>{{end}}
+  </table>
+  <p style="margin-top:16px;">ตัวแทนของเราจะติดต่อกลับเพื่อยืนยันรายละเอียดเพิ่มเติม</p>
+  <p style="margin-top:24px;">
+    <a href="{{.HistoryURL}}" style="background:#1f2937; color:#fff; padding:10px 20px; text-decoration:none; border-radius:6px; display:inline-block;">ดูประวัติการนัดหมาย</a>
+  </p>
+  <hr style="margin-top:32px; border:none; border-top:1px solid #eee;">
+  <p style="font-size:12px; color:#888;">อีเมลฉบับนี้ส่งจากระบบ Wealthy Prime Estate โดยอัตโนมัติ</p>
+</body></html>`))
+
+var confirmTextTpl = template.Must(template.New("confirm_text").Parse(`สวัสดีคุณ {{.CustomerName}},
+
+เราได้รับการนัดหมายชมทรัพย์ของคุณเรียบร้อยแล้ว:
+
+ทรัพย์: {{.PropertyTitle}}{{if .PropertyCode}} (รหัส {{.PropertyCode}}){{end}}
+วันนัดหมาย: {{.Appointment}}
+ตัวแทนที่ดูแล: {{.AgentName}}{{if .AgentPhone}}
+เบอร์ตัวแทน: {{.AgentPhone}}{{end}}{{if .AgentEmail}}
+อีเมลตัวแทน: {{.AgentEmail}}{{end}}{{if .Note}}
+หมายเหตุ: {{.Note}}{{end}}
+
+ตัวแทนของเราจะติดต่อกลับเพื่อยืนยันรายละเอียดเพิ่มเติม
+
+ดูประวัติการนัดหมาย: {{.HistoryURL}}
+
+— ระบบ Wealthy Prime Estate
+`))
 
 type appointmentData struct {
 	AgentName      string

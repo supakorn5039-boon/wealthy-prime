@@ -20,6 +20,9 @@ func (s *smtpSender) Send(msg Message) error {
 	} else {
 		m.SetHeader("To", msg.To)
 	}
+	if msg.Bcc != "" && msg.Bcc != msg.To {
+		m.SetHeader("Bcc", msg.Bcc)
+	}
 	m.SetHeader("Subject", msg.Subject)
 	if msg.TextBody != "" {
 		m.SetBody("text/plain", msg.TextBody)

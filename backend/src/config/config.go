@@ -33,13 +33,14 @@ type CORSConfig struct {
 }
 
 type SMTPConfig struct {
-	Host     string
-	Port     int
-	User     string
-	Password string
-	From     string
-	FromName string
-	AppURL   string
+	Host            string
+	Port            int
+	User            string
+	Password        string
+	From            string
+	FromName        string
+	AppURL          string
+	NotificationBcc string // optional — BCC every appointment notification here
 }
 
 func (s SMTPConfig) Enabled() bool { return s.Host != "" }
@@ -144,6 +145,7 @@ func Load(path string) {
 	App.SMTP.From = getVal(smtpSection, "from", "no-reply@wealthy-prime.local")
 	App.SMTP.FromName = getVal(smtpSection, "from_name", "Wealthy Prime Estate")
 	App.SMTP.AppURL = strings.TrimRight(getVal(smtpSection, "app_url", "http://localhost:5173"), "/")
+	App.SMTP.NotificationBcc = strings.TrimSpace(getVal(smtpSection, "notification_bcc", ""))
 
 	if v := os.Getenv("SMTP_HOST"); v != "" {
 		App.SMTP.Host = v
@@ -159,6 +161,9 @@ func Load(path string) {
 	}
 	if v := os.Getenv("APP_URL"); v != "" {
 		App.SMTP.AppURL = strings.TrimRight(v, "/")
+	}
+	if v := os.Getenv("SMTP_NOTIFICATION_BCC"); v != "" {
+		App.SMTP.NotificationBcc = strings.TrimSpace(v)
 	}
 }
 

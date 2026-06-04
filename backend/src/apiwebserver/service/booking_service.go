@@ -55,11 +55,11 @@ func (s *BookingService) CreateBookings(userID uint, input CreateBookingsInput) 
 			return nil, apperror.Wrap(err, 500, "database error fetching property")
 		}
 
-		// Auto-assign agent: pick agent with fewest pending bookings
-		agentID, err := s.autoAssignAgent(propertyID)
-		if err != nil {
-			return nil, err
-		}
+		// The agent who listed the property is the one responsible for the
+		// viewing — assign to them directly. Admin can reassign later if needed.
+		// The real-estate owner (Property.OwnerInfo) is intentionally not
+		// emailed; only the listing agent gets the company notification.
+		agentID := property.AgentID
 
 		status := model.BookingPending
 		if agentID != nil {
@@ -96,9 +96,10 @@ func (s *BookingService) CreateBookings(userID uint, input CreateBookingsInput) 
 			return nil, apperror.Wrap(err, 500, "failed to reload booking")
 		}
 
-		// Fire-and-forget notification to the assigned agent.
-		// Booking creation already succeeded — email failures must not roll it back.
-		s.notifyAgentAsync(full)
+		// Fire-and-forget notifications to BOTH the assigned agent and the
+		// customer. Booking creation already succeeded — email failures must
+		// not roll it back.
+		s.notifyAppointmentAsync(full)
 
 		results = append(results, *full.ToDto())
 	}
@@ -106,62 +107,70 @@ func (s *BookingService) CreateBookings(userID uint, input CreateBookingsInput) 
 	return results, nil
 }
 
-// notifyAgentAsync sends the appointment notification on a goroutine so the
-// HTTP response doesn't wait on SMTP. Panics are swallowed and logged.
-func (s *BookingService) notifyAgentAsync(b model.Booking) {
+// notifyAppointmentAsync fires both the LISTING AGENT notification and the
+// CUSTOMER confirmation on a goroutine after a booking is created. The
+// "listing agent" is the agent who posted the property — they receive a
+// company-branded notification of the viewing request. The property's real
+// owner is NOT emailed. Panics swallowed + logged so SMTP failures don't
+// roll back the booking.
+func (s *BookingService) notifyAppointmentAsync(b model.Booking) {
+	go func(b model.Booking) {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Printf("[email] panic while sending booking %d notifications: %v", b.ID, r)
+			}
+		}()
+		// Listing agent notification.
+		if b.AssignedAgent != nil && b.AssignedAgent.Email != "" {
+			if msg, err := email.BuildAppointmentNotification(&b, b.AssignedAgent); err != nil {
+				log.Printf("[email] failed to build booking %d agent notification: %v", b.ID, err)
+			} else if err := s.mailer.Send(msg); err != nil {
+				log.Printf("[email] failed to send booking %d agent notification: %v", b.ID, err)
+			} else {
+				log.Printf("[email] booking %d agent notification sent to %s (bcc=%q)", b.ID, msg.To, msg.Bcc)
+			}
+		} else {
+			log.Printf("[email] booking %d has no listing agent with an email — skipping agent notification", b.ID)
+		}
+		// Customer confirmation.
+		agent := b.AssignedAgent
+		if agent == nil {
+			agent = &model.User{} // empty fields → template omits agent rows
+		}
+		if msg, err := email.BuildAppointmentConfirmation(&b, agent); err != nil {
+			log.Printf("[email] skipping booking %d customer confirmation: %v", b.ID, err)
+		} else if err := s.mailer.Send(msg); err != nil {
+			log.Printf("[email] failed to send booking %d customer confirmation: %v", b.ID, err)
+		} else {
+			log.Printf("[email] booking %d customer confirmation sent to %s (bcc=%q)", b.ID, msg.To, msg.Bcc)
+		}
+	}(b)
+}
+
+// NotifyAgentAssignedAsync sends the agent the appointment notification when
+// an admin assigns/reassigns the booking to them. Called by AdminService.
+func (s *BookingService) NotifyAgentAssignedAsync(b model.Booking) {
 	if b.AssignedAgent == nil || b.AssignedAgent.Email == "" {
-		log.Printf("[email] skipping booking %d notification — no assigned agent or agent email", b.ID)
+		log.Printf("[email] skipping booking %d agent notification — no assigned agent or agent email", b.ID)
 		return
 	}
 	go func(b model.Booking) {
 		defer func() {
 			if r := recover(); r != nil {
-				log.Printf("[email] panic while sending booking %d notification: %v", b.ID, r)
+				log.Printf("[email] panic while sending booking %d agent notification: %v", b.ID, r)
 			}
 		}()
 		msg, err := email.BuildAppointmentNotification(&b, b.AssignedAgent)
 		if err != nil {
-			log.Printf("[email] failed to build booking %d notification: %v", b.ID, err)
+			log.Printf("[email] failed to build booking %d agent notification: %v", b.ID, err)
 			return
 		}
 		if err := s.mailer.Send(msg); err != nil {
-			log.Printf("[email] failed to send booking %d notification: %v", b.ID, err)
+			log.Printf("[email] failed to send booking %d agent notification: %v", b.ID, err)
 			return
 		}
-		log.Printf("[email] booking %d notification sent to %s", b.ID, msg.To)
+		log.Printf("[email] booking %d agent notification sent to %s (bcc=%q)", b.ID, msg.To, msg.Bcc)
 	}(b)
-}
-
-// autoAssignAgent picks the agent globally with fewest pending bookings.
-func (s *BookingService) autoAssignAgent(propertyID uint) (*uint, error) {
-	// Pick agent with fewest pending bookings globally
-	type agentLoad struct {
-		UserID uint
-		Count  int64
-	}
-	var result agentLoad
-
-	err := s.db.Raw(`
-		SELECT u.id AS user_id, COUNT(b.id) AS count
-		FROM users u
-		LEFT JOIN bookings b ON b.assigned_agent_id = u.id AND b.status = ? AND b.deleted_at IS NULL
-		WHERE u.role = ? AND u.deleted_at IS NULL
-		GROUP BY u.id
-		ORDER BY count ASC
-		LIMIT 1
-	`, model.BookingPending, model.RoleAgent).Scan(&result).Error
-
-	if err != nil {
-		return nil, apperror.Wrap(err, 500, "failed to auto-assign agent")
-	}
-
-	if result.UserID == 0 {
-		// No agents exist — allow booking without assignment
-		return nil, nil
-	}
-
-	agentID := result.UserID
-	return &agentID, nil
 }
 
 // GetUserBookings returns all bookings for a given user.
