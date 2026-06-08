@@ -41,7 +41,7 @@ export function FormMultiChips<T extends FieldValues>({
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
       </Label>
-      <div className="flex flex-wrap gap-1.5 max-h-44 overflow-y-auto p-2 border rounded-md bg-gray-50/50">
+      <div className="flex flex-wrap gap-1.5 max-h-44 overflow-y-auto p-2 border rounded-md bg-muted/40/50">
         {options.map((opt) => {
           const active = selected.has(opt)
           return (
@@ -52,8 +52,8 @@ export function FormMultiChips<T extends FieldValues>({
               className={cn(
                 'text-xs px-2 py-1 rounded-full border transition-colors',
                 active
-                  ? 'bg-primary text-white border-primary'
-                  : 'bg-white text-gray-700 border-gray-300 hover:border-primary',
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-card text-foreground border-border hover:border-primary',
               )}
             >
               {opt}
@@ -62,7 +62,7 @@ export function FormMultiChips<T extends FieldValues>({
         })}
       </div>
       {selected.size > 0 && (
-        <p className="text-xs text-gray-500">{selected.size} selected</p>
+        <p className="text-xs text-muted-foreground">{selected.size} selected</p>
       )}
       {fieldState.error && <p className="text-sm text-red-500">{fieldState.error.message}</p>}
     </div>

@@ -45,7 +45,7 @@ export default function WishlistIndex() {
               <PropertyCard property={property} />
               <button
                 onClick={() => removeMutation.mutate(property.id)}
-                className="absolute top-2 right-2 z-10 bg-red-500/90 text-white rounded-full p-1.5 hover:bg-red-600 transition-colors"
+                className="absolute top-2 right-2 z-10 bg-destructive text-destructive-foreground rounded-full p-1.5 hover:bg-destructive/80 transition-colors"
                 title={t('wishlist.remove')}
               >
                 <Trash2 className="h-3.5 w-3.5" />

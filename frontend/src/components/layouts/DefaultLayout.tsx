@@ -16,7 +16,7 @@ export function DefaultLayout({ children }: DefaultLayoutProps) {
   const toggleSidebar = useUIStore((s) => s.toggleSidebar)
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex bg-muted/40">
       {user && <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />}
       <div className="flex-1 flex flex-col min-w-0">
         <Navbar onMenuClick={toggleSidebar} />

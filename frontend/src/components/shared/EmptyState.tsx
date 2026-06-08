@@ -24,7 +24,7 @@ export function EmptyState({
       <div className="text-muted-foreground">
         {icon ?? <InboxIcon className="h-12 w-12 opacity-30" />}
       </div>
-      <p className="text-lg font-medium text-gray-700">{title ?? t('common.noData')}</p>
+      <p className="text-lg font-medium text-foreground">{title ?? t('common.noData')}</p>
       {description && <p className="text-sm text-muted-foreground max-w-sm">{description}</p>}
       {actions && <div className="mt-2">{actions}</div>}
     </div>

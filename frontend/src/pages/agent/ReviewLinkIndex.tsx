@@ -78,7 +78,7 @@ export default function ReviewLinkIndex() {
       </Card>
 
       <div>
-        <h2 className="text-sm font-medium text-gray-500 mb-3">{t('agent.createdLinks')}</h2>
+        <h2 className="text-sm font-medium text-muted-foreground mb-3">{t('agent.createdLinks')}</h2>
         {isLoading ? (
           <LoadingSpinner />
         ) : links.length === 0 ? (

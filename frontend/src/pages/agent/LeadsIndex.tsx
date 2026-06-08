@@ -48,12 +48,12 @@ export default function LeadsIndex() {
                   <div className="flex flex-col sm:flex-row sm:items-start gap-3">
                     <div className="flex-1 min-w-0 space-y-1.5">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <User className="h-4 w-4 text-gray-500" />
+                        <User className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">{c.userName ?? '-'}</span>
                         <BookingStatusBadge status={c.status} />
                         {/* TODO Phase Next: source badge (website/line) when backend exposes it */}
                       </div>
-                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
                         {phone && (
                           <span className="inline-flex items-center gap-1">
                             <Phone className="h-3.5 w-3.5" />
@@ -74,11 +74,11 @@ export default function LeadsIndex() {
                         )}
                       </div>
                       {c.propertyTitle && (
-                        <div className="flex items-center gap-1 text-sm text-gray-700">
-                          <MapPin className="h-3.5 w-3.5 text-gray-500" />
+                        <div className="flex items-center gap-1 text-sm text-foreground">
+                          <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
                           <span>{c.propertyTitle}</span>
                           {c.propertyCode && (
-                            <span className="ml-1 text-xs text-gray-400 font-mono">{c.propertyCode}</span>
+                            <span className="ml-1 text-xs text-muted-foreground font-mono">{c.propertyCode}</span>
                           )}
                         </div>
                       )}

@@ -50,17 +50,24 @@ export function Hero({
       className="relative w-full h-[560px] bg-cover bg-center"
       style={{ backgroundImage: `url(${HERO_IMAGE})` }}
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/60" />
+      {/* Dark luxury overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/60 to-background" />
 
-      <div className="relative h-full max-w-7xl mx-auto px-6 sm:px-10 flex flex-col justify-center text-white">
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight max-w-xl whitespace-pre-line">
+      <div
+        className="pointer-events-none absolute hidden lg:block border-2 border-primary top-[14%] right-[8%] w-80 h-80"
+        aria-hidden
+      />
+
+      <div className="relative h-full max-w-7xl mx-auto px-6 sm:px-10 flex flex-col justify-center text-foreground">
+        <span className="gold-divider mb-5" aria-hidden />
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight max-w-2xl whitespace-pre-line tracking-luxury uppercase">
           {t('home.heroTitle')}
         </h1>
-        <p className="mt-4 text-base sm:text-lg text-white/80 max-w-md">
+        <p className="mt-4 text-base sm:text-lg text-muted-foreground max-w-md">
           {t('home.heroSubtitle')}
         </p>
 
-        <div className="mt-6 inline-flex items-center bg-white/10 backdrop-blur border border-white/20 rounded-full p-1 self-start">
+        <div className="mt-6 inline-flex items-center bg-background/40 backdrop-blur border border-border rounded-md p-1 self-start">
           <TypeButton active={activeType === ''} onClick={() => onTypeClick('')}>
             {t('home.filterAll')}
           </TypeButton>
@@ -72,19 +79,19 @@ export function Hero({
           </TypeButton>
         </div>
 
-        <div className="mt-4 flex items-center gap-2 bg-white rounded-full p-1.5 max-w-2xl shadow-lg">
-          <Search className="h-5 w-5 ml-4 text-slate-400 shrink-0" />
+        <div className="mt-4 flex items-center gap-2 bg-card/90 backdrop-blur border border-border rounded-md p-1.5 max-w-2xl shadow-lg">
+          <Search className="h-5 w-5 ml-4 text-muted-foreground shrink-0" />
           <input
             type="text"
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
             placeholder={t('home.heroSearchPlaceholder')}
-            className="flex-1 bg-transparent outline-none text-slate-900 placeholder:text-slate-400 text-sm py-2"
+            className="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground text-sm py-2"
           />
           <button
             onClick={handleSubmit}
-            className="rounded-full bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium px-6 py-2.5 shrink-0"
+            className="rounded-md bg-primary hover:bg-accent text-primary-foreground text-sm font-semibold px-6 py-2.5 shrink-0 tracking-luxury uppercase transition-colors"
           >
             {t('home.heroSearchCta')}
           </button>
@@ -98,10 +105,10 @@ export function Hero({
                 key={chip.kind}
                 onClick={() => onChipClick(chip.kind)}
                 className={cn(
-                  'rounded-full text-xs sm:text-sm font-medium px-4 py-1.5 border transition-colors',
+                  'rounded-md text-xs sm:text-sm font-medium px-4 py-1.5 border transition-colors',
                   isActive
-                    ? 'bg-white text-slate-900 border-white'
-                    : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-background/40 border-border text-foreground/80 hover:bg-muted'
                 )}
               >
                 {t(chip.labelKey)}
@@ -127,8 +134,8 @@ function TypeButton({
     <button
       onClick={onClick}
       className={cn(
-        'rounded-full text-sm font-semibold px-6 py-2 transition-colors',
-        active ? 'bg-white text-slate-900' : 'text-white hover:bg-white/10'
+        'rounded-md text-sm font-semibold px-6 py-2 tracking-luxury uppercase transition-colors',
+        active ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:bg-muted'
       )}
     >
       {children}

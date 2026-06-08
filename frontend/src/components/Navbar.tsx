@@ -1,8 +1,9 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { ShoppingCart, Menu, Crown } from 'lucide-react'
+import { ShoppingCart, Menu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { Logo } from '@/components/Logo'
 import { useAuthStore } from '@/store/authStore'
 import { useCartStore } from '@/hooks/useCartStore'
 import { ROUTES } from '@/constants/Routes'
@@ -37,25 +38,26 @@ export function Navbar({ onMenuClick }: NavbarProps) {
   ]
 
   return (
-    <header className="h-16 sticky top-0 z-[1100] bg-slate-900/80 backdrop-blur-md border-b border-white/10 text-white flex items-center px-4 gap-3">
+    <header className="h-16 sticky top-0 z-[1100] bg-background/80 backdrop-blur-md border-b border-border text-foreground flex items-center px-4 gap-3">
       {user && (
         <Button
           variant="ghost"
           size="icon"
-          className="text-white hover:bg-white/10"
+          className="text-foreground hover:bg-muted"
           onClick={onMenuClick}
         >
           <Menu className="h-5 w-5" />
         </Button>
       )}
 
-      <Link to={ROUTES.HOME} className="flex items-center gap-2 font-bold text-lg shrink-0 text-white">
-        <Crown className="h-6 w-6 text-amber-400" />
+      <Link to={ROUTES.HOME} className="flex items-center gap-3 shrink-0">
+        <Logo size={36} />
         {!user && (
-          <>
-            <span className="hidden sm:block">Wealthy Prime Estate</span>
-            <span className="sm:hidden font-bold">WPE</span>
-          </>
+          <div className="leading-tight">
+            <p className="hidden sm:block text-sm font-bold tracking-luxury text-primary">WEALTHY PRIME</p>
+            <p className="hidden sm:block text-[10px] tracking-luxury text-muted-foreground">ESTATE CO., LTD.</p>
+            <span className="sm:hidden font-bold tracking-luxury text-primary">WPE</span>
+          </div>
         )}
       </Link>
 
@@ -66,13 +68,16 @@ export function Navbar({ onMenuClick }: NavbarProps) {
             <Link key={`${link.to}-${i}`} to={link.to}>
               <button
                 className={cn(
-                  'rounded-full px-4 py-1.5 text-sm font-medium transition-colors',
+                  'relative px-4 py-1.5 text-sm font-medium tracking-luxury uppercase transition-colors',
                   isActive
-                    ? 'bg-white text-slate-900'
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                    ? 'text-primary'
+                    : 'text-foreground/80 hover:text-foreground'
                 )}
               >
                 {link.label}
+                {isActive && (
+                  <span className="absolute left-3 right-3 -bottom-0.5 h-[2px] bg-primary" />
+                )}
               </button>
             </Link>
           )
@@ -87,12 +92,12 @@ export function Navbar({ onMenuClick }: NavbarProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="relative text-white hover:bg-white/10"
+          className="relative text-foreground hover:bg-muted"
           onClick={openCart}
         >
           <ShoppingCart className="h-5 w-5" />
           {items.length > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold">
+            <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold">
               {items.length}
             </span>
           )}
@@ -102,12 +107,12 @@ export function Navbar({ onMenuClick }: NavbarProps) {
       {user ? (
         <div className="flex items-center gap-3">
           <div className="hidden sm:flex flex-col items-end leading-tight">
-            <p className="text-sm font-medium">{user.name}</p>
-            <p className="text-xs text-white/60">{t(`role.${user.role}`)}</p>
+            <p className="text-sm font-medium text-foreground">{user.name}</p>
+            <p className="text-xs text-muted-foreground">{t(`role.${user.role}`)}</p>
           </div>
           <button
             onClick={handleLogout}
-            className="hidden sm:inline-flex rounded-full bg-white/10 hover:bg-white/20 text-white text-sm font-medium px-4 py-1.5"
+            className="hidden sm:inline-flex rounded-md border border-border bg-muted hover:bg-muted/70 text-foreground text-sm font-medium px-4 py-1.5"
           >
             {t('nav.logout')}
           </button>
@@ -115,12 +120,12 @@ export function Navbar({ onMenuClick }: NavbarProps) {
       ) : (
         <div className="flex items-center gap-2">
           <Link to={ROUTES.REGISTER}>
-            <button className="hidden sm:inline-flex rounded-full text-white/80 hover:text-white hover:bg-white/10 text-sm font-medium px-4 py-1.5">
+            <button className="hidden sm:inline-flex rounded-md text-foreground/80 hover:text-foreground hover:bg-muted text-sm font-medium px-4 py-1.5 tracking-luxury uppercase">
               {t('nav.register')}
             </button>
           </Link>
           <Link to={ROUTES.LOGIN}>
-            <button className="rounded-full bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium px-5 py-1.5 border border-white/10">
+            <button className="rounded-md bg-primary hover:bg-accent text-primary-foreground text-sm font-semibold px-5 py-1.5 tracking-luxury uppercase transition-colors">
               {t('nav.login')}
             </button>
           </Link>

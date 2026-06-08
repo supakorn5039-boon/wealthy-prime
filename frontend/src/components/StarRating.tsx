@@ -23,7 +23,7 @@ export function StarRating({ value, onChange, readonly = false, size = 20 }: Sta
             style={{ width: size, height: size }}
             className={cn(
               'transition-colors',
-              star <= value ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200'
+              star <= value ? 'fill-primary text-primary' : 'fill-muted text-muted'
             )}
           />
         </button>

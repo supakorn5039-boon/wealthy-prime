@@ -329,7 +329,7 @@ export default function AddPropertyIndex() {
                 step="any"
               />
             </div>
-            <p className="text-xs text-gray-500 -mt-2">
+            <p className="text-xs text-muted-foreground -mt-2">
               {t("property.coordsHint")}
             </p>
           </CardContent>
@@ -487,7 +487,7 @@ export default function AddPropertyIndex() {
                   <button
                     type="button"
                     onClick={() => removeImage(i)}
-                    className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5 hover:bg-black/80"
+                    className="absolute top-1 right-1 bg-background/80 border border-border text-foreground rounded-full p-0.5 hover:bg-background backdrop-blur-sm"
                   >
                     <X className="size-3" />
                   </button>
@@ -496,7 +496,7 @@ export default function AddPropertyIndex() {
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="w-24 h-24 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-1 text-gray-400 hover:border-primary hover:text-primary transition-colors"
+                className="w-24 h-24 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-1 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
               >
                 <ImagePlus className="h-6 w-6" />
                 <span className="text-xs">{t("property.addImage")}</span>

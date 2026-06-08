@@ -33,6 +33,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/utils/date";
 import { resolveImageUrl } from "@/utils/imageUrl";
+import { cn } from "@/lib/utils";
 import type {
   Property,
   PropertyListParams,
@@ -97,11 +98,12 @@ function PropertyRow({ property, active, onHover }: PropertyRowProps) {
     <Link
       to={`/property/${property.id}`}
       onMouseEnter={() => onHover(property)}
-      className={`group flex gap-3 bg-white rounded-xl border overflow-hidden shadow-sm hover:shadow-md transition-all ${
-        active ? "ring-2 ring-primary border-primary" : "border-slate-100"
-      }`}
+      className={cn(
+        "group flex gap-3 bg-card rounded-md border overflow-hidden transition-all",
+        active ? "ring-2 ring-primary border-primary" : "border-border hover:border-primary/60",
+      )}
     >
-      <div className="relative w-40 sm:w-48 h-32 sm:h-36 shrink-0 bg-gray-100 overflow-hidden">
+      <div className="relative w-40 sm:w-48 h-32 sm:h-36 shrink-0 bg-muted overflow-hidden">
         {property.imageUrls?.[0] ? (
           <>
             <img
@@ -112,7 +114,7 @@ function PropertyRow({ property, active, onHover }: PropertyRowProps) {
             <ImageWatermark compact />
           </>
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-300">
+          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
             <Maximize2 className="h-8 w-8" />
           </div>
         )}
@@ -124,33 +126,33 @@ function PropertyRow({ property, active, onHover }: PropertyRowProps) {
       <div className="flex-1 min-w-0 py-2 pr-3 flex flex-col">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <p className="text-lg font-bold text-slate-900 leading-tight">
+            <p className="text-lg font-bold text-primary leading-tight">
               ฿{formatPrice(property.price).replace(/^฿/, "")}
               {isRent && (
-                <span className="ml-1 text-xs font-medium text-slate-500">
+                <span className="ml-1 text-xs font-medium text-muted-foreground">
                   /{t("property.perMonth")}
                 </span>
               )}
             </p>
-            <h3 className="font-semibold text-slate-800 text-sm mt-0.5 line-clamp-1 group-hover:text-primary transition-colors">
+            <h3 className="font-semibold text-foreground text-sm mt-0.5 line-clamp-1 group-hover:text-primary transition-colors">
               {property.title}
             </h3>
           </div>
           <div className="flex items-center gap-1 shrink-0">
             {petAllowed && (
-              <span className="inline-flex items-center gap-0.5 bg-emerald-500/90 text-white text-[10px] font-medium rounded-full px-2 py-0.5">
+              <span className="inline-flex items-center gap-0.5 bg-background/80 border border-primary/40 text-primary text-[10px] font-medium rounded-full px-2 py-0.5 backdrop-blur-sm">
                 <PawPrint className="h-2.5 w-2.5" />
                 Pet
               </span>
             )}
             <WishlistButton
               propertyId={property.id}
-              className="bg-white/90 hover:bg-white border"
+              className="bg-background/80 hover:bg-background border border-border backdrop-blur-sm"
             />
           </div>
         </div>
 
-        <div className="mt-1 text-xs text-slate-500 space-y-0.5">
+        <div className="mt-1 text-xs text-muted-foreground space-y-0.5">
           <div className="flex items-center gap-1">
             <MapPin className="h-3 w-3 shrink-0" />
             <span className="line-clamp-1">{property.location}</span>
@@ -163,7 +165,7 @@ function PropertyRow({ property, active, onHover }: PropertyRowProps) {
           )}
         </div>
 
-        <div className="mt-auto pt-2 flex items-center gap-3 text-xs text-slate-600">
+        <div className="mt-auto pt-2 flex items-center gap-3 text-xs text-muted-foreground">
           {property.bedrooms != null && (
             <span className="flex items-center gap-1">
               <Bed className="h-3.5 w-3.5" /> {property.bedrooms}
@@ -255,10 +257,10 @@ export default function HomeIndex() {
         ) : filteredProperties.length === 0 ? (
           <>
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-luxury uppercase">
                 {t(headingKey)}
               </h2>
-              <p className="text-sm text-slate-500 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 {t("home.foundCount", { count: filteredProperties.length })}
               </p>
             </div>
@@ -272,10 +274,10 @@ export default function HomeIndex() {
             {/* List: 50% on lg+. Heading lives inside so the map column can fill its full half. */}
             <div className="lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-1 space-y-3">
               <div className="pb-1">
-                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
+                <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
                   {t(headingKey)}
                 </h2>
-                <p className="text-sm text-slate-500 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   {t("home.foundCount", { count: filteredProperties.length })}
                 </p>
               </div>
@@ -292,7 +294,7 @@ export default function HomeIndex() {
             {/* Map: 50% on lg+, sticky to viewport. Mobile shows it above the list. */}
             <div className="order-first lg:order-last">
               <div className="lg:sticky lg:top-4">
-                <div className="rounded-xl overflow-hidden border shadow-sm h-[320px] lg:h-[calc(100vh-6rem)]">
+                <div className="rounded-md overflow-hidden border border-border h-[320px] lg:h-[calc(100vh-6rem)]">
                   <MapContainer
                     center={[13.7563, 100.5018]}
                     zoom={12}
@@ -313,7 +315,7 @@ export default function HomeIndex() {
                       >
                         <Popup>
                           <div className="text-sm font-medium">{p.title}</div>
-                          <div className="text-xs text-gray-500 mt-0.5">
+                          <div className="text-xs text-muted-foreground mt-0.5">
                             {formatPrice(p.price)}
                             {p.type === "rent" && (
                               <span className="ml-1">
@@ -330,7 +332,7 @@ export default function HomeIndex() {
                   {Object.entries(STATUS_COLOR).map(([status, color]) => (
                     <div
                       key={status}
-                      className="flex items-center gap-1.5 text-xs text-gray-600"
+                      className="flex items-center gap-1.5 text-xs text-muted-foreground"
                     >
                       <span
                         className="inline-block w-3 h-3 rounded-full"
@@ -365,28 +367,28 @@ export default function HomeIndex() {
                 <div className="text-2xl font-bold text-primary">
                   {formatPrice(selected.price)}
                   {selected.type === "rent" && (
-                    <span className="text-sm font-normal text-gray-500 ml-1">
+                    <span className="text-sm font-normal text-muted-foreground ml-1">
                       /{t("property.perMonth")}
                     </span>
                   )}
                 </div>
                 <div className="grid grid-cols-2 gap-y-2 text-sm">
-                  <div className="flex items-center gap-1.5 text-gray-600">
-                    <MapPin className="h-3.5 w-3.5 shrink-0 text-gray-400" />
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <MapPin className="h-3.5 w-3.5 shrink-0" />
                     <span className="line-clamp-1">{selected.location}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-gray-600">
-                    <HomeIcon className="h-3.5 w-3.5 shrink-0 text-gray-400" />
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <HomeIcon className="h-3.5 w-3.5 shrink-0" />
                     <span>{selected.projectName}</span>
                   </div>
                 </div>
                 {selected.rating && (
                   <div className="flex items-center gap-1 text-sm">
-                    <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                    <span className="font-medium">
+                    <Star className="h-4 w-4 fill-primary text-primary" />
+                    <span className="font-medium text-foreground">
                       {selected.rating.toFixed(1)}
                     </span>
-                    <span className="text-gray-400">
+                    <span className="text-muted-foreground">
                       ({selected.reviewCount} {t("property.reviews")})
                     </span>
                   </div>

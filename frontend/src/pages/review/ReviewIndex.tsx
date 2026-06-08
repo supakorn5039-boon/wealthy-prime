@@ -4,10 +4,11 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { Star, Crown, LogIn } from 'lucide-react'
+import { Star, LogIn } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ReviewService } from '@/services/ReviewService'
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/Logo'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { FormTextarea } from '@/components/form/FormTextarea'
 import { StarRating } from '@/components/StarRating'
@@ -58,9 +59,9 @@ export default function ReviewIndex() {
       <div className="w-full max-w-md px-4">
         <Card>
           <CardContent className="pt-8 pb-8 text-center">
-            <Star className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+            <Star className="h-12 w-12 text-muted-foreground/60 mx-auto mb-4" />
             <p className="text-lg font-medium">{t('review.invalidLink')}</p>
-            <p className="text-sm text-gray-400 mt-2">{t('review.requestNewLink')}</p>
+            <p className="text-sm text-muted-foreground mt-2">{t('review.requestNewLink')}</p>
           </CardContent>
         </Card>
       </div>
@@ -74,7 +75,7 @@ export default function ReviewIndex() {
           <CardContent className="pt-8 pb-8 text-center">
             <Star className="h-12 w-12 text-yellow-400 mx-auto mb-4 fill-yellow-400" />
             <p className="text-xl font-bold">{t('review.thankYou')}</p>
-            <p className="text-sm text-gray-500 mt-2">{t('review.willBeShown')}</p>
+            <p className="text-sm text-muted-foreground mt-2">{t('review.willBeShown')}</p>
           </CardContent>
         </Card>
       </div>
@@ -85,9 +86,9 @@ export default function ReviewIndex() {
     return (
       <div className="w-full max-w-md px-4">
         <div className="flex justify-center mb-6">
-          <div className="flex items-center gap-2 text-primary">
-            <Crown className="h-7 w-7" />
-            <span className="text-xl font-bold">Wealthy Prime Estate</span>
+          <div className="flex items-center gap-3">
+            <Logo size={32} />
+            <span className="text-xl font-bold tracking-luxury text-primary">WEALTHY PRIME ESTATE</span>
           </div>
         </div>
         <Card>
@@ -103,7 +104,7 @@ export default function ReviewIndex() {
               <LogIn className="h-4 w-4 mr-2" />
               {t('nav.login')}
             </Button>
-            <p className="text-center text-sm text-gray-500">
+            <p className="text-center text-sm text-muted-foreground">
               {t('auth.noAccount')}{' '}
               <Link
                 to={ROUTES.REGISTER}
@@ -122,9 +123,9 @@ export default function ReviewIndex() {
   return (
     <div className="w-full max-w-md px-4">
       <div className="flex justify-center mb-6">
-        <div className="flex items-center gap-2 text-primary">
-          <Crown className="h-7 w-7" />
-          <span className="text-xl font-bold">Wealthy Prime Estate</span>
+        <div className="flex items-center gap-3">
+          <Logo size={32} />
+          <span className="text-xl font-bold tracking-luxury text-primary">WEALTHY PRIME ESTATE</span>
         </div>
       </div>
 
@@ -140,7 +141,7 @@ export default function ReviewIndex() {
               name="rating"
               render={({ field, fieldState }) => (
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">
+                  <label className="text-sm font-medium text-foreground">
                     {t('review.rating')} <span className="text-red-500">*</span>
                   </label>
                   <StarRating value={field.value} onChange={field.onChange} size={32} />

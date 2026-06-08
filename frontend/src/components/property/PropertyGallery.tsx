@@ -17,8 +17,8 @@ export function PropertyGallery({ images: rawImages = [], title }: PropertyGalle
 
   if (images.length === 0) {
     return (
-      <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
-        <Maximize2 className="h-16 w-16 text-gray-300" />
+      <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
+        <Maximize2 className="h-16 w-16 text-muted-foreground/60" />
       </div>
     )
   }
@@ -28,7 +28,7 @@ export function PropertyGallery({ images: rawImages = [], title }: PropertyGalle
 
   return (
     <>
-      <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden group">
+      <div className="relative aspect-video bg-muted rounded-lg overflow-hidden group">
         <img src={images[current]} alt={`${title} - ${current + 1}`} className="w-full h-full object-cover" />
         <ImageWatermark />
         {images.length > 1 && (
@@ -54,7 +54,7 @@ export function PropertyGallery({ images: rawImages = [], title }: PropertyGalle
                 <button
                   key={i}
                   onClick={() => setCurrent(i)}
-                  className={`w-2 h-2 rounded-full transition-colors ${i === current ? 'bg-white' : 'bg-white/50'}`}
+                  className={`w-2 h-2 rounded-full transition-colors ${i === current ? 'bg-card' : 'bg-card/50'}`}
                 />
               ))}
             </div>

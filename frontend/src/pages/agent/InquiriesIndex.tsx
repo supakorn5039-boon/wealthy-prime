@@ -70,11 +70,11 @@ export default function InquiriesIndex() {
                     </TableCell>
                     <TableCell>{inquiry.propertyTitle ?? `#${inquiry.propertyId}`}</TableCell>
                     <TableCell className="max-w-[280px]">
-                      <p className="text-sm text-gray-600 line-clamp-2">
-                        {inquiry.message || <span className="text-gray-300">-</span>}
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {inquiry.message || <span className="text-muted-foreground/60">-</span>}
                       </p>
                     </TableCell>
-                    <TableCell className="text-sm text-gray-500">{formatDateTime(inquiry.createdAt)}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{formatDateTime(inquiry.createdAt)}</TableCell>
                     <TableCell>
                       <Badge variant={inquiry.status === 'contacted' ? 'success' : 'warning'}>
                         {t(`inquiries.status${inquiry.status === 'contacted' ? 'Contacted' : 'New'}`)}

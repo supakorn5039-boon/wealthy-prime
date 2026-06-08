@@ -115,7 +115,7 @@ export function CartDrawer() {
       {isOpen && <div className="fixed inset-0 z-40 bg-black/40" onClick={closeCart} />}
       <div
         className={cn(
-          'fixed right-0 top-0 z-50 h-screen w-full max-w-sm bg-white shadow-xl flex flex-col transition-transform duration-300',
+          'fixed right-0 top-0 z-50 h-screen w-full max-w-sm bg-card shadow-xl flex flex-col transition-transform duration-300',
           isOpen ? 'translate-x-0' : 'translate-x-full'
         )}
       >
@@ -124,7 +124,7 @@ export function CartDrawer() {
             <ShoppingCart className="h-5 w-5 text-primary" />
             {t('cart.title')}
             {items.length > 0 && (
-              <span className="bg-primary text-white text-xs rounded-full px-2 py-0.5">{items.length}</span>
+              <span className="bg-primary text-primary-foreground text-xs rounded-full px-2 py-0.5">{items.length}</span>
             )}
           </div>
           <Button variant="ghost" size="icon" onClick={closeCart}>
@@ -135,8 +135,8 @@ export function CartDrawer() {
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
-              <ShoppingCart className="h-12 w-12 text-gray-300" />
-              <p className="text-gray-500">{t('cart.empty')}</p>
+              <ShoppingCart className="h-12 w-12 text-muted-foreground/60" />
+              <p className="text-muted-foreground">{t('cart.empty')}</p>
               <Button variant="outline" size="sm" onClick={closeCart}>
                 {t('cart.browseProperties')}
               </Button>
@@ -149,7 +149,7 @@ export function CartDrawer() {
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm line-clamp-2">{item.propertyTitle}</p>
                       <p className="text-primary font-semibold text-sm mt-0.5">{formatPrice(item.propertyPrice)}</p>
-                      <span className="text-xs text-gray-400">{t(`property.${item.propertyType}`)}</span>
+                      <span className="text-xs text-muted-foreground">{t(`property.${item.propertyType}`)}</span>
                     </div>
                     <Button
                       variant="ghost"
@@ -161,7 +161,7 @@ export function CartDrawer() {
                     </Button>
                   </div>
                   <div className="space-y-1">
-                    <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <CalendarDays className="h-3.5 w-3.5" />
                       <span>{t('cart.appointmentDate')}</span>
                       <span className="text-red-500">*</span>
@@ -192,7 +192,7 @@ export function CartDrawer() {
                 </button>
                 {showContact && (
                   <div className="p-3 pt-0 space-y-2">
-                    <p className="text-xs text-gray-500">{t('cart.contactPrefilledHint')}</p>
+                    <p className="text-xs text-muted-foreground">{t('cart.contactPrefilledHint')}</p>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <Label className="text-xs">{t('auth.firstName')}</Label>
@@ -220,7 +220,7 @@ export function CartDrawer() {
                         value={contact.latestContact}
                         onChange={(e) => updateContact('latestContact', e.target.value)}
                       />
-                      <p className="mt-1 text-[10px] text-gray-400">{t('cart.latestContactHint')}</p>
+                      <p className="mt-1 text-[10px] text-muted-foreground">{t('cart.latestContactHint')}</p>
                     </div>
                     <div>
                       <Label className="text-xs">{t('auth.email')}</Label>
@@ -256,7 +256,7 @@ export function CartDrawer() {
         {items.length > 0 && (
           <div className="border-t p-4 space-y-3">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-500">{t('cart.totalLabel')}</span>
+              <span className="text-muted-foreground">{t('cart.totalLabel')}</span>
               <span className="font-medium">{items.length} {t('cart.items')}</span>
             </div>
             <Button

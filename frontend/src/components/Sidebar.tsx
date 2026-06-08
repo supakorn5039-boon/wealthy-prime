@@ -17,13 +17,13 @@ import {
   DollarSign,
   LogOut,
   X,
-  Crown,
   MessageSquare,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
 import { ROUTES } from '@/constants/Routes'
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/Logo'
 
 interface SidebarProps {
   open: boolean
@@ -90,38 +90,36 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   return (
     <>
       {open && (
-        <div className="fixed inset-0 z-[1050] bg-black/40 lg:hidden" onClick={onClose} />
+        <div className="fixed inset-0 z-[1050] bg-black/60 lg:hidden" onClick={onClose} />
       )}
 
       <aside
         className={cn(
-          'fixed top-0 left-0 z-[1090] h-screen bg-sidebar text-white flex flex-col transition-all duration-300 overflow-hidden',
-          // Mobile width is 256px. Translate off-canvas when closed.
+          'fixed top-0 left-0 z-[1090] h-screen bg-sidebar text-foreground flex flex-col transition-all duration-300 overflow-hidden border-r border-border',
           'w-64',
           open ? 'translate-x-0' : '-translate-x-full',
-          // Desktop: always visible in-flow; width depends on open state (collapsed = icon rail).
           'lg:sticky lg:top-0 lg:translate-x-0 lg:z-auto',
           open ? 'lg:w-64' : 'lg:w-16'
         )}
       >
-        <div className="flex items-center justify-between h-16 px-3 border-b border-white/10 shrink-0">
+        <div className="flex items-center justify-between h-16 px-3 border-b border-border shrink-0">
           <Link
             to={ROUTES.HOME}
             className={cn(
-              'flex items-center gap-2 font-bold text-base min-w-0',
+              'flex items-center gap-2 min-w-0',
               !open && 'lg:justify-center lg:w-full'
             )}
           >
-            <Crown className="h-5 w-5 text-amber-400 shrink-0" />
+            <Logo size={32} />
             <div className={cn('leading-tight min-w-0', !open && 'lg:hidden')}>
-              <p className="text-sm font-bold whitespace-nowrap">WEALTHY PRIME</p>
-              <p className="text-xs text-white/60 font-normal whitespace-nowrap">ESTATE</p>
+              <p className="text-sm font-bold tracking-luxury text-primary whitespace-nowrap">WEALTHY PRIME</p>
+              <p className="text-[10px] text-muted-foreground tracking-luxury whitespace-nowrap">ESTATE CO., LTD.</p>
             </div>
           </Link>
           <Button
             variant="ghost"
             size="icon"
-            className={cn('text-white hover:bg-white/10 shrink-0', !open && 'lg:hidden')}
+            className={cn('text-foreground hover:bg-muted shrink-0', !open && 'lg:hidden')}
             onClick={onClose}
           >
             <X className="h-5 w-5" />
@@ -137,13 +135,21 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                 to={item.href}
                 title={t(item.labelKey)}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors mb-1 whitespace-nowrap',
+                  'relative flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors mb-1 whitespace-nowrap',
                   !open && 'lg:justify-center lg:px-2',
                   isActive
-                    ? 'bg-primary text-white'
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                    ? 'bg-muted text-primary'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
                 )}
               >
+                {isActive && (
+                  <span
+                    className={cn(
+                      'absolute left-0 top-1/2 -translate-y-1/2 h-6 w-[3px] bg-primary rounded-r',
+                      !open && 'lg:hidden'
+                    )}
+                  />
+                )}
                 <span className="shrink-0">{item.icon}</span>
                 <span className={cn(!open && 'lg:hidden')}>{t(item.labelKey)}</span>
               </Link>
@@ -151,18 +157,18 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           })}
         </nav>
 
-        <div className="border-t border-white/10 px-2 py-3 shrink-0">
+        <div className="border-t border-border px-2 py-3 shrink-0">
           {user && (
             <div className={cn('px-3 pb-2 min-w-0', !open && 'lg:hidden')}>
-              <p className="text-sm font-medium text-white truncate">{user.name}</p>
-              <p className="text-xs text-white/50 truncate">{user.email}</p>
+              <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
+              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
             </div>
           )}
           <button
             onClick={handleLogout}
             title={t('sidebar.logout')}
             className={cn(
-              'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium w-full text-red-400 hover:text-red-300 hover:bg-white/10 transition-colors whitespace-nowrap',
+              'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium w-full text-destructive hover:bg-muted transition-colors whitespace-nowrap',
               !open && 'lg:justify-center lg:px-2'
             )}
           >

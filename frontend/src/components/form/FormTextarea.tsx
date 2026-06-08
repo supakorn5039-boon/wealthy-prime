@@ -40,7 +40,7 @@ export function FormTextarea<T extends FieldValues>({
           'placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2',
           'focus-visible:ring-ring focus-visible:ring-offset-2 resize-none',
           fieldState.error && 'border-red-500',
-          disabled && 'bg-gray-100 opacity-100',
+          disabled && 'bg-muted opacity-100',
         )}
       />
       {fieldState.error && <p className="text-sm text-red-500">{fieldState.error.message}</p>}

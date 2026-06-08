@@ -58,7 +58,7 @@ export function WishlistButton({ propertyId, className }: WishlistButtonProps) {
       disabled={addMutation.isPending || removeMutation.isPending}
     >
       <Heart
-        className={cn('h-5 w-5 transition-colors', isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-400')}
+        className={cn('h-5 w-5 transition-colors', isWishlisted ? 'fill-red-500 text-red-500' : 'text-muted-foreground')}
       />
     </Button>
   )

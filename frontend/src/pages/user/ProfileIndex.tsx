@@ -85,7 +85,7 @@ export default function ProfileIndex() {
             </div>
             <FormInput control={control} name="email" label={t('auth.email')} type="email" required />
             {profile?.createdAt && (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 {t('profile.memberSince')} {formatDate(profile.createdAt)}
               </p>
             )}
@@ -115,7 +115,7 @@ export default function ProfileIndex() {
             <CardHeader><CardTitle className="text-base">{t('profile.agentSection')}</CardTitle></CardHeader>
             <CardContent>
               <div className="text-sm">
-                <span className="text-gray-500">{t('profile.agentCode')}: </span>
+                <span className="text-muted-foreground">{t('profile.agentCode')}: </span>
                 <span className="font-mono font-medium">{profile.agentCode}</span>
               </div>
             </CardContent>
@@ -147,13 +147,13 @@ function ProfileLink({ to, icon, label }: { to: string; icon: React.ReactNode; l
   return (
     <Link
       to={to}
-      className="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors group"
+      className="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-muted/40 transition-colors group"
     >
-      <span className="flex items-center gap-3 text-sm font-medium text-gray-700">
+      <span className="flex items-center gap-3 text-sm font-medium text-foreground">
         <span className="text-primary">{icon}</span>
         {label}
       </span>
-      <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-gray-600" />
+      <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-muted-foreground" />
     </Link>
   )
 }

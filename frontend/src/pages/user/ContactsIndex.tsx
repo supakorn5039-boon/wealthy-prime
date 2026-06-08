@@ -40,17 +40,17 @@ export default function ContactsIndex() {
               <CardContent className="pt-5 pb-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1 flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900">
+                    <p className="font-semibold text-foreground">
                       {booking.propertyTitle ?? `${t('contacts.property')} #${booking.propertyId}`}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-muted-foreground">
                       {t('contacts.appointmentDate')} {formatDateTime(booking.appointmentDate)}
                     </p>
                     {booking.agentName && (
                       <p className="text-sm text-primary">{t('contacts.agentLabel')} {booking.agentName}</p>
                     )}
                     {booking.note && (
-                      <p className="text-sm text-gray-600 bg-gray-50 rounded p-2 mt-2">
+                      <p className="text-sm text-muted-foreground bg-muted/40 rounded p-2 mt-2">
                         {t('contacts.note')} {booking.note}
                       </p>
                     )}

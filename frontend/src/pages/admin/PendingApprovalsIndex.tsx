@@ -68,7 +68,7 @@ export default function PendingApprovalsIndex() {
                       <h3 className="font-semibold">{pending.title}</h3>
                       <PropertyStatusBadge status={pending.status} />
                     </div>
-                    <div className="text-sm text-gray-600 space-y-0.5">
+                    <div className="text-sm text-muted-foreground space-y-0.5">
                       <p>{t('admin.projectLabel')}: {pending.projectName}</p>
                       <p>{t('admin.priceLabel')}: {formatPrice(pending.price)}</p>
                       <p>{t('admin.agentLabel')}: {pending.agentName}</p>

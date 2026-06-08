@@ -118,7 +118,7 @@ export default function PropertyDetailIndex() {
             <CardContent className="pt-6 space-y-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-2xl font-bold text-gray-900">{property.title}</h1>
+                  <h1 className="text-2xl font-bold text-foreground">{property.title}</h1>
                   <p className="text-muted-foreground mt-1">{property.projectName}</p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -127,14 +127,14 @@ export default function PropertyDetailIndex() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5 text-gray-600">
+              <div className="flex items-center gap-1.5 text-muted-foreground">
                 <MapPin className="h-4 w-4 flex-shrink-0 text-primary" />
                 <span>{property.location}</span>
               </div>
 
               <div className="flex flex-wrap gap-4">
                 {property.sizeSqm && (
-                  <div className="flex items-center gap-1.5 text-gray-600">
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
                     <Maximize2 className="h-4 w-4 text-primary" />
                     <span>{property.sizeSqm} {t('property.sqm')}</span>
                   </div>
@@ -151,7 +151,7 @@ export default function PropertyDetailIndex() {
                 <div className="flex items-center gap-2">
                   <StarRating value={Math.round(avgRating)} readonly size={16} />
                   <span className="text-sm font-medium">{avgRating.toFixed(1)}</span>
-                  <span className="text-sm text-gray-400">({reviews.length} {t('property.reviews')})</span>
+                  <span className="text-sm text-muted-foreground">({reviews.length} {t('property.reviews')})</span>
                 </div>
               )}
             </CardContent>
@@ -213,7 +213,7 @@ export default function PropertyDetailIndex() {
                 </Button>
               </CardHeader>
               <CardContent>
-                <p className="whitespace-pre-line text-sm text-gray-700">{property.adCaption}</p>
+                <p className="whitespace-pre-line text-sm text-foreground">{property.adCaption}</p>
               </CardContent>
             </Card>
           )}
@@ -223,7 +223,7 @@ export default function PropertyDetailIndex() {
               <CardTitle className="text-base">{t('property.map')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="aspect-video rounded-md overflow-hidden bg-gray-100">
+              <div className="aspect-video rounded-md overflow-hidden bg-muted">
                 {property.lat != null && property.lng != null ? (
                   <MapContainer
                     center={[property.lat, property.lng]}
@@ -236,7 +236,7 @@ export default function PropertyDetailIndex() {
                     <Marker position={[property.lat, property.lng]} icon={pinIcon} />
                   </MapContainer>
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 text-sm gap-2">
+                  <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground text-sm gap-2">
                     <MapPin className="h-6 w-6" />
                     <span>{t('property.noCoordsAvailable')}</span>
                   </div>
@@ -263,10 +263,10 @@ export default function PropertyDetailIndex() {
                           </div>
                           <span className="font-medium text-sm">{review.userName ?? t('role.user')}</span>
                         </div>
-                        <span className="text-xs text-gray-400">{formatDate(review.createdAt)}</span>
+                        <span className="text-xs text-muted-foreground">{formatDate(review.createdAt)}</span>
                       </div>
                       <StarRating value={review.rating} readonly size={14} />
-                      {review.comment && <p className="text-sm text-gray-600 mt-2">{review.comment}</p>}
+                      {review.comment && <p className="text-sm text-muted-foreground mt-2">{review.comment}</p>}
                     </div>
                   ))}
                 </div>
@@ -280,11 +280,11 @@ export default function PropertyDetailIndex() {
             <CardContent className="pt-6 space-y-4">
               <div>
                 <p className="text-3xl font-bold text-primary">{formatPrice(property.price)}</p>
-                {property.type === 'rent' && <p className="text-sm text-gray-400 mt-0.5">{t('property.perMonth')}</p>}
+                {property.type === 'rent' && <p className="text-sm text-muted-foreground mt-0.5">{t('property.perMonth')}</p>}
               </div>
 
               {property.agentName && (
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-muted-foreground">
                   <p className="font-medium">{t('property.responsibleAgent')}</p>
                   <p>{property.agentName}</p>
                 </div>
@@ -315,7 +315,7 @@ export default function PropertyDetailIndex() {
                 )}
               </div>
 
-              <div className="pt-2 border-t text-xs text-gray-400 space-y-1">
+              <div className="pt-2 border-t text-xs text-muted-foreground space-y-1">
                 <p>{t('property.listedAt')} {formatDate(property.createdAt)}</p>
                 <p>{t('property.propertyCode')} #{property.id}</p>
               </div>
@@ -347,8 +347,8 @@ function DetailItem({ icon, label, value }: { icon: React.ReactNode; label: stri
     <div className="flex items-start gap-2 min-w-0">
       <span className="text-primary mt-0.5 shrink-0">{icon}</span>
       <div className="min-w-0">
-        <p className="text-xs text-gray-500">{label}</p>
-        <p className="text-sm font-medium text-gray-900 truncate">{value}</p>
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className="text-sm font-medium text-foreground truncate">{value}</p>
       </div>
     </div>
   )

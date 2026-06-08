@@ -328,7 +328,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
               step="any"
             />
           </div>
-          <p className="text-xs text-gray-500 -mt-2">
+          <p className="text-xs text-muted-foreground -mt-2">
             {t("property.coordsHint")}
           </p>
 
@@ -428,7 +428,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
 
           {property.images && property.images.length > 0 && (
             <div className="space-y-2">
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-foreground">
                 {t("property.existingImages")}
               </p>
               <div className="flex flex-wrap gap-2">
@@ -468,7 +468,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
           )}
 
           <div className="space-y-2">
-            <p className="text-sm font-medium text-gray-700">
+            <p className="text-sm font-medium text-foreground">
               {t("property.addMoreImages")}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -494,7 +494,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-1 text-gray-400 hover:border-primary hover:text-primary transition-colors"
+                className="w-20 h-20 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-1 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
               >
                 <ImagePlus className="h-5 w-5" />
                 <span className="text-[10px]">{t("property.addImage")}</span>

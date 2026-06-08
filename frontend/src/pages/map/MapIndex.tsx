@@ -89,7 +89,7 @@ export default function MapIndex() {
         <div className="lg:col-span-2">
           <div className="rounded-xl overflow-hidden border shadow-sm" style={{ height: 540 }}>
             {isLoading ? (
-              <div className="flex items-center justify-center h-full bg-gray-50">
+              <div className="flex items-center justify-center h-full bg-muted/40">
                 <LoadingSpinner text={t('common.loading')} />
               </div>
             ) : (
@@ -113,7 +113,7 @@ export default function MapIndex() {
                   >
                     <Popup>
                       <div className="text-sm font-medium">{p.title}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">
+                      <div className="text-xs text-muted-foreground mt-0.5">
                         {formatPrice(p.price)}
                         {p.type === 'rent' && <span className="ml-1">/ {t('property.perMonth')}</span>}
                       </div>
@@ -127,7 +127,7 @@ export default function MapIndex() {
           {/* Legend */}
           <div className="flex flex-wrap gap-3 mt-2 px-1">
             {Object.entries(STATUS_COLOR).map(([status, color]) => (
-              <div key={status} className="flex items-center gap-1.5 text-xs text-gray-600">
+              <div key={status} className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <span className="inline-block w-3 h-3 rounded-full" style={{ background: color }} />
                 {t(`property.status.${status}`)}
               </div>
@@ -140,26 +140,26 @@ export default function MapIndex() {
           {isLoading ? (
             <LoadingSpinner text={t('common.loading')} />
           ) : properties.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-8">{t('home.noResults')}</p>
+            <p className="text-sm text-muted-foreground text-center py-8">{t('home.noResults')}</p>
           ) : (
             properties.map((p) => (
               <div
                 key={p.id}
                 onClick={() => handleListClick(p)}
                 className={`cursor-pointer rounded-lg border p-3 transition-all hover:shadow-md hover:border-primary/50 ${
-                  selected?.id === p.id ? 'ring-2 ring-primary border-primary' : 'bg-white'
+                  selected?.id === p.id ? 'ring-2 ring-primary border-primary' : 'bg-card'
                 }`}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm line-clamp-1">{p.title}</p>
-                    <div className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
                       <MapPin className="h-3 w-3 flex-shrink-0" />
                       <span className="line-clamp-1">{p.location}</span>
                     </div>
                     <p className="text-primary font-semibold text-sm mt-1">
                       {formatPrice(p.price)}
-                      {p.type === 'rent' && <span className="ml-1 text-xs font-normal text-gray-500">/ {t('property.perMonth')}</span>}
+                      {p.type === 'rent' && <span className="ml-1 text-xs font-normal text-muted-foreground">/ {t('property.perMonth')}</span>}
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-1.5 shrink-0">
@@ -201,27 +201,27 @@ export default function MapIndex() {
                 <div className="text-2xl font-bold text-primary">
                   {formatPrice(selected.price)}
                   {selected.type === 'rent' && (
-                    <span className="text-sm font-normal text-gray-500 ml-1">/{t('property.perMonth')}</span>
+                    <span className="text-sm font-normal text-muted-foreground ml-1">/{t('property.perMonth')}</span>
                   )}
                 </div>
 
                 {/* Details grid */}
                 <div className="grid grid-cols-2 gap-y-2 text-sm">
-                  <div className="flex items-center gap-1.5 text-gray-600">
-                    <MapPin className="h-3.5 w-3.5 shrink-0 text-gray-400" />
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     <span className="line-clamp-1">{selected.location}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-gray-600">
-                    <Home className="h-3.5 w-3.5 shrink-0 text-gray-400" />
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <Home className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     <span>{selected.projectName}</span>
                   </div>
                   {selected.sizeSqm && (
-                    <div className="text-gray-600">
+                    <div className="text-muted-foreground">
                       {selected.sizeSqm} {t('property.sqm')}
                     </div>
                   )}
                   {selected.rentalPeriodMonths && (
-                    <div className="text-gray-600">
+                    <div className="text-muted-foreground">
                       {selected.rentalPeriodMonths} {t('property.months')}
                     </div>
                   )}
@@ -232,14 +232,14 @@ export default function MapIndex() {
                   <div className="flex items-center gap-1 text-sm">
                     <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
                     <span className="font-medium">{selected.rating.toFixed(1)}</span>
-                    <span className="text-gray-400">({selected.reviewCount} {t('property.reviews')})</span>
+                    <span className="text-muted-foreground">({selected.reviewCount} {t('property.reviews')})</span>
                   </div>
                 )}
 
                 {/* Agent */}
                 {selected.agentName && (
-                  <p className="text-xs text-gray-500">
-                    {t('property.responsibleAgent')}: <span className="font-medium text-gray-700">{selected.agentName}</span>
+                  <p className="text-xs text-muted-foreground">
+                    {t('property.responsibleAgent')}: <span className="font-medium text-foreground">{selected.agentName}</span>
                   </p>
                 )}
 

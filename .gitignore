@@ -9,9 +9,13 @@ build/
 *.bin
 
 # Environment files (keep .env.production but not local secrets)
+.env
 .env.local
 .env.*.local
 frontend/.env
+
+# MCP server config (contains local DB credentials)
+.mcp.json
 
 # Logs
 *.log

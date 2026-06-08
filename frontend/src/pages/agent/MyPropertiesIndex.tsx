@@ -128,14 +128,14 @@ function StatusModal({
             />
           )}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-foreground">
               {t("property.slip")} <span className="text-red-500">*</span>
             </label>
             <input
               type="file"
               accept="image/*"
               onChange={(e) => setSlipFile(e.target.files?.[0] ?? null)}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+              className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
             />
           </div>
           <DialogFooter>
@@ -231,13 +231,13 @@ export default function MyPropertiesIndex() {
               <TableBody>
                 {properties.map((p) => (
                   <TableRow key={p.id}>
-                    <TableCell className="font-mono text-sm text-gray-600">
+                    <TableCell className="font-mono text-sm text-muted-foreground">
                       {p.propertyCode ?? "-"}
                     </TableCell>
                     <TableCell>
                       <div>
                         <p className="font-medium">{p.title}</p>
-                        <p className="text-xs text-gray-400">{p.projectName}</p>
+                        <p className="text-xs text-muted-foreground">{p.projectName}</p>
                       </div>
                     </TableCell>
                     <TableCell>{t(`property.${p.type}`)}</TableCell>
@@ -247,7 +247,7 @@ export default function MyPropertiesIndex() {
                     <TableCell>
                       {formatPrice(p.price)}
                       {p.type === "rent" && (
-                        <span className="ml-1 text-xs text-gray-400">
+                        <span className="ml-1 text-xs text-muted-foreground">
                           / {t("property.perMonth")}
                         </span>
                       )}

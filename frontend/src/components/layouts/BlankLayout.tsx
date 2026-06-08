@@ -6,7 +6,7 @@ interface BlankLayoutProps {
 
 export function BlankLayout({ children }: BlankLayoutProps) {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-muted/40 flex items-center justify-center">
       {children}
       <CartDrawer />
     </div>

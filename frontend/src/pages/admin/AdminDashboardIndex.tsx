@@ -9,7 +9,14 @@ import { PageContainer } from '@/components/shared/PageContainer'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatPrice } from '@/utils/date'
 
-const COLORS = ['#2563EB', '#F59E0B', '#10B981', '#EF4444']
+const COLORS = ['#C9A24A', '#D4B26E', '#A88334', '#7A5F22']
+
+const RANK_BADGE: Record<number | 'default', string> = {
+  0: 'bg-primary text-primary-foreground',
+  1: 'bg-accent text-accent-foreground',
+  2: 'bg-primary/60 text-primary-foreground',
+  default: 'bg-muted text-muted-foreground',
+}
 
 function StatCard({ title, value, icon, sub }: { title: string; value: string | number; icon: React.ReactNode; sub?: string }) {
   return (
@@ -84,7 +91,7 @@ export default function AdminDashboardIndex() {
               <div className="space-y-3">
                 {data!.agentLeaderboard.map((agent, i) => (
                   <div key={agent.agentId} className="flex items-center gap-3">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${i === 0 ? 'bg-yellow-400 text-white' : i === 1 ? 'bg-gray-300 text-gray-700' : i === 2 ? 'bg-orange-300 text-white' : 'bg-gray-100 text-gray-600'}`}>
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${RANK_BADGE[i] ?? RANK_BADGE.default}`}>
                       {i + 1}
                     </div>
                     <div className="flex-1 min-w-0">

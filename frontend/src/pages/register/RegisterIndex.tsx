@@ -3,9 +3,9 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { Crown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/Logo'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { FormInput } from '@/components/form/FormInput'
 import { FormSelect } from '@/components/form/FormSelect'
@@ -55,9 +55,9 @@ export default function RegisterIndex() {
   return (
     <div className="w-full max-w-xl px-4 py-8">
       <div className="flex justify-center mb-6">
-        <div className="flex items-center gap-2 text-primary">
-          <Crown className="h-8 w-8 text-amber-500" />
-          <span className="text-2xl font-bold">Wealthy Prime Estate</span>
+        <div className="flex items-center gap-3">
+          <Logo size={40} />
+          <span className="text-2xl font-bold tracking-luxury text-primary">WEALTHY PRIME ESTATE</span>
         </div>
       </div>
 
@@ -92,7 +92,7 @@ export default function RegisterIndex() {
             </Button>
           </form>
 
-          <p className="mt-4 text-center text-sm text-gray-500">
+          <p className="mt-4 text-center text-sm text-muted-foreground">
             {t('auth.alreadyHaveAccount')}{' '}
             <Link to={ROUTES.LOGIN} className="text-primary hover:underline font-medium">
               {t('auth.loginLink')}
