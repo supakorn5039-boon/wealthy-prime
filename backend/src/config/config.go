@@ -43,7 +43,10 @@ type SMTPConfig struct {
 	NotificationBcc string // optional — BCC every appointment notification here
 }
 
-func (s SMTPConfig) Enabled() bool { return s.Host != "" }
+// Enabled requires both Host and Password — a host without credentials would
+// pick the smtp sender and then silently fail auth on every send (goroutine).
+// Empty password → fall back to log-only sender instead.
+func (s SMTPConfig) Enabled() bool { return s.Host != "" && s.Password != "" }
 
 type AppConfig struct {
 	Server   ServerConfig
