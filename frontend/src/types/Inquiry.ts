@@ -15,10 +15,3 @@ export interface Inquiry {
   status: InquiryStatus
   createdAt: string
 }
-
-export interface CreateInquiryInput {
-  property_id: number
-  name?: string
-  phone?: string
-  message?: string
-}

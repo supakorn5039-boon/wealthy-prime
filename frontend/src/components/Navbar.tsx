@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { ShoppingCart, Menu } from 'lucide-react'
+import { ShoppingCart, Heart, Menu } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
@@ -89,19 +89,31 @@ export function Navbar({ onMenuClick }: NavbarProps) {
       <LanguageSwitcher />
 
       {isUserRole && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative text-foreground hover:bg-muted"
-          onClick={openCart}
-        >
-          <ShoppingCart className="h-5 w-5" />
-          {items.length > 0 && (
-            <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold">
-              {items.length}
-            </span>
-          )}
-        </Button>
+        <>
+          <Link to={ROUTES.WISHLIST}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-foreground hover:bg-muted"
+            >
+              <Heart className="h-5 w-5" />
+            </Button>
+          </Link>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative text-foreground hover:bg-muted"
+            onClick={openCart}
+          >
+            <ShoppingCart className="h-5 w-5" />
+            {items.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                {items.length}
+              </span>
+            )}
+          </Button>
+        </>
       )}
 
       {user ? (

@@ -107,7 +107,7 @@ func (ctrl *UserController) removeWishlist(c *gin.Context) {
 		return
 	}
 
-	result := database.DB.Where("user_id = ? AND property_id = ?", userID, propertyID).Delete(&model.Wishlist{})
+	result := database.DB.Unscoped().Where("user_id = ? AND property_id = ?", userID, propertyID).Delete(&model.Wishlist{})
 	if result.Error != nil {
 		errorResponse(c, apperror.Wrap(result.Error, 500, "failed to remove from wishlist"))
 		return

@@ -17,7 +17,6 @@ export const API = {
   USER_CONTACTS: '/user/contacts',
   USER_HISTORY: '/user/history',
   USER_HISTORY_ITEM: (propertyId: number | string) => `/user/history/${propertyId}`,
-  USER_INQUIRIES: '/user/inquiries',
 
   // Reviews
   REVIEWS: '/reviews',

@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { MapPin, Maximize2, ShoppingCart, Phone, MessageCircle, Pencil, Copy, Bed, Bath, Building, Train, PawPrint, Sofa, FileText } from 'lucide-react'
+import { MapPin, Maximize2, ShoppingCart, Pencil, Copy, Bed, Bath, Building, Train, PawPrint, Sofa, FileText } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { MapContainer, TileLayer, Marker } from 'react-leaflet'
@@ -10,7 +10,6 @@ import 'leaflet/dist/leaflet.css'
 import { PropertyService } from '@/services/PropertyService'
 import { ReviewService } from '@/services/ReviewService'
 import { PropertyGallery } from '@/components/property/PropertyGallery'
-import { ContactAgentDialog } from '@/components/property/ContactAgentDialog'
 import { EditPropertyDialog } from '@/components/property/EditPropertyDialog'
 import { PropertyStatusBadge } from '@/components/shared/StatusBadge'
 import { WishlistButton } from '@/components/WishlistButton'
@@ -25,7 +24,6 @@ import { Badge } from '@/components/ui/badge'
 import { useCartStore } from '@/hooks/useCartStore'
 import { useAuthStore } from '@/store/authStore'
 import { formatPrice, formatDate } from '@/utils/date'
-import { ROUTES } from '@/constants/Routes'
 
 const pinIcon = L.divIcon({
   className: '',
@@ -44,11 +42,8 @@ const pinIcon = L.divIcon({
 export default function PropertyDetailIndex() {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
-  const location = useLocation()
   const { addItem, openCart } = useCartStore()
   const { user } = useAuthStore()
-  const [contactOpen, setContactOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
 
   const { data: property, isLoading } = useQuery({
@@ -84,15 +79,6 @@ export default function PropertyDetailIndex() {
     } catch {
       toast.error(t('common.error'))
     }
-  }
-
-  const handleContact = () => {
-    if (!user) {
-      toast.error(t('cart.loginRequired'))
-      navigate(ROUTES.LOGIN, { state: { from: location } })
-      return
-    }
-    setContactOpen(true)
   }
 
   if (isLoading) return <LoadingSpinner text={t('common.loading')} />
@@ -297,16 +283,6 @@ export default function PropertyDetailIndex() {
                     {t('property.addToCart')}
                   </Button>
                 )}
-                <Button variant="outline" className="w-full" onClick={handleContact}>
-                  <Phone className="h-4 w-4 mr-2" />
-                  {t('property.contactAgent')}
-                </Button>
-                {property.agentName && (
-                  <Button className="w-full bg-[#06C755] hover:bg-[#05a847] text-white">
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    {t('property.lineContact')}
-                  </Button>
-                )}
                 {canEdit && (
                   <Button variant="outline" className="w-full" onClick={() => setEditOpen(true)}>
                     <Pencil className="h-4 w-4 mr-2" />
@@ -323,13 +299,6 @@ export default function PropertyDetailIndex() {
           </Card>
         </div>
       </div>
-
-      <ContactAgentDialog
-        open={contactOpen}
-        onOpenChange={setContactOpen}
-        propertyId={property.id}
-        propertyTitle={property.title}
-      />
 
       {canEdit && editOpen && (
         <EditPropertyDialog
