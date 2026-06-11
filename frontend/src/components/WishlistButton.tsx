@@ -29,7 +29,7 @@ export function WishlistButton({ propertyId, className }: WishlistButtonProps) {
     mutationFn: () => WishlistService.add(propertyId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [WishlistService.QUERY_KEYS.LIST] })
-      toast.success(t('property.addedToCart'))
+      toast.success(t('wishlist.added'))
     },
     onError: () => toast.error(t('common.error')),
   })

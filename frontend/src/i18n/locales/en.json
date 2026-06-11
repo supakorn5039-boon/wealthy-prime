@@ -460,6 +460,7 @@
     "count": "{{count}} items",
     "empty": "No wishlist items yet",
     "emptyHint": "Tap the heart icon on properties you like",
+    "added": "Added to wishlist",
     "removed": "Removed from wishlist",
     "remove": "Remove from wishlist"
   },

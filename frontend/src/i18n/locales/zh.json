@@ -460,6 +460,7 @@
     "count": "{{count}} 件",
     "empty": "暂无收藏",
     "emptyHint": "点击房产上的心形图标来收藏",
+    "added": "已添加到收藏",
     "removed": "已从收藏夹中删除",
     "remove": "从收藏夹删除"
   },
