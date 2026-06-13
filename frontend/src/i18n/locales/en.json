@@ -452,6 +452,7 @@
     "browseProperties": "Browse Properties",
     "loginRequired": "Please login first",
     "success": "Appointment request sent",
+    "successSpamHint": "A confirmation email has been sent to your inbox. If you don't see it, please check your spam/junk folder.",
     "error": "An error occurred. Please try again",
     "selectDateRequired": "Please select appointment date for \"{{title}}\"",
     "contactSection": "Appointment Contact Info",

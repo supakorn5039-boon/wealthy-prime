@@ -452,6 +452,7 @@
     "browseProperties": "浏览房产",
     "loginRequired": "请先登录",
     "success": "预约请求已发送",
+    "successSpamHint": "确认邮件已发送到您的邮箱。如果未收到，请检查垃圾邮件文件夹。",
     "error": "发生错误，请重试",
     "selectDateRequired": "请为\"{{title}}\"选择预约日期",
     "contactSection": "预约联系方式",

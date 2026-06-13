@@ -87,7 +87,10 @@ export function CartDrawer() {
       return results
     },
     onSuccess: () => {
-      toast.success(t('cart.success'))
+      toast.success(t('cart.success'), {
+        description: t('cart.successSpamHint'),
+        duration: 8000,
+      })
       clearCart()
       closeCart()
       queryClient.invalidateQueries({ queryKey: [BookingService.QUERY_KEYS.LIST] })
