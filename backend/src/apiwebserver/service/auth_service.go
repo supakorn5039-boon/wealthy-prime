@@ -89,7 +89,10 @@ func (s *AuthService) Register(input RegisterInput) (*model.UserDto, error) {
 		Wechat:         input.Wechat,
 		Whatsapp:       input.Whatsapp,
 		Role:           input.Role,
-		IsApproved:     false,
+		// Customers (user role) get instant access. Agents need admin approval
+		// because admins need to vet who appears in the assignable-agent pool.
+		// Allow-list semantics: any future role defaults to needing approval.
+		IsApproved:     input.Role == model.RoleUser,
 	}
 
 	if user.Role == model.RoleAgent {
