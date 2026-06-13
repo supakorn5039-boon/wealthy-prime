@@ -3,9 +3,12 @@ package email
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
+	"syscall"
 	"time"
 
 	"github.com/wealthy-prime/backend/src/config"
@@ -24,12 +27,20 @@ type mailjetSender struct {
 }
 
 func newMailjetSender(apiKey, apiSecret string, smtp config.SMTPConfig) *mailjetSender {
+	// Render's outbound network terminates idle HTTP keep-alive connections,
+	// which manifests as "connection reset by peer" on the next request that
+	// tries to reuse the connection. Disabling keep-alives forces a fresh
+	// TCP+TLS handshake per send — adds ~50 ms but eliminates the reset.
+	transport := &http.Transport{
+		DisableKeepAlives: true,
+		TLSHandshakeTimeout: 10 * time.Second,
+	}
 	return &mailjetSender{
 		apiKey:    apiKey,
 		apiSecret: apiSecret,
 		fromName:  smtp.FromName,
 		from:      smtp.From,
-		client:    &http.Client{Timeout: 10 * time.Second},
+		client:    &http.Client{Timeout: 15 * time.Second, Transport: transport},
 	}
 }
 
@@ -67,22 +78,44 @@ func (s *mailjetSender) Send(msg Message) error {
 	if err != nil {
 		return fmt.Errorf("mailjet marshal: %w", err)
 	}
-	req, err := http.NewRequest("POST", "https://api.mailjet.com/v3.1/send", bytes.NewReader(raw))
-	if err != nil {
-		return fmt.Errorf("mailjet build request: %w", err)
-	}
-	req.SetBasicAuth(s.apiKey, s.apiSecret)
-	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := s.client.Do(req)
-	if err != nil {
-		return fmt.Errorf("mailjet post to %s: %w", msg.To, err)
-	}
-	defer resp.Body.Close()
+	// Retry once on transient network errors (connection reset, EOF). Render's
+	// outbound networking occasionally drops connections mid-response even on
+	// fresh sockets. Don't retry on HTTP error responses — those mean Mailjet
+	// rejected and a retry would duplicate the email.
+	var lastErr error
+	for attempt := 1; attempt <= 2; attempt++ {
+		req, err := http.NewRequest("POST", "https://api.mailjet.com/v3.1/send", bytes.NewReader(raw))
+		if err != nil {
+			return fmt.Errorf("mailjet build request: %w", err)
+		}
+		req.SetBasicAuth(s.apiKey, s.apiSecret)
+		req.Header.Set("Content-Type", "application/json")
 
-	if resp.StatusCode >= 300 {
-		respBody, _ := io.ReadAll(io.LimitReader(resp.Body, 1024))
-		return fmt.Errorf("mailjet %d to %s: %s", resp.StatusCode, msg.To, string(respBody))
+		resp, err := s.client.Do(req)
+		if err != nil {
+			lastErr = err
+			if attempt == 1 && isTransientNetErr(err) {
+				time.Sleep(500 * time.Millisecond)
+				continue
+			}
+			return fmt.Errorf("mailjet post to %s: %w", msg.To, err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode >= 300 {
+			respBody, _ := io.ReadAll(io.LimitReader(resp.Body, 1024))
+			return fmt.Errorf("mailjet %d to %s: %s", resp.StatusCode, msg.To, string(respBody))
+		}
+		return nil
 	}
-	return nil
+	return fmt.Errorf("mailjet post to %s: %w", msg.To, lastErr)
+}
+
+func isTransientNetErr(err error) bool {
+	if errors.Is(err, syscall.ECONNRESET) || errors.Is(err, syscall.EPIPE) || errors.Is(err, io.EOF) {
+		return true
+	}
+	var netErr net.Error
+	return errors.As(err, &netErr) && netErr.Timeout()
 }
