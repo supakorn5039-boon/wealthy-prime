@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 
 	"github.com/wealthy-prime/backend/src/config"
@@ -72,7 +73,10 @@ type Property struct {
 	Province      string
 	District      string
 	GoogleMapURL  string
-	BtsMrt        string // CSV: "Phetchaburi, Sukhumvit"
+	// BtsMrt holds station IDs from the frontend BTS_MRT_STATIONS constant.
+	// Stored as native Postgres INTEGER[] with a GIN index — enables fast
+	// `bts_mrt @> ARRAY[12]` / `bts_mrt && ARRAY[...]` filter queries.
+	BtsMrt pq.Int32Array `gorm:"type:integer[]"`
 	Bedrooms      int
 	Bathrooms     int
 	Floor         int
@@ -158,7 +162,7 @@ type PropertyDto struct {
 	Province           string             `json:"province"`
 	District           string             `json:"district"`
 	GoogleMapURL       string             `json:"googleMapUrl"`
-	BtsMrt             string             `json:"btsMrt"`
+	BtsMrt             []int32            `json:"btsMrt"`
 	Bedrooms           int                `json:"bedrooms"`
 	Bathrooms          int                `json:"bathrooms"`
 	Floor              int                `json:"floor"`
@@ -203,7 +207,7 @@ func (p *Property) ToDto() *PropertyDto {
 		Province:           p.Province,
 		District:           p.District,
 		GoogleMapURL:       p.GoogleMapURL,
-		BtsMrt:             p.BtsMrt,
+		BtsMrt:             []int32(p.BtsMrt),
 		Bedrooms:           p.Bedrooms,
 		Bathrooms:          p.Bathrooms,
 		Floor:              p.Floor,

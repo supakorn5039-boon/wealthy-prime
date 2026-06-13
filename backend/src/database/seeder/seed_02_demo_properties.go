@@ -3,6 +3,7 @@ package seeder
 import (
 	"log"
 
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 
 	"github.com/wealthy-prime/backend/src/database/model"
@@ -38,7 +39,7 @@ func seedDemoProperties(db *gorm.DB, agentID uint) {
 		listing       model.ListingType
 		province      string
 		district      string
-		btsMrt        string
+		btsMrt        pq.Int32Array
 		bedrooms      int
 		bathrooms     int
 		floor         int
@@ -73,7 +74,7 @@ func seedDemoProperties(db *gorm.DB, agentID uint) {
 			listing:       model.ListingSell,
 			province:      "กรุงเทพมหานคร",
 			district:      "คลองเตย",
-			btsMrt:        "อโศก (BTS), สุขุมวิท (MRT)",
+			btsMrt:        pq.Int32Array{12, 34}, // อโศก (BTS), สุขุมวิท (MRT)
 			bedrooms:      2,
 			bathrooms:     2,
 			floor:         28,
@@ -108,7 +109,7 @@ func seedDemoProperties(db *gorm.DB, agentID uint) {
 			listing:       model.ListingRent,
 			province:      "กรุงเทพมหานคร",
 			district:      "บางรัก",
-			btsMrt:        "สะพานตากสิน (BTS)",
+			btsMrt:        pq.Int32Array{29}, // สะพานตากสิน (BTS)
 			bedrooms:      1,
 			bathrooms:     1,
 			floor:         15,
@@ -144,7 +145,7 @@ func seedDemoProperties(db *gorm.DB, agentID uint) {
 			listing:       model.ListingSell,
 			province:      "กรุงเทพมหานคร",
 			district:      "วัฒนา",
-			btsMrt:        "อโศก (BTS), เพชรบุรี (MRT)",
+			btsMrt:        pq.Int32Array{12, 35}, // อโศก (BTS), เพชรบุรี (MRT)
 			bedrooms:      3,
 			bathrooms:     3,
 			floor:         2,

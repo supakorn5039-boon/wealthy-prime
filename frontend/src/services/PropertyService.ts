@@ -52,6 +52,10 @@ export const PropertyService = {
       search: p.search,
       min_price: p.minPrice,
       max_price: p.maxPrice,
+      kind: p.kind,
+      province: p.province,
+      district: p.district,
+      bts_mrt_ids: p.btsMrtIds && p.btsMrtIds.length > 0 ? p.btsMrtIds.join(',') : undefined,
     }
     const res = await fetchClient.get<ApiListResponse<Property>>(API.PROPERTIES, {
       params: cleanParams(queryParams as Record<string, unknown>),

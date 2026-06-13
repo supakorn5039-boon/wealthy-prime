@@ -22,7 +22,7 @@ import { ROUTES } from "@/constants/Routes";
 import {
   PROVINCES,
   DISTRICTS_BY_PROVINCE,
-  BTS_MRT_STATIONS,
+  BTS_MRT_OPTIONS,
 } from "@/constants/Locations";
 import { usePropertyOptions } from "@/hooks/usePropertyOptions";
 import { parseGoogleMapsUrl } from "@/utils/parseGoogleMapsUrl";
@@ -309,7 +309,7 @@ export default function AddPropertyIndex() {
               control={control}
               name="btsMrt"
               label={t("property.btsMrt")}
-              options={BTS_MRT_STATIONS}
+              options={BTS_MRT_OPTIONS}
             />
             <div className="grid grid-cols-2 gap-4">
               <FormInput

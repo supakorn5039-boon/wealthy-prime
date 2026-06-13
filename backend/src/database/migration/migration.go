@@ -16,6 +16,9 @@ func Run(db *gorm.DB) {
 	if err := migrateProperties(db); err != nil {
 		log.Fatalf("[migration] properties: %v", err)
 	}
+	if err := migrateBtsMrtToArray(db); err != nil {
+		log.Fatalf("[migration] bts_mrt → integer[]: %v", err)
+	}
 	if err := migrateBookings(db); err != nil {
 		log.Fatalf("[migration] bookings: %v", err)
 	}

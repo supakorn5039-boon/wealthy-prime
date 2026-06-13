@@ -428,6 +428,15 @@
     "filterRent": "เช่า",
     "minPrice": "ราคาต่ำสุด",
     "maxPrice": "ราคาสูงสุด",
+    "priceRange": "ช่วงราคา",
+    "btsMrtPlaceholder": "BTS / MRT ใกล้เคียง",
+    "btsMrtSelected": "เลือก {{count}} สาย",
+    "btsMrtLine": {
+      "BTS_SUKHUMVIT": "BTS สายสุขุมวิท",
+      "BTS_SILOM": "BTS สายสีลม",
+      "MRT_BLUE": "MRT สายสีน้ำเงิน",
+      "MRT_PURPLE": "MRT สายสีม่วง"
+    },
     "noResults": "ไม่พบอสังหาริมทรัพย์",
     "tryAdjust": "ลองปรับเงื่อนไขการค้นหา",
     "mapHint": "เลื่อนเมาส์บนหมุดเพื่อดูข้อมูล — คลิกเพื่อเปิดรายละเอียด"

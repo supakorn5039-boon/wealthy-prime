@@ -2,17 +2,22 @@ import { useController, type Control, type FieldValues, type Path } from 'react-
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 
+export interface ChipOption {
+  value: string
+  label: string
+}
+
 interface FormMultiChipsProps<T extends FieldValues> {
   control: Control<T>
   name: Path<T>
   label: string
-  options: readonly string[]
+  options: readonly ChipOption[]
   required?: boolean
 }
 
-// FormMultiChips renders a list of toggleable chip-buttons backed by a CSV string field.
-// Selected values are stored as "A, B, C" — matching the requirement's expected
-// storage format for BTS/MRT stations.
+// FormMultiChips renders a list of toggleable chip-buttons backed by a CSV
+// string field. The field stores CSV of `value`s ("12, 34"); chips display
+// `label`. Persisted with ", " separator to match the BTS/MRT requirement.
 export function FormMultiChips<T extends FieldValues>({
   control,
   name,
@@ -29,9 +34,9 @@ export function FormMultiChips<T extends FieldValues>({
       .filter(Boolean),
   )
 
-  const toggle = (opt: string) => {
-    if (selected.has(opt)) selected.delete(opt)
-    else selected.add(opt)
+  const toggle = (val: string) => {
+    if (selected.has(val)) selected.delete(val)
+    else selected.add(val)
     field.onChange(Array.from(selected).join(', '))
   }
 
@@ -43,12 +48,12 @@ export function FormMultiChips<T extends FieldValues>({
       </Label>
       <div className="flex flex-wrap gap-1.5 max-h-44 overflow-y-auto p-2 border rounded-md bg-muted/40/50">
         {options.map((opt) => {
-          const active = selected.has(opt)
+          const active = selected.has(opt.value)
           return (
             <button
               type="button"
-              key={opt}
-              onClick={() => toggle(opt)}
+              key={opt.value}
+              onClick={() => toggle(opt.value)}
               className={cn(
                 'text-xs px-2 py-1 rounded-full border transition-colors',
                 active
@@ -56,7 +61,7 @@ export function FormMultiChips<T extends FieldValues>({
                   : 'bg-card text-foreground border-border hover:border-primary',
               )}
             >
-              {opt}
+              {opt.label}
             </button>
           )
         })}

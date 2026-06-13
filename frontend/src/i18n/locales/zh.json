@@ -428,6 +428,15 @@
     "filterRent": "租赁",
     "minPrice": "最低价",
     "maxPrice": "最高价",
+    "priceRange": "价格范围",
+    "btsMrtPlaceholder": "附近 BTS / MRT",
+    "btsMrtSelected": "{{count}} 条线",
+    "btsMrtLine": {
+      "BTS_SUKHUMVIT": "BTS 素坤逸线",
+      "BTS_SILOM": "BTS 是隆线",
+      "MRT_BLUE": "MRT 蓝线",
+      "MRT_PURPLE": "MRT 紫线"
+    },
     "noResults": "未找到房产",
     "tryAdjust": "请调整搜索条件",
     "mapHint": "悬停标记预览房产 — 点击查看详情"

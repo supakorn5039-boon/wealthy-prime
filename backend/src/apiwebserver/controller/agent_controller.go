@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 
 	"github.com/wealthy-prime/backend/src/apiwebserver/middleware"
 	"github.com/wealthy-prime/backend/src/apiwebserver/service"
@@ -477,7 +478,7 @@ func buildPropertyFields(
 		Province:     formVal(values, "province"),
 		District:     formVal(values, "district"),
 		GoogleMapURL: formVal(values, "google_map_url"),
-		BtsMrt:       formVal(values, "bts_mrt"),
+		BtsMrt:       pq.Int32Array(parseIntCSV(formVal(values, "bts_mrt"))),
 		Bedrooms:     atoi(formVal(values, "bedrooms")),
 		Bathrooms:    atoi(formVal(values, "bathrooms")),
 		Floor:        atoi(formVal(values, "floor")),

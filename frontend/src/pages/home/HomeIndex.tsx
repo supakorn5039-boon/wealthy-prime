@@ -22,6 +22,7 @@ import { ImageWatermark } from "@/components/property/ImageWatermark";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Hero } from "@/pages/home/components/Hero";
+import { PropertyFilter } from "@/components/property/PropertyFilter";
 import { PageContainer } from "@/components/shared/PageContainer";
 import {
   Dialog,
@@ -32,6 +33,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/utils/date";
+import { formatBtsMrt } from "@/utils/btsMrt";
 import { resolveImageUrl } from "@/utils/imageUrl";
 import { cn } from "@/lib/utils";
 import type {
@@ -157,10 +159,10 @@ function PropertyRow({ property, active, onHover }: PropertyRowProps) {
             <MapPin className="h-3 w-3 shrink-0" />
             <span className="line-clamp-1">{property.location}</span>
           </div>
-          {property.btsMrt && (
+          {formatBtsMrt(property.btsMrt) && (
             <div className="flex items-center gap-1">
               <Train className="h-3 w-3 shrink-0" />
-              <span className="line-clamp-1">{property.btsMrt}</span>
+              <span className="line-clamp-1">{formatBtsMrt(property.btsMrt)}</span>
             </div>
           )}
         </div>
@@ -252,6 +254,10 @@ export default function HomeIndex() {
       />
 
       <PageContainer size="8xl" className="space-y-4">
+        <PropertyFilter
+          initialValues={filters}
+          onFilter={(next) => setFilters((prev) => ({ ...prev, ...next }))}
+        />
         {isLoading ? (
           <LoadingSpinner text={t("common.loading")} />
         ) : filteredProperties.length === 0 ? (

@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 
 	"github.com/wealthy-prime/backend/src/apperror"
@@ -30,11 +31,15 @@ func NewPropertyService() *PropertyService {
 }
 
 type PropertyFilter struct {
-	Type     string
-	Location string
-	Search   string
-	MinPrice string
-	MaxPrice string
+	Type       string
+	Location   string
+	Search     string
+	MinPrice   string
+	MaxPrice   string
+	Kind       string  // condo / house / townhouse
+	Province   string
+	District   string
+	BtsMrtIDs  []int32 // station IDs; matched via array overlap (GIN-indexed)
 }
 
 type PropertyFields struct {
@@ -54,7 +59,7 @@ type PropertyFields struct {
 	Province     string
 	District     string
 	GoogleMapURL string
-	BtsMrt       string
+	BtsMrt       pq.Int32Array
 	Bedrooms     int
 	Bathrooms    int
 	Floor        int
@@ -122,6 +127,20 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 		if max, err := strconv.ParseFloat(filter.MaxPrice, 64); err == nil {
 			query = query.Where("price <= ?", max)
 		}
+	}
+	if filter.Kind != "" {
+		query = query.Where("kind = ?", filter.Kind)
+	}
+	if filter.Province != "" {
+		query = query.Where("province = ?", filter.Province)
+	}
+	if filter.District != "" {
+		query = query.Where("district = ?", filter.District)
+	}
+	if len(filter.BtsMrtIDs) > 0 {
+		// Array overlap: properties whose bts_mrt shares any station ID with
+		// the filter. GIN index on bts_mrt makes this O(log n).
+		query = query.Where("bts_mrt && ?", pq.Int32Array(filter.BtsMrtIDs))
 	}
 
 	var properties []model.Property

@@ -7,6 +7,7 @@ import { WishlistButton } from "@/components/WishlistButton";
 import { EditPropertyDialog } from "@/components/property/EditPropertyDialog";
 import { useAuthStore } from "@/store/authStore";
 import { formatPrice } from "@/utils/date";
+import { formatBtsMrt } from "@/utils/btsMrt";
 import { resolveImageUrl } from "@/utils/imageUrl";
 import { ImageWatermark } from "@/components/property/ImageWatermark";
 import type { Property } from "@/types/Property";
@@ -27,6 +28,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
 
   const isRent = property.type === "rent";
   const petAllowed = property.pets === "allowed";
+  const btsMrtText = formatBtsMrt(property.btsMrt);
 
   return (
     <div className="group bg-card rounded-md overflow-hidden border border-border hover:border-primary/60 transition-colors">
@@ -100,10 +102,10 @@ export function PropertyCard({ property }: PropertyCardProps) {
           <span className="line-clamp-1">{property.location}</span>
         </div>
 
-        {property.btsMrt && (
+        {btsMrtText && (
           <div className="flex items-center gap-1 mt-1 text-muted-foreground text-xs">
             <Train className="h-3.5 w-3.5 flex-shrink-0" />
-            <span className="line-clamp-1">{property.btsMrt}</span>
+            <span className="line-clamp-1">{btsMrtText}</span>
           </div>
         )}
 

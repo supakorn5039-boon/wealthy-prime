@@ -24,6 +24,7 @@ import { Badge } from '@/components/ui/badge'
 import { useCartStore } from '@/hooks/useCartStore'
 import { useAuthStore } from '@/store/authStore'
 import { formatPrice, formatDate } from '@/utils/date'
+import { formatBtsMrt } from '@/utils/btsMrt'
 
 const pinIcon = L.divIcon({
   className: '',
@@ -176,8 +177,8 @@ export default function PropertyDetailIndex() {
                 {property.furniture && (
                   <DetailItem icon={<Sofa className="h-4 w-4" />} label={t('property.furnitureLabel')} value={t(`property.furniture.${property.furniture}`, { defaultValue: property.furniture })} />
                 )}
-                {property.btsMrt && (
-                  <DetailItem icon={<Train className="h-4 w-4" />} label={t('property.btsMrt')} value={property.btsMrt} />
+                {formatBtsMrt(property.btsMrt) && (
+                  <DetailItem icon={<Train className="h-4 w-4" />} label={t('property.btsMrt')} value={formatBtsMrt(property.btsMrt)} />
                 )}
                 {property.province && (
                   <DetailItem icon={<MapPin className="h-4 w-4" />} label={t('property.province')} value={property.province} />

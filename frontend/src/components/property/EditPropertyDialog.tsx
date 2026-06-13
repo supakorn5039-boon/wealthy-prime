@@ -26,7 +26,7 @@ import type { Property } from "@/types/Property";
 import {
   PROVINCES,
   DISTRICTS_BY_PROVINCE,
-  BTS_MRT_STATIONS,
+  BTS_MRT_OPTIONS,
 } from "@/constants/Locations";
 import { usePropertyOptions } from "@/hooks/usePropertyOptions";
 import { parseGoogleMapsUrl } from "@/utils/parseGoogleMapsUrl";
@@ -74,7 +74,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
         province: property.province ?? "",
         district: property.district ?? "",
         googleMapUrl: property.googleMapUrl ?? "",
-        btsMrt: property.btsMrt ?? "",
+        btsMrt: (property.btsMrt ?? []).join(", "),
         bedrooms: property.bedrooms != null ? String(property.bedrooms) : "",
         bathrooms: property.bathrooms != null ? String(property.bathrooms) : "",
         floor: property.floor != null ? String(property.floor) : "",
@@ -308,7 +308,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
             control={control}
             name="btsMrt"
             label={t("property.btsMrt")}
-            options={BTS_MRT_STATIONS}
+            options={BTS_MRT_OPTIONS}
           />
           <div className="grid grid-cols-2 gap-3">
             <FormInput

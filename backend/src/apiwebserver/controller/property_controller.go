@@ -2,6 +2,7 @@ package controller
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -10,6 +11,23 @@ import (
 	"github.com/wealthy-prime/backend/src/apperror"
 	"github.com/wealthy-prime/backend/src/database/model"
 )
+
+// parseIntCSV converts "12,34,56" → []int32. Non-numeric tokens are skipped.
+func parseIntCSV(s string) []int32 {
+	if s == "" {
+		return nil
+	}
+	parts := strings.Split(s, ",")
+	out := make([]int32, 0, len(parts))
+	for _, p := range parts {
+		n, err := strconv.Atoi(strings.TrimSpace(p))
+		if err != nil || n <= 0 {
+			continue
+		}
+		out = append(out, int32(n))
+	}
+	return out
+}
 
 type PropertyController struct {
 	svc *service.PropertyService
@@ -34,11 +52,15 @@ func canSeeOwnerInfo(role model.UserRole) bool {
 
 func (ctrl *PropertyController) listProperties(c *gin.Context) {
 	filter := service.PropertyFilter{
-		Type:     c.Query("type"),
-		Location: c.Query("location"),
-		Search:   c.Query("search"),
-		MinPrice: c.Query("min_price"),
-		MaxPrice: c.Query("max_price"),
+		Type:      c.Query("type"),
+		Location:  c.Query("location"),
+		Search:    c.Query("search"),
+		MinPrice:  c.Query("min_price"),
+		MaxPrice:  c.Query("max_price"),
+		Kind:      c.Query("kind"),
+		Province:  c.Query("province"),
+		District:  c.Query("district"),
+		BtsMrtIDs: parseIntCSV(c.Query("bts_mrt_ids")),
 	}
 
 	dtos, err := ctrl.svc.ListProperties(filter)

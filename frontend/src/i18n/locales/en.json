@@ -428,6 +428,15 @@
     "filterRent": "Rent",
     "minPrice": "Min Price",
     "maxPrice": "Max Price",
+    "priceRange": "Price Range",
+    "btsMrtPlaceholder": "Nearby BTS / MRT",
+    "btsMrtSelected": "{{count}} line(s)",
+    "btsMrtLine": {
+      "BTS_SUKHUMVIT": "BTS Sukhumvit Line",
+      "BTS_SILOM": "BTS Silom Line",
+      "MRT_BLUE": "MRT Blue Line",
+      "MRT_PURPLE": "MRT Purple Line"
+    },
     "noResults": "No properties found",
     "tryAdjust": "Try adjusting your search",
     "mapHint": "Hover a marker to preview a property — click to open it."

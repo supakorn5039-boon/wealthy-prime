@@ -29,7 +29,7 @@ export interface Property {
   province?: string
   district?: string
   googleMapUrl?: string
-  btsMrt?: string
+  btsMrt?: number[]
   bedrooms?: number
   bathrooms?: number
   floor?: number
@@ -67,6 +67,11 @@ export interface PropertyListParams {
   minPrice?: number
   maxPrice?: number
   status?: PropertyStatus
+  kind?: PropertyKind
+  province?: string
+  district?: string
+  // Station IDs that overlap any of the property's bts_mrt array.
+  btsMrtIds?: number[]
   page?: number
   limit?: number
 }
@@ -87,6 +92,7 @@ export interface PropertyFormFields {
   province?: string
   district?: string
   googleMapUrl?: string
+  // CSV of station IDs (e.g. "12, 34"); backend parses to pq.Int32Array.
   btsMrt?: string
   bedrooms?: number
   bathrooms?: number
