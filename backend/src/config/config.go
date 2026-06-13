@@ -48,6 +48,23 @@ type SMTPConfig struct {
 // Empty password → fall back to log-only sender instead.
 func (s SMTPConfig) Enabled() bool { return s.Host != "" && s.Password != "" }
 
+// R2Config drives uploads to Cloudflare R2. Required on Render (and any
+// PaaS with ephemeral storage) — without it, uploaded files vanish when
+// the container restarts. When all fields are set, saveUpload routes to R2
+// instead of local disk. PublicURL is the bucket's public r2.dev URL
+// (or custom domain) without a trailing slash.
+type R2Config struct {
+	AccountID string
+	Bucket    string
+	AccessKey string
+	SecretKey string
+	PublicURL string
+}
+
+func (r R2Config) Enabled() bool {
+	return r.AccountID != "" && r.Bucket != "" && r.AccessKey != "" && r.SecretKey != "" && r.PublicURL != ""
+}
+
 // MailjetConfig drives the Mailjet HTTPS sender. Used in environments where
 // raw SMTP egress is blocked (e.g. Render). Mailjet allows single-sender
 // verification, so no custom domain is required. Auth uses an API key +
@@ -65,6 +82,7 @@ type AppConfig struct {
 	CORS     CORSConfig
 	SMTP     SMTPConfig
 	Mailjet  MailjetConfig
+	R2       R2Config
 }
 
 var App AppConfig
@@ -183,6 +201,12 @@ func Load(path string) {
 
 	App.Mailjet.APIKey = strings.TrimSpace(os.Getenv("MAILJET_API_KEY"))
 	App.Mailjet.APISecret = strings.TrimSpace(os.Getenv("MAILJET_API_SECRET"))
+
+	App.R2.AccountID = strings.TrimSpace(os.Getenv("R2_ACCOUNT_ID"))
+	App.R2.Bucket = strings.TrimSpace(os.Getenv("R2_BUCKET"))
+	App.R2.AccessKey = strings.TrimSpace(os.Getenv("R2_ACCESS_KEY"))
+	App.R2.SecretKey = strings.TrimSpace(os.Getenv("R2_SECRET_KEY"))
+	App.R2.PublicURL = strings.TrimRight(strings.TrimSpace(os.Getenv("R2_PUBLIC_URL")), "/")
 }
 
 func buildDSN() string {

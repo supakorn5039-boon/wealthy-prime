@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"crypto/rand"
 	"errors"
 	"fmt"
@@ -17,6 +18,7 @@ import (
 	"github.com/wealthy-prime/backend/src/config"
 	"github.com/wealthy-prime/backend/src/database"
 	"github.com/wealthy-prime/backend/src/database/model"
+	"github.com/wealthy-prime/backend/src/pkg/storage"
 )
 
 type PropertyService struct {
@@ -443,28 +445,24 @@ func (s *PropertyService) ApproveProperty(propertyID uint, action string) (*mode
 	}
 }
 
-// saveUpload stores a multipart file to the given dir and returns the relative URL.
+// saveUpload stores a multipart file and returns its URL. When R2 is
+// configured, the file goes to Cloudflare R2 and the URL is the public
+// r2.dev URL (survives container restarts). Otherwise it falls back to
+// local disk — fine for local dev, broken on Render free tier because
+// /uploads is wiped on every redeploy.
 func saveUpload(fh *multipart.FileHeader, dir string) (string, error) {
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return "", fmt.Errorf("mkdir %s: %w", dir, err)
-	}
-
-	ext := filepath.Ext(fh.Filename)
+	ext := strings.ToLower(filepath.Ext(fh.Filename))
 	if ext == "" {
 		ext = ".bin"
 	}
-	// Use allowed extensions only for safety
-	ext = strings.ToLower(ext)
 	allowed := map[string]bool{".jpg": true, ".jpeg": true, ".png": true, ".gif": true, ".webp": true, ".pdf": true}
 	if !allowed[ext] {
 		ext = ".bin"
 	}
 
-	// Generate unique filename
 	b := make([]byte, 8)
 	rand.Read(b)
 	filename := fmt.Sprintf("%d_%x%s", time.Now().UnixNano(), b, ext)
-	dst := filepath.Join(dir, filename)
 
 	src, err := fh.Open()
 	if err != nil {
@@ -472,6 +470,18 @@ func saveUpload(fh *multipart.FileHeader, dir string) (string, error) {
 	}
 	defer src.Close()
 
+	if config.App.R2.Enabled() {
+		url, err := storage.UploadToR2(context.Background(), filename, src, fh.Size, fh.Header.Get("Content-Type"))
+		if err != nil {
+			return "", err
+		}
+		return url, nil
+	}
+
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return "", fmt.Errorf("mkdir %s: %w", dir, err)
+	}
+	dst := filepath.Join(dir, filename)
 	dstFile, err := os.Create(dst)
 	if err != nil {
 		return "", fmt.Errorf("create file %s: %w", dst, err)
