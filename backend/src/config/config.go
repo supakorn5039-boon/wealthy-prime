@@ -48,11 +48,21 @@ type SMTPConfig struct {
 // Empty password → fall back to log-only sender instead.
 func (s SMTPConfig) Enabled() bool { return s.Host != "" && s.Password != "" }
 
+// ResendConfig drives the Resend HTTPS sender. Used in environments where
+// raw SMTP egress is blocked (e.g. Render). When APIKey is set, this takes
+// precedence over SMTPConfig in email.New().
+type ResendConfig struct {
+	APIKey string
+}
+
+func (r ResendConfig) Enabled() bool { return r.APIKey != "" }
+
 type AppConfig struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	CORS     CORSConfig
 	SMTP     SMTPConfig
+	Resend   ResendConfig
 }
 
 var App AppConfig
@@ -168,6 +178,8 @@ func Load(path string) {
 	if v := os.Getenv("SMTP_NOTIFICATION_BCC"); v != "" {
 		App.SMTP.NotificationBcc = strings.TrimSpace(v)
 	}
+
+	App.Resend.APIKey = strings.TrimSpace(os.Getenv("RESEND_API_KEY"))
 }
 
 func buildDSN() string {

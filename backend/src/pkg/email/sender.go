@@ -23,13 +23,18 @@ type Message struct {
 }
 
 // New picks an implementation based on config:
-//   - SMTP host configured  → smtpSender (real delivery)
+//   - RESEND_API_KEY set    → resendSender (HTTPS, works where SMTP is blocked)
+//   - SMTP host + password  → smtpSender (raw SMTP, may be blocked on PaaS)
 //   - Otherwise             → logSender (prints to stdout, dev fallback)
 func New() Sender {
+	if config.App.Resend.Enabled() {
+		log.Println("[email] using Resend sender (HTTPS)")
+		return newResendSender(config.App.Resend.APIKey, config.App.SMTP)
+	}
 	if config.App.SMTP.Enabled() {
 		log.Printf("[email] using SMTP sender (host=%s)", config.App.SMTP.Host)
 		return &smtpSender{cfg: config.App.SMTP}
 	}
-	log.Println("[email] SMTP not configured — using log-only sender (no real emails sent)")
+	log.Println("[email] no sender configured — using log-only sender (no real emails sent)")
 	return &logSender{}
 }
