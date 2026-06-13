@@ -86,3 +86,29 @@
   background-color: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
 }
+
+.react-datepicker__time-container,
+.react-datepicker__time-container .react-datepicker__time {
+  @apply bg-card text-foreground border-border;
+}
+
+.react-datepicker__time-container .react-datepicker-time__header {
+  @apply text-foreground;
+}
+
+.react-datepicker__time-container .react-datepicker__time-list-item {
+  @apply text-foreground;
+}
+
+.react-datepicker__time-container .react-datepicker__time-list-item:hover {
+  background-color: hsl(var(--primary) / 0.2);
+}
+
+.react-datepicker__time-container .react-datepicker__time-list-item--selected {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+.react-datepicker__time-container .react-datepicker__time-list-item--disabled {
+  @apply text-muted-foreground;
+}
