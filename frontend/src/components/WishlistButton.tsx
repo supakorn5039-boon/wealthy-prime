@@ -17,10 +17,12 @@ export function WishlistButton({ propertyId, className }: WishlistButtonProps) {
   const { user } = useAuthStore()
   const queryClient = useQueryClient()
 
+  const isCustomer = user?.role === 'user'
+
   const { data: wishlist = [] } = useQuery({
     queryKey: [WishlistService.QUERY_KEYS.LIST],
     queryFn: WishlistService.list,
-    enabled: !!user,
+    enabled: isCustomer,
   })
 
   const isWishlisted = wishlist.some((p) => p.id === propertyId)
@@ -43,7 +45,7 @@ export function WishlistButton({ propertyId, className }: WishlistButtonProps) {
     onError: () => toast.error(t('common.error')),
   })
 
-  if (!user) return null
+  if (!isCustomer) return null
 
   return (
     <Button
