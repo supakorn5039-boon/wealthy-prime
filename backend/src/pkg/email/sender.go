@@ -23,13 +23,13 @@ type Message struct {
 }
 
 // New picks an implementation based on config:
-//   - BREVO_API_KEY set     → brevoSender (HTTPS, works where SMTP is blocked)
-//   - SMTP host + password  → smtpSender (raw SMTP, may be blocked on PaaS)
-//   - Otherwise             → logSender (prints to stdout, dev fallback)
+//   - MAILJET_API_KEY + SECRET set → mailjetSender (HTTPS, works where SMTP is blocked)
+//   - SMTP host + password         → smtpSender (raw SMTP, may be blocked on PaaS)
+//   - Otherwise                    → logSender (prints to stdout, dev fallback)
 func New() Sender {
-	if config.App.Brevo.Enabled() {
-		log.Println("[email] using Brevo sender (HTTPS)")
-		return newBrevoSender(config.App.Brevo.APIKey, config.App.SMTP)
+	if config.App.Mailjet.Enabled() {
+		log.Println("[email] using Mailjet sender (HTTPS)")
+		return newMailjetSender(config.App.Mailjet.APIKey, config.App.Mailjet.APISecret, config.App.SMTP)
 	}
 	if config.App.SMTP.Enabled() {
 		log.Printf("[email] using SMTP sender (host=%s)", config.App.SMTP.Host)

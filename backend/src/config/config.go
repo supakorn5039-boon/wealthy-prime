@@ -48,22 +48,23 @@ type SMTPConfig struct {
 // Empty password → fall back to log-only sender instead.
 func (s SMTPConfig) Enabled() bool { return s.Host != "" && s.Password != "" }
 
-// BrevoConfig drives the Brevo HTTPS sender. Used in environments where
-// raw SMTP egress is blocked (e.g. Render). Brevo allows single-sender
-// verification, so no custom domain is required. When APIKey is set, this
-// takes precedence over SMTPConfig in email.New().
-type BrevoConfig struct {
-	APIKey string
+// MailjetConfig drives the Mailjet HTTPS sender. Used in environments where
+// raw SMTP egress is blocked (e.g. Render). Mailjet allows single-sender
+// verification, so no custom domain is required. Auth uses an API key +
+// secret pair. When both are set, this takes precedence over SMTPConfig.
+type MailjetConfig struct {
+	APIKey    string
+	APISecret string
 }
 
-func (b BrevoConfig) Enabled() bool { return b.APIKey != "" }
+func (m MailjetConfig) Enabled() bool { return m.APIKey != "" && m.APISecret != "" }
 
 type AppConfig struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	CORS     CORSConfig
 	SMTP     SMTPConfig
-	Brevo    BrevoConfig
+	Mailjet  MailjetConfig
 }
 
 var App AppConfig
@@ -180,7 +181,8 @@ func Load(path string) {
 		App.SMTP.NotificationBcc = strings.TrimSpace(v)
 	}
 
-	App.Brevo.APIKey = strings.TrimSpace(os.Getenv("BREVO_API_KEY"))
+	App.Mailjet.APIKey = strings.TrimSpace(os.Getenv("MAILJET_API_KEY"))
+	App.Mailjet.APISecret = strings.TrimSpace(os.Getenv("MAILJET_API_SECRET"))
 }
 
 func buildDSN() string {
