@@ -33,7 +33,6 @@ export function Navbar({ onMenuClick }: NavbarProps) {
 
   const navLinks: NavLink[] = [
     { to: ROUTES.HOME, label: t('nav.home') },
-    { to: ROUTES.HOME, label: t('nav.search') },
     { to: ROUTES.MAP, label: t('nav.map') },
   ]
 

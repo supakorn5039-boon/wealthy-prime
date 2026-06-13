@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { Pencil, Check, X, User, Phone, MessageCircle, Calendar, MapPin } from 'lucide-react'
+import { Pencil, Check, X, User, Phone, MessageCircle, Calendar, MapPin, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { AgentService } from '@/services/AgentService'
 import { BookingStatusBadge } from '@/components/shared/StatusBadge'
@@ -13,6 +13,7 @@ import { PageTitle } from '@/components/shared/PageTitle'
 import { PageContainer } from '@/components/shared/PageContainer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { FormTextarea } from '@/components/form/FormTextarea'
 import { WorkStatusSelect } from '@/components/agent/WorkStatusSelect'
 import { agentNoteSchema, type AgentNoteSchema } from '@/dto/ReviewValidation'
@@ -57,11 +58,18 @@ function NoteEditor({ contact, onDone }: { contact: Booking; onDone: () => void 
 export default function ContactHistoryIndex() {
   const { t } = useTranslation()
   const [editingId, setEditingId] = useState<number | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
 
   const { data: contacts = [], isLoading } = useQuery({
     queryKey: [AgentService.QUERY_KEYS.CONTACTS],
     queryFn: AgentService.getContacts,
   })
+
+  const filteredContacts = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+    if (!q) return contacts
+    return contacts.filter((c) => (c.userName ?? '').toLowerCase().includes(q))
+  }, [contacts, searchQuery])
 
   return (
     <PageContainer size="7xl">
@@ -73,11 +81,24 @@ export default function ContactHistoryIndex() {
         <EmptyState title={t('agent.noHistory')} description={t('agent.noHistoryDesc')} />
       ) : (
         <>
+          <div className="relative mb-3">
+            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t('agent.visitRequestsSearchPlaceholder')}
+              className="pl-9"
+            />
+          </div>
           <p className="text-sm text-muted-foreground mb-3">
-            {t('agent.visitRequestsCount', { count: contacts.length })}
+            {t('agent.visitRequestsCount', { count: filteredContacts.length })}
           </p>
+          {filteredContacts.length === 0 ? (
+            <EmptyState title={t('agent.visitRequestsNoMatches')} description={t('agent.visitRequestsNoMatchesDesc')} />
+          ) : (
           <div className="space-y-3">
-            {contacts.map((contact) => {
+            {filteredContacts.map((contact) => {
               const phone = contact.phone || contact.userPhone || contact.latestContact
               const isEditing = editingId === contact.id
               return (
@@ -146,6 +167,7 @@ export default function ContactHistoryIndex() {
               )
             })}
           </div>
+          )}
         </>
       )}
     </PageContainer>

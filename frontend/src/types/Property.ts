@@ -109,8 +109,6 @@ export type CreatePropertyPayload = PropertyFormFields
 
 export interface UpdatePropertyStatusPayload {
   status: PropertyStatus
-  slipFile?: File
-  rentalPeriodMonths?: number
 }
 
 export interface EditPropertyPayload extends PropertyFormFields {

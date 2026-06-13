@@ -95,6 +95,5 @@ export const propertyStatusSchema = z.object({
     'unavailable',
     'owner_update',
   ] as const),
-  rentalPeriodMonths: z.string().optional(),
 })
 export type PropertyStatusSchema = z.infer<typeof propertyStatusSchema>

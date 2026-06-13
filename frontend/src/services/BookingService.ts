@@ -38,8 +38,4 @@ export const BookingService = {
     const res = await fetchClient.get<ApiResponse<Booking>>(API.BOOKING_DETAIL(id))
     return res.data.data
   },
-
-  cancel: async (id: number | string): Promise<void> => {
-    await fetchClient.put(API.BOOKING_DETAIL(id), { status: 'cancelled' })
-  },
 }

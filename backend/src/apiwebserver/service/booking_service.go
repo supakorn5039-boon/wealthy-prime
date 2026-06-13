@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"log"
+	mathRand "math/rand/v2"
 	"strconv"
 	"time"
 
@@ -13,6 +14,11 @@ import (
 	"github.com/wealthy-prime/backend/src/database/model"
 	"github.com/wealthy-prime/backend/src/pkg/email"
 )
+
+// maxBookingsPerAgentPerDay caps an agent at 3 active bookings per calendar
+// day (ICT). Beyond that, new bookings get assigned to a random other agent
+// to spread the load.
+const maxBookingsPerAgentPerDay = 3
 
 type BookingService struct {
 	db     *gorm.DB
@@ -40,8 +46,12 @@ type CreateBookingsInput struct {
 	Whatsapp       string `json:"whatsapp"`
 }
 
-// CreateBookings creates one booking per property ID, always pending and
-// unassigned. The agent notification is deferred to the admin assign step.
+// CreateBookings creates one booking per property ID. The booking is
+// auto-assigned to the property's owning agent (status = assigned). If that
+// agent already has maxBookingsPerAgentPerDay bookings on the appointment
+// day, the booking is assigned to a random other approved agent instead. If
+// the property has no agent at all, the booking stays pending and the admin
+// queue picks it up.
 func (s *BookingService) CreateBookings(userID uint, input CreateBookingsInput) ([]model.BookingDto, error) {
 	var results []model.BookingDto
 
@@ -56,13 +66,26 @@ func (s *BookingService) CreateBookings(userID uint, input CreateBookingsInput) 
 			return nil, apperror.Wrap(err, 500, "database error fetching property")
 		}
 
+		status := model.BookingPending
+		assignedAgentID := property.AgentID
+		if assignedAgentID != nil {
+			reassign, err := s.maybeReassignForLoad(*assignedAgentID, input.AppointmentDate)
+			if err != nil {
+				return nil, err
+			}
+			if reassign != nil {
+				assignedAgentID = reassign
+			}
+			status = model.BookingAssigned
+		}
+
 		booking := model.Booking{
 			UserID:          userID,
 			PropertyID:      propertyID,
 			AppointmentDate: input.AppointmentDate,
 			Note:            input.Note,
-			Status:          model.BookingPending,
-			AssignedAgentID: nil,
+			Status:          status,
+			AssignedAgentID: assignedAgentID,
 			FirstName:       input.FirstName,
 			LastName:        input.LastName,
 			Phone:           input.Phone,
@@ -94,18 +117,23 @@ func (s *BookingService) CreateBookings(userID uint, input CreateBookingsInput) 
 	return results, nil
 }
 
-// notifyAppointmentAsync sends the customer confirmation off the request
+// notifyAppointmentAsync sends the customer confirmation and, when the
+// booking was auto-assigned, the agent notification — both off the request
 // path. SMTP failures must not roll the booking back, so panics are recovered
-// + logged. An empty User is passed for the agent — the template omits agent
-// rows when fields are blank.
+// + logged. When unassigned, the customer email still goes out (the template
+// omits agent rows when fields are blank) and the agent step is skipped.
 func (s *BookingService) notifyAppointmentAsync(b model.Booking) {
 	go func(b model.Booking) {
 		defer func() {
 			if r := recover(); r != nil {
-				log.Printf("[email] panic while sending booking %d customer confirmation: %v", b.ID, r)
+				log.Printf("[email] panic while sending booking %d notifications: %v", b.ID, r)
 			}
 		}()
-		agent := &model.User{}
+
+		agent := b.AssignedAgent
+		if agent == nil {
+			agent = &model.User{}
+		}
 		if msg, err := email.BuildAppointmentConfirmation(&b, agent); err != nil {
 			log.Printf("[email] skipping booking %d customer confirmation: %v", b.ID, err)
 		} else if err := s.mailer.Send(msg); err != nil {
@@ -113,32 +141,81 @@ func (s *BookingService) notifyAppointmentAsync(b model.Booking) {
 		} else {
 			log.Printf("[email] booking %d customer confirmation sent to %s (bcc=%q)", b.ID, msg.To, msg.Bcc)
 		}
+
+		s.sendAgentNotification(b)
 	}(b)
+}
+
+// sendAgentNotification builds and sends the agent notification, logging the
+// outcome. Synchronous — the caller owns goroutine + panic recovery.
+func (s *BookingService) sendAgentNotification(b model.Booking) {
+	if b.AssignedAgent == nil || b.AssignedAgent.Email == "" {
+		log.Printf("[email] skipping booking %d agent notification — no assigned agent or agent email", b.ID)
+		return
+	}
+	msg, err := email.BuildAppointmentNotification(&b, b.AssignedAgent)
+	if err != nil {
+		log.Printf("[email] failed to build booking %d agent notification: %v", b.ID, err)
+		return
+	}
+	if err := s.mailer.Send(msg); err != nil {
+		log.Printf("[email] failed to send booking %d agent notification: %v", b.ID, err)
+		return
+	}
+	log.Printf("[email] booking %d agent notification sent to %s (bcc=%q)", b.ID, msg.To, msg.Bcc)
+}
+
+// maybeReassignForLoad returns a different agent ID when preferredAgentID
+// already has maxBookingsPerAgentPerDay active bookings on the appointment
+// day (00:00–23:59 ICT). Returns nil when no reassignment is needed or no
+// other approved agent is available — the caller falls back to
+// preferredAgentID in that case.
+func (s *BookingService) maybeReassignForLoad(preferredAgentID uint, appointmentDate time.Time) (*uint, error) {
+	ict := time.FixedZone("ICT", 7*3600)
+	local := appointmentDate.In(ict)
+	dayStart := time.Date(local.Year(), local.Month(), local.Day(), 0, 0, 0, 0, ict)
+	dayEnd := dayStart.Add(24 * time.Hour)
+
+	activeStatuses := []model.BookingStatus{model.BookingPending, model.BookingAssigned}
+	var count int64
+	if err := s.db.Model(&model.Booking{}).
+		Where("assigned_agent_id = ? AND status IN ? AND appointment_date >= ? AND appointment_date < ?",
+			preferredAgentID, activeStatuses, dayStart, dayEnd).
+		Count(&count).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "database error counting agent bookings")
+	}
+	if count < maxBookingsPerAgentPerDay {
+		return nil, nil
+	}
+
+	var pool []model.User
+	if err := s.db.Select("id").
+		Where("role = ? AND is_approved = ? AND id <> ?", model.RoleAgent, true, preferredAgentID).
+		Find(&pool).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "database error fetching agent pool")
+	}
+	if len(pool) == 0 {
+		log.Printf("[booking] agent %d at cap (%d) on %s but no other agent available; keeping assignment",
+			preferredAgentID, count, dayStart.Format("2006-01-02"))
+		return nil, nil
+	}
+
+	pick := pool[mathRand.IntN(len(pool))].ID
+	log.Printf("[booking] agent %d at cap (%d) on %s; reassigning to agent %d",
+		preferredAgentID, count, dayStart.Format("2006-01-02"), pick)
+	return &pick, nil
 }
 
 // NotifyAgentAssignedAsync sends the agent the appointment notification when
 // an admin assigns/reassigns the booking to them. Called by AdminService.
 func (s *BookingService) NotifyAgentAssignedAsync(b model.Booking) {
-	if b.AssignedAgent == nil || b.AssignedAgent.Email == "" {
-		log.Printf("[email] skipping booking %d agent notification — no assigned agent or agent email", b.ID)
-		return
-	}
 	go func(b model.Booking) {
 		defer func() {
 			if r := recover(); r != nil {
 				log.Printf("[email] panic while sending booking %d agent notification: %v", b.ID, r)
 			}
 		}()
-		msg, err := email.BuildAppointmentNotification(&b, b.AssignedAgent)
-		if err != nil {
-			log.Printf("[email] failed to build booking %d agent notification: %v", b.ID, err)
-			return
-		}
-		if err := s.mailer.Send(msg); err != nil {
-			log.Printf("[email] failed to send booking %d agent notification: %v", b.ID, err)
-			return
-		}
-		log.Printf("[email] booking %d agent notification sent to %s (bcc=%q)", b.ID, msg.To, msg.Bcc)
+		s.sendAgentNotification(b)
 	}(b)
 }
 
@@ -168,25 +245,6 @@ func (s *BookingService) GetUserBooking(userID, bookingID uint) (*model.BookingD
 		return nil, apperror.Wrap(err, 500, "failed to fetch booking")
 	}
 	return booking.ToDto(), nil
-}
-
-// UpdateUserBookingStatus changes the status of a user's own booking
-// (currently only used for self-cancellation).
-func (s *BookingService) UpdateUserBookingStatus(userID, bookingID uint, status model.BookingStatus) (*model.BookingDto, error) {
-	var booking model.Booking
-	err := s.db.Where("user_id = ? AND id = ?", userID, bookingID).First(&booking).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, apperror.NotFound("booking")
-	}
-	if err != nil {
-		return nil, apperror.Wrap(err, 500, "failed to fetch booking")
-	}
-
-	if err := s.db.Model(&booking).Update("status", status).Error; err != nil {
-		return nil, apperror.Wrap(err, 500, "failed to update booking")
-	}
-
-	return s.GetUserBooking(userID, bookingID)
 }
 
 func uintToStr(v uint) string {

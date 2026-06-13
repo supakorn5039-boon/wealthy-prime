@@ -90,8 +90,6 @@ export const PropertyService = {
   updateStatus: async (id: number | string, payload: UpdatePropertyStatusPayload): Promise<Property> => {
     const formData = new FormData()
     formData.append('status', payload.status)
-    if (payload.slipFile) formData.append('slip', payload.slipFile)
-    if (payload.rentalPeriodMonths) formData.append('rental_period_months', String(payload.rentalPeriodMonths))
     const res = await fetchClient.put<ApiResponse<Property>>(API.AGENT_PROPERTY_STATUS(id), formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })

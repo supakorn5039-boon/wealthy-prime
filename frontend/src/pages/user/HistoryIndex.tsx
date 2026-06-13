@@ -1,6 +1,5 @@
 import { useMemo } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { type ColumnDef } from '@tanstack/react-table'
@@ -10,7 +9,6 @@ import { BookingStatusBadge } from '@/components/shared/StatusBadge'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { PageTitle } from '@/components/shared/PageTitle'
-import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { PageContainer } from '@/components/shared/PageContainer'
 import { DataTable } from '@/components/shared/DataTable'
 import { Button } from '@/components/ui/button'
@@ -19,20 +17,10 @@ import { formatDateTime } from '@/utils/date'
 
 export default function HistoryIndex() {
   const { t } = useTranslation()
-  const queryClient = useQueryClient()
 
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: [BookingService.QUERY_KEYS.LIST],
     queryFn: BookingService.list,
-  })
-
-  const { mutate: cancelBooking } = useMutation({
-    mutationFn: BookingService.cancel,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [BookingService.QUERY_KEYS.LIST] })
-      toast.success(t('history.cancelled'))
-    },
-    onError: () => toast.error(t('common.error')),
   })
 
   const columns = useMemo<ColumnDef<Booking, unknown>[]>(
@@ -60,30 +48,8 @@ export default function HistoryIndex() {
         header: t('common.status'),
         cell: ({ row }) => <BookingStatusBadge status={row.original.status} />,
       },
-      {
-        id: 'actions',
-        header: () => <span className="sr-only">{t('common.actions')}</span>,
-        enableSorting: false,
-        cell: ({ row }) => {
-          if (row.original.status !== 'pending') return null
-          return (
-            <ConfirmDialog
-              trigger={
-                <Button size="sm" variant="outline" className="text-red-500">
-                  {t('common.cancel')}
-                </Button>
-              }
-              title={t('history.confirmCancelTitle')}
-              description={t('history.confirmCancelDesc')}
-              confirmLabel={t('history.confirmCancelBtn')}
-              destructive
-              onConfirm={() => cancelBooking(row.original.id)}
-            />
-          )
-        },
-      },
     ],
-    [t, cancelBooking],
+    [t],
   )
 
   return (

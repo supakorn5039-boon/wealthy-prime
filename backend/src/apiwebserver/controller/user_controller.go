@@ -42,7 +42,6 @@ func (ctrl *UserController) RegisterRoutes(r *gin.RouterGroup) {
 	user.POST("/bookings", ctrl.createBookings)
 	user.GET("/bookings", ctrl.listBookings)
 	user.GET("/bookings/:id", ctrl.getBooking)
-	user.PUT("/bookings/:id", ctrl.updateBooking)
 	user.GET("/contacts", ctrl.getContacts)
 
 	user.POST("/inquiries", ctrl.createInquiry)
@@ -209,36 +208,6 @@ func (ctrl *UserController) getBooking(c *gin.Context) {
 		return
 	}
 	dto, err := ctrl.bookingSvc.GetUserBooking(userID, bookingID)
-	if err != nil {
-		errorResponse(c, err)
-		return
-	}
-	successResponse(c, dto)
-}
-
-func (ctrl *UserController) updateBooking(c *gin.Context) {
-	userID := middleware.GetUserID(c)
-	bookingID, err := parseUintParam(c, "id")
-	if err != nil {
-		badRequest(c, "invalid booking id")
-		return
-	}
-
-	var body struct {
-		Status model.BookingStatus `json:"status" binding:"required"`
-	}
-	if err := c.ShouldBindJSON(&body); err != nil {
-		badRequest(c, err.Error())
-		return
-	}
-
-	// Users can only cancel their own bookings, not change to other statuses.
-	if body.Status != model.BookingCancelled {
-		errorResponse(c, apperror.Forbidden("users can only cancel their own bookings"))
-		return
-	}
-
-	dto, err := ctrl.bookingSvc.UpdateUserBookingStatus(userID, bookingID, body.Status)
 	if err != nil {
 		errorResponse(c, err)
 		return

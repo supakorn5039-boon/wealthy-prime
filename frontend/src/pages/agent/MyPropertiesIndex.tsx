@@ -32,7 +32,6 @@ import {
 } from "@/components/ui/dialog";
 import { EditPropertyDialog } from "@/components/property/EditPropertyDialog";
 import { FormSelect } from "@/components/form/FormSelect";
-import { FormInput } from "@/components/form/FormInput";
 import { formatPrice } from "@/utils/date";
 import {
   propertyStatusSchema,
@@ -52,30 +51,24 @@ function StatusModal({
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const [slipFile, setSlipFile] = useState<File | null>(null);
 
   const statusOptions = [
-    { value: "pending_approve", label: t("property.pendingApprove") },
     { value: "available", label: t("property.available") },
+    { value: "reserved", label: t("property.reserved") },
+    { value: "unavailable", label: t("property.unavailable") },
+    { value: "owner_update", label: t("property.ownerUpdate") },
   ];
 
-  const { control, handleSubmit, watch } = useForm<PropertyStatusSchema>({
+  const { control, handleSubmit } = useForm<PropertyStatusSchema>({
     resolver: zodResolver(propertyStatusSchema),
     defaultValues: {
       status: property.status as PropertyStatusSchema["status"],
-      rentalPeriodMonths: "",
     },
   });
 
   const mutation = useMutation({
     mutationFn: (values: PropertyStatusSchema) =>
-      PropertyService.updateStatus(property.id, {
-        status: values.status,
-        slipFile: slipFile ?? undefined,
-        rentalPeriodMonths: values.rentalPeriodMonths
-          ? Number(values.rentalPeriodMonths)
-          : undefined,
-      }),
+      PropertyService.updateStatus(property.id, { status: values.status }),
     onSuccess: () => {
       toast.success(t("property.requestSent"));
       queryClient.invalidateQueries({
@@ -91,8 +84,6 @@ function StatusModal({
     },
     onError: () => toast.error(t("common.error")),
   });
-
-  const status = watch("status");
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -116,28 +107,6 @@ function StatusModal({
             options={statusOptions}
             required
           />
-          {property.type === "rent" && status === "pending_approve" && (
-            <FormInput
-              control={control}
-              name="rentalPeriodMonths"
-              label={t("property.rentalPeriod")}
-              type="number"
-              placeholder="6"
-              min={1}
-              step={1}
-            />
-          )}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground">
-              {t("property.slip")} <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setSlipFile(e.target.files?.[0] ?? null)}
-              className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
-            />
-          </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
               {t("common.cancel")}
