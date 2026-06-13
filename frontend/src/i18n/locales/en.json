@@ -49,7 +49,7 @@
     "copy": "Copy",
     "copied": "Copied",
     "confirm": "Confirm",
-    "search": "Search",
+    "search": "Search…",
     "noData": "No data found",
     "error": "An error occurred",
     "close": "Close",
@@ -63,7 +63,11 @@
     "role": "Role",
     "actions": "Actions",
     "view": "View",
-    "phaseNext": "This feature ships in the next phase"
+    "phaseNext": "This feature ships in the next phase",
+    "noResults": "No results.",
+    "totalRows": "{{count}} rows",
+    "rowsPerPage": "Rows per page",
+    "pageOf": "Page {{page}} of {{total}}"
   },
   "auth": {
     "loginTitle": "Login",
@@ -485,7 +489,8 @@
     "cancelled": "Appointment cancelled",
     "confirmCancelTitle": "Confirm Cancellation",
     "confirmCancelDesc": "Are you sure you want to cancel this appointment?",
-    "confirmCancelBtn": "Confirm Cancel"
+    "confirmCancelBtn": "Confirm Cancel",
+    "searchPlaceholder": "Search property…"
   },
   "map": {
     "subtitle": "View property locations on a map. Click a property to see it on the map.",

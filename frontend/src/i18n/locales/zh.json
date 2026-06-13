@@ -49,7 +49,7 @@
     "copy": "复制",
     "copied": "已复制",
     "confirm": "确认",
-    "search": "搜索",
+    "search": "搜索…",
     "noData": "未找到数据",
     "error": "发生错误",
     "close": "关闭",
@@ -63,7 +63,11 @@
     "role": "角色",
     "actions": "操作",
     "view": "查看",
-    "phaseNext": "此功能将在下个阶段上线"
+    "phaseNext": "此功能将在下个阶段上线",
+    "noResults": "无结果",
+    "totalRows": "{{count}} 行",
+    "rowsPerPage": "每页行数",
+    "pageOf": "第 {{page}} 页 / 共 {{total}} 页"
   },
   "auth": {
     "loginTitle": "登录",
@@ -485,7 +489,8 @@
     "cancelled": "预约已取消",
     "confirmCancelTitle": "确认取消预约",
     "confirmCancelDesc": "确定要取消此预约吗？",
-    "confirmCancelBtn": "确认取消"
+    "confirmCancelBtn": "确认取消",
+    "searchPlaceholder": "搜索房产…"
   },
   "map": {
     "subtitle": "在地图上查看房产位置，点击房产在地图上查看",

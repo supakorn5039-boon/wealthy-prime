@@ -1,17 +1,20 @@
+import { useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { type ColumnDef } from '@tanstack/react-table'
 import { BookingService } from '@/services/BookingService'
+import type { Booking } from '@/types/Booking'
 import { BookingStatusBadge } from '@/components/shared/StatusBadge'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { PageTitle } from '@/components/shared/PageTitle'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { PageContainer } from '@/components/shared/PageContainer'
+import { DataTable } from '@/components/shared/DataTable'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { formatDateTime } from '@/utils/date'
 
 export default function HistoryIndex() {
@@ -32,6 +35,57 @@ export default function HistoryIndex() {
     onError: () => toast.error(t('common.error')),
   })
 
+  const columns = useMemo<ColumnDef<Booking, unknown>[]>(
+    () => [
+      {
+        accessorKey: 'propertyTitle',
+        header: t('agent.propertyCol'),
+        cell: ({ row }) => (
+          <span className="font-medium">{row.original.propertyTitle ?? `#${row.original.propertyId}`}</span>
+        ),
+      },
+      {
+        accessorKey: 'appointmentDate',
+        header: t('agent.appointmentDate'),
+        cell: ({ row }) => formatDateTime(row.original.appointmentDate),
+        sortingFn: 'datetime',
+      },
+      {
+        accessorKey: 'agentName',
+        header: t('role.agent'),
+        cell: ({ row }) => row.original.agentName ?? '-',
+      },
+      {
+        accessorKey: 'status',
+        header: t('common.status'),
+        cell: ({ row }) => <BookingStatusBadge status={row.original.status} />,
+      },
+      {
+        id: 'actions',
+        header: () => <span className="sr-only">{t('common.actions')}</span>,
+        enableSorting: false,
+        cell: ({ row }) => {
+          if (row.original.status !== 'pending') return null
+          return (
+            <ConfirmDialog
+              trigger={
+                <Button size="sm" variant="outline" className="text-red-500">
+                  {t('common.cancel')}
+                </Button>
+              }
+              title={t('history.confirmCancelTitle')}
+              description={t('history.confirmCancelDesc')}
+              confirmLabel={t('history.confirmCancelBtn')}
+              destructive
+              onConfirm={() => cancelMutation.mutate(row.original.id)}
+            />
+          )
+        },
+      },
+    ],
+    [t, cancelMutation],
+  )
+
   return (
     <PageContainer size="7xl">
       <PageTitle title={t('history.title')} subtitle={t('history.subtitle')} />
@@ -42,44 +96,22 @@ export default function HistoryIndex() {
         <EmptyState
           title={t('history.empty')}
           description={t('history.emptyDesc')}
-          actions={<Link to="/"><Button variant="outline">{t('home.title')}</Button></Link>}
+          actions={
+            <Link to="/">
+              <Button variant="outline">{t('home.title')}</Button>
+            </Link>
+          }
         />
       ) : (
         <Card>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t('agent.propertyCol')}</TableHead>
-                  <TableHead>{t('agent.appointmentDate')}</TableHead>
-                  <TableHead>{t('role.agent')}</TableHead>
-                  <TableHead>{t('common.status')}</TableHead>
-                  <TableHead className="text-right">{t('common.actions')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {bookings.map((booking) => (
-                  <TableRow key={booking.id}>
-                    <TableCell className="font-medium">{booking.propertyTitle ?? `#${booking.propertyId}`}</TableCell>
-                    <TableCell>{formatDateTime(booking.appointmentDate)}</TableCell>
-                    <TableCell>{booking.agentName ?? '-'}</TableCell>
-                    <TableCell><BookingStatusBadge status={booking.status} /></TableCell>
-                    <TableCell className="text-right">
-                      {booking.status === 'pending' && (
-                        <ConfirmDialog
-                          trigger={<Button size="sm" variant="outline" className="text-red-500">{t('common.cancel')}</Button>}
-                          title={t('history.confirmCancelTitle')}
-                          description={t('history.confirmCancelDesc')}
-                          confirmLabel={t('history.confirmCancelBtn')}
-                          destructive
-                          onConfirm={() => cancelMutation.mutate(booking.id)}
-                        />
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+          <CardContent className="p-4">
+            <DataTable
+              columns={columns}
+              data={bookings}
+              searchPlaceholder={t('history.searchPlaceholder', 'Search property…')}
+              searchColumn="propertyTitle"
+              pageSize={10}
+            />
           </CardContent>
         </Card>
       )}
