@@ -46,6 +46,7 @@ export const API = {
   ADMIN_PENDING_USERS: '/admin/users/pending',
   ADMIN_USER_APPROVE: (id: number | string) => `/admin/users/${id}/approve`,
   ADMIN_USER_REJECT: (id: number | string) => `/admin/users/${id}/reject`,
+  ADMIN_BOOKINGS: '/admin/bookings',
   ADMIN_REASSIGN: (bookingId: number | string) => `/admin/bookings/${bookingId}/reassign`,
   ADMIN_FINANCIAL: '/admin/financial',
   ADMIN_FINANCIAL_EXPORT: '/admin/financial/export',

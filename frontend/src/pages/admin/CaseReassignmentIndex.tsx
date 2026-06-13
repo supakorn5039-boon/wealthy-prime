@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { ArrowLeftRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { AdminService } from "@/services/AdminService";
-import { BookingService } from "@/services/BookingService";
 import { BookingStatusBadge } from "@/components/shared/StatusBadge";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
@@ -38,8 +37,8 @@ export default function CaseReassignmentIndex() {
   >({});
 
   const { data: bookings = [], isLoading } = useQuery({
-    queryKey: [BookingService.QUERY_KEYS.LIST],
-    queryFn: BookingService.list,
+    queryKey: [AdminService.QUERY_KEYS.BOOKINGS],
+    queryFn: AdminService.listBookings,
   });
 
   const { data: agents = [] } = useQuery({
@@ -58,7 +57,7 @@ export default function CaseReassignmentIndex() {
     onSuccess: (_data, vars) => {
       toast.success(t("admin.reassignSuccess"));
       queryClient.invalidateQueries({
-        queryKey: [BookingService.QUERY_KEYS.LIST],
+        queryKey: [AdminService.QUERY_KEYS.BOOKINGS],
       });
       setSelectedAgentId((prev) => {
         const next = { ...prev };
@@ -70,9 +69,6 @@ export default function CaseReassignmentIndex() {
   });
 
   const agentOptions = agents.filter((a) => a.role === "agent");
-  const activeCases = bookings.filter(
-    (b) => b.status !== "cancelled" && b.status !== "completed",
-  );
 
   if (isLoading) return <LoadingSpinner text={t("common.loading")} />;
 
@@ -83,7 +79,7 @@ export default function CaseReassignmentIndex() {
         subtitle={t("admin.reassignSubtitle")}
       />
 
-      {activeCases.length === 0 ? (
+      {bookings.length === 0 ? (
         <EmptyState title={t("admin.noCases")} />
       ) : (
         <Card>
@@ -103,7 +99,7 @@ export default function CaseReassignmentIndex() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {activeCases.map((booking) => (
+                {bookings.map((booking) => (
                   <TableRow key={booking.id}>
                     <TableCell className="font-medium">
                       {booking.userName ?? `User #${booking.userId}`}

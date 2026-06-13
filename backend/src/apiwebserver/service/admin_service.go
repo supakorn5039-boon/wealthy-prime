@@ -93,6 +93,23 @@ func (s *AdminService) GetDashboard() (*AdminDashboard, error) {
 	}, nil
 }
 
+// ListBookings returns active bookings (pending + assigned) newest-first so
+// the admin reassignment queue stays bounded as completed/cancelled rows
+// accumulate over time.
+func (s *AdminService) ListBookings() ([]model.BookingDto, error) {
+	var bookings []model.Booking
+	if err := s.db.Preload("User").Preload("Property").Preload("AssignedAgent").
+		Where("status IN ?", []model.BookingStatus{model.BookingPending, model.BookingAssigned}).
+		Order("created_at DESC").Find(&bookings).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to list bookings")
+	}
+	dtos := make([]model.BookingDto, len(bookings))
+	for i, b := range bookings {
+		dtos[i] = *b.ToDto()
+	}
+	return dtos, nil
+}
+
 // ReassignBooking updates the assigned agent on a booking.
 func (s *AdminService) ReassignBooking(bookingID, agentID uint) (*model.BookingDto, error) {
 	var booking model.Booking

@@ -44,6 +44,7 @@ func (ctrl *AdminController) RegisterRoutes(r *gin.RouterGroup) {
 	admin.GET("/users/:id", ctrl.getUser)
 	admin.PUT("/users/:id", ctrl.updateUser)
 
+	admin.GET("/bookings", ctrl.listBookings)
 	admin.POST("/bookings/:id/reassign", ctrl.reassignBooking)
 
 	admin.GET("/financial", ctrl.getFinancial)
@@ -251,6 +252,15 @@ func (ctrl *AdminController) updateUser(c *gin.Context) {
 		return
 	}
 	successResponse(c, dto)
+}
+
+func (ctrl *AdminController) listBookings(c *gin.Context) {
+	dtos, err := ctrl.svc.ListBookings()
+	if err != nil {
+		errorResponse(c, err)
+		return
+	}
+	successResponse(c, dtos)
 }
 
 func (ctrl *AdminController) reassignBooking(c *gin.Context) {

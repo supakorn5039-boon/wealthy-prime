@@ -40,7 +40,8 @@ type CreateBookingsInput struct {
 	Whatsapp       string `json:"whatsapp"`
 }
 
-// CreateBookings creates one booking per property ID, auto-assigning the least-loaded agent.
+// CreateBookings creates one booking per property ID, always pending and
+// unassigned. The agent notification is deferred to the admin assign step.
 func (s *BookingService) CreateBookings(userID uint, input CreateBookingsInput) ([]model.BookingDto, error) {
 	var results []model.BookingDto
 
@@ -55,24 +56,13 @@ func (s *BookingService) CreateBookings(userID uint, input CreateBookingsInput) 
 			return nil, apperror.Wrap(err, 500, "database error fetching property")
 		}
 
-		// The agent who listed the property is the one responsible for the
-		// viewing — assign to them directly. Admin can reassign later if needed.
-		// The real-estate owner (Property.OwnerInfo) is intentionally not
-		// emailed; only the listing agent gets the company notification.
-		agentID := property.AgentID
-
-		status := model.BookingPending
-		if agentID != nil {
-			status = model.BookingAssigned
-		}
-
 		booking := model.Booking{
 			UserID:          userID,
 			PropertyID:      propertyID,
 			AppointmentDate: input.AppointmentDate,
 			Note:            input.Note,
-			Status:          status,
-			AssignedAgentID: agentID,
+			Status:          model.BookingPending,
+			AssignedAgentID: nil,
 			FirstName:       input.FirstName,
 			LastName:        input.LastName,
 			Phone:           input.Phone,
@@ -96,9 +86,6 @@ func (s *BookingService) CreateBookings(userID uint, input CreateBookingsInput) 
 			return nil, apperror.Wrap(err, 500, "failed to reload booking")
 		}
 
-		// Fire-and-forget notifications to BOTH the assigned agent and the
-		// customer. Booking creation already succeeded — email failures must
-		// not roll it back.
 		s.notifyAppointmentAsync(full)
 
 		results = append(results, *full.ToDto())
@@ -107,36 +94,18 @@ func (s *BookingService) CreateBookings(userID uint, input CreateBookingsInput) 
 	return results, nil
 }
 
-// notifyAppointmentAsync fires both the LISTING AGENT notification and the
-// CUSTOMER confirmation on a goroutine after a booking is created. The
-// "listing agent" is the agent who posted the property — they receive a
-// company-branded notification of the viewing request. The property's real
-// owner is NOT emailed. Panics swallowed + logged so SMTP failures don't
-// roll back the booking.
+// notifyAppointmentAsync sends the customer confirmation off the request
+// path. SMTP failures must not roll the booking back, so panics are recovered
+// + logged. An empty User is passed for the agent — the template omits agent
+// rows when fields are blank.
 func (s *BookingService) notifyAppointmentAsync(b model.Booking) {
 	go func(b model.Booking) {
 		defer func() {
 			if r := recover(); r != nil {
-				log.Printf("[email] panic while sending booking %d notifications: %v", b.ID, r)
+				log.Printf("[email] panic while sending booking %d customer confirmation: %v", b.ID, r)
 			}
 		}()
-		// Listing agent notification.
-		if b.AssignedAgent != nil && b.AssignedAgent.Email != "" {
-			if msg, err := email.BuildAppointmentNotification(&b, b.AssignedAgent); err != nil {
-				log.Printf("[email] failed to build booking %d agent notification: %v", b.ID, err)
-			} else if err := s.mailer.Send(msg); err != nil {
-				log.Printf("[email] failed to send booking %d agent notification: %v", b.ID, err)
-			} else {
-				log.Printf("[email] booking %d agent notification sent to %s (bcc=%q)", b.ID, msg.To, msg.Bcc)
-			}
-		} else {
-			log.Printf("[email] booking %d has no listing agent with an email — skipping agent notification", b.ID)
-		}
-		// Customer confirmation.
-		agent := b.AssignedAgent
-		if agent == nil {
-			agent = &model.User{} // empty fields → template omits agent rows
-		}
+		agent := &model.User{}
 		if msg, err := email.BuildAppointmentConfirmation(&b, agent); err != nil {
 			log.Printf("[email] skipping booking %d customer confirmation: %v", b.ID, err)
 		} else if err := s.mailer.Send(msg); err != nil {

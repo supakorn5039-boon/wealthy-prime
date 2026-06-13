@@ -1,6 +1,7 @@
 import { fetchClient } from '@/utils/axios'
 import { API } from '@/constants/ApiRoutes'
 import type { AuthUser } from '@/types/Auth'
+import type { Booking } from '@/types/Booking'
 import type { Property } from '@/types/Property'
 import type { ApiResponse } from '@/types/Commons'
 
@@ -32,6 +33,7 @@ export const AdminService = {
     PENDING_USERS: 'admin-pending-users',
     AGENTS: 'admin-agents',
     USERS: 'admin-users',
+    BOOKINGS: 'admin-bookings',
     FINANCIAL: 'admin-financial',
   },
 
@@ -83,6 +85,11 @@ export const AdminService = {
 
   updateUser: async (id: number | string, payload: Partial<AuthUser>): Promise<AuthUser> => {
     const res = await fetchClient.put<ApiResponse<AuthUser>>(API.ADMIN_USER_DETAIL(id), payload)
+    return res.data.data
+  },
+
+  listBookings: async (): Promise<Booking[]> => {
+    const res = await fetchClient.get<ApiResponse<Booking[]>>(API.ADMIN_BOOKINGS)
     return res.data.data
   },
 
