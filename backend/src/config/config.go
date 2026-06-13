@@ -76,12 +76,23 @@ type MailjetConfig struct {
 
 func (m MailjetConfig) Enabled() bool { return m.APIKey != "" && m.APISecret != "" }
 
+// ResendConfig drives the Resend HTTPS sender. Resend hosts on Cloudflare's
+// network, which has reliably worked from Render where Mailjet's GCP-hosted
+// endpoint suffers TCP resets. Requires a verified sending domain (DKIM/SPF)
+// configured in the Resend dashboard. Takes precedence over Mailjet.
+type ResendConfig struct {
+	APIKey string
+}
+
+func (r ResendConfig) Enabled() bool { return r.APIKey != "" }
+
 type AppConfig struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	CORS     CORSConfig
 	SMTP     SMTPConfig
 	Mailjet  MailjetConfig
+	Resend   ResendConfig
 	R2       R2Config
 }
 
@@ -201,6 +212,8 @@ func Load(path string) {
 
 	App.Mailjet.APIKey = strings.TrimSpace(os.Getenv("MAILJET_API_KEY"))
 	App.Mailjet.APISecret = strings.TrimSpace(os.Getenv("MAILJET_API_SECRET"))
+
+	App.Resend.APIKey = strings.TrimSpace(os.Getenv("RESEND_API_KEY"))
 
 	App.R2.AccountID = strings.TrimSpace(os.Getenv("R2_ACCOUNT_ID"))
 	App.R2.Bucket = strings.TrimSpace(os.Getenv("R2_BUCKET"))

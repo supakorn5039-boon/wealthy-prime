@@ -22,11 +22,16 @@ type Message struct {
 	TextBody string
 }
 
-// New picks an implementation based on config:
-//   - MAILJET_API_KEY + SECRET set → mailjetSender (HTTPS, works where SMTP is blocked)
-//   - SMTP host + password         → smtpSender (raw SMTP, may be blocked on PaaS)
-//   - Otherwise                    → logSender (prints to stdout, dev fallback)
+// New picks an implementation based on config, in priority order:
+//   - RESEND_API_KEY set            → resendSender (HTTPS via Cloudflare; reliable from Render)
+//   - MAILJET_API_KEY + SECRET set  → mailjetSender (HTTPS via GCP; suffers TCP resets from Render)
+//   - SMTP host + password          → smtpSender (raw SMTP, may be blocked on PaaS)
+//   - Otherwise                     → logSender (prints to stdout, dev fallback)
 func New() Sender {
+	if config.App.Resend.Enabled() {
+		log.Println("[email] using Resend sender (HTTPS)")
+		return newResendSender(config.App.Resend.APIKey, config.App.SMTP)
+	}
 	if config.App.Mailjet.Enabled() {
 		log.Println("[email] using Mailjet sender (HTTPS)")
 		return newMailjetSender(config.App.Mailjet.APIKey, config.App.Mailjet.APISecret, config.App.SMTP)
