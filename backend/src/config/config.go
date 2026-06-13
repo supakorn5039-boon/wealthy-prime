@@ -48,21 +48,22 @@ type SMTPConfig struct {
 // Empty password → fall back to log-only sender instead.
 func (s SMTPConfig) Enabled() bool { return s.Host != "" && s.Password != "" }
 
-// ResendConfig drives the Resend HTTPS sender. Used in environments where
-// raw SMTP egress is blocked (e.g. Render). When APIKey is set, this takes
-// precedence over SMTPConfig in email.New().
-type ResendConfig struct {
+// BrevoConfig drives the Brevo HTTPS sender. Used in environments where
+// raw SMTP egress is blocked (e.g. Render). Brevo allows single-sender
+// verification, so no custom domain is required. When APIKey is set, this
+// takes precedence over SMTPConfig in email.New().
+type BrevoConfig struct {
 	APIKey string
 }
 
-func (r ResendConfig) Enabled() bool { return r.APIKey != "" }
+func (b BrevoConfig) Enabled() bool { return b.APIKey != "" }
 
 type AppConfig struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	CORS     CORSConfig
 	SMTP     SMTPConfig
-	Resend   ResendConfig
+	Brevo    BrevoConfig
 }
 
 var App AppConfig
@@ -179,7 +180,7 @@ func Load(path string) {
 		App.SMTP.NotificationBcc = strings.TrimSpace(v)
 	}
 
-	App.Resend.APIKey = strings.TrimSpace(os.Getenv("RESEND_API_KEY"))
+	App.Brevo.APIKey = strings.TrimSpace(os.Getenv("BREVO_API_KEY"))
 }
 
 func buildDSN() string {
