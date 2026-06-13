@@ -101,7 +101,8 @@
 }
 
 .react-datepicker__time-container .react-datepicker__time-list-item:hover {
-  background-color: hsl(var(--primary) / 0.2);
+  background-color: hsl(var(--primary) / 0.2) !important;
+  color: hsl(var(--foreground)) !important;
 }
 
 .react-datepicker__time-container .react-datepicker__time-list-item--selected {

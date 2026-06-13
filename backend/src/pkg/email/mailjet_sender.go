@@ -79,12 +79,13 @@ func (s *mailjetSender) Send(msg Message) error {
 		return fmt.Errorf("mailjet marshal: %w", err)
 	}
 
-	// Retry once on transient network errors (connection reset, EOF). Render's
-	// outbound networking occasionally drops connections mid-response even on
-	// fresh sockets. Don't retry on HTTP error responses — those mean Mailjet
-	// rejected and a retry would duplicate the email.
+	// Retry on transient network errors (connection reset, EOF). Render's
+	// outbound networking frequently drops connections to Mailjet mid-response.
+	// Don't retry on HTTP error responses — those mean Mailjet rejected and a
+	// retry would duplicate the email.
+	backoffs := []time.Duration{500 * time.Millisecond, 1500 * time.Millisecond, 4 * time.Second}
 	var lastErr error
-	for attempt := 1; attempt <= 2; attempt++ {
+	for attempt := 0; attempt < len(backoffs)+1; attempt++ {
 		req, err := http.NewRequest("POST", "https://api.mailjet.com/v3.1/send", bytes.NewReader(raw))
 		if err != nil {
 			return fmt.Errorf("mailjet build request: %w", err)
@@ -95,11 +96,11 @@ func (s *mailjetSender) Send(msg Message) error {
 		resp, err := s.client.Do(req)
 		if err != nil {
 			lastErr = err
-			if attempt == 1 && isTransientNetErr(err) {
-				time.Sleep(500 * time.Millisecond)
+			if attempt < len(backoffs) && isTransientNetErr(err) {
+				time.Sleep(backoffs[attempt])
 				continue
 			}
-			return fmt.Errorf("mailjet post to %s: %w", msg.To, err)
+			return fmt.Errorf("mailjet post to %s after %d attempts: %w", msg.To, attempt+1, err)
 		}
 		defer resp.Body.Close()
 
@@ -109,7 +110,7 @@ func (s *mailjetSender) Send(msg Message) error {
 		}
 		return nil
 	}
-	return fmt.Errorf("mailjet post to %s: %w", msg.To, lastErr)
+	return fmt.Errorf("mailjet post to %s after retries: %w", msg.To, lastErr)
 }
 
 func isTransientNetErr(err error) bool {
