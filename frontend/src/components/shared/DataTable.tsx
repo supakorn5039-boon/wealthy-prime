@@ -71,7 +71,7 @@ export function DataTable<T>({
     initialState: { pagination: { pageSize } },
   })
 
-  const placeholder = searchPlaceholder ?? t('common.search', 'Search…')
+  const placeholder = searchPlaceholder ?? t('common.search')
   const onSearchChange = (v: string) => (searchColumn ? setColumnFilter(v) : setGlobalFilter(v))
   const searchValue = searchColumn ? columnFilter : globalFilter
 
@@ -85,7 +85,7 @@ export function DataTable<T>({
           className="max-w-xs"
         />
         <div className="text-sm text-muted-foreground">
-          {t('common.totalRows', '{{count}} rows', { count: table.getFilteredRowModel().rows.length })}
+          {t('common.totalRows', { count: table.getFilteredRowModel().rows.length })}
         </div>
       </div>
 
@@ -120,7 +120,7 @@ export function DataTable<T>({
             {table.getRowModel().rows.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
-                  {emptyMessage ?? t('common.noResults', 'No results.')}
+                  {emptyMessage ?? t('common.noResults')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -140,7 +140,7 @@ export function DataTable<T>({
 
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>{t('common.rowsPerPage', 'Rows per page')}</span>
+          <span>{t('common.rowsPerPage')}</span>
           <Select
             value={String(table.getState().pagination.pageSize)}
             onValueChange={(v) => table.setPageSize(Number(v))}
@@ -159,7 +159,7 @@ export function DataTable<T>({
         </div>
         <div className="flex items-center gap-3 text-sm text-muted-foreground">
           <span>
-            {t('common.pageOf', 'Page {{page}} of {{total}}', {
+            {t('common.pageOf', {
               page: table.getState().pagination.pageIndex + 1,
               total: table.getPageCount() || 1,
             })}

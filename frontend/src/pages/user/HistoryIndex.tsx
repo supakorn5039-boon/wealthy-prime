@@ -26,7 +26,7 @@ export default function HistoryIndex() {
     queryFn: BookingService.list,
   })
 
-  const cancelMutation = useMutation({
+  const { mutate: cancelBooking } = useMutation({
     mutationFn: BookingService.cancel,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [BookingService.QUERY_KEYS.LIST] })
@@ -77,13 +77,13 @@ export default function HistoryIndex() {
               description={t('history.confirmCancelDesc')}
               confirmLabel={t('history.confirmCancelBtn')}
               destructive
-              onConfirm={() => cancelMutation.mutate(row.original.id)}
+              onConfirm={() => cancelBooking(row.original.id)}
             />
           )
         },
       },
     ],
-    [t, cancelMutation],
+    [t, cancelBooking],
   )
 
   return (
@@ -108,7 +108,7 @@ export default function HistoryIndex() {
             <DataTable
               columns={columns}
               data={bookings}
-              searchPlaceholder={t('history.searchPlaceholder', 'Search property…')}
+              searchPlaceholder={t('history.searchPlaceholder')}
               searchColumn="propertyTitle"
               pageSize={10}
             />
