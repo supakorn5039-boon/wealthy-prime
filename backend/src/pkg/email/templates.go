@@ -126,7 +126,7 @@ var confirmHTMLTpl = template.Must(template.New("confirm_html").Parse(`<!doctype
   <table cellpadding="6" style="border-collapse:collapse; font-size:14px;">
     <tr><td><strong>ทรัพย์</strong></td><td>{{.PropertyTitle}}{{if .PropertyCode}} <span style="color:#888;">(รหัส {{.PropertyCode}})</span>{{end}}</td></tr>
     <tr><td><strong>วันนัดหมาย</strong></td><td>{{.Appointment}}</td></tr>
-    <tr><td><strong>ตัวแทนที่ดูแล</strong></td><td>{{.AgentName}}</td></tr>
+    {{if .AgentName}}<tr><td><strong>ตัวแทนที่ดูแล</strong></td><td>{{.AgentName}}</td></tr>{{end}}
     {{if .AgentPhone}}<tr><td><strong>เบอร์ตัวแทน</strong></td><td>{{.AgentPhone}}</td></tr>{{end}}
     {{if .AgentEmail}}<tr><td><strong>อีเมลตัวแทน</strong></td><td>{{.AgentEmail}}</td></tr>{{end}}
     {{if .Note}}<tr><td><strong>หมายเหตุ</strong></td><td>{{.Note}}</td></tr>{{end}}
@@ -144,8 +144,8 @@ var confirmTextTpl = template.Must(template.New("confirm_text").Parse(`สวั
 เราได้รับการนัดหมายชมทรัพย์ของคุณเรียบร้อยแล้ว:
 
 ทรัพย์: {{.PropertyTitle}}{{if .PropertyCode}} (รหัส {{.PropertyCode}}){{end}}
-วันนัดหมาย: {{.Appointment}}
-ตัวแทนที่ดูแล: {{.AgentName}}{{if .AgentPhone}}
+วันนัดหมาย: {{.Appointment}}{{if .AgentName}}
+ตัวแทนที่ดูแล: {{.AgentName}}{{end}}{{if .AgentPhone}}
 เบอร์ตัวแทน: {{.AgentPhone}}{{end}}{{if .AgentEmail}}
 อีเมลตัวแทน: {{.AgentEmail}}{{end}}{{if .Note}}
 หมายเหตุ: {{.Note}}{{end}}
