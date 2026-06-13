@@ -47,6 +47,16 @@ export const useCartStore = create<CartState>()(
       name: 'wealthy-prime-cart',
       storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({ items: state.items }),
+      // Date round-trips through JSON as a string; rehydrate so DatePicker
+      // and .toISOString() don't crash with "getFullYear is not a function".
+      onRehydrateStorage: () => (state) => {
+        if (!state) return
+        state.items = state.items.map((i) => ({
+          ...i,
+          appointmentDate:
+            typeof i.appointmentDate === 'string' ? new Date(i.appointmentDate) : i.appointmentDate,
+        }))
+      },
     }
   )
 )
