@@ -13,9 +13,9 @@ import (
 // numeric token becomes an array element. Empty / NULL / non-numeric rows
 // land as an empty array.
 func migrateBtsMrtToArray(db *gorm.DB) error {
-	// Skip the ALTER if the column is already integer[] (idempotent across
-	// restarts and fresh databases where AutoMigrate has already created
-	// the column with the new type).
+	// On a fresh database the properties table doesn't exist yet — AutoMigrate
+	// will create the column directly as integer[]. Bail out so we don't try
+	// to ALTER / CREATE INDEX against a non-existent table.
 	var dataType string
 	if err := db.Raw(`
 		SELECT data_type
@@ -23,6 +23,9 @@ func migrateBtsMrtToArray(db *gorm.DB) error {
 		WHERE table_name = 'properties' AND column_name = 'bts_mrt'
 	`).Scan(&dataType).Error; err != nil {
 		return err
+	}
+	if dataType == "" {
+		return nil
 	}
 
 	if dataType != "ARRAY" {

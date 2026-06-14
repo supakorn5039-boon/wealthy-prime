@@ -13,11 +13,14 @@ func Run(db *gorm.DB) {
 	if err := migrateUsers(db); err != nil {
 		log.Fatalf("[migration] users: %v", err)
 	}
-	if err := migrateProperties(db); err != nil {
-		log.Fatalf("[migration] properties: %v", err)
-	}
+	// Must run before migrateProperties: GORM's AutoMigrate would otherwise
+	// emit a naive `USING "bts_mrt"::integer[]` cast that fails on legacy
+	// varchar rows (empty string / CSV). See 2026_06_13_00_alter_bts_mrt_array.go.
 	if err := migrateBtsMrtToArray(db); err != nil {
 		log.Fatalf("[migration] bts_mrt → integer[]: %v", err)
+	}
+	if err := migrateProperties(db); err != nil {
+		log.Fatalf("[migration] properties: %v", err)
 	}
 	if err := migrateBookings(db); err != nil {
 		log.Fatalf("[migration] bookings: %v", err)
