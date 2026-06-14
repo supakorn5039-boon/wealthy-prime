@@ -275,7 +275,7 @@ export default function HomeIndex() {
             {/* Map: 50% on lg+, sticky to viewport. Mobile shows it above the list. */}
             <div className="order-first lg:order-last">
               <div className="lg:sticky lg:top-4">
-                <div className="rounded-md overflow-hidden border border-border h-[320px] lg:h-[calc(100vh-6rem)]">
+                <div className="isolate rounded-md overflow-hidden border border-border h-[320px] lg:h-[calc(100vh-6rem)]">
                   <MapContainer
                     center={[13.7563, 100.5018]}
                     zoom={12}
