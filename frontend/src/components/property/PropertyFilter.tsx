@@ -18,7 +18,6 @@ interface PropertyFilterProps {
   initialValues?: PropertyListParams
 }
 
-// Stations grouped by line, preserving the array order so headers render in the listing order.
 const STATIONS_BY_LINE: readonly { line: BtsMrtLine; stations: readonly BtsMrtStation[] }[] = (() => {
   const order: BtsMrtLine[] = []
   const grouped = new Map<BtsMrtLine, BtsMrtStation[]>()
@@ -48,29 +47,41 @@ function presetIdsFromRanges(ranges?: { min?: number; max?: number }[]): string[
     .filter((id): id is string => !!id)
 }
 
-// Reusable multi-select dropdown for the filter pill. Renders via portal so
-// it can never be clipped or covered by sibling stacking contexts (e.g. the
-// Leaflet map below the hero).
+interface MultiPickOption<T> {
+  value: T
+  label: string
+}
+interface MultiPickGroup<T> {
+  header: string
+  options: MultiPickOption<T>[]
+}
+
+// Portal-rendered so it can't be clipped or covered by sibling stacking contexts
+// (e.g. the Leaflet map below the hero). Either flat `options` or grouped `groups`.
 interface MultiPickProps<T extends string | number> {
   allLabel: string
-  selectedCountLabel: string
-  options: { value: T; label: string }[]
+  selectedLabel: string
   selected: T[]
   onToggle: (value: T) => void
   onClear: () => void
+  options?: MultiPickOption<T>[]
+  groups?: MultiPickGroup<T>[]
   disabled?: boolean
-  cellClassName?: string
+  minWidth?: number
+  align?: 'left' | 'right'
 }
 
 function MultiPick<T extends string | number>({
   allLabel,
-  selectedCountLabel,
-  options,
+  selectedLabel,
   selected,
   onToggle,
   onClear,
+  options,
+  groups,
   disabled,
-  cellClassName,
+  minWidth = 220,
+  align = 'left',
 }: MultiPickProps<T>) {
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLButtonElement | null>(null)
@@ -80,12 +91,13 @@ function MultiPick<T extends string | number>({
   useLayoutEffect(() => {
     if (!open || !triggerRef.current) return
     const rect = triggerRef.current.getBoundingClientRect()
+    const w = Math.max(rect.width, minWidth)
     setPosition({
       top: rect.bottom + window.scrollY + 4,
-      left: rect.left + window.scrollX,
-      width: Math.max(rect.width, 220),
+      left: align === 'right' ? rect.right + window.scrollX - w : rect.left + window.scrollX,
+      width: w,
     })
-  }, [open])
+  }, [open, align, minWidth])
 
   useEffect(() => {
     if (!open) return
@@ -99,14 +111,40 @@ function MultiPick<T extends string | number>({
     return () => document.removeEventListener('mousedown', onClick)
   }, [open])
 
-  const triggerLabel = (() => {
-    if (selected.length === 0) return allLabel
-    if (selected.length === 1) {
-      return options.find((o) => o.value === selected[0])?.label ?? allLabel
-    }
-    return selectedCountLabel
-  })()
+  const flatOptions = options ?? groups?.flatMap((g) => g.options) ?? []
+  const triggerText =
+    selected.length === 0
+      ? allLabel
+      : selected.length === 1
+        ? flatOptions.find((o) => o.value === selected[0])?.label ?? allLabel
+        : selectedLabel
   const allChecked = selected.length === 0
+
+  const checkbox = (checked: boolean) => (
+    <span
+      className={cn(
+        'h-4 w-4 rounded border flex items-center justify-center shrink-0',
+        checked ? 'bg-primary border-primary' : 'border-input',
+      )}
+    >
+      {checked && <Check className="h-3 w-3 text-primary-foreground" />}
+    </span>
+  )
+
+  const renderItem = (opt: MultiPickOption<T>) => {
+    const checked = selected.includes(opt.value)
+    return (
+      <button
+        type="button"
+        key={String(opt.value)}
+        onClick={() => onToggle(opt.value)}
+        className="flex items-center gap-2 w-full px-2 py-1.5 rounded hover:bg-muted text-sm text-left"
+      >
+        {checkbox(checked)}
+        <span className="truncate">{opt.label}</span>
+      </button>
+    )
+  }
 
   return (
     <>
@@ -118,10 +156,9 @@ function MultiPick<T extends string | number>({
         className={cn(
           'flex h-14 w-full items-center justify-between px-4 text-sm font-medium hover:bg-muted/40 disabled:opacity-50 disabled:cursor-not-allowed',
           selected.length === 0 && 'text-muted-foreground',
-          cellClassName,
         )}
       >
-        <span className="truncate">{triggerLabel}</span>
+        <span className="truncate">{triggerText}</span>
         <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ml-2" />
       </button>
       {open && position && createPortal(
@@ -134,51 +171,34 @@ function MultiPick<T extends string | number>({
             width: position.width,
             zIndex: 1000,
           }}
-          className="max-h-80 overflow-y-auto rounded-md border border-border bg-popover shadow-lg"
+          className="max-h-96 overflow-y-auto rounded-md border border-border bg-popover shadow-lg p-1"
         >
-          <div className="p-1">
-            <button
-              type="button"
-              onClick={onClear}
-              className="flex items-center gap-2 w-full px-2 py-1.5 rounded hover:bg-muted text-sm text-left font-medium border-b border-border/60 mb-1"
-            >
-              <span
-                className={cn(
-                  'h-4 w-4 rounded border flex items-center justify-center shrink-0',
-                  allChecked ? 'bg-primary border-primary' : 'border-input',
-                )}
-              >
-                {allChecked && <Check className="h-3 w-3 text-primary-foreground" />}
-              </span>
-              <span className="truncate">{allLabel}</span>
-            </button>
-            {options.map((opt) => {
-              const checked = selected.includes(opt.value)
-              return (
-                <button
-                  type="button"
-                  key={String(opt.value)}
-                  onClick={() => onToggle(opt.value)}
-                  className="flex items-center gap-2 w-full px-2 py-1.5 rounded hover:bg-muted text-sm text-left"
-                >
-                  <span
-                    className={cn(
-                      'h-4 w-4 rounded border flex items-center justify-center shrink-0',
-                      checked ? 'bg-primary border-primary' : 'border-input',
-                    )}
-                  >
-                    {checked && <Check className="h-3 w-3 text-primary-foreground" />}
-                  </span>
-                  <span className="truncate">{opt.label}</span>
-                </button>
-              )
-            })}
-          </div>
+          <button
+            type="button"
+            onClick={onClear}
+            className="flex items-center gap-2 w-full px-2 py-1.5 rounded hover:bg-muted text-sm text-left font-medium border-b border-border/60 mb-1"
+          >
+            {checkbox(allChecked)}
+            <span className="truncate">{allLabel}</span>
+          </button>
+          {options?.map(renderItem)}
+          {groups?.map((g) => (
+            <div key={g.header}>
+              <div className="sticky top-0 z-10 bg-popover px-3 py-1.5 text-xs font-semibold text-primary border-b border-border">
+                {g.header}
+              </div>
+              {g.options.map(renderItem)}
+            </div>
+          ))}
         </div>,
         document.body,
       )}
     </>
   )
+}
+
+function toggleArray<T>(prev: T[], value: T): T[] {
+  return prev.includes(value) ? prev.filter((x) => x !== value) : [...prev, value]
 }
 
 export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps) {
@@ -190,45 +210,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
   const [provinces, setProvinces] = useState<string[]>(initialValues?.provinces ?? [])
   const [districts, setDistricts] = useState<string[]>(initialValues?.districts ?? [])
   const [stationIds, setStationIds] = useState<number[]>(initialValues?.btsMrtIds ?? [])
-  const [stationsOpen, setStationsOpen] = useState(false)
-  const stationsTriggerRef = useRef<HTMLButtonElement | null>(null)
-  const stationsMenuRef = useRef<HTMLDivElement | null>(null)
-  const [stationsPos, setStationsPos] = useState<{ top: number; left: number; width: number } | null>(null)
 
-  useEffect(() => setTypes(initialValues?.types ?? []), [initialValues?.types])
-  useEffect(() => setSearch(initialValues?.search ?? ''), [initialValues?.search])
-  useEffect(() => setKinds(initialValues?.kinds ?? []), [initialValues?.kinds])
-  useEffect(() => setProvinces(initialValues?.provinces ?? []), [initialValues?.provinces])
-  useEffect(() => setDistricts(initialValues?.districts ?? []), [initialValues?.districts])
-  useEffect(
-    () => setPriceIds(presetIdsFromRanges(initialValues?.priceRanges)),
-    [initialValues?.priceRanges],
-  )
-  useEffect(() => setStationIds(initialValues?.btsMrtIds ?? []), [initialValues?.btsMrtIds])
-
-  useLayoutEffect(() => {
-    if (!stationsOpen || !stationsTriggerRef.current) return
-    const rect = stationsTriggerRef.current.getBoundingClientRect()
-    setStationsPos({
-      top: rect.bottom + window.scrollY + 4,
-      left: rect.right + window.scrollX - 288,
-      width: 288,
-    })
-  }, [stationsOpen])
-
-  useEffect(() => {
-    if (!stationsOpen) return
-    const onClick = (e: MouseEvent) => {
-      const t = e.target as Node
-      if (stationsTriggerRef.current?.contains(t)) return
-      if (stationsMenuRef.current?.contains(t)) return
-      setStationsOpen(false)
-    }
-    document.addEventListener('mousedown', onClick)
-    return () => document.removeEventListener('mousedown', onClick)
-  }, [stationsOpen])
-
-  // Districts: union of all districts across the selected provinces.
   const districtOptions = useMemo(() => {
     if (provinces.length === 0) return [] as string[]
     const set = new Set<string>()
@@ -238,10 +220,48 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     return Array.from(set)
   }, [provinces])
 
-  // Drop selected districts that no longer belong to any selected province.
   useEffect(() => {
-    setDistricts((prev) => prev.filter((d) => districtOptions.includes(d)))
+    setDistricts((prev) => {
+      const next = prev.filter((d) => districtOptions.includes(d))
+      return next.length === prev.length ? prev : next
+    })
   }, [districtOptions])
+
+  const kindOptions = useMemo<MultiPickOption<PropertyKind>[]>(
+    () => [
+      { value: 'condo', label: t('property.kind.condo') },
+      { value: 'house', label: t('property.kind.house') },
+      { value: 'townhouse', label: t('property.kind.townhouse') },
+    ],
+    [t],
+  )
+  const typeOptions = useMemo<MultiPickOption<PropertyType>[]>(
+    () => [
+      { value: 'buy', label: t('home.filterBuy') },
+      { value: 'rent', label: t('home.filterRent') },
+    ],
+    [t],
+  )
+  const priceOptions = useMemo<MultiPickOption<string>[]>(
+    () => PRICE_PRESETS.map((p) => ({ value: p.id, label: p.label })),
+    [],
+  )
+  const provinceOptions = useMemo<MultiPickOption<string>[]>(
+    () => PROVINCES.map((p) => ({ value: p, label: p })),
+    [],
+  )
+  const districtOptionItems = useMemo<MultiPickOption<string>[]>(
+    () => districtOptions.map((d) => ({ value: d, label: d })),
+    [districtOptions],
+  )
+  const stationGroups = useMemo<MultiPickGroup<number>[]>(
+    () =>
+      STATIONS_BY_LINE.map(({ line, stations }) => ({
+        header: t(`home.btsMrtLine.${line}`),
+        options: stations.map((s) => ({ value: s.id, label: s.name })),
+      })),
+    [t],
+  )
 
   const applyFilters = () => {
     const priceRanges = priceIds
@@ -280,11 +300,8 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
       stationIds.length,
   )
 
-  const toggle = <T,>(setter: React.Dispatch<React.SetStateAction<T[]>>) =>
-    (value: T) =>
-      setter((prev) => (prev.includes(value) ? prev.filter((x) => x !== value) : [...prev, value]))
-
   const countLabel = (n: number) => t('home.filterSelectedCount', { count: n })
+  const stationCountLabel = t('home.btsMrtSelected', { count: stationIds.length })
   const allLabel = t('home.filterAll')
 
   return (
@@ -293,145 +310,55 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 lg:divide-x lg:divide-border">
         <MultiPick<PropertyKind>
           allLabel={allLabel}
-          selectedCountLabel={countLabel(kinds.length)}
-          options={[
-            { value: 'condo', label: t('property.kind.condo') },
-            { value: 'house', label: t('property.kind.house') },
-            { value: 'townhouse', label: t('property.kind.townhouse') },
-          ]}
+          selectedLabel={countLabel(kinds.length)}
+          options={kindOptions}
           selected={kinds}
-          onToggle={toggle(setKinds)}
+          onToggle={(v) => setKinds((p) => toggleArray(p, v))}
           onClear={() => setKinds([])}
         />
-
         <MultiPick<PropertyType>
           allLabel={allLabel}
-          selectedCountLabel={countLabel(types.length)}
-          options={[
-            { value: 'buy', label: t('home.filterBuy') },
-            { value: 'rent', label: t('home.filterRent') },
-          ]}
+          selectedLabel={countLabel(types.length)}
+          options={typeOptions}
           selected={types}
-          onToggle={toggle(setTypes)}
+          onToggle={(v) => setTypes((p) => toggleArray(p, v))}
           onClear={() => setTypes([])}
         />
-
         <MultiPick<string>
           allLabel={allLabel}
-          selectedCountLabel={countLabel(priceIds.length)}
-          options={PRICE_PRESETS.map((p) => ({ value: p.id, label: p.label }))}
+          selectedLabel={countLabel(priceIds.length)}
+          options={priceOptions}
           selected={priceIds}
-          onToggle={toggle(setPriceIds)}
+          onToggle={(v) => setPriceIds((p) => toggleArray(p, v))}
           onClear={() => setPriceIds([])}
         />
-
         <MultiPick<string>
           allLabel={allLabel}
-          selectedCountLabel={countLabel(provinces.length)}
-          options={PROVINCES.map((p) => ({ value: p, label: p }))}
+          selectedLabel={countLabel(provinces.length)}
+          options={provinceOptions}
           selected={provinces}
-          onToggle={toggle(setProvinces)}
+          onToggle={(v) => setProvinces((p) => toggleArray(p, v))}
           onClear={() => setProvinces([])}
         />
-
         <MultiPick<string>
           allLabel={allLabel}
-          selectedCountLabel={countLabel(districts.length)}
-          options={districtOptions.map((d) => ({ value: d, label: d }))}
+          selectedLabel={countLabel(districts.length)}
+          options={districtOptionItems}
           selected={districts}
-          onToggle={toggle(setDistricts)}
+          onToggle={(v) => setDistricts((p) => toggleArray(p, v))}
           onClear={() => setDistricts([])}
           disabled={provinces.length === 0}
         />
-
-        <div className="relative">
-          <button
-            ref={stationsTriggerRef}
-            type="button"
-            onClick={() => setStationsOpen((v) => !v)}
-            className={cn(
-              'flex h-14 w-full items-center justify-between px-4 text-sm font-medium hover:bg-muted/40',
-              stationIds.length === 0 && 'text-muted-foreground',
-            )}
-          >
-            <span className="truncate">
-              {stationIds.length === 0
-                ? allLabel
-                : t('home.btsMrtSelected', { count: stationIds.length })}
-            </span>
-            <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ml-2" />
-          </button>
-          {stationsOpen && stationsPos && createPortal(
-            <div
-              ref={stationsMenuRef}
-              style={{
-                position: 'absolute',
-                top: stationsPos.top,
-                left: stationsPos.left,
-                width: stationsPos.width,
-                zIndex: 1000,
-              }}
-              className="max-h-96 overflow-y-auto rounded-md border border-border bg-popover shadow-lg"
-            >
-              <div className="p-1 border-b border-border/60">
-                <button
-                  type="button"
-                  onClick={() => setStationIds([])}
-                  className="flex items-center gap-2 w-full px-2 py-1.5 rounded hover:bg-muted text-sm text-left font-medium"
-                >
-                  <span
-                    className={cn(
-                      'h-4 w-4 rounded border flex items-center justify-center shrink-0',
-                      stationIds.length === 0 ? 'bg-primary border-primary' : 'border-input',
-                    )}
-                  >
-                    {stationIds.length === 0 && (
-                      <Check className="h-3 w-3 text-primary-foreground" />
-                    )}
-                  </span>
-                  <span className="truncate">{allLabel}</span>
-                </button>
-              </div>
-              {STATIONS_BY_LINE.map(({ line, stations }) => (
-                <div key={line}>
-                  <div className="sticky top-0 z-10 bg-popover px-3 py-1.5 text-xs font-semibold text-primary border-b border-border">
-                    {t(`home.btsMrtLine.${line}`)}
-                  </div>
-                  <div className="p-1">
-                    {stations.map((station) => {
-                      const checked = stationIds.includes(station.id)
-                      return (
-                        <button
-                          type="button"
-                          key={station.id}
-                          onClick={() =>
-                            setStationIds((prev) =>
-                              prev.includes(station.id)
-                                ? prev.filter((x) => x !== station.id)
-                                : [...prev, station.id],
-                            )
-                          }
-                          className="flex items-center gap-2 w-full px-2 py-1.5 rounded hover:bg-muted text-sm text-left"
-                        >
-                          <span
-                            className={cn(
-                              'h-4 w-4 rounded border flex items-center justify-center shrink-0',
-                              checked ? 'bg-primary border-primary' : 'border-input',
-                            )}
-                          >
-                            {checked && <Check className="h-3 w-3 text-primary-foreground" />}
-                          </span>
-                          <span className="truncate">{station.name}</span>
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>,
-            document.body,
-          )}
-        </div>
+        <MultiPick<number>
+          allLabel={allLabel}
+          selectedLabel={stationCountLabel}
+          groups={stationGroups}
+          selected={stationIds}
+          onToggle={(v) => setStationIds((p) => toggleArray(p, v))}
+          onClear={() => setStationIds([])}
+          minWidth={288}
+          align="right"
+        />
       </div>
 
       <div className="flex items-center gap-2 p-2 border-t border-border">

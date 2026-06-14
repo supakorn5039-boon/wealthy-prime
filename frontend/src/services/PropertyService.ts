@@ -49,8 +49,8 @@ export const PropertyService = {
     const p = params ?? {}
     const csv = (xs?: (string | number)[]) =>
       xs && xs.length > 0 ? xs.join(',') : undefined
-    // Each range serializes as "min-max" with empty meaning unbounded
-    // (e.g. "-5000" = up to 5000, "50000-" = 50000+). Backend OR's them.
+    // Wire format: "min-max,min-max" with empty side meaning unbounded
+    // (e.g. "-5000" = up to 5000, "50000-" = 50000+).
     const priceRangesCsv = p.priceRanges && p.priceRanges.length > 0
       ? p.priceRanges.map((r) => `${r.min ?? ''}-${r.max ?? ''}`).join(',')
       : undefined

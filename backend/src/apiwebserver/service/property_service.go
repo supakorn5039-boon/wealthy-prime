@@ -29,9 +29,7 @@ func NewPropertyService() *PropertyService {
 	return &PropertyService{db: database.DB}
 }
 
-// PriceRange is one (min,max) bracket. Nil means unbounded on that side.
-// Multiple ranges in PropertyFilter.PriceRanges are OR'd together so a user
-// can pick e.g. "under 5k" + "30k–50k" in the same query.
+// PriceRange is one (min,max) bracket; nil = unbounded. Ranges OR together.
 type PriceRange struct {
 	Min *float64
 	Max *float64
@@ -108,29 +106,27 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 		Preload("Agent").
 		Where("status != ?", model.StatusPendingApprove)
 
-	// The public Hero filter sends ?types=buy,rent. We translate each value
-	// to listing options ("both" appears under both buy and rent), then
-	// match against the union.
+	// Map ?types=buy,rent to listing rows. ListingBoth matches either side,
+	// so it's included whenever any type is picked.
 	if len(filter.Types) > 0 {
-		seen := map[string]struct{}{}
-		var listings []string
-		for _, t := range filter.Types {
-			switch t {
+		var hasBuy, hasRent bool
+		for _, ty := range filter.Types {
+			switch ty {
 			case "buy":
-				for _, l := range []string{string(model.ListingSell), string(model.ListingBoth)} {
-					if _, ok := seen[l]; !ok {
-						seen[l] = struct{}{}
-						listings = append(listings, l)
-					}
-				}
+				hasBuy = true
 			case "rent":
-				for _, l := range []string{string(model.ListingRent), string(model.ListingBoth)} {
-					if _, ok := seen[l]; !ok {
-						seen[l] = struct{}{}
-						listings = append(listings, l)
-					}
-				}
+				hasRent = true
 			}
+		}
+		listings := make([]string, 0, 3)
+		if hasBuy {
+			listings = append(listings, string(model.ListingSell))
+		}
+		if hasRent {
+			listings = append(listings, string(model.ListingRent))
+		}
+		if hasBuy || hasRent {
+			listings = append(listings, string(model.ListingBoth))
 		}
 		if len(listings) > 0 {
 			query = query.Where("listing IN ?", listings)
