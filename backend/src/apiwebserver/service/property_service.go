@@ -8,7 +8,6 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
@@ -30,16 +29,23 @@ func NewPropertyService() *PropertyService {
 	return &PropertyService{db: database.DB}
 }
 
+// PriceRange is one (min,max) bracket. Nil means unbounded on that side.
+// Multiple ranges in PropertyFilter.PriceRanges are OR'd together so a user
+// can pick e.g. "under 5k" + "30k–50k" in the same query.
+type PriceRange struct {
+	Min *float64
+	Max *float64
+}
+
 type PropertyFilter struct {
-	Type       string
-	Location   string
-	Search     string
-	MinPrice   string
-	MaxPrice   string
-	Kind       string  // condo / house / townhouse
-	Province   string
-	District   string
-	BtsMrtIDs  []int32 // station IDs; matched via array overlap (GIN-indexed)
+	Location    string
+	Search      string
+	Types       []string // buy / rent (multi)
+	Kinds       []string // condo / house / townhouse (multi)
+	Provinces   []string
+	Districts   []string
+	PriceRanges []PriceRange
+	BtsMrtIDs   []int32 // station IDs; matched via array overlap (GIN-indexed)
 }
 
 type PropertyFields struct {
@@ -102,14 +108,33 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 		Preload("Agent").
 		Where("status != ?", model.StatusPendingApprove)
 
-	// The public Hero filter sends ?type=buy or ?type=rent. We translate this
-	// to a listing-based query so that properties listed as "both" (rent and
-	// sell) appear under both tabs.
-	switch filter.Type {
-	case "buy":
-		query = query.Where("listing IN ?", []string{string(model.ListingSell), string(model.ListingBoth)})
-	case "rent":
-		query = query.Where("listing IN ?", []string{string(model.ListingRent), string(model.ListingBoth)})
+	// The public Hero filter sends ?types=buy,rent. We translate each value
+	// to listing options ("both" appears under both buy and rent), then
+	// match against the union.
+	if len(filter.Types) > 0 {
+		seen := map[string]struct{}{}
+		var listings []string
+		for _, t := range filter.Types {
+			switch t {
+			case "buy":
+				for _, l := range []string{string(model.ListingSell), string(model.ListingBoth)} {
+					if _, ok := seen[l]; !ok {
+						seen[l] = struct{}{}
+						listings = append(listings, l)
+					}
+				}
+			case "rent":
+				for _, l := range []string{string(model.ListingRent), string(model.ListingBoth)} {
+					if _, ok := seen[l]; !ok {
+						seen[l] = struct{}{}
+						listings = append(listings, l)
+					}
+				}
+			}
+		}
+		if len(listings) > 0 {
+			query = query.Where("listing IN ?", listings)
+		}
 	}
 	if filter.Location != "" {
 		query = query.Where("location ILIKE ?", "%"+filter.Location+"%")
@@ -118,24 +143,34 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 		s := "%" + filter.Search + "%"
 		query = query.Where("title ILIKE ? OR project_name ILIKE ? OR location ILIKE ?", s, s, s)
 	}
-	if filter.MinPrice != "" {
-		if min, err := strconv.ParseFloat(filter.MinPrice, 64); err == nil {
-			query = query.Where("price >= ?", min)
+	if len(filter.PriceRanges) > 0 {
+		var conds []string
+		var args []any
+		for _, r := range filter.PriceRanges {
+			switch {
+			case r.Min != nil && r.Max != nil:
+				conds = append(conds, "(price >= ? AND price <= ?)")
+				args = append(args, *r.Min, *r.Max)
+			case r.Min != nil:
+				conds = append(conds, "price >= ?")
+				args = append(args, *r.Min)
+			case r.Max != nil:
+				conds = append(conds, "price <= ?")
+				args = append(args, *r.Max)
+			}
+		}
+		if len(conds) > 0 {
+			query = query.Where("("+strings.Join(conds, " OR ")+")", args...)
 		}
 	}
-	if filter.MaxPrice != "" {
-		if max, err := strconv.ParseFloat(filter.MaxPrice, 64); err == nil {
-			query = query.Where("price <= ?", max)
-		}
+	if len(filter.Kinds) > 0 {
+		query = query.Where("kind IN ?", filter.Kinds)
 	}
-	if filter.Kind != "" {
-		query = query.Where("kind = ?", filter.Kind)
+	if len(filter.Provinces) > 0 {
+		query = query.Where("province IN ?", filter.Provinces)
 	}
-	if filter.Province != "" {
-		query = query.Where("province = ?", filter.Province)
-	}
-	if filter.District != "" {
-		query = query.Where("district = ?", filter.District)
+	if len(filter.Districts) > 0 {
+		query = query.Where("district IN ?", filter.Districts)
 	}
 	if len(filter.BtsMrtIDs) > 0 {
 		// Array overlap: properties whose bts_mrt shares any station ID with

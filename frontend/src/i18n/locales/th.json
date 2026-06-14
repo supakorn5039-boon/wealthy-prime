@@ -431,6 +431,7 @@
     "priceRange": "ช่วงราคา",
     "btsMrtPlaceholder": "BTS / MRT ใกล้เคียง",
     "btsMrtSelected": "เลือก {{count}} สถานี",
+    "filterSelectedCount": "เลือก {{count}} รายการ",
     "btsMrtLine": {
       "BTS_SUKHUMVIT": "BTS สายสุขุมวิท",
       "BTS_SILOM": "BTS สายสีลม",

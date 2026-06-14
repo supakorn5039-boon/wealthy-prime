@@ -431,6 +431,7 @@
     "priceRange": "价格范围",
     "btsMrtPlaceholder": "附近 BTS / MRT",
     "btsMrtSelected": "{{count}} 站",
+    "filterSelectedCount": "已选 {{count}} 项",
     "btsMrtLine": {
       "BTS_SUKHUMVIT": "BTS 素坤逸线",
       "BTS_SILOM": "BTS 是隆线",

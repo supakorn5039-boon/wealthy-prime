@@ -431,6 +431,7 @@
     "priceRange": "Price Range",
     "btsMrtPlaceholder": "Nearby BTS / MRT",
     "btsMrtSelected": "{{count}} station(s)",
+    "filterSelectedCount": "{{count}} selected",
     "btsMrtLine": {
       "BTS_SUKHUMVIT": "BTS Sukhumvit Line",
       "BTS_SILOM": "BTS Silom Line",

@@ -29,6 +29,49 @@ func parseIntCSV(s string) []int32 {
 	return out
 }
 
+// parseStringCSV trims and drops empty tokens.
+func parseStringCSV(s string) []string {
+	if s == "" {
+		return nil
+	}
+	parts := strings.Split(s, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if p = strings.TrimSpace(p); p != "" {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
+// parsePriceRanges accepts "min-max,min-max" where either side may be empty
+// to denote unbounded (e.g. "-5000" = up to 5000, "50000-" = 50000+).
+func parsePriceRanges(s string) []service.PriceRange {
+	if s == "" {
+		return nil
+	}
+	parts := strings.Split(s, ",")
+	out := make([]service.PriceRange, 0, len(parts))
+	for _, p := range parts {
+		bits := strings.SplitN(strings.TrimSpace(p), "-", 2)
+		if len(bits) != 2 {
+			continue
+		}
+		var r service.PriceRange
+		if v, err := strconv.ParseFloat(strings.TrimSpace(bits[0]), 64); err == nil {
+			r.Min = &v
+		}
+		if v, err := strconv.ParseFloat(strings.TrimSpace(bits[1]), 64); err == nil {
+			r.Max = &v
+		}
+		if r.Min == nil && r.Max == nil {
+			continue
+		}
+		out = append(out, r)
+	}
+	return out
+}
+
 type PropertyController struct {
 	svc *service.PropertyService
 }
@@ -52,15 +95,14 @@ func canSeeOwnerInfo(role model.UserRole) bool {
 
 func (ctrl *PropertyController) listProperties(c *gin.Context) {
 	filter := service.PropertyFilter{
-		Type:      c.Query("type"),
-		Location:  c.Query("location"),
-		Search:    c.Query("search"),
-		MinPrice:  c.Query("min_price"),
-		MaxPrice:  c.Query("max_price"),
-		Kind:      c.Query("kind"),
-		Province:  c.Query("province"),
-		District:  c.Query("district"),
-		BtsMrtIDs: parseIntCSV(c.Query("bts_mrt_ids")),
+		Location:    c.Query("location"),
+		Search:      c.Query("search"),
+		Types:       parseStringCSV(c.Query("types")),
+		Kinds:       parseStringCSV(c.Query("kinds")),
+		Provinces:   parseStringCSV(c.Query("provinces")),
+		Districts:   parseStringCSV(c.Query("districts")),
+		PriceRanges: parsePriceRanges(c.Query("price_ranges")),
+		BtsMrtIDs:   parseIntCSV(c.Query("bts_mrt_ids")),
 	}
 
 	dtos, err := ctrl.svc.ListProperties(filter)

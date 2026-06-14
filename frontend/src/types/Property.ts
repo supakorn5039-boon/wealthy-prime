@@ -63,15 +63,17 @@ export interface Property {
 
 export interface PropertyListParams {
   search?: string
-  type?: PropertyType
-  minPrice?: number
-  maxPrice?: number
-  status?: PropertyStatus
-  kind?: PropertyKind
-  province?: string
-  district?: string
+  // All filters are multi-select on the home filter pill; backend uses
+  // `col IN (?)` for string/enum filters and OR'd ranges for price.
+  types?: PropertyType[]
+  kinds?: PropertyKind[]
+  provinces?: string[]
+  districts?: string[]
+  // Each range is a min/max pair; properties are kept if any range matches.
+  priceRanges?: { min?: number; max?: number }[]
   // Station IDs that overlap any of the property's bts_mrt array.
   btsMrtIds?: number[]
+  status?: PropertyStatus
   page?: number
   limit?: number
 }

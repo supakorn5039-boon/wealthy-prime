@@ -47,15 +47,21 @@ export const PropertyService = {
 
   list: async (params?: PropertyListParams): Promise<ApiListResponse<Property>> => {
     const p = params ?? {}
+    const csv = (xs?: (string | number)[]) =>
+      xs && xs.length > 0 ? xs.join(',') : undefined
+    // Each range serializes as "min-max" with empty meaning unbounded
+    // (e.g. "-5000" = up to 5000, "50000-" = 50000+). Backend OR's them.
+    const priceRangesCsv = p.priceRanges && p.priceRanges.length > 0
+      ? p.priceRanges.map((r) => `${r.min ?? ''}-${r.max ?? ''}`).join(',')
+      : undefined
     const queryParams = {
-      type: p.type,
       search: p.search,
-      min_price: p.minPrice,
-      max_price: p.maxPrice,
-      kind: p.kind,
-      province: p.province,
-      district: p.district,
-      bts_mrt_ids: p.btsMrtIds && p.btsMrtIds.length > 0 ? p.btsMrtIds.join(',') : undefined,
+      types: csv(p.types),
+      kinds: csv(p.kinds),
+      provinces: csv(p.provinces),
+      districts: csv(p.districts),
+      price_ranges: priceRangesCsv,
+      bts_mrt_ids: csv(p.btsMrtIds),
     }
     const res = await fetchClient.get<ApiListResponse<Property>>(API.PROPERTIES, {
       params: cleanParams(queryParams as Record<string, unknown>),

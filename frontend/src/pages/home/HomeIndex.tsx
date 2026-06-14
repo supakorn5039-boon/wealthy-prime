@@ -203,9 +203,13 @@ export default function HomeIndex() {
   );
 
   const hasActiveFilters = Boolean(
-    filters.search || filters.kind || filters.type || filters.province ||
-      filters.district || filters.minPrice || filters.maxPrice ||
-      (filters.btsMrtIds && filters.btsMrtIds.length > 0),
+    filters.search ||
+      filters.kinds?.length ||
+      filters.types?.length ||
+      filters.provinces?.length ||
+      filters.districts?.length ||
+      filters.priceRanges?.length ||
+      filters.btsMrtIds?.length,
   );
   const headingKey = hasActiveFilters
     ? "home.searchResultsTitle"
