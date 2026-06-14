@@ -24,6 +24,14 @@ func MountAPIWebServer(r *gin.Engine) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
+	// Render's port-scan probe and external load balancers hit `/` (GET/HEAD)
+	// at startup; without a handler they get logged as 404 WARNs. Answer 200.
+	rootHandler := func(c *gin.Context) {
+		c.JSON(200, gin.H{"status": "ok", "service": "wealthy-prime-api"})
+	}
+	r.GET("/", rootHandler)
+	r.HEAD("/", rootHandler)
+
 	// Serve uploaded files from the configured (absolute) upload directory.
 	r.Static("/uploads", config.App.Server.UploadDir)
 
