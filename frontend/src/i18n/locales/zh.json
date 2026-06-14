@@ -430,12 +430,16 @@
     "maxPrice": "最高价",
     "priceRange": "价格范围",
     "btsMrtPlaceholder": "附近 BTS / MRT",
-    "btsMrtSelected": "{{count}} 条线",
+    "btsMrtSelected": "{{count}} 站",
     "btsMrtLine": {
       "BTS_SUKHUMVIT": "BTS 素坤逸线",
       "BTS_SILOM": "BTS 是隆线",
+      "BTS_GOLD": "BTS 金线",
       "MRT_BLUE": "MRT 蓝线",
-      "MRT_PURPLE": "MRT 紫线"
+      "MRT_PURPLE": "MRT 紫线",
+      "MRT_YELLOW": "MRT 黄线",
+      "MRT_PINK": "MRT 粉线",
+      "ARL": "机场快线"
     },
     "noResults": "未找到房产",
     "tryAdjust": "请调整搜索条件",

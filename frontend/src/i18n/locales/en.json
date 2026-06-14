@@ -430,12 +430,16 @@
     "maxPrice": "Max Price",
     "priceRange": "Price Range",
     "btsMrtPlaceholder": "Nearby BTS / MRT",
-    "btsMrtSelected": "{{count}} line(s)",
+    "btsMrtSelected": "{{count}} station(s)",
     "btsMrtLine": {
       "BTS_SUKHUMVIT": "BTS Sukhumvit Line",
       "BTS_SILOM": "BTS Silom Line",
+      "BTS_GOLD": "BTS Gold Line",
       "MRT_BLUE": "MRT Blue Line",
-      "MRT_PURPLE": "MRT Purple Line"
+      "MRT_PURPLE": "MRT Purple Line",
+      "MRT_YELLOW": "MRT Yellow Line",
+      "MRT_PINK": "MRT Pink Line",
+      "ARL": "Airport Rail Link"
     },
     "noResults": "No properties found",
     "tryAdjust": "Try adjusting your search",

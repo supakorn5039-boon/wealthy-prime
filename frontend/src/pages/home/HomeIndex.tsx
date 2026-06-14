@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -36,14 +36,7 @@ import { formatPrice } from "@/utils/date";
 import { formatBtsMrt } from "@/utils/btsMrt";
 import { resolveImageUrl } from "@/utils/imageUrl";
 import { cn } from "@/lib/utils";
-import type {
-  Property,
-  PropertyListParams,
-  PropertyKind,
-  PropertyType,
-} from "@/types/Property";
-
-type ChipKind = PropertyKind | "premium";
+import type { Property, PropertyListParams } from "@/types/Property";
 
 delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)
   ._getIconUrl;
@@ -193,7 +186,6 @@ function PropertyRow({ property, active, onHover }: PropertyRowProps) {
 export default function HomeIndex() {
   const { t } = useTranslation();
   const [filters, setFilters] = useState<PropertyListParams>({});
-  const [activeKind, setActiveKind] = useState<ChipKind | "">("");
   const [selected, setSelected] = useState<Property | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [flyTarget, setFlyTarget] = useState<[number, number] | null>(null);
@@ -204,27 +196,17 @@ export default function HomeIndex() {
     queryFn: () => PropertyService.list(filters),
   });
 
-  const handleSearchChange = (search: string) =>
-    setFilters((prev) => ({ ...prev, search: search || undefined }));
-  const handleSearchSubmit = () => {};
-  const handleChipClick = (kind: ChipKind) =>
-    setActiveKind((prev) => (prev === kind ? "" : kind));
-  const handleTypeClick = (type: PropertyType | "") =>
-    setFilters((prev) => ({ ...prev, type: type === "" ? undefined : type }));
-
-  const properties = data?.data ?? [];
-  const filteredProperties = useMemo(() => {
-    if (!activeKind) return properties;
-    if (activeKind === "premium")
-      return [...properties].sort((a, b) => b.price - a.price);
-    return properties.filter((p) => p.kind === activeKind);
-  }, [properties, activeKind]);
+  const filteredProperties = data?.data ?? [];
 
   const mappable = filteredProperties.filter(
     (p) => p.lat != null && p.lng != null,
   );
 
-  const hasActiveFilters = !!filters.search || !!activeKind || !!filters.type;
+  const hasActiveFilters = Boolean(
+    filters.search || filters.kind || filters.type || filters.province ||
+      filters.district || filters.minPrice || filters.maxPrice ||
+      (filters.btsMrtIds && filters.btsMrtIds.length > 0),
+  );
   const headingKey = hasActiveFilters
     ? "home.searchResultsTitle"
     : "home.featuredTitle";
@@ -243,21 +225,14 @@ export default function HomeIndex() {
 
   return (
     <div>
-      <Hero
-        search={filters.search ?? ""}
-        onSearchChange={handleSearchChange}
-        onSearchSubmit={handleSearchSubmit}
-        activeKind={activeKind}
-        onChipClick={handleChipClick}
-        activeType={filters.type ?? ""}
-        onTypeClick={handleTypeClick}
-      />
-
-      <PageContainer size="8xl" className="space-y-4">
+      <Hero>
         <PropertyFilter
           initialValues={filters}
           onFilter={(next) => setFilters((prev) => ({ ...prev, ...next }))}
         />
+      </Hero>
+
+      <PageContainer size="8xl" className="space-y-4">
         {isLoading ? (
           <LoadingSpinner text={t("common.loading")} />
         ) : filteredProperties.length === 0 ? (

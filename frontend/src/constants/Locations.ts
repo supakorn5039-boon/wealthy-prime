@@ -171,7 +171,15 @@ export const DISTRICTS_BY_PROVINCE: Record<string, readonly string[]> = {
 // BTS + MRT stations (Bangkok metropolitan area).
 // IDs are stable: never renumber an existing entry. Append new stations
 // with the next free id. The DB stores a CSV of these ids on Property.BtsMrt.
-export type BtsMrtLine = 'BTS_SUKHUMVIT' | 'BTS_SILOM' | 'MRT_BLUE' | 'MRT_PURPLE'
+export type BtsMrtLine =
+  | 'BTS_SUKHUMVIT'
+  | 'BTS_SILOM'
+  | 'BTS_GOLD'
+  | 'MRT_BLUE'
+  | 'MRT_PURPLE'
+  | 'MRT_YELLOW'
+  | 'MRT_PINK'
+  | 'ARL'
 
 export interface BtsMrtStation {
   id: number
@@ -237,6 +245,132 @@ export const BTS_MRT_STATIONS: readonly BtsMrtStation[] = [
   { id: 51, name: 'แยกนนทบุรี 1 (MRT)', line: 'MRT_PURPLE' },
   { id: 52, name: 'บางกระสอ (MRT)', line: 'MRT_PURPLE' },
   { id: 53, name: 'ศูนย์ราชการนนทบุรี (MRT)', line: 'MRT_PURPLE' },
+  // BTS Sukhumvit Line — north extension (Mo Chit → Khu Khot)
+  { id: 54, name: 'ห้าแยกลาดพร้าว (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 55, name: 'พหลโยธิน 24 (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 56, name: 'รัชโยธิน (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 57, name: 'เสนานิคม (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 58, name: 'มหาวิทยาลัยเกษตรศาสตร์ (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 59, name: 'บางบัว (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 60, name: 'กรมป่าไม้ (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 61, name: 'วัดพระศรีมหาธาตุ (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 62, name: 'พหลโยธิน 59 (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 63, name: 'สายหยุด (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 64, name: 'สะพานใหม่ (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 65, name: 'รพ.ภูมิพลอดุลยเดช (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 66, name: 'แยก คปอ. (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 67, name: 'คูคต (BTS)', line: 'BTS_SUKHUMVIT' },
+  // BTS Sukhumvit Line — south extension (Bearing → Kheha)
+  { id: 68, name: 'สำโรง (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 69, name: 'ปู่เจ้า (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 70, name: 'ช้างเอราวัณ (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 71, name: 'โรงเรียนนายเรือ (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 72, name: 'ปากน้ำ (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 73, name: 'ศรีนครินทร์ (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 74, name: 'แพรกษา (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 75, name: 'สายลวด (BTS)', line: 'BTS_SUKHUMVIT' },
+  { id: 76, name: 'เคหะฯ (BTS)', line: 'BTS_SUKHUMVIT' },
+  // BTS Silom Line — south extension (Saphan Taksin → Bang Wa)
+  { id: 77, name: 'กรุงธนบุรี (BTS)', line: 'BTS_SILOM' },
+  { id: 78, name: 'วงเวียนใหญ่ (BTS)', line: 'BTS_SILOM' },
+  { id: 79, name: 'โพธิ์นิมิตร (BTS)', line: 'BTS_SILOM' },
+  { id: 80, name: 'ตลาดพลู (BTS)', line: 'BTS_SILOM' },
+  { id: 81, name: 'วุฒากาศ (BTS)', line: 'BTS_SILOM' },
+  { id: 82, name: 'บางหว้า (BTS)', line: 'BTS_SILOM' },
+  // BTS Gold Line
+  { id: 83, name: 'เจริญนคร (Gold Line)', line: 'BTS_GOLD' },
+  { id: 84, name: 'คลองสาน (Gold Line)', line: 'BTS_GOLD' },
+  // MRT Blue Line — loop completion (Hua Lamphong → Tha Phra → Lak Song)
+  { id: 85, name: 'หัวลำโพง (MRT)', line: 'MRT_BLUE' },
+  { id: 86, name: 'วัดมังกร (MRT)', line: 'MRT_BLUE' },
+  { id: 87, name: 'สามยอด (MRT)', line: 'MRT_BLUE' },
+  { id: 88, name: 'สนามไชย (MRT)', line: 'MRT_BLUE' },
+  { id: 89, name: 'อิสรภาพ (MRT)', line: 'MRT_BLUE' },
+  { id: 90, name: 'ท่าพระ (MRT)', line: 'MRT_BLUE' },
+  { id: 91, name: 'บางไผ่ (MRT)', line: 'MRT_BLUE' },
+  { id: 92, name: 'บางหว้า (MRT)', line: 'MRT_BLUE' },
+  { id: 93, name: 'เพชรเกษม 48 (MRT)', line: 'MRT_BLUE' },
+  { id: 94, name: 'ภาษีเจริญ (MRT)', line: 'MRT_BLUE' },
+  { id: 95, name: 'บางแค (MRT)', line: 'MRT_BLUE' },
+  { id: 96, name: 'หลักสอง (MRT)', line: 'MRT_BLUE' },
+  { id: 97, name: 'จรัญสนิทวงศ์ 13 (MRT)', line: 'MRT_BLUE' },
+  { id: 98, name: 'ไฟฉาย (MRT)', line: 'MRT_BLUE' },
+  { id: 99, name: 'บางขุนนนท์ (MRT)', line: 'MRT_BLUE' },
+  { id: 100, name: 'บางยี่ขัน (MRT)', line: 'MRT_BLUE' },
+  { id: 101, name: 'สิรินธร (MRT)', line: 'MRT_BLUE' },
+  // MRT Purple Line — south extension (Tao Poon → Khlong Bang Phai)
+  { id: 102, name: 'คลองบางไผ่ (MRT)', line: 'MRT_PURPLE' },
+  { id: 103, name: 'ตลาดบางใหญ่ (MRT)', line: 'MRT_PURPLE' },
+  { id: 104, name: 'สามแยกบางใหญ่ (MRT)', line: 'MRT_PURPLE' },
+  { id: 105, name: 'บางพลู (MRT)', line: 'MRT_PURPLE' },
+  { id: 106, name: 'บางรักใหญ่ (MRT)', line: 'MRT_PURPLE' },
+  { id: 107, name: 'บางรักน้อย-ท่าอิฐ (MRT)', line: 'MRT_PURPLE' },
+  { id: 108, name: 'ไทรม้า (MRT)', line: 'MRT_PURPLE' },
+  { id: 109, name: 'สะพานพระนั่งเกล้า (MRT)', line: 'MRT_PURPLE' },
+  // MRT Yellow Line (Lat Phrao → Samrong)
+  { id: 110, name: 'ลาดพร้าว (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 111, name: 'ภาวนา (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 112, name: 'โชคชัย 4 (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 113, name: 'ลาดพร้าว 71 (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 114, name: 'ลาดพร้าว 83 (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 115, name: 'มหาดไทย (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 116, name: 'ลาดพร้าว 101 (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 117, name: 'บางกะปิ (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 118, name: 'แยกลำสาลี (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 119, name: 'ศรีกรีฑา (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 120, name: 'หัวหมาก (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 121, name: 'กลันตัน (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 122, name: 'ศรีนุช (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 123, name: 'ศรีนครินทร์ 38 (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 124, name: 'สวนหลวง ร.9 (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 125, name: 'ศรีอุดม (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 126, name: 'ศรีเอี่ยม (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 127, name: 'ศรีลาซาล (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 128, name: 'ศรีแบริ่ง (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 129, name: 'ศรีด่าน (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 130, name: 'ศรีเทพา (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 131, name: 'ทิพวัล (MRT Yellow)', line: 'MRT_YELLOW' },
+  { id: 132, name: 'สำโรง (MRT Yellow)', line: 'MRT_YELLOW' },
+  // MRT Pink Line (Nonthaburi Civic Center → Min Buri)
+  { id: 133, name: 'ศูนย์ราชการนนทบุรี (MRT Pink)', line: 'MRT_PINK' },
+  { id: 134, name: 'แคราย (MRT Pink)', line: 'MRT_PINK' },
+  { id: 135, name: 'สนามบินน้ำ (MRT Pink)', line: 'MRT_PINK' },
+  { id: 136, name: 'สามัคคี (MRT Pink)', line: 'MRT_PINK' },
+  { id: 137, name: 'กรมชลประทาน (MRT Pink)', line: 'MRT_PINK' },
+  { id: 138, name: 'แยกปากเกร็ด (MRT Pink)', line: 'MRT_PINK' },
+  { id: 139, name: 'เลี่ยงเมืองปากเกร็ด (MRT Pink)', line: 'MRT_PINK' },
+  { id: 140, name: 'แจ้งวัฒนะ-ปากเกร็ด 28 (MRT Pink)', line: 'MRT_PINK' },
+  { id: 141, name: 'ศรีรัช (MRT Pink)', line: 'MRT_PINK' },
+  { id: 142, name: 'เมืองทองธานี (MRT Pink)', line: 'MRT_PINK' },
+  { id: 143, name: 'แจ้งวัฒนะ 14 (MRT Pink)', line: 'MRT_PINK' },
+  { id: 144, name: 'ศูนย์ราชการเฉลิมพระเกียรติ (MRT Pink)', line: 'MRT_PINK' },
+  { id: 145, name: 'โทรคมนาคมแห่งชาติ (MRT Pink)', line: 'MRT_PINK' },
+  { id: 146, name: 'หลักสี่ (MRT Pink)', line: 'MRT_PINK' },
+  { id: 147, name: 'ราชภัฏพระนคร (MRT Pink)', line: 'MRT_PINK' },
+  { id: 148, name: 'วัดพระศรีมหาธาตุ (MRT Pink)', line: 'MRT_PINK' },
+  { id: 149, name: 'รามอินทรา 3 (MRT Pink)', line: 'MRT_PINK' },
+  { id: 150, name: 'ลาดปลาเค้า (MRT Pink)', line: 'MRT_PINK' },
+  { id: 151, name: 'รามอินทรา กม.4 (MRT Pink)', line: 'MRT_PINK' },
+  { id: 152, name: 'มัยลาภ (MRT Pink)', line: 'MRT_PINK' },
+  { id: 153, name: 'วัชรพล (MRT Pink)', line: 'MRT_PINK' },
+  { id: 154, name: 'รามอินทรา กม.6 (MRT Pink)', line: 'MRT_PINK' },
+  { id: 155, name: 'คู้บอน (MRT Pink)', line: 'MRT_PINK' },
+  { id: 156, name: 'รามอินทรา กม.9 (MRT Pink)', line: 'MRT_PINK' },
+  { id: 157, name: 'วงแหวนรามอินทรา (MRT Pink)', line: 'MRT_PINK' },
+  { id: 158, name: 'นพรัตน์ (MRT Pink)', line: 'MRT_PINK' },
+  { id: 159, name: 'บางชัน (MRT Pink)', line: 'MRT_PINK' },
+  { id: 160, name: 'เศรษฐบุตรบำเพ็ญ (MRT Pink)', line: 'MRT_PINK' },
+  { id: 161, name: 'ตลาดมีนบุรี (MRT Pink)', line: 'MRT_PINK' },
+  { id: 162, name: 'มีนบุรี (MRT Pink)', line: 'MRT_PINK' },
+  // Airport Rail Link (Phaya Thai → Suvarnabhumi)
+  { id: 163, name: 'พญาไท (Airport Link)', line: 'ARL' },
+  { id: 164, name: 'ราชปรารภ (Airport Link)', line: 'ARL' },
+  { id: 165, name: 'มักกะสัน (Airport Link)', line: 'ARL' },
+  { id: 166, name: 'รามคำแหง (Airport Link)', line: 'ARL' },
+  { id: 167, name: 'หัวหมาก (Airport Link)', line: 'ARL' },
+  { id: 168, name: 'บ้านทับช้าง (Airport Link)', line: 'ARL' },
+  { id: 169, name: 'ลาดกระบัง (Airport Link)', line: 'ARL' },
+  { id: 170, name: 'สุวรรณภูมิ (Airport Link)', line: 'ARL' },
 ]
 
 export const BTS_MRT_STATION_BY_ID: ReadonlyMap<number, BtsMrtStation> = new Map(

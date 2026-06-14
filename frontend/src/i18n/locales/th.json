@@ -430,12 +430,16 @@
     "maxPrice": "ราคาสูงสุด",
     "priceRange": "ช่วงราคา",
     "btsMrtPlaceholder": "BTS / MRT ใกล้เคียง",
-    "btsMrtSelected": "เลือก {{count}} สาย",
+    "btsMrtSelected": "เลือก {{count}} สถานี",
     "btsMrtLine": {
       "BTS_SUKHUMVIT": "BTS สายสุขุมวิท",
       "BTS_SILOM": "BTS สายสีลม",
+      "BTS_GOLD": "BTS สายสีทอง",
       "MRT_BLUE": "MRT สายสีน้ำเงิน",
-      "MRT_PURPLE": "MRT สายสีม่วง"
+      "MRT_PURPLE": "MRT สายสีม่วง",
+      "MRT_YELLOW": "MRT สายสีเหลือง",
+      "MRT_PINK": "MRT สายสีชมพู",
+      "ARL": "Airport Rail Link"
     },
     "noResults": "ไม่พบอสังหาริมทรัพย์",
     "tryAdjust": "ลองปรับเงื่อนไขการค้นหา",
