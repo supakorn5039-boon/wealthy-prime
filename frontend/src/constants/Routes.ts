@@ -9,6 +9,8 @@ export const ROUTES = {
   MAP: '/map',
   LOGIN: '/login',
   REGISTER: '/register',
+  FORGOT_PASSWORD: '/forgot-password',
+  RESET_PASSWORD: '/reset-password',
 
   // Personal info (shared)
   PROFILE: '/profile',

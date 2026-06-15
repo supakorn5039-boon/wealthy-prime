@@ -35,6 +35,12 @@ type User struct {
 	// self-registration (IsApproved=false is the zero value).
 	// Existing rows are grandfathered via raw SQL in migrateUsers.
 	IsApproved bool `gorm:"not null"`
+
+	// Password reset: we store the SHA-256 hash of the token (never the raw
+	// token), so a DB leak can't be used to reset accounts. ExpiresAt is
+	// nullable so we can clear both fields after a successful reset.
+	PasswordResetTokenHash string     `gorm:"index"`
+	PasswordResetExpiresAt *time.Time
 }
 
 type UserDto struct {

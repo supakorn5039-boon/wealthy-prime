@@ -27,4 +27,12 @@ export const AuthService = {
     const res = await fetchClient.put<ApiResponse<AuthUser>>(API.AUTH_PROFILE, payload)
     return res.data.data
   },
+
+  requestPasswordReset: async (email: string): Promise<void> => {
+    await fetchClient.post(API.AUTH_FORGOT_PASSWORD, { email })
+  },
+
+  resetPassword: async (token: string, newPassword: string): Promise<void> => {
+    await fetchClient.post(API.AUTH_RESET_PASSWORD, { token, newPassword })
+  },
 }

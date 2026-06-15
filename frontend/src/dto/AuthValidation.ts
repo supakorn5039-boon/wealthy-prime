@@ -40,6 +40,22 @@ export const registerSchema = z.object({
 })
 export type RegisterSchema = z.infer<typeof registerSchema>
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().email('อีเมลไม่ถูกต้อง'),
+})
+export type ForgotPasswordSchema = z.infer<typeof forgotPasswordSchema>
+
+export const resetPasswordSchema = z
+  .object({
+    newPassword: z.string().min(6, 'รหัสผ่านอย่างน้อย 6 ตัวอักษร'),
+    confirmPassword: z.string().min(6, 'รหัสผ่านอย่างน้อย 6 ตัวอักษร'),
+  })
+  .refine((d) => d.newPassword === d.confirmPassword, {
+    message: 'รหัสผ่านไม่ตรงกัน',
+    path: ['confirmPassword'],
+  })
+export type ResetPasswordSchema = z.infer<typeof resetPasswordSchema>
+
 export const profileSchema = z.object({
   firstName: z.string().min(1, 'กรุณากรอกชื่อ'),
   lastName: z.string().min(1, 'กรุณากรอกนามสกุล'),

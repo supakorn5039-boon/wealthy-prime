@@ -60,6 +60,9 @@ export default function LoginIndex() {
           <form onSubmit={handleSubmit((values) => mutation.mutate(values))} className="space-y-4">
             <FormInput control={control} name="email" label={t('auth.email')} type="email" placeholder={t('auth.emailPlaceholder')} required />
             <FormInput control={control} name="password" label={t('auth.password')} type="password" placeholder={t('auth.passwordPlaceholder')} required />
+            <Link to={ROUTES.FORGOT_PASSWORD} className="block -mt-2 text-right text-sm text-primary hover:underline">
+              {t('auth.forgotPasswordLink')}
+            </Link>
             <Button type="submit" className="w-full" disabled={mutation.isPending}>
               {mutation.isPending ? t('auth.loggingIn') : t('auth.loginButton')}
             </Button>

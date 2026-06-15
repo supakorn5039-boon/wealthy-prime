@@ -23,6 +23,8 @@ func (ctrl *AuthController) RegisterRoutes(r *gin.RouterGroup) {
 	auth := r.Group("/auth")
 	auth.POST("/register", ctrl.register)
 	auth.POST("/login", ctrl.login)
+	auth.POST("/forgot-password", ctrl.forgotPassword)
+	auth.POST("/reset-password", ctrl.resetPassword)
 	auth.GET("/profile", middleware.Protected(), ctrl.profile)
 	auth.PUT("/profile", middleware.Protected(), ctrl.updateProfile)
 }
@@ -94,4 +96,39 @@ func (ctrl *AuthController) login(c *gin.Context) {
 	}
 
 	successResponse(c, resp)
+}
+
+type forgotPasswordRequest struct {
+	Email string `json:"email" binding:"required,email"`
+}
+
+type resetPasswordRequest struct {
+	Token       string `json:"token"       binding:"required"`
+	NewPassword string `json:"newPassword" binding:"required,min=6"`
+}
+
+// forgotPassword always returns the same generic 200 response — regardless of
+// whether the email is registered or whether the email send succeeded — so a
+// caller can't enumerate registered accounts.
+func (ctrl *AuthController) forgotPassword(c *gin.Context) {
+	var body forgotPasswordRequest
+	if err := c.ShouldBindJSON(&body); err != nil {
+		badRequest(c, err.Error())
+		return
+	}
+	_ = ctrl.svc.RequestPasswordReset(body.Email)
+	successResponse(c, gin.H{"message": "If that email is registered, a reset link has been sent."})
+}
+
+func (ctrl *AuthController) resetPassword(c *gin.Context) {
+	var body resetPasswordRequest
+	if err := c.ShouldBindJSON(&body); err != nil {
+		badRequest(c, err.Error())
+		return
+	}
+	if err := ctrl.svc.ResetPassword(body.Token, body.NewPassword); err != nil {
+		errorResponse(c, err)
+		return
+	}
+	successResponse(c, gin.H{"message": "Password has been reset."})
 }

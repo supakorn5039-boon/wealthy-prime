@@ -3,6 +3,8 @@ export const API = {
   AUTH_LOGIN: '/auth/login',
   AUTH_REGISTER: '/auth/register',
   AUTH_PROFILE: '/auth/profile',
+  AUTH_FORGOT_PASSWORD: '/auth/forgot-password',
+  AUTH_RESET_PASSWORD: '/auth/reset-password',
 
   // Properties (public)
   PROPERTIES: '/properties',

@@ -2,23 +2,34 @@ package service
 
 import (
 	cryptoRand "crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
+	"log"
+	"strings"
+	"time"
 
 	"gorm.io/gorm"
 
 	"github.com/wealthy-prime/backend/src/apperror"
+	"github.com/wealthy-prime/backend/src/config"
 	"github.com/wealthy-prime/backend/src/database"
 	"github.com/wealthy-prime/backend/src/database/model"
+	"github.com/wealthy-prime/backend/src/pkg/email"
 	"github.com/wealthy-prime/backend/src/security"
 )
 
+// passwordResetTTL is how long a reset link stays valid after issuance.
+const passwordResetTTL = 30 * time.Minute
+
 type AuthService struct {
-	db *gorm.DB
+	db     *gorm.DB
+	mailer email.Sender
 }
 
 func NewAuthService() *AuthService {
-	return &AuthService{db: database.DB}
+	return &AuthService{db: database.DB, mailer: email.New()}
 }
 
 type RegisterInput struct {
@@ -42,7 +53,7 @@ type LoginInput struct {
 }
 
 type LoginResponse struct {
-	Token string        `json:"token"`
+	Token string         `json:"token"`
 	User  *model.UserDto `json:"user"`
 }
 
@@ -92,7 +103,7 @@ func (s *AuthService) Register(input RegisterInput) (*model.UserDto, error) {
 		// Customers (user role) get instant access. Agents need admin approval
 		// because admins need to vet who appears in the assignable-agent pool.
 		// Allow-list semantics: any future role defaults to needing approval.
-		IsApproved:     input.Role == model.RoleUser,
+		IsApproved: input.Role == model.RoleUser,
 	}
 
 	if user.Role == model.RoleAgent {
@@ -157,4 +168,112 @@ func (s *AuthService) Login(input LoginInput) (*LoginResponse, error) {
 	}
 
 	return &LoginResponse{Token: token, User: user.ToDto()}, nil
+}
+
+// RequestPasswordReset returns immediately and dispatches the lookup + token
+// issuance + email send in a goroutine. Returning fast makes the response
+// shape (and timing) identical regardless of whether the email is registered,
+// which prevents account enumeration via timing side-channels.
+func (s *AuthService) RequestPasswordReset(emailAddr string) error {
+	emailAddr = strings.TrimSpace(emailAddr)
+	if emailAddr == "" {
+		return nil
+	}
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Printf("[password-reset] panic recovered: %v", r)
+			}
+		}()
+		s.dispatchPasswordReset(emailAddr)
+	}()
+	return nil
+}
+
+func (s *AuthService) dispatchPasswordReset(emailAddr string) {
+	var user model.User
+	err := s.db.Where("email = ?", emailAddr).First(&user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return
+	}
+	if err != nil {
+		log.Printf("[password-reset] db lookup failed: %v", err)
+		return
+	}
+
+	rawToken, err := generateResetToken()
+	if err != nil {
+		log.Printf("[password-reset] token gen failed: %v", err)
+		return
+	}
+	tokenHash := hashResetToken(rawToken)
+	expiresAt := time.Now().Add(passwordResetTTL)
+
+	if err := s.db.Model(&user).Updates(map[string]any{
+		"password_reset_token_hash": tokenHash,
+		"password_reset_expires_at": expiresAt,
+	}).Error; err != nil {
+		log.Printf("[password-reset] failed to store token: %v", err)
+		return
+	}
+
+	resetURL := config.App.SMTP.AppURL + "/reset-password?token=" + rawToken
+	msg, err := email.BuildPasswordResetEmail(user.Email, user.Name, resetURL)
+	if err != nil {
+		log.Printf("[password-reset] failed to build email for user %d: %v", user.ID, err)
+		return
+	}
+	if err := s.mailer.Send(msg); err != nil {
+		log.Printf("[password-reset] failed to send email to %s: %v", user.Email, err)
+	}
+}
+
+// ResetPassword validates a raw reset token, updates the user's password
+// hash, and clears the reset fields so the same link cannot be used again.
+func (s *AuthService) ResetPassword(rawToken, newPassword string) error {
+	rawToken = strings.TrimSpace(rawToken)
+	if rawToken == "" {
+		return apperror.BadRequest("invalid or expired reset link")
+	}
+	if len(newPassword) < 6 {
+		return apperror.BadRequest("password must be at least 6 characters")
+	}
+
+	tokenHash := hashResetToken(rawToken)
+	var user model.User
+	err := s.db.Where("password_reset_token_hash = ? AND password_reset_expires_at > ?", tokenHash, time.Now()).
+		First(&user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return apperror.BadRequest("invalid or expired reset link")
+	}
+	if err != nil {
+		return apperror.Wrap(err, 500, "database error validating reset token")
+	}
+
+	hash, err := security.HashPassword(newPassword)
+	if err != nil {
+		return apperror.Wrap(err, 500, "failed to hash password")
+	}
+
+	if err := s.db.Model(&user).Updates(map[string]any{
+		"password_hash":             hash,
+		"password_reset_token_hash": "",
+		"password_reset_expires_at": nil,
+	}).Error; err != nil {
+		return apperror.Wrap(err, 500, "failed to update password")
+	}
+	return nil
+}
+
+func generateResetToken() (string, error) {
+	var buf [32]byte
+	if _, err := cryptoRandRead(buf[:]); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(buf[:]), nil
+}
+
+func hashResetToken(raw string) string {
+	sum := sha256.Sum256([]byte(raw))
+	return hex.EncodeToString(sum[:])
 }

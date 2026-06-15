@@ -7,6 +7,8 @@ import type { UserRole } from '@/types/Auth'
 const MapIndex = lazyWithReload(() => import('@/pages/map/MapIndex'))
 const LoginIndex = lazyWithReload(() => import('@/pages/login/LoginIndex'))
 const RegisterIndex = lazyWithReload(() => import('@/pages/register/RegisterIndex'))
+const ForgotPasswordIndex = lazyWithReload(() => import('@/pages/forgot-password/ForgotPasswordIndex'))
+const ResetPasswordIndex = lazyWithReload(() => import('@/pages/reset-password/ResetPasswordIndex'))
 const HomeIndex = lazyWithReload(() => import('@/pages/home/HomeIndex'))
 const PropertyDetailIndex = lazyWithReload(() => import('@/pages/property/PropertyDetailIndex'))
 const ReviewIndex = lazyWithReload(() => import('@/pages/review/ReviewIndex'))
@@ -52,6 +54,8 @@ export const routes: AppRoute[] = [
   { path: ROUTES.MAP, element: wrap(<MapIndex />), layout: RouteLayout.PUBLIC },
   { path: ROUTES.LOGIN, element: wrap(<LoginIndex />), layout: RouteLayout.BLANK },
   { path: ROUTES.REGISTER, element: wrap(<RegisterIndex />), layout: RouteLayout.BLANK },
+  { path: ROUTES.FORGOT_PASSWORD, element: wrap(<ForgotPasswordIndex />), layout: RouteLayout.BLANK },
+  { path: ROUTES.RESET_PASSWORD, element: wrap(<ResetPasswordIndex />), layout: RouteLayout.BLANK },
   { path: ROUTES.PROPERTY_DETAIL, element: wrap(<PropertyDetailIndex />), layout: RouteLayout.PUBLIC },
   { path: ROUTES.REVIEW, element: wrap(<ReviewIndex />), layout: RouteLayout.BLANK },
 

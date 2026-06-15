@@ -208,6 +208,69 @@ Line ID: {{.CustomerLineID}}{{end}}{{if .Note}}
 — ระบบ Wealthy Prime Estate
 `))
 
+// BuildPasswordResetEmail renders the email a user receives when they request
+// a password reset. resetURL points at the frontend reset page with the raw
+// (un-hashed) token embedded as a query parameter.
+func BuildPasswordResetEmail(toEmail, toName, resetURL string) (Message, error) {
+	displayName := strings.TrimSpace(toName)
+	if displayName == "" {
+		displayName = toEmail
+	}
+	data := resetData{
+		Name:     displayName,
+		ResetURL: resetURL,
+	}
+	var htmlBuf, textBuf bytes.Buffer
+	if err := resetHTMLTpl.Execute(&htmlBuf, data); err != nil {
+		return Message{}, fmt.Errorf("render html: %w", err)
+	}
+	if err := resetTextTpl.Execute(&textBuf, data); err != nil {
+		return Message{}, fmt.Errorf("render text: %w", err)
+	}
+	return Message{
+		To:       toEmail,
+		ToName:   displayName,
+		Subject:  "รีเซ็ตรหัสผ่าน Wealthy Prime Estate",
+		HTMLBody: htmlBuf.String(),
+		TextBody: textBuf.String(),
+	}, nil
+}
+
+type resetData struct {
+	Name     string
+	ResetURL string
+}
+
+var resetHTMLTpl = template.Must(template.New("reset_html").Parse(`<!doctype html>
+<html><body style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; color:#222; max-width:600px; margin:0 auto; padding:24px;">
+  <h2 style="color:#1f2937;">รีเซ็ตรหัสผ่าน</h2>
+  <p>สวัสดีคุณ {{.Name}},</p>
+  <p>เราได้รับคำขอรีเซ็ตรหัสผ่านสำหรับบัญชีของคุณ คลิกปุ่มด้านล่างเพื่อตั้งรหัสผ่านใหม่</p>
+  <p style="margin:24px 0;">
+    <a href="{{.ResetURL}}" style="background:#1f2937; color:#fff; padding:12px 24px; text-decoration:none; border-radius:6px; display:inline-block;">ตั้งรหัสผ่านใหม่</a>
+  </p>
+  <p style="font-size:13px; color:#555;">หรือคัดลอกลิงก์นี้ไปวางในเบราว์เซอร์:<br>
+    <span style="word-break:break-all; color:#1f2937;">{{.ResetURL}}</span>
+  </p>
+  <p style="font-size:13px; color:#888;">ลิงก์นี้จะหมดอายุภายใน 30 นาที และใช้ได้เพียงครั้งเดียว</p>
+  <p style="font-size:13px; color:#888;">หากคุณไม่ได้เป็นผู้ขอรีเซ็ตรหัสผ่าน สามารถละเว้นอีเมลฉบับนี้ได้</p>
+  <hr style="margin-top:32px; border:none; border-top:1px solid #eee;">
+  <p style="font-size:12px; color:#888;">อีเมลฉบับนี้ส่งจากระบบ Wealthy Prime Estate โดยอัตโนมัติ</p>
+</body></html>`))
+
+var resetTextTpl = template.Must(template.New("reset_text").Parse(`สวัสดีคุณ {{.Name}},
+
+เราได้รับคำขอรีเซ็ตรหัสผ่านสำหรับบัญชีของคุณ
+เปิดลิงก์ด้านล่างเพื่อตั้งรหัสผ่านใหม่:
+
+{{.ResetURL}}
+
+ลิงก์นี้จะหมดอายุภายใน 30 นาที และใช้ได้เพียงครั้งเดียว
+หากคุณไม่ได้เป็นผู้ขอรีเซ็ตรหัสผ่าน สามารถละเว้นอีเมลฉบับนี้ได้
+
+— ระบบ Wealthy Prime Estate
+`))
+
 func firstNonEmpty(values ...string) string {
 	for _, v := range values {
 		if s := strings.TrimSpace(v); s != "" {
