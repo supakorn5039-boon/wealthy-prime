@@ -55,7 +55,7 @@ type Property struct {
 	Price              float64        `gorm:"not null"`
 	Type               PropertyType   `gorm:"type:varchar(10);not null"`
 	SizeSqm            float64
-	AgentID            *uint
+	AgentID            *uint          `gorm:"index"`
 	Agent              *User          `gorm:"foreignKey:AgentID"`
 	OwnerInfo          string         `gorm:"not null"`
 	RentalPeriodMonths *int
@@ -69,8 +69,8 @@ type Property struct {
 	PropertyCode  string          `gorm:"uniqueIndex;type:varchar(10)"`
 	Kind          PropertyKind    `gorm:"type:varchar(20)"`
 	Listing       ListingType     `gorm:"type:varchar(10)"`
-	Province      string
-	District      string
+	Province      string          `gorm:"index:idx_properties_province_district,priority:1"`
+	District      string          `gorm:"index;index:idx_properties_province_district,priority:2"`
 	GoogleMapURL  string
 	// BtsMrt holds station IDs from the frontend BTS_MRT_STATIONS constant.
 	// Stored as native Postgres INTEGER[] with a GIN index — enables fast

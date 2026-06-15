@@ -24,14 +24,14 @@ const (
 
 type Booking struct {
 	gorm.Model
-	UserID          uint          `gorm:"not null"`
+	UserID          uint          `gorm:"not null;index"`
 	User            User          `gorm:"foreignKey:UserID"`
 	PropertyID      uint          `gorm:"not null"`
 	Property        Property      `gorm:"foreignKey:PropertyID"`
 	AppointmentDate time.Time     `gorm:"not null"`
 	Note            string
 	Status          BookingStatus `gorm:"type:varchar(20);not null;default:'pending'"`
-	AssignedAgentID *uint
+	AssignedAgentID *uint         `gorm:"index"`
 	AssignedAgent   *User         `gorm:"foreignKey:AssignedAgentID"`
 
 	// Captured contact details at booking time (snapshot)

@@ -8,7 +8,7 @@ import (
 
 type Review struct {
 	gorm.Model
-	PropertyID uint     `gorm:"not null"`
+	PropertyID uint     `gorm:"not null;index"`
 	Property   Property `gorm:"foreignKey:PropertyID"`
 	UserID     uint     `gorm:"not null"`
 	User       User     `gorm:"foreignKey:UserID"`

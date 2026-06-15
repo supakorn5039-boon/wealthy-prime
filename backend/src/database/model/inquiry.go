@@ -19,7 +19,7 @@ type Inquiry struct {
 	User       User     `gorm:"foreignKey:UserID"`
 	PropertyID uint     `gorm:"not null"`
 	Property   Property `gorm:"foreignKey:PropertyID"`
-	AgentID    *uint
+	AgentID    *uint    `gorm:"index"`
 	Agent      *User `gorm:"foreignKey:AgentID"`
 	Name       string `gorm:"not null"`
 	Phone      string `gorm:"not null"`
