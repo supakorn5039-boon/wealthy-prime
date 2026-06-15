@@ -2,7 +2,6 @@ import { fetchClient } from '@/utils/axios'
 import { API } from '@/constants/ApiRoutes'
 import type { AuthUser } from '@/types/Auth'
 import type { Booking } from '@/types/Booking'
-import type { Property } from '@/types/Property'
 import type { ApiResponse } from '@/types/Commons'
 
 export interface AdminDashboardData {
@@ -13,8 +12,6 @@ export interface AdminDashboardData {
   propertyStatusChart: { status: string; count: number }[]
   agentLeaderboard: { agentId: number; agentName: string; closedCount: number }[]
 }
-
-export type PendingApproval = Property
 
 export interface FinancialRecord {
   id: number
@@ -29,7 +26,6 @@ export interface FinancialRecord {
 export const AdminService = {
   QUERY_KEYS: {
     DASHBOARD: 'admin-dashboard',
-    PENDING: 'admin-pending',
     PENDING_USERS: 'admin-pending-users',
     AGENTS: 'admin-agents',
     USERS: 'admin-users',
@@ -40,19 +36,6 @@ export const AdminService = {
   getDashboard: async (): Promise<AdminDashboardData> => {
     const res = await fetchClient.get<ApiResponse<AdminDashboardData>>(API.ADMIN_DASHBOARD)
     return res.data.data
-  },
-
-  getPending: async (): Promise<PendingApproval[]> => {
-    const res = await fetchClient.get<ApiResponse<PendingApproval[]>>(API.ADMIN_PENDING)
-    return res.data.data
-  },
-
-  approvePending: async (id: number | string): Promise<void> => {
-    await fetchClient.put(API.ADMIN_PROPERTY_APPROVE(id), { action: 'approve' })
-  },
-
-  rejectPending: async (id: number | string): Promise<void> => {
-    await fetchClient.put(API.ADMIN_PROPERTY_APPROVE(id), { action: 'reject' })
   },
 
   getAgents: async (): Promise<AuthUser[]> => {

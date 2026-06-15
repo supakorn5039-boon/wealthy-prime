@@ -99,12 +99,11 @@ type UpdatePropertyInput struct {
 	DeleteImageIDs []uint
 }
 
-// ListProperties returns properties visible to the public (status != pending_approve).
+// ListProperties returns all public-facing properties.
 func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.PropertyDto, error) {
 	query := s.db.Model(&model.Property{}).
 		Preload("Images").
-		Preload("Agent").
-		Where("status != ?", model.StatusPendingApprove)
+		Preload("Agent")
 
 	// Map ?types=buy,rent to listing rows. ListingBoth matches either side,
 	// so it's included whenever any type is picked.
@@ -248,7 +247,7 @@ func (s *PropertyService) CreateProperty(input CreatePropertyInput) (*model.Prop
 		RentalPeriodMonths: input.RentalPeriodMonths,
 		Lat:                input.Lat,
 		Lng:                input.Lng,
-		Status:             model.StatusPendingApprove,
+		Status:             model.StatusAvailable,
 		Images:             images,
 
 		Kind:         input.Kind,
@@ -320,8 +319,7 @@ func (s *PropertyService) UpdateStatus(propertyID, agentID uint, input UpdateSta
 }
 
 // UpdateProperty edits a property's core fields. Owning agent or admin only.
-// New images are appended. If the property was published (available/reserved),
-// status flips back to pending_approve so admin re-reviews the edit.
+// New images are appended.
 func (s *PropertyService) UpdateProperty(propertyID, callerID uint, role model.UserRole, input UpdatePropertyInput) (*model.PropertyDto, error) {
 	var p model.Property
 	err := s.db.First(&p, propertyID).Error
@@ -388,10 +386,6 @@ func (s *PropertyService) UpdateProperty(propertyID, callerID uint, role model.U
 		updates["lng"] = *input.Lng
 	}
 
-	if p.Status == model.StatusAvailable || p.Status == model.StatusReserved {
-		updates["status"] = model.StatusPendingApprove
-	}
-
 	if err := s.db.Model(&p).Updates(updates).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "failed to update property")
 	}
@@ -452,47 +446,6 @@ func (s *PropertyService) GetAgentProperties(agentID uint) ([]model.PropertyDto,
 		dtos[i] = *p.ToDto()
 	}
 	return dtos, nil
-}
-
-// GetPendingProperties returns all pending_approve properties (admin).
-func (s *PropertyService) GetPendingProperties() ([]model.PropertyDto, error) {
-	var properties []model.Property
-	if err := s.db.Preload("Images").Preload("Agent").
-		Where("status = ?", model.StatusPendingApprove).Find(&properties).Error; err != nil {
-		return nil, apperror.Wrap(err, 500, "failed to fetch pending properties")
-	}
-	dtos := make([]model.PropertyDto, len(properties))
-	for i, p := range properties {
-		dtos[i] = *p.ToDto()
-	}
-	return dtos, nil
-}
-
-// ApproveProperty marks a pending property as available (approve) or deletes it (reject).
-func (s *PropertyService) ApproveProperty(propertyID uint, action string) (*model.PropertyDto, error) {
-	var p model.Property
-	err := s.db.First(&p, propertyID).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, apperror.NotFound("property")
-	}
-	if err != nil {
-		return nil, apperror.Wrap(err, 500, "database error")
-	}
-
-	switch action {
-	case "approve":
-		if err := s.db.Model(&p).Update("status", model.StatusAvailable).Error; err != nil {
-			return nil, apperror.Wrap(err, 500, "failed to update property status")
-		}
-		return s.GetProperty(propertyID)
-	case "reject":
-		if err := s.db.Delete(&p).Error; err != nil {
-			return nil, apperror.Wrap(err, 500, "failed to delete rejected property")
-		}
-		return nil, nil
-	default:
-		return nil, apperror.BadRequest("action must be 'approve' or 'reject'")
-	}
 }
 
 // saveUpload stores a multipart file and returns its URL. When R2 is

@@ -1,7 +1,6 @@
 export type PropertyType = 'buy' | 'rent'
 export type PropertyStatus =
   | 'available'
-  | 'pending_approve'
   | 'reserved'
   | 'sold'
   | 'unavailable'

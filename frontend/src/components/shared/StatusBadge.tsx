@@ -5,7 +5,6 @@ import type { BookingStatus } from '@/types/Booking'
 
 const propertyVariantMap: Record<PropertyStatus, 'success' | 'warning' | 'info' | 'destructive' | 'secondary'> = {
   available: 'success',
-  pending_approve: 'warning',
   reserved: 'info',
   sold: 'destructive',
   unavailable: 'secondary',

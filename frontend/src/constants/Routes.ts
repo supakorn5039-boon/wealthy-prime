@@ -40,7 +40,6 @@ export const ROUTES = {
 
   // Admin
   ADMIN_DASHBOARD: '/admin/dashboard',
-  ADMIN_PENDING: '/admin/pending',
   ADMIN_PENDING_USERS: '/admin/pending-users',
   ADMIN_AGENTS: '/admin/agents',
   ADMIN_USERS: '/admin/users',

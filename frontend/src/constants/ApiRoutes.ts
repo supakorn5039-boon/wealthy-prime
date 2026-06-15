@@ -38,8 +38,6 @@ export const API = {
 
   // Admin
   ADMIN_DASHBOARD: '/admin/dashboard',
-  ADMIN_PENDING: '/admin/properties/pending',
-  ADMIN_PROPERTY_APPROVE: (id: number | string) => `/admin/properties/${id}/approve`,
   ADMIN_AGENTS: '/admin/agents',
   ADMIN_AGENT_DETAIL: (id: number | string) => `/admin/agents/${id}`,
   ADMIN_AGENT_ROLE: (id: number | string) => `/admin/agents/${id}/role`,

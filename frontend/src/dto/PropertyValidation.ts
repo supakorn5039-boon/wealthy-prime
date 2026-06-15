@@ -89,7 +89,6 @@ export type PropertySchema = z.infer<typeof propertySchema>
 export const propertyStatusSchema = z.object({
   status: z.enum([
     'available',
-    'pending_approve',
     'reserved',
     'sold',
     'unavailable',

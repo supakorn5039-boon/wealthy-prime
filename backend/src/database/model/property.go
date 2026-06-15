@@ -21,12 +21,11 @@ type PetPolicy string
 type FurniturePolicy string
 
 const (
-	StatusAvailable      PropertyStatus = "available"
-	StatusPendingApprove PropertyStatus = "pending_approve"
-	StatusReserved       PropertyStatus = "reserved"
-	StatusSold           PropertyStatus = "sold"
-	StatusUnavailable    PropertyStatus = "unavailable"
-	StatusOwnerUpdate    PropertyStatus = "owner_update"
+	StatusAvailable   PropertyStatus = "available"
+	StatusReserved    PropertyStatus = "reserved"
+	StatusSold        PropertyStatus = "sold"
+	StatusUnavailable PropertyStatus = "unavailable"
+	StatusOwnerUpdate PropertyStatus = "owner_update"
 
 	TypeBuy  PropertyType = "buy"
 	TypeRent PropertyType = "rent"

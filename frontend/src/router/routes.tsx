@@ -27,7 +27,6 @@ const AgentProfileIndex = lazyWithReload(() => import('@/pages/agent/AgentProfil
 const AgentOverviewIndex = lazyWithReload(() => import('@/pages/agent/AgentOverviewIndex'))
 const OwnerLogIndex = lazyWithReload(() => import('@/pages/agent/OwnerLogIndex'))
 const AdminDashboardIndex = lazyWithReload(() => import('@/pages/admin/AdminDashboardIndex'))
-const PendingApprovalsIndex = lazyWithReload(() => import('@/pages/admin/PendingApprovalsIndex'))
 const PendingUsersIndex = lazyWithReload(() => import('@/pages/admin/PendingUsersIndex'))
 const AgentManagementIndex = lazyWithReload(() => import('@/pages/admin/AgentManagementIndex'))
 const UserManagementIndex = lazyWithReload(() => import('@/pages/admin/UserManagementIndex'))
@@ -81,7 +80,6 @@ export const routes: AppRoute[] = [
 
   // Admin protected
   { path: ROUTES.ADMIN_DASHBOARD, element: wrap(<AdminDashboardIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
-  { path: ROUTES.ADMIN_PENDING, element: wrap(<PendingApprovalsIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
   { path: ROUTES.ADMIN_PENDING_USERS, element: wrap(<PendingUsersIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
   { path: ROUTES.ADMIN_AGENTS, element: wrap(<AgentManagementIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
   { path: ROUTES.ADMIN_USERS, element: wrap(<UserManagementIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },

@@ -28,9 +28,6 @@ func (ctrl *AdminController) RegisterRoutes(r *gin.RouterGroup) {
 
 	admin.GET("/dashboard", ctrl.getDashboard)
 
-	admin.GET("/properties/pending", ctrl.getPendingProperties)
-	admin.PUT("/properties/:id/approve", ctrl.approveProperty)
-
 	admin.GET("/agents", ctrl.listAgents)
 	admin.GET("/agents/:id", ctrl.getAgent)
 	admin.PUT("/agents/:id", ctrl.updateAgent)
@@ -58,41 +55,6 @@ func (ctrl *AdminController) getDashboard(c *gin.Context) {
 		return
 	}
 	successResponse(c, dash)
-}
-
-func (ctrl *AdminController) getPendingProperties(c *gin.Context) {
-	svc := service.NewPropertyService()
-	dtos, err := svc.GetPendingProperties()
-	if err != nil {
-		errorResponse(c, err)
-		return
-	}
-	successResponse(c, dtos)
-}
-
-func (ctrl *AdminController) approveProperty(c *gin.Context) {
-	id, err := parseUintParam(c, "id")
-	if err != nil {
-		badRequest(c, "invalid property id")
-		return
-	}
-
-	var body struct {
-		Action string `json:"action" binding:"required"`
-	}
-	if err := c.ShouldBindJSON(&body); err != nil {
-		badRequest(c, err.Error())
-		return
-	}
-
-	svc := service.NewPropertyService()
-	dto, err := svc.ApproveProperty(id, body.Action)
-	if err != nil {
-		errorResponse(c, err)
-		return
-	}
-
-	successResponse(c, dto)
 }
 
 func (ctrl *AdminController) listAgents(c *gin.Context) {

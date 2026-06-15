@@ -8,7 +8,6 @@ import (
 
 	"github.com/wealthy-prime/backend/src/apiwebserver/middleware"
 	"github.com/wealthy-prime/backend/src/apiwebserver/service"
-	"github.com/wealthy-prime/backend/src/apperror"
 	"github.com/wealthy-prime/backend/src/database/model"
 )
 
@@ -133,19 +132,7 @@ func (ctrl *PropertyController) getProperty(c *gin.Context) {
 		return
 	}
 
-	role := middleware.GetRole(c)
-	viewerID := middleware.GetUserID(c)
-
-	// Hide pending_approve from anyone other than the owning agent or admins.
-	if dto.Status == model.StatusPendingApprove {
-		isOwningAgent := role == model.RoleAgent && dto.AgentID != nil && *dto.AgentID == viewerID
-		if role != model.RoleAdmin && !isOwningAgent {
-			errorResponse(c, apperror.NotFound("property"))
-			return
-		}
-	}
-
-	if !canSeeOwnerInfo(role) {
+	if !canSeeOwnerInfo(middleware.GetRole(c)) {
 		dto.StripOwnerInfo()
 	}
 

@@ -50,7 +50,6 @@ L.Icon.Default.mergeOptions({
 const STATUS_COLOR: Record<string, string> = {
   available: "#22c55e",
   reserved: "#f59e0b",
-  pending_approve: "#6366f1",
   sold: "#ef4444",
   rented: "#64748b",
 };
