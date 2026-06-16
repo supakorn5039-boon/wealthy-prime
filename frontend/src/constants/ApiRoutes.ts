@@ -23,6 +23,8 @@ export const API = {
   // Reviews
   REVIEWS: '/reviews',
   REVIEW_BY_TOKEN: (token: string) => `/reviews/token/${token}`,
+  REVIEW_REPLY: (id: number | string) => `/reviews/${id}/reply`,
+  PROPERTY_CREATE_REVIEW: (propertyId: number | string) => `/properties/${propertyId}/reviews`,
 
   // Agent
   AGENT_DASHBOARD: '/agent/dashboard',

@@ -198,10 +198,16 @@ func (s *PropertyService) GetProperty(id uint) (*model.PropertyDto, error) {
 	return p.ToDto(), nil
 }
 
-// GetPropertyReviews returns all reviews for a property.
+// GetPropertyReviews returns all reviews for a property, newest first.
 func (s *PropertyService) GetPropertyReviews(propertyID uint) ([]model.ReviewDto, error) {
 	var reviews []model.Review
-	if err := s.db.Preload("User").Where("property_id = ?", propertyID).Find(&reviews).Error; err != nil {
+	err := s.db.
+		Preload("User").
+		Preload("RepliedBy").
+		Where("property_id = ?", propertyID).
+		Order("created_at DESC").
+		Find(&reviews).Error
+	if err != nil {
 		return nil, apperror.Wrap(err, 500, "failed to fetch reviews")
 	}
 	dtos := make([]model.ReviewDto, len(reviews))

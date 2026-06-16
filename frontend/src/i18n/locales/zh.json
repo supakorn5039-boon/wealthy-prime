@@ -525,6 +525,18 @@
     "requestNewLink": "请向代理申请新的评论链接",
     "linkExpired": "发生错误，链接可能已过期。",
     "loginRequiredTitle": "请登录后发表评论",
-    "loginRequiredDesc": "请先登录或注册账户，再提交您的评论。"
+    "loginRequiredDesc": "请先登录或注册账户，再提交您的评论。",
+    "writeReview": "撰写评论",
+    "editYourReview": "编辑您的评论",
+    "yourReviewSaved": "评论已保存。",
+    "failedToSave": "保存评论失败。",
+    "reply": "回复",
+    "replyPlaceholder": "回复此评论...",
+    "submitReply": "提交回复",
+    "editReply": "编辑回复",
+    "replied": "已回复",
+    "agentReply": "代理回复",
+    "adminReply": "管理员回复",
+    "replyFailed": "回复发送失败。"
   }
 }

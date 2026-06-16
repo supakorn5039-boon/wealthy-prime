@@ -7,6 +7,10 @@ export interface Review {
   rating: number
   comment?: string
   createdAt: string
+  reply?: string
+  repliedByName?: string
+  repliedByRole?: 'user' | 'agent' | 'admin'
+  repliedAt?: string
 }
 
 export interface CreateReviewPayload {
@@ -14,6 +18,17 @@ export interface CreateReviewPayload {
   rating: number
   comment?: string
   token: string
+}
+
+export interface CreateDirectReviewPayload {
+  propertyId: number | string
+  rating: number
+  comment?: string
+}
+
+export interface ReplyReviewPayload {
+  reviewId: number
+  reply: string
 }
 
 export interface ReviewLink {

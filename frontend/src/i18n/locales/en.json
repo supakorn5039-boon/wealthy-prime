@@ -525,6 +525,18 @@
     "requestNewLink": "Please request a new review link from the agent",
     "linkExpired": "An error occurred. The link may have expired.",
     "loginRequiredTitle": "Sign in to leave a review",
-    "loginRequiredDesc": "Please sign in or create an account before submitting your review."
+    "loginRequiredDesc": "Please sign in or create an account before submitting your review.",
+    "writeReview": "Write a Review",
+    "editYourReview": "Edit Your Review",
+    "yourReviewSaved": "Your review has been saved.",
+    "failedToSave": "Failed to save review.",
+    "reply": "Reply",
+    "replyPlaceholder": "Reply to this review...",
+    "submitReply": "Submit Reply",
+    "editReply": "Edit reply",
+    "replied": "Replied",
+    "agentReply": "Agent reply",
+    "adminReply": "Admin reply",
+    "replyFailed": "Failed to send reply."
   }
 }

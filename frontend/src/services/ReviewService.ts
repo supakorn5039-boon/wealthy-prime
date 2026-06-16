@@ -1,6 +1,11 @@
 import { fetchClient } from '@/utils/axios'
 import { API } from '@/constants/ApiRoutes'
-import type { Review, CreateReviewPayload } from '@/types/Review'
+import type {
+  Review,
+  CreateReviewPayload,
+  CreateDirectReviewPayload,
+  ReplyReviewPayload,
+} from '@/types/Review'
 import type { ApiResponse } from '@/types/Commons'
 
 export const ReviewService = {
@@ -28,6 +33,22 @@ export const ReviewService = {
       comment: payload.comment,
     }
     const res = await fetchClient.post<ApiResponse<Review>>(API.REVIEWS, body)
+    return res.data.data
+  },
+
+  createForProperty: async (payload: CreateDirectReviewPayload): Promise<Review> => {
+    const res = await fetchClient.post<ApiResponse<Review>>(
+      API.PROPERTY_CREATE_REVIEW(payload.propertyId),
+      { rating: payload.rating, comment: payload.comment }
+    )
+    return res.data.data
+  },
+
+  reply: async (payload: ReplyReviewPayload): Promise<Review> => {
+    const res = await fetchClient.patch<ApiResponse<Review>>(
+      API.REVIEW_REPLY(payload.reviewId),
+      { reply: payload.reply }
+    )
     return res.data.data
   },
 }

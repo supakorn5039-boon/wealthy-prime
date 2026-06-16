@@ -525,6 +525,18 @@
     "requestNewLink": "กรุณาขอลิงก์รีวิวใหม่จากเอเจนต์",
     "linkExpired": "เกิดข้อผิดพลาด ลิงก์อาจหมดอายุแล้ว",
     "loginRequiredTitle": "เข้าสู่ระบบเพื่อรีวิว",
-    "loginRequiredDesc": "กรุณาเข้าสู่ระบบหรือสมัครสมาชิกก่อนเขียนรีวิว"
+    "loginRequiredDesc": "กรุณาเข้าสู่ระบบหรือสมัครสมาชิกก่อนเขียนรีวิว",
+    "writeReview": "เขียนรีวิว",
+    "editYourReview": "แก้ไขรีวิวของคุณ",
+    "yourReviewSaved": "บันทึกรีวิวของคุณแล้ว",
+    "failedToSave": "บันทึกรีวิวไม่สำเร็จ",
+    "reply": "ตอบกลับ",
+    "replyPlaceholder": "ตอบกลับรีวิวนี้...",
+    "submitReply": "ส่งคำตอบ",
+    "editReply": "แก้ไขคำตอบ",
+    "replied": "ตอบเมื่อ",
+    "agentReply": "คำตอบจากเอเจนต์",
+    "adminReply": "คำตอบจากแอดมิน",
+    "replyFailed": "ส่งคำตอบไม่สำเร็จ"
   }
 }
