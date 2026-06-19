@@ -14,6 +14,13 @@ import (
 	"github.com/wealthy-prime/backend/src/database/model"
 )
 
+// Booking creation rate limit per authenticated user. Allows a small burst
+// for a normal cart submit but blocks scripted floods.
+const (
+	bookingRatePerSecond = 10.0 / 60.0
+	bookingBurst         = 5
+)
+
 type UserController struct {
 	bookingSvc *service.BookingService
 	inquirySvc *service.InquiryService
@@ -39,7 +46,10 @@ func (ctrl *UserController) RegisterRoutes(r *gin.RouterGroup) {
 	user.GET("/history", ctrl.getHistory)
 	user.POST("/history/:propertyId", ctrl.addHistory)
 
-	user.POST("/bookings", ctrl.createBookings)
+	user.POST("/bookings",
+		middleware.RateLimit(middleware.UserKey, bookingRatePerSecond, bookingBurst),
+		ctrl.createBookings,
+	)
 	user.GET("/bookings", ctrl.listBookings)
 	user.GET("/bookings/:id", ctrl.getBooking)
 	user.GET("/contacts", ctrl.getContacts)

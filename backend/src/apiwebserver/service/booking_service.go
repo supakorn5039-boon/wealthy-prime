@@ -13,12 +13,24 @@ import (
 	"github.com/wealthy-prime/backend/src/database"
 	"github.com/wealthy-prime/backend/src/database/model"
 	"github.com/wealthy-prime/backend/src/pkg/email"
+	"github.com/wealthy-prime/backend/src/pkg/timezone"
 )
+
+// activeBookingStatuses are the states that count toward an agent's daily
+// load and a user's active-booking cap.
+var activeBookingStatuses = []model.BookingStatus{model.BookingPending, model.BookingAssigned}
 
 // maxBookingsPerAgentPerDay caps an agent at 3 active bookings per calendar
 // day (ICT). Beyond that, new bookings get assigned to a random other agent
 // to spread the load.
 const maxBookingsPerAgentPerDay = 3
+
+// Per-request input caps that bound the blast radius of automated/scripted
+// abuse before any agent-assignment logic runs.
+const (
+	maxPropertiesPerRequest  = 5
+	maxActiveBookingsPerUser = 20
+)
 
 type BookingService struct {
 	db     *gorm.DB
@@ -53,65 +65,94 @@ type CreateBookingsInput struct {
 // the property has no agent at all, the booking stays pending and the admin
 // queue picks it up.
 func (s *BookingService) CreateBookings(userID uint, input CreateBookingsInput) ([]model.BookingDto, error) {
-	var results []model.BookingDto
+	if len(input.PropertyIDs) > maxPropertiesPerRequest {
+		return nil, apperror.BadRequest("too many properties in one request; max " + strconv.Itoa(maxPropertiesPerRequest))
+	}
+
+	// Cap each user's active (pending + assigned) bookings. Stops a single
+	// account — including an auto-approved one — from flooding agents' days.
+	var userActive int64
+	if err := s.db.Model(&model.Booking{}).
+		Where("user_id = ? AND status IN ?", userID, activeBookingStatuses).
+		Count(&userActive).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "database error counting user bookings")
+	}
+	if userActive+int64(len(input.PropertyIDs)) > int64(maxActiveBookingsPerUser) {
+		return nil, apperror.BadRequest("too many active bookings; finish or cancel existing ones first")
+	}
+
+	results := make([]model.BookingDto, 0, len(input.PropertyIDs))
 
 	for _, propertyID := range input.PropertyIDs {
-		// Verify property exists
-		var property model.Property
-		err := s.db.First(&property, propertyID).Error
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperror.NotFound("property " + uintToStr(propertyID))
-		}
-		if err != nil {
-			return nil, apperror.Wrap(err, 500, "database error fetching property")
-		}
+		var notify model.Booking
+		var dto *model.BookingDto
 
-		status := model.BookingPending
-		assignedAgentID := property.AgentID
-		if assignedAgentID != nil {
-			reassign, err := s.maybeReassignForLoad(*assignedAgentID, input.AppointmentDate)
+		// Each booking runs in its own tx so the advisory lock on
+		// (preferredAgent, day) is held across the count and the insert. This
+		// closes the read-then-write race that would otherwise let many
+		// concurrent requests all read count=0 and all assign to the same
+		// agent past the cap.
+		txErr := s.db.Transaction(func(tx *gorm.DB) error {
+			var property model.Property
+			err := tx.First(&property, propertyID).Error
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return apperror.NotFound("property " + uintToStr(propertyID))
+			}
 			if err != nil {
-				return nil, err
+				return apperror.Wrap(err, 500, "database error fetching property")
 			}
-			if reassign != nil {
-				assignedAgentID = reassign
+
+			status := model.BookingPending
+			assignedAgentID := property.AgentID
+			if assignedAgentID != nil {
+				reassign, err := s.maybeReassignForLoadTx(tx, *assignedAgentID, input.AppointmentDate)
+				if err != nil {
+					return err
+				}
+				if reassign != nil {
+					assignedAgentID = reassign
+				}
+				status = model.BookingAssigned
 			}
-			status = model.BookingAssigned
+
+			booking := model.Booking{
+				UserID:          userID,
+				PropertyID:      propertyID,
+				AppointmentDate: input.AppointmentDate,
+				Note:            input.Note,
+				Status:          status,
+				AssignedAgentID: assignedAgentID,
+				FirstName:       input.FirstName,
+				LastName:        input.LastName,
+				Phone:           input.Phone,
+				SecondaryPhone:  input.SecondaryPhone,
+				LatestContact:   input.LatestContact,
+				LineID:          input.LineID,
+				Email:           input.Email,
+				Facebook:        input.Facebook,
+				Wechat:          input.Wechat,
+				Whatsapp:        input.Whatsapp,
+			}
+
+			if err := tx.Create(&booking).Error; err != nil {
+				return apperror.Wrap(err, 500, "failed to create booking")
+			}
+
+			if err := tx.Preload("User").Preload("Property").Preload("AssignedAgent").
+				First(&notify, booking.ID).Error; err != nil {
+				return apperror.Wrap(err, 500, "failed to reload booking")
+			}
+			dto = notify.ToDto()
+			return nil
+		})
+		if txErr != nil {
+			return nil, txErr
 		}
 
-		booking := model.Booking{
-			UserID:          userID,
-			PropertyID:      propertyID,
-			AppointmentDate: input.AppointmentDate,
-			Note:            input.Note,
-			Status:          status,
-			AssignedAgentID: assignedAgentID,
-			FirstName:       input.FirstName,
-			LastName:        input.LastName,
-			Phone:           input.Phone,
-			SecondaryPhone:  input.SecondaryPhone,
-			LatestContact:   input.LatestContact,
-			LineID:          input.LineID,
-			Email:           input.Email,
-			Facebook:        input.Facebook,
-			Wechat:          input.Wechat,
-			Whatsapp:        input.Whatsapp,
-		}
-
-		if err := s.db.Create(&booking).Error; err != nil {
-			return nil, apperror.Wrap(err, 500, "failed to create booking")
-		}
-
-		// Reload with preloads
-		var full model.Booking
-		if err := s.db.Preload("User").Preload("Property").Preload("AssignedAgent").
-			First(&full, booking.ID).Error; err != nil {
-			return nil, apperror.Wrap(err, 500, "failed to reload booking")
-		}
-
-		s.notifyAppointmentAsync(full)
-
-		results = append(results, *full.ToDto())
+		// Notify only after the tx commits, so we never email about a booking
+		// that was rolled back.
+		s.notifyAppointmentAsync(notify)
+		results = append(results, *dto)
 	}
 
 	return results, nil
@@ -165,22 +206,33 @@ func (s *BookingService) sendAgentNotification(b model.Booking) {
 	log.Printf("[email] booking %d agent notification sent to %s (bcc=%q)", b.ID, msg.To, msg.Bcc)
 }
 
-// maybeReassignForLoad returns a different agent ID when preferredAgentID
+// maybeReassignForLoadTx returns a different agent ID when preferredAgentID
 // already has maxBookingsPerAgentPerDay active bookings on the appointment
 // day (00:00–23:59 ICT). Returns nil when no reassignment is needed or no
 // other approved agent is available — the caller falls back to
 // preferredAgentID in that case.
-func (s *BookingService) maybeReassignForLoad(preferredAgentID uint, appointmentDate time.Time) (*uint, error) {
-	ict := time.FixedZone("ICT", 7*3600)
-	local := appointmentDate.In(ict)
-	dayStart := time.Date(local.Year(), local.Month(), local.Day(), 0, 0, 0, 0, ict)
+//
+// Must run inside a transaction. Takes a per-tx Postgres advisory lock keyed
+// on (preferredAgentID, dayStart) so the count, decision, and insert that
+// follows are serialized for that (agent, day) pair. The lock auto-releases
+// when the tx commits or rolls back. Different (agent, day) pairs do not
+// contend, so unrelated bookings stay parallel.
+func (s *BookingService) maybeReassignForLoadTx(tx *gorm.DB, preferredAgentID uint, appointmentDate time.Time) (*uint, error) {
+	local := appointmentDate.In(timezone.ICT)
+	dayStart := time.Date(local.Year(), local.Month(), local.Day(), 0, 0, 0, 0, timezone.ICT)
 	dayEnd := dayStart.Add(24 * time.Hour)
 
-	activeStatuses := []model.BookingStatus{model.BookingPending, model.BookingAssigned}
+	// pg_advisory_xact_lock(int4, int4) — agent ID + days-since-epoch fit
+	// comfortably in int32. Two-key form keeps the lock space sparse.
+	daysSinceEpoch := int32(dayStart.Unix() / 86400)
+	if err := tx.Exec("SELECT pg_advisory_xact_lock(?, ?)", int32(preferredAgentID), daysSinceEpoch).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to acquire booking lock")
+	}
+
 	var count int64
-	if err := s.db.Model(&model.Booking{}).
+	if err := tx.Model(&model.Booking{}).
 		Where("assigned_agent_id = ? AND status IN ? AND appointment_date >= ? AND appointment_date < ?",
-			preferredAgentID, activeStatuses, dayStart, dayEnd).
+			preferredAgentID, activeBookingStatuses, dayStart, dayEnd).
 		Count(&count).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "database error counting agent bookings")
 	}
@@ -189,7 +241,7 @@ func (s *BookingService) maybeReassignForLoad(preferredAgentID uint, appointment
 	}
 
 	var pool []model.User
-	if err := s.db.Select("id").
+	if err := tx.Select("id").
 		Where("role = ? AND is_approved = ? AND id <> ?", model.RoleAgent, true, preferredAgentID).
 		Find(&pool).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "database error fetching agent pool")

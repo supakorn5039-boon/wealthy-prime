@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"html/template"
 	"strings"
-	"time"
 
 	"github.com/wealthy-prime/backend/src/config"
 	"github.com/wealthy-prime/backend/src/database/model"
+	"github.com/wealthy-prime/backend/src/pkg/timezone"
 )
 
 // BuildAppointmentNotification renders the email an agent receives when a
@@ -25,7 +25,7 @@ func BuildAppointmentNotification(booking *model.Booking, agent *model.User) (Me
 
 	customerPhone := firstNonEmpty(booking.Phone, booking.User.Phone)
 	customerEmail := firstNonEmpty(booking.Email, booking.User.Email)
-	apptTime := booking.AppointmentDate.In(time.FixedZone("ICT", 7*3600)).Format("2 Jan 2006 15:04 น.")
+	apptTime := booking.AppointmentDate.In(timezone.ICT).Format("2 Jan 2006 15:04 น.")
 
 	data := appointmentData{
 		AgentName:      agent.Name,
@@ -73,7 +73,7 @@ func BuildAppointmentConfirmation(booking *model.Booking, agent *model.User) (Me
 	if toEmail == "" {
 		return Message{}, fmt.Errorf("no customer email available for booking %d", booking.ID)
 	}
-	apptTime := booking.AppointmentDate.In(time.FixedZone("ICT", 7*3600)).Format("2 Jan 2006 15:04 น.")
+	apptTime := booking.AppointmentDate.In(timezone.ICT).Format("2 Jan 2006 15:04 น.")
 
 	data := confirmationData{
 		CustomerName:  customerName,

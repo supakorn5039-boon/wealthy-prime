@@ -45,8 +45,9 @@ func Init() {
 	if err != nil {
 		log.Fatalf("[database] failed to get sql.DB: %v", err)
 	}
-	sqlDB.SetMaxOpenConns(25)
-	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(50)
+	sqlDB.SetMaxIdleConns(20)
+	sqlDB.SetConnMaxLifetime(30 * time.Minute)
 
 	DB = db
 	log.Println("[database] connected")
