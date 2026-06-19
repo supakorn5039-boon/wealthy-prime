@@ -16,9 +16,10 @@ import (
 	"github.com/wealthy-prime/backend/src/pkg/timezone"
 )
 
-// activeBookingStatuses are the states that count toward an agent's daily
-// load and a user's active-booking cap.
-var activeBookingStatuses = []model.BookingStatus{model.BookingPending, model.BookingAssigned}
+// ActiveBookingStatuses are the states that count toward an agent's daily
+// load and a user's active-booking cap. Exported so admin queries that
+// filter "open" bookings share the same definition.
+var ActiveBookingStatuses = []model.BookingStatus{model.BookingPending, model.BookingAssigned}
 
 // maxBookingsPerAgentPerDay caps an agent at 3 active bookings per calendar
 // day (ICT). Beyond that, new bookings get assigned to a random other agent
@@ -73,7 +74,7 @@ func (s *BookingService) CreateBookings(userID uint, input CreateBookingsInput) 
 	// account — including an auto-approved one — from flooding agents' days.
 	var userActive int64
 	if err := s.db.Model(&model.Booking{}).
-		Where("user_id = ? AND status IN ?", userID, activeBookingStatuses).
+		Where("user_id = ? AND status IN ?", userID, ActiveBookingStatuses).
 		Count(&userActive).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "database error counting user bookings")
 	}
@@ -232,7 +233,7 @@ func (s *BookingService) maybeReassignForLoadTx(tx *gorm.DB, preferredAgentID ui
 	var count int64
 	if err := tx.Model(&model.Booking{}).
 		Where("assigned_agent_id = ? AND status IN ? AND appointment_date >= ? AND appointment_date < ?",
-			preferredAgentID, activeBookingStatuses, dayStart, dayEnd).
+			preferredAgentID, ActiveBookingStatuses, dayStart, dayEnd).
 		Count(&count).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "database error counting agent bookings")
 	}

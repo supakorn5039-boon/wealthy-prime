@@ -409,6 +409,8 @@
     "visitRequestsSubtitle": "All viewing appointments across every property and agent",
     "visitRequestsSearchPlaceholder": "Search customer / property / agent...",
     "visitRequestsNoMatches": "No matching requests",
+    "visitRequestsNoMatchesDesc": "Try a different search term",
+    "visitRequestsCount": "{{count}} requests total",
     "noVisitRequests": "No visit requests yet",
     "noVisitRequestsDesc": "Customer viewing appointments will appear here once booked."
   },

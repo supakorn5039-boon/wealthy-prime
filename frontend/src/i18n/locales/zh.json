@@ -409,6 +409,8 @@
     "visitRequestsSubtitle": "覆盖所有房产和代理的全部看房预约",
     "visitRequestsSearchPlaceholder": "搜索客户 / 房产 / 代理...",
     "visitRequestsNoMatches": "未找到匹配的请求",
+    "visitRequestsNoMatchesDesc": "请尝试其他搜索词",
+    "visitRequestsCount": "共 {{count}} 个请求",
     "noVisitRequests": "暂无参观请求",
     "noVisitRequestsDesc": "客户预约看房后将显示在此处"
   },

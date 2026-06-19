@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -99,7 +98,7 @@ func (s *AdminService) GetDashboard() (*AdminDashboard, error) {
 func (s *AdminService) ListBookings() ([]model.BookingDto, error) {
 	var bookings []model.Booking
 	if err := s.db.Preload("User").Preload("Property").Preload("AssignedAgent").
-		Where("status IN ?", []model.BookingStatus{model.BookingPending, model.BookingAssigned}).
+		Where("status IN ?", ActiveBookingStatuses).
 		Order("created_at DESC").Find(&bookings).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "failed to list bookings")
 	}
@@ -234,7 +233,7 @@ func (s *AdminService) ExportFinancial(w http.ResponseWriter) error {
 	}
 
 	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="financial_report.xlsx"`))
+	w.Header().Set("Content-Disposition", `attachment; filename="financial_report.xlsx"`)
 
 	pr, pw := io.Pipe()
 	errCh := make(chan error, 1)

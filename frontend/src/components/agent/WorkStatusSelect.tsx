@@ -3,15 +3,8 @@ import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { AgentService } from '@/services/AgentService'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { WORK_STATUS_OPTIONS } from '@/constants/WorkStatus'
 import type { AppointmentWorkStatus, Booking } from '@/types/Booking'
-
-const OPTIONS: { value: AppointmentWorkStatus; labelKey: string }[] = [
-  { value: 'contacted', labelKey: 'workStatus.contacted' },
-  { value: 'visited', labelKey: 'workStatus.visited' },
-  { value: 'booked', labelKey: 'workStatus.booked' },
-  { value: 'closed_deal', labelKey: 'workStatus.closed_deal' },
-  { value: 'customer_cancelled', labelKey: 'workStatus.customer_cancelled' },
-]
 
 export function WorkStatusSelect({ contact, className }: { contact: Booking; className?: string }) {
   const { t } = useTranslation()
@@ -36,7 +29,7 @@ export function WorkStatusSelect({ contact, className }: { contact: Booking; cla
         <SelectValue placeholder={t('agent.workStatusPlaceholder')} />
       </SelectTrigger>
       <SelectContent>
-        {OPTIONS.map((opt) => (
+        {WORK_STATUS_OPTIONS.map((opt) => (
           <SelectItem key={opt.value} value={opt.value} className="text-sm">
             {t(opt.labelKey)}
           </SelectItem>

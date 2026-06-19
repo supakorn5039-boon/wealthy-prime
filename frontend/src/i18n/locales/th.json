@@ -409,6 +409,8 @@
     "visitRequestsSubtitle": "รายการนัดชมทรัพย์ทั้งหมดในระบบ ครอบคลุมทุกเอเจนต์และทุกทรัพย์",
     "visitRequestsSearchPlaceholder": "ค้นหาลูกค้า / ทรัพย์ / เอเจนต์...",
     "visitRequestsNoMatches": "ไม่พบคำขอที่ค้นหา",
+    "visitRequestsNoMatchesDesc": "ลองใช้คำค้นอื่น",
+    "visitRequestsCount": "{{count}} คำขอทั้งหมด",
     "noVisitRequests": "ยังไม่มีคำขอเยี่ยมชม",
     "noVisitRequestsDesc": "นัดชมทรัพย์จากลูกค้าจะแสดงที่นี่"
   },
