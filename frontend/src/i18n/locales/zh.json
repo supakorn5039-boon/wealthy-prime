@@ -150,7 +150,8 @@
     "visited": "已带看",
     "booked": "已预订",
     "closed_deal": "成交",
-    "customer_cancelled": "客户取消"
+    "customer_cancelled": "客户取消",
+    "notSet": "未联系"
   },
   "property": {
     "buy": "购买",
@@ -404,7 +405,12 @@
     "confirmApproveUserTitle": "审核通过",
     "confirmApproveUserDesc": "允许 {{name}} 登录吗？",
     "confirmRejectUserTitle": "拒绝注册",
-    "confirmRejectUserDesc": "拒绝并删除 {{name}} 的注册申请？此操作不可撤销。"
+    "confirmRejectUserDesc": "拒绝并删除 {{name}} 的注册申请？此操作不可撤销。",
+    "visitRequestsSubtitle": "覆盖所有房产和代理的全部看房预约",
+    "visitRequestsSearchPlaceholder": "搜索客户 / 房产 / 代理...",
+    "visitRequestsNoMatches": "未找到匹配的请求",
+    "noVisitRequests": "暂无参观请求",
+    "noVisitRequestsDesc": "客户预约看房后将显示在此处"
   },
   "home": {
     "title": "搜索房产",

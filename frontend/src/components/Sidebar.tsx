@@ -76,7 +76,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     { labelKey: 'sidebar.caseTransfer', href: ROUTES.ADMIN_REASSIGN, icon: <ArrowLeftRight className="h-4 w-4" /> },
     { labelKey: 'sidebar.financialReport', href: ROUTES.ADMIN_FINANCIAL, icon: <DollarSign className="h-4 w-4" /> },
     { labelKey: 'sidebar.allProperties', href: ROUTES.AGENT_PROPERTIES, icon: <Building2 className="h-4 w-4" /> },
-    { labelKey: 'sidebar.visitRequests', href: ROUTES.AGENT_CONTACT_HISTORY, icon: <Calendar className="h-4 w-4" /> },
+    { labelKey: 'sidebar.visitRequests', href: ROUTES.ADMIN_VISIT_REQUESTS, icon: <Calendar className="h-4 w-4" /> },
     { labelKey: 'sidebar.inquiries', href: ROUTES.AGENT_INQUIRIES, icon: <MessageSquare className="h-4 w-4" /> },
     { labelKey: 'sidebar.leads', href: ROUTES.AGENT_LEADS, icon: <Users className="h-4 w-4" /> },
     { labelKey: 'sidebar.agentOverview', href: ROUTES.AGENT_OVERVIEW, icon: <BarChart2 className="h-4 w-4" /> },

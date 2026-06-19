@@ -31,6 +31,7 @@ const PendingUsersIndex = lazyWithReload(() => import('@/pages/admin/PendingUser
 const AgentManagementIndex = lazyWithReload(() => import('@/pages/admin/AgentManagementIndex'))
 const UserManagementIndex = lazyWithReload(() => import('@/pages/admin/UserManagementIndex'))
 const CaseReassignmentIndex = lazyWithReload(() => import('@/pages/admin/CaseReassignmentIndex'))
+const AdminVisitRequestsIndex = lazyWithReload(() => import('@/pages/admin/VisitRequestsIndex'))
 const FinancialIndex = lazyWithReload(() => import('@/pages/admin/FinancialIndex'))
 
 function wrap(element: React.ReactElement) {
@@ -84,5 +85,6 @@ export const routes: AppRoute[] = [
   { path: ROUTES.ADMIN_AGENTS, element: wrap(<AgentManagementIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
   { path: ROUTES.ADMIN_USERS, element: wrap(<UserManagementIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
   { path: ROUTES.ADMIN_REASSIGN, element: wrap(<CaseReassignmentIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
+  { path: ROUTES.ADMIN_VISIT_REQUESTS, element: wrap(<AdminVisitRequestsIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
   { path: ROUTES.ADMIN_FINANCIAL, element: wrap(<FinancialIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
 ]

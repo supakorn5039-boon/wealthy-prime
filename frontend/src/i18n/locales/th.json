@@ -150,7 +150,8 @@
     "visited": "พาไปเยี่ยมชม",
     "booked": "จองแล้ว",
     "closed_deal": "ปิดดีล",
-    "customer_cancelled": "ลูกค้ายกเลิกนัดหมาย"
+    "customer_cancelled": "ลูกค้ายกเลิกนัดหมาย",
+    "notSet": "ยังไม่ได้ติดต่อ"
   },
   "property": {
     "buy": "ซื้อ",
@@ -404,7 +405,12 @@
     "confirmApproveUserTitle": "อนุมัติบัญชี",
     "confirmApproveUserDesc": "อนุญาตให้ {{name}} เข้าสู่ระบบ?",
     "confirmRejectUserTitle": "ปฏิเสธคำขอสมัคร",
-    "confirmRejectUserDesc": "ปฏิเสธและลบคำขอสมัครของ {{name}}? ไม่สามารถย้อนกลับได้"
+    "confirmRejectUserDesc": "ปฏิเสธและลบคำขอสมัครของ {{name}}? ไม่สามารถย้อนกลับได้",
+    "visitRequestsSubtitle": "รายการนัดชมทรัพย์ทั้งหมดในระบบ ครอบคลุมทุกเอเจนต์และทุกทรัพย์",
+    "visitRequestsSearchPlaceholder": "ค้นหาลูกค้า / ทรัพย์ / เอเจนต์...",
+    "visitRequestsNoMatches": "ไม่พบคำขอที่ค้นหา",
+    "noVisitRequests": "ยังไม่มีคำขอเยี่ยมชม",
+    "noVisitRequestsDesc": "นัดชมทรัพย์จากลูกค้าจะแสดงที่นี่"
   },
   "home": {
     "title": "ค้นหาทรัพย์สิน",

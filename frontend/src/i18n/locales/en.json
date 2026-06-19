@@ -150,7 +150,8 @@
     "visited": "Visited",
     "booked": "Booked",
     "closed_deal": "Deal Closed",
-    "customer_cancelled": "Customer Cancelled"
+    "customer_cancelled": "Customer Cancelled",
+    "notSet": "Not contacted"
   },
   "property": {
     "buy": "Buy",
@@ -404,7 +405,12 @@
     "confirmApproveUserTitle": "Approve registration",
     "confirmApproveUserDesc": "Allow {{name}} to log in?",
     "confirmRejectUserTitle": "Reject registration",
-    "confirmRejectUserDesc": "Reject and remove {{name}}'s registration? This cannot be undone."
+    "confirmRejectUserDesc": "Reject and remove {{name}}'s registration? This cannot be undone.",
+    "visitRequestsSubtitle": "All viewing appointments across every property and agent",
+    "visitRequestsSearchPlaceholder": "Search customer / property / agent...",
+    "visitRequestsNoMatches": "No matching requests",
+    "noVisitRequests": "No visit requests yet",
+    "noVisitRequestsDesc": "Customer viewing appointments will appear here once booked."
   },
   "home": {
     "title": "Property Search",

@@ -44,5 +44,6 @@ export const ROUTES = {
   ADMIN_AGENTS: '/admin/agents',
   ADMIN_USERS: '/admin/users',
   ADMIN_REASSIGN: '/admin/reassign',
+  ADMIN_VISIT_REQUESTS: '/admin/visit-requests',
   ADMIN_FINANCIAL: '/admin/financial',
 } as const
