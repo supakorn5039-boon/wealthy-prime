@@ -16,6 +16,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { FormTextarea } from '@/components/form/FormTextarea'
 import { WorkStatusSelect } from '@/components/agent/WorkStatusSelect'
+import { ListingAgentPreviewDialog } from '@/components/agent/ListingAgentPreviewDialog'
 import { agentNoteSchema, type AgentNoteSchema } from '@/dto/ReviewValidation'
 import { formatDateTime } from '@/utils/date'
 import type { Booking } from '@/types/Booking'
@@ -129,11 +130,14 @@ export default function ContactHistoryIndex() {
                             {formatDateTime(contact.appointmentDate)}
                           </span>
                         </div>
-                        <div className="flex items-center gap-1 text-sm text-foreground">
+                        <div className="flex items-center gap-2 text-sm text-foreground flex-wrap">
                           <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
                           <span>{contact.propertyTitle ?? `#${contact.propertyId}`}</span>
                           {contact.propertyCode && (
                             <span className="ml-1 text-xs text-muted-foreground font-mono">{contact.propertyCode}</span>
+                          )}
+                          {contact.listingAgent && (
+                            <ListingAgentPreviewDialog preview={contact.listingAgent} />
                           )}
                         </div>
                         {!isEditing && contact.note && (

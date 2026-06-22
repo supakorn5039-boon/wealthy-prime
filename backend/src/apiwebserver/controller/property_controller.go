@@ -84,6 +84,7 @@ func (ctrl *PropertyController) RegisterRoutes(r *gin.RouterGroup) {
 	props.GET("", ctrl.listProperties)
 	props.GET("/:id", ctrl.getProperty)
 	props.GET("/:id/reviews", ctrl.getPropertyReviews)
+	props.GET("/:id/listing-agent", ctrl.getListingAgent)
 }
 
 // canSeeOwnerInfo returns true if the viewer is an agent or admin.
@@ -137,6 +138,24 @@ func (ctrl *PropertyController) getProperty(c *gin.Context) {
 	}
 
 	successResponse(c, dto)
+}
+
+// getListingAgent returns the listing-agent's contact preview for a property.
+// Visible to anyone (incl. anonymous) so users / other agents can reach out
+// directly from the property detail page. Returns null when the property has
+// no agent assigned.
+func (ctrl *PropertyController) getListingAgent(c *gin.Context) {
+	id, err := parseUintParam(c, "id")
+	if err != nil {
+		badRequest(c, "invalid property id")
+		return
+	}
+	preview, err := ctrl.svc.GetListingAgent(id)
+	if err != nil {
+		errorResponse(c, err)
+		return
+	}
+	successResponse(c, preview)
 }
 
 func (ctrl *PropertyController) getPropertyReviews(c *gin.Context) {

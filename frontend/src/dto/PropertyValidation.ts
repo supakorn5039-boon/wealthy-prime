@@ -3,7 +3,6 @@ import { optionalPhoneSchema } from '@/dto/AuthValidation'
 
 export const propertySchema = z
   .object({
-    title: z.string().min(1, 'กรุณากรอกชื่อทรัพย์'),
     projectName: z.string().min(1, 'กรุณากรอกชื่อโครงการ'),
     location: z.string().optional(),
     price: z.string().min(1, 'กรุณากรอกราคา'),

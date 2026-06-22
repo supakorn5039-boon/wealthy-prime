@@ -8,12 +8,11 @@ import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/Logo'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { FormInput } from '@/components/form/FormInput'
+import { FormPhoneInput } from '@/components/form/FormPhoneInput'
 import { FormSelect } from '@/components/form/FormSelect'
 import { AuthService } from '@/services/AuthService'
 import { registerSchema, type RegisterSchema } from '@/dto/AuthValidation'
 import { ROUTES } from '@/constants/Routes'
-
-const PHONE_PLACEHOLDER = '081-111-1111'
 
 export default function RegisterIndex() {
   const { t } = useTranslation()
@@ -76,8 +75,8 @@ export default function RegisterIndex() {
             <FormInput control={control} name="email" label={t('auth.email')} type="email" placeholder={t('auth.emailPlaceholder')} required />
             <FormInput control={control} name="password" label={t('auth.password')} type="password" placeholder={t('auth.passwordPlaceholder')} required />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <FormInput control={control} name="phone" label={t('auth.phone')} placeholder={PHONE_PLACEHOLDER} required />
-              <FormInput control={control} name="secondaryPhone" label={t('auth.secondaryPhone')} placeholder={PHONE_PLACEHOLDER} />
+              <FormPhoneInput control={control} name="phone" label={t('auth.phone')} required />
+              <FormPhoneInput control={control} name="secondaryPhone" label={t('auth.secondaryPhone')} />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FormInput control={control} name="lineId" label={t('auth.lineId')} placeholder={t('auth.lineId')} />

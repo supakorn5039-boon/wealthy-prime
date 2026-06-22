@@ -44,10 +44,13 @@ type PropertyFilter struct {
 	Districts   []string
 	PriceRanges []PriceRange
 	BtsMrtIDs   []int32 // station IDs; matched via array overlap (GIN-indexed)
+	// Agent/admin-only refinements
+	AgentID     *uint    // restrict to one agent's listings
+	Statuses    []string // available / reserved / sold / unavailable / owner_update
+	ProjectName string   // ILIKE on project_name
 }
 
 type PropertyFields struct {
-	Title              string
 	ProjectName        string
 	Location           string
 	Price              float64
@@ -136,7 +139,7 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 	}
 	if filter.Search != "" {
 		s := "%" + filter.Search + "%"
-		query = query.Where("title ILIKE ? OR project_name ILIKE ? OR location ILIKE ?", s, s, s)
+		query = query.Where("project_name ILIKE ? OR location ILIKE ?", s, s)
 	}
 	if len(filter.PriceRanges) > 0 {
 		var conds []string
@@ -172,6 +175,15 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 		// the filter. GIN index on bts_mrt makes this O(log n).
 		query = query.Where("bts_mrt && ?", pq.Int32Array(filter.BtsMrtIDs))
 	}
+	if filter.AgentID != nil {
+		query = query.Where("agent_id = ?", *filter.AgentID)
+	}
+	if len(filter.Statuses) > 0 {
+		query = query.Where("status IN ?", filter.Statuses)
+	}
+	if filter.ProjectName != "" {
+		query = query.Where("project_name ILIKE ?", "%"+filter.ProjectName+"%")
+	}
 
 	var properties []model.Property
 	if err := query.Find(&properties).Error; err != nil {
@@ -196,6 +208,24 @@ func (s *PropertyService) GetProperty(id uint) (*model.PropertyDto, error) {
 		return nil, apperror.Wrap(err, 500, "database error fetching property")
 	}
 	return p.ToDto(), nil
+}
+
+// GetListingAgent returns the property's listing-agent contact preview, or
+// nil if no agent is assigned. Visible to all roles (incl. anonymous) so any
+// viewer can reach the agent of the listing directly.
+func (s *PropertyService) GetListingAgent(propertyID uint) (*model.ListingAgentPreview, error) {
+	var prop model.Property
+	err := s.db.Preload("Agent").First(&prop, propertyID).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, apperror.NotFound("property")
+	}
+	if err != nil {
+		return nil, apperror.Wrap(err, 500, "fetch property")
+	}
+	if prop.AgentID == nil {
+		return nil, nil
+	}
+	return model.NewListingAgentPreview(prop.Agent), nil
 }
 
 // GetPropertyReviews returns all reviews for a property, newest first.
@@ -242,7 +272,6 @@ func (s *PropertyService) CreateProperty(input CreatePropertyInput) (*model.Prop
 	}
 
 	p := model.Property{
-		Title:              input.Title,
 		ProjectName:        input.ProjectName,
 		Location:           input.Location,
 		Price:              input.Price,
@@ -354,7 +383,6 @@ func (s *PropertyService) UpdateProperty(propertyID, callerID uint, role model.U
 	}
 
 	updates := map[string]interface{}{
-		"title":          input.Title,
 		"project_name":   input.ProjectName,
 		"location":       input.Location,
 		"price":          input.Price,
@@ -440,18 +468,12 @@ func (s *PropertyService) DeleteProperty(propertyID, callerID uint, role model.U
 	return nil
 }
 
-// GetAgentProperties returns all properties for a given agent.
-func (s *PropertyService) GetAgentProperties(agentID uint) ([]model.PropertyDto, error) {
-	var properties []model.Property
-	if err := s.db.Preload("Images").Preload("Agent").
-		Where("agent_id = ?", agentID).Find(&properties).Error; err != nil {
-		return nil, apperror.Wrap(err, 500, "failed to fetch agent properties")
-	}
-	dtos := make([]model.PropertyDto, len(properties))
-	for i, p := range properties {
-		dtos[i] = *p.ToDto()
-	}
-	return dtos, nil
+// GetAgentProperties returns properties owned by a given agent, with optional
+// filter refinements (status / type / kind / project name). The agent-id scope
+// is forced regardless of any filter.AgentID the caller supplied.
+func (s *PropertyService) GetAgentProperties(agentID uint, filter PropertyFilter) ([]model.PropertyDto, error) {
+	filter.AgentID = &agentID
+	return s.ListProperties(filter)
 }
 
 // saveUpload stores a multipart file and returns its URL. When R2 is

@@ -2,10 +2,10 @@ import { fetchClient } from '@/utils/axios'
 import { API } from '@/constants/ApiRoutes'
 import { cleanParams } from '@/utils/serviceHelpers'
 import type { Property, PropertyListParams, CreatePropertyPayload, UpdatePropertyStatusPayload, EditPropertyPayload, PropertyFormFields } from '@/types/Property'
+import type { ListingAgentPreview } from '@/types/Booking'
 import type { ApiResponse, ApiListResponse } from '@/types/Commons'
 
 function appendCommonFields(fd: FormData, payload: PropertyFormFields) {
-  fd.append('title', payload.title)
   fd.append('project_name', payload.projectName)
   fd.append('location', payload.location ?? '')
   fd.append('price', String(payload.price))
@@ -62,6 +62,9 @@ export const PropertyService = {
       districts: csv(p.districts),
       price_ranges: priceRangesCsv,
       bts_mrt_ids: csv(p.btsMrtIds),
+      statuses: csv(p.statuses),
+      project_name: p.projectName,
+      agent_id: p.agentId,
     }
     const res = await fetchClient.get<ApiListResponse<Property>>(API.PROPERTIES, {
       params: cleanParams(queryParams as Record<string, unknown>),
@@ -71,6 +74,13 @@ export const PropertyService = {
 
   detail: async (id: number | string): Promise<Property> => {
     const res = await fetchClient.get<ApiResponse<Property>>(API.PROPERTY_DETAIL(id))
+    return res.data.data
+  },
+
+  getListingAgent: async (id: number | string): Promise<ListingAgentPreview | null> => {
+    const res = await fetchClient.get<ApiResponse<ListingAgentPreview | null>>(
+      API.PROPERTY_LISTING_AGENT(id),
+    )
     return res.data.data
   },
 
@@ -110,8 +120,44 @@ export const PropertyService = {
     await fetchClient.delete(API.AGENT_PROPERTY_DETAIL(id))
   },
 
-  getAgentProperties: async (): Promise<Property[]> => {
-    const res = await fetchClient.get<ApiResponse<Property[]>>(API.AGENT_PROPERTIES)
+  getAgentProperties: async (params?: PropertyListParams): Promise<Property[]> => {
+    const p = params ?? {}
+    const csv = (xs?: (string | number)[]) =>
+      xs && xs.length > 0 ? xs.join(',') : undefined
+    const queryParams = {
+      search: p.search,
+      types: csv(p.types),
+      kinds: csv(p.kinds),
+      statuses: csv(p.statuses),
+      project_name: p.projectName,
+    }
+    const res = await fetchClient.get<ApiResponse<Property[]>>(API.AGENT_PROPERTIES, {
+      params: cleanParams(queryParams as Record<string, unknown>),
+    })
+    return res.data.data
+  },
+
+  // Admin variant: returns ALL properties regardless of ownership, with the
+  // same filter set as the public listing plus agent_id / statuses /
+  // project_name. Owner contacts are NOT stripped.
+  getAdminProperties: async (params?: PropertyListParams): Promise<Property[]> => {
+    const p = params ?? {}
+    const csv = (xs?: (string | number)[]) =>
+      xs && xs.length > 0 ? xs.join(',') : undefined
+    const queryParams = {
+      search: p.search,
+      types: csv(p.types),
+      kinds: csv(p.kinds),
+      provinces: csv(p.provinces),
+      districts: csv(p.districts),
+      bts_mrt_ids: csv(p.btsMrtIds),
+      statuses: csv(p.statuses),
+      project_name: p.projectName,
+      agent_id: p.agentId,
+    }
+    const res = await fetchClient.get<ApiResponse<Property[]>>(API.ADMIN_PROPERTIES, {
+      params: cleanParams(queryParams as Record<string, unknown>),
+    })
     return res.data.data
   },
 }

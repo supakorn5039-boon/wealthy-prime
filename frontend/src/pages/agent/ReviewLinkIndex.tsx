@@ -22,7 +22,7 @@ export default function ReviewLinkIndex() {
 
   const { data: properties = [] } = useQuery({
     queryKey: [PropertyService.QUERY_KEYS.AGENT_LIST],
-    queryFn: PropertyService.getAgentProperties,
+    queryFn: () => PropertyService.getAgentProperties(),
   })
 
   const { data: links = [], isLoading } = useQuery({
@@ -61,7 +61,7 @@ export default function ReviewLinkIndex() {
               <SelectContent>
                 {properties.map((p) => (
                   <SelectItem key={p.id} value={String(p.id)}>
-                    {p.title}
+                    {p.projectName}
                   </SelectItem>
                 ))}
               </SelectContent>

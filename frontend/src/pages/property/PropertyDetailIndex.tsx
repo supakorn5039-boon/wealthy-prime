@@ -12,6 +12,7 @@ import { ReviewService } from '@/services/ReviewService'
 import { PropertyGallery } from '@/components/property/PropertyGallery'
 import { EditPropertyDialog } from '@/components/property/EditPropertyDialog'
 import { WriteReviewDialog } from '@/components/property/WriteReviewDialog'
+import { ListingAgentPreviewDialog } from '@/components/agent/ListingAgentPreviewDialog'
 import { PropertyStatusBadge } from '@/components/shared/StatusBadge'
 import { WishlistButton } from '@/components/WishlistButton'
 import { StarRating } from '@/components/StarRating'
@@ -27,6 +28,9 @@ import { useAuthStore } from '@/store/authStore'
 import { formatPrice, formatDate } from '@/utils/date'
 import { formatBtsMrt } from '@/utils/btsMrt'
 import type { Review } from '@/types/Review'
+
+// Reviews UI (รีวิวจากผู้จอง) is hidden until next phase. Flip to true to re-enable.
+const REVIEWS_ENABLED = false
 
 const pinIcon = L.divIcon({
   className: '',
@@ -56,6 +60,16 @@ export default function PropertyDetailIndex() {
     enabled: !!id,
   })
 
+  // Listing-agent contact preview is fetched for all viewers (incl. anonymous)
+  // so anyone can reach out from the property page. The button is hidden only
+  // when the current viewer IS the listing agent themselves.
+  const { data: listingAgentPreview } = useQuery({
+    queryKey: ['listing-agent-preview', id],
+    queryFn: () => PropertyService.getListingAgent(id!),
+    enabled: !!id,
+  })
+  const isOwnListing = !!user && !!property && property.agentId === user.id
+
   const { data: reviews = [] } = useQuery({
     queryKey: [ReviewService.QUERY_KEYS.PROPERTY_REVIEWS, id],
     queryFn: () => ReviewService.getByProperty(id!),
@@ -66,7 +80,7 @@ export default function PropertyDetailIndex() {
     if (!property) return
     addItem({
       propertyId: property.id,
-      propertyTitle: property.title,
+      propertyTitle: property.projectName,
       propertyPrice: property.price,
       propertyType: property.type,
       appointmentDate: null,
@@ -107,7 +121,7 @@ export default function PropertyDetailIndex() {
 
   return (
     <PageContainer size="7xl" className="space-y-6">
-      <PropertyGallery images={property.imageUrls} title={property.title} />
+      <PropertyGallery images={property.imageUrls} title={property.projectName} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
@@ -115,8 +129,7 @@ export default function PropertyDetailIndex() {
             <CardContent className="pt-6 space-y-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-2xl font-bold text-foreground">{property.title}</h1>
-                  <p className="text-muted-foreground mt-1">{property.projectName}</p>
+                  <h1 className="text-2xl font-bold text-foreground">{property.projectName}</h1>
                 </div>
                 <div className="flex items-center gap-2">
                   <PropertyStatusBadge status={property.status} />
@@ -144,7 +157,7 @@ export default function PropertyDetailIndex() {
                 )}
               </div>
 
-              {reviews.length > 0 && (
+              {REVIEWS_ENABLED && reviews.length > 0 && (
                 <div className="flex items-center gap-2">
                   <StarRating value={Math.round(avgRating)} readonly size={16} />
                   <span className="text-sm font-medium">{avgRating.toFixed(1)}</span>
@@ -242,33 +255,35 @@ export default function PropertyDetailIndex() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0">
-              <CardTitle className="text-base">{t('property.reviewsTitle')}</CardTitle>
-              {user && (
-                <Button size="sm" onClick={() => setWriteReviewOpen(true)}>
-                  <Star className="h-3.5 w-3.5 mr-1.5" />
-                  {myReview ? t('review.editYourReview') : t('review.writeReview')}
-                </Button>
-              )}
-            </CardHeader>
-            <CardContent>
-              {reviews.length === 0 ? (
-                <EmptyState title={t('property.noReviews')} description={t('property.beFirstReview')} />
-              ) : (
-                <div className="space-y-4">
-                  {reviews.map((review) => (
-                    <ReviewItem
-                      key={review.id}
-                      review={review}
-                      propertyId={property.id}
-                      canReply={canReply}
-                    />
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {REVIEWS_ENABLED && (
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-base">{t('property.reviewsTitle')}</CardTitle>
+                {user && (
+                  <Button size="sm" onClick={() => setWriteReviewOpen(true)}>
+                    <Star className="h-3.5 w-3.5 mr-1.5" />
+                    {myReview ? t('review.editYourReview') : t('review.writeReview')}
+                  </Button>
+                )}
+              </CardHeader>
+              <CardContent>
+                {reviews.length === 0 ? (
+                  <EmptyState title={t('property.noReviews')} description={t('property.beFirstReview')} />
+                ) : (
+                  <div className="space-y-4">
+                    {reviews.map((review) => (
+                      <ReviewItem
+                        key={review.id}
+                        review={review}
+                        propertyId={property.id}
+                        canReply={canReply}
+                      />
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         <div className="space-y-4">
@@ -292,6 +307,9 @@ export default function PropertyDetailIndex() {
                     <ShoppingCart className="h-4 w-4 mr-2" />
                     {t('property.addToCart')}
                   </Button>
+                )}
+                {listingAgentPreview && !isOwnListing && (
+                  <ListingAgentPreviewDialog preview={listingAgentPreview} fullWidth />
                 )}
                 {canEdit && (
                   <Button variant="outline" className="w-full" onClick={() => setEditOpen(true)}>
@@ -321,7 +339,7 @@ export default function PropertyDetailIndex() {
       {user && (
         <WriteReviewDialog
           propertyId={property.id}
-          propertyTitle={property.title}
+          propertyTitle={property.projectName}
           existing={myReview}
           open={writeReviewOpen}
           onClose={() => setWriteReviewOpen(false)}

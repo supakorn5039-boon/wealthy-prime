@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -44,8 +45,38 @@ func (ctrl *AdminController) RegisterRoutes(r *gin.RouterGroup) {
 	admin.GET("/bookings", ctrl.listBookings)
 	admin.POST("/bookings/:id/reassign", ctrl.reassignBooking)
 
+	admin.GET("/properties", ctrl.listProperties)
+
 	admin.GET("/financial", ctrl.getFinancial)
 	admin.GET("/financial/export", ctrl.exportFinancial)
+}
+
+func (ctrl *AdminController) listProperties(c *gin.Context) {
+	filter := service.PropertyFilter{
+		Search:      c.Query("search"),
+		Types:       parseStringCSV(c.Query("types")),
+		Kinds:       parseStringCSV(c.Query("kinds")),
+		Provinces:   parseStringCSV(c.Query("provinces")),
+		Districts:   parseStringCSV(c.Query("districts")),
+		PriceRanges: parsePriceRanges(c.Query("price_ranges")),
+		BtsMrtIDs:   parseIntCSV(c.Query("bts_mrt_ids")),
+		Statuses:    parseStringCSV(c.Query("statuses")),
+		ProjectName: c.Query("project_name"),
+	}
+	if id := c.Query("agent_id"); id != "" {
+		n, err := strconv.ParseUint(id, 10, 64)
+		if err == nil && n > 0 {
+			v := uint(n)
+			filter.AgentID = &v
+		}
+	}
+
+	dtos, err := ctrl.svc.ListAllProperties(filter)
+	if err != nil {
+		errorResponse(c, err)
+		return
+	}
+	successResponse(c, dtos)
 }
 
 func (ctrl *AdminController) getDashboard(c *gin.Context) {
@@ -313,8 +344,10 @@ func (b profileUpdateBody) toUpdates() map[string]any {
 	return updates
 }
 
-// Thai mobile phone: starts with 0, 9-10 digits total. Strips dashes/spaces first.
-var phoneFormat = regexp.MustCompile(`^0\d{8,9}$`)
+// Accepts either legacy Thai local format (0XXXXXXXXX) or E.164 (+CCXXXXXX...).
+// Frontend collects via libphonenumber and submits E.164; legacy rows can still
+// pass through unchanged.
+var phoneFormat = regexp.MustCompile(`^\+?[1-9]\d{6,14}$|^0\d{8,9}$`)
 
 // validate enforces phone-format rules per requirement.md lines 5-6: both phone
 // and secondary phone must match Thai mobile format and must not be all-zeros.
@@ -335,7 +368,7 @@ func (b profileUpdateBody) validate() error {
 func validatePhone(field, raw string) error {
 	cleaned := strings.NewReplacer("-", "", " ", "").Replace(raw)
 	if !phoneFormat.MatchString(cleaned) {
-		return fmt.Errorf("%s must be a valid Thai phone number (e.g., 0812345678)", field)
+		return fmt.Errorf("%s must be a valid phone number in E.164 (e.g., +66812345678) or local Thai (e.g., 0812345678) format", field)
 	}
 	allZeros := true
 	for _, c := range cleaned {

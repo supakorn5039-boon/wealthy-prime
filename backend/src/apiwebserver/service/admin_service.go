@@ -14,12 +14,24 @@ import (
 )
 
 type AdminService struct {
-	db         *gorm.DB
-	bookingSvc *BookingService
+	db          *gorm.DB
+	bookingSvc  *BookingService
+	propertySvc *PropertyService
 }
 
 func NewAdminService() *AdminService {
-	return &AdminService{db: database.DB, bookingSvc: NewBookingService()}
+	return &AdminService{
+		db:          database.DB,
+		bookingSvc:  NewBookingService(),
+		propertySvc: NewPropertyService(),
+	}
+}
+
+// ListAllProperties returns every property regardless of agent ownership.
+// Owner contact fields are intentionally NOT stripped — admins see the
+// full record so they can intervene on a listing.
+func (s *AdminService) ListAllProperties(filter PropertyFilter) ([]model.PropertyDto, error) {
+	return s.propertySvc.ListProperties(filter)
 }
 
 type PropertyStatusCount struct {
@@ -178,7 +190,7 @@ func (s *AdminService) GetFinancialReport() ([]FinancialRecord, error) {
 		records[i] = FinancialRecord{
 			ID:            p.ID,
 			PropertyID:    p.ID,
-			PropertyTitle: p.Title,
+			PropertyTitle: p.ProjectName,
 			AgentName:     agentName,
 			Amount:        p.Price,
 			Type:          string(p.Type),
@@ -202,7 +214,7 @@ func (s *AdminService) ExportFinancial(w http.ResponseWriter) error {
 	f.NewSheet(sheet)
 	f.DeleteSheet("Sheet1")
 
-	headers := []string{"ID", "Title", "Project Name", "Location", "Price", "Type", "Size (sqm)", "Agent", "Owner Info", "Created At"}
+	headers := []string{"ID", "Project Name", "Location", "Price", "Type", "Size (sqm)", "Agent", "Owner Info", "Created At"}
 	for i, h := range headers {
 		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
 		f.SetCellValue(sheet, cell, h)
@@ -216,7 +228,6 @@ func (s *AdminService) ExportFinancial(w http.ResponseWriter) error {
 		}
 		values := []interface{}{
 			p.ID,
-			p.Title,
 			p.ProjectName,
 			p.Location,
 			p.Price,

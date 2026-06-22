@@ -10,6 +10,7 @@ export const API = {
   PROPERTIES: '/properties',
   PROPERTY_DETAIL: (id: number | string) => `/properties/${id}`,
   PROPERTY_REVIEWS: (id: number | string) => `/properties/${id}/reviews`,
+  PROPERTY_LISTING_AGENT: (id: number | string) => `/properties/${id}/listing-agent`,
 
   // User scoped
   BOOKINGS: '/user/bookings',
@@ -50,6 +51,7 @@ export const API = {
   ADMIN_USER_REJECT: (id: number | string) => `/admin/users/${id}/reject`,
   ADMIN_BOOKINGS: '/admin/bookings',
   ADMIN_REASSIGN: (bookingId: number | string) => `/admin/bookings/${bookingId}/reassign`,
+  ADMIN_PROPERTIES: '/admin/properties',
   ADMIN_FINANCIAL: '/admin/financial',
   ADMIN_FINANCIAL_EXPORT: '/admin/financial/export',
 } as const

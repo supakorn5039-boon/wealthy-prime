@@ -9,6 +9,7 @@ import { History, Heart, Phone as PhoneIcon, ChevronRight } from 'lucide-react'
 import { AuthService } from '@/services/AuthService'
 import { useAuthStore } from '@/store/authStore'
 import { FormInput } from '@/components/form/FormInput'
+import { FormPhoneInput } from '@/components/form/FormPhoneInput'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PageTitle } from '@/components/shared/PageTitle'
@@ -16,8 +17,6 @@ import { PageContainer } from '@/components/shared/PageContainer'
 import { profileSchema, type ProfileSchema } from '@/dto/AuthValidation'
 import { formatDate } from '@/utils/date'
 import { ROUTES } from '@/constants/Routes'
-
-const PHONE_PLACEHOLDER = '081-111-1111'
 
 export default function ProfileIndex() {
   const { t } = useTranslation()
@@ -96,8 +95,8 @@ export default function ProfileIndex() {
           <CardHeader><CardTitle className="text-base">{t('profile.contactSection')}</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <FormInput control={control} name="phone" label={t('auth.phone')} placeholder={PHONE_PLACEHOLDER} required />
-              <FormInput control={control} name="secondaryPhone" label={t('auth.secondaryPhone')} placeholder={PHONE_PLACEHOLDER} />
+              <FormPhoneInput control={control} name="phone" label={t('auth.phone')} required />
+              <FormPhoneInput control={control} name="secondaryPhone" label={t('auth.secondaryPhone')} />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FormInput control={control} name="lineId" label={t('auth.lineId')} />

@@ -18,7 +18,6 @@ export interface PropertyImage {
 export interface Property {
   id: number
   propertyCode?: string
-  title: string
   projectName: string
   location: string
   price: number
@@ -70,12 +69,14 @@ export interface PropertyListParams {
   // Station IDs that overlap any of the property's bts_mrt array.
   btsMrtIds?: number[]
   status?: PropertyStatus
+  statuses?: PropertyStatus[]
+  projectName?: string
+  agentId?: number
   page?: number
   limit?: number
 }
 
 export interface PropertyFormFields {
-  title: string
   projectName: string
   location: string
   price: number

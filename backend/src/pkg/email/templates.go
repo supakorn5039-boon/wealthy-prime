@@ -28,16 +28,20 @@ func BuildAppointmentNotification(booking *model.Booking, agent *model.User) (Me
 	apptTime := booking.AppointmentDate.In(timezone.ICT).Format("2 Jan 2006 15:04 น.")
 
 	data := appointmentData{
-		AgentName:      agent.Name,
-		PropertyTitle:  property.Title,
-		PropertyCode:   property.PropertyCode,
-		CustomerName:   customerName,
-		CustomerPhone:  customerPhone,
-		CustomerEmail:  customerEmail,
-		CustomerLineID: booking.LineID,
-		Appointment:    apptTime,
-		Note:           strings.TrimSpace(booking.Note),
-		DashboardURL:   config.App.SMTP.AppURL + "/agent/contacts",
+		AgentName:              agent.Name,
+		PropertyTitle:          property.ProjectName,
+		PropertyCode:           property.PropertyCode,
+		CustomerName:           customerName,
+		CustomerPhone:          customerPhone,
+		CustomerSecondaryPhone: firstNonEmpty(booking.SecondaryPhone, booking.User.SecondaryPhone),
+		CustomerEmail:          customerEmail,
+		CustomerLineID:         firstNonEmpty(booking.LineID, booking.User.LineID),
+		CustomerWhatsapp:       firstNonEmpty(booking.Whatsapp, booking.User.Whatsapp),
+		CustomerWechat:         firstNonEmpty(booking.Wechat, booking.User.Wechat),
+		CustomerFacebook:       firstNonEmpty(booking.Facebook, booking.User.Facebook),
+		Appointment:            apptTime,
+		Note:                   strings.TrimSpace(booking.Note),
+		DashboardURL:           config.App.SMTP.AppURL + "/agent/contacts",
 	}
 
 	var htmlBuf, textBuf bytes.Buffer
@@ -48,7 +52,7 @@ func BuildAppointmentNotification(booking *model.Booking, agent *model.User) (Me
 		return Message{}, fmt.Errorf("render text: %w", err)
 	}
 
-	subject := fmt.Sprintf("[นัดชมทรัพย์] %s — %s", property.Title, apptTime)
+	subject := fmt.Sprintf("[นัดชมทรัพย์] %s — %s", property.ProjectName, apptTime)
 	return Message{
 		To:       agent.Email,
 		ToName:   agent.Name,
@@ -77,7 +81,7 @@ func BuildAppointmentConfirmation(booking *model.Booking, agent *model.User) (Me
 
 	data := confirmationData{
 		CustomerName:  customerName,
-		PropertyTitle: property.Title,
+		PropertyTitle: property.ProjectName,
 		PropertyCode:  property.PropertyCode,
 		Appointment:   apptTime,
 		AgentName:     agent.Name,
@@ -95,7 +99,7 @@ func BuildAppointmentConfirmation(booking *model.Booking, agent *model.User) (Me
 		return Message{}, fmt.Errorf("render text: %w", err)
 	}
 
-	subject := fmt.Sprintf("[ยืนยันนัดหมาย] %s — %s", property.Title, apptTime)
+	subject := fmt.Sprintf("[ยืนยันนัดหมาย] %s — %s", property.ProjectName, apptTime)
 	return Message{
 		To:       toEmail,
 		ToName:   customerName,
@@ -124,7 +128,7 @@ var confirmHTMLTpl = template.Must(template.New("confirm_html").Parse(`<!doctype
   <p>สวัสดีคุณ {{.CustomerName}},</p>
   <p>เราได้รับการนัดหมายชมทรัพย์ของคุณเรียบร้อยแล้ว รายละเอียดดังนี้:</p>
   <table cellpadding="6" style="border-collapse:collapse; font-size:14px;">
-    <tr><td><strong>ทรัพย์</strong></td><td>{{.PropertyTitle}}{{if .PropertyCode}} <span style="color:#888;">(รหัส {{.PropertyCode}})</span>{{end}}</td></tr>
+    <tr><td><strong>ชื่อโครงการ</strong></td><td>{{.PropertyTitle}}{{if .PropertyCode}} <span style="color:#888;">(รหัส {{.PropertyCode}})</span>{{end}}</td></tr>
     <tr><td><strong>วันนัดหมาย</strong></td><td>{{.Appointment}}</td></tr>
     {{if .AgentName}}<tr><td><strong>ตัวแทนที่ดูแล</strong></td><td>{{.AgentName}}</td></tr>{{end}}
     {{if .AgentPhone}}<tr><td><strong>เบอร์ตัวแทน</strong></td><td>{{.AgentPhone}}</td></tr>{{end}}
@@ -143,7 +147,7 @@ var confirmTextTpl = template.Must(template.New("confirm_text").Parse(`สวั
 
 เราได้รับการนัดหมายชมทรัพย์ของคุณเรียบร้อยแล้ว:
 
-ทรัพย์: {{.PropertyTitle}}{{if .PropertyCode}} (รหัส {{.PropertyCode}}){{end}}
+ชื่อโครงการ: {{.PropertyTitle}}{{if .PropertyCode}} (รหัส {{.PropertyCode}}){{end}}
 วันนัดหมาย: {{.Appointment}}{{if .AgentName}}
 ตัวแทนที่ดูแล: {{.AgentName}}{{end}}{{if .AgentPhone}}
 เบอร์ตัวแทน: {{.AgentPhone}}{{end}}{{if .AgentEmail}}
@@ -158,16 +162,20 @@ var confirmTextTpl = template.Must(template.New("confirm_text").Parse(`สวั
 `))
 
 type appointmentData struct {
-	AgentName      string
-	PropertyTitle  string
-	PropertyCode   string
-	CustomerName   string
-	CustomerPhone  string
-	CustomerEmail  string
-	CustomerLineID string
-	Appointment    string
-	Note           string
-	DashboardURL   string
+	AgentName              string
+	PropertyTitle          string
+	PropertyCode           string
+	CustomerName           string
+	CustomerPhone          string
+	CustomerSecondaryPhone string
+	CustomerEmail          string
+	CustomerLineID         string
+	CustomerWhatsapp       string
+	CustomerWechat         string
+	CustomerFacebook       string
+	Appointment            string
+	Note                   string
+	DashboardURL           string
 }
 
 var apptHTMLTpl = template.Must(template.New("appt_html").Parse(`<!doctype html>
@@ -176,12 +184,16 @@ var apptHTMLTpl = template.Must(template.New("appt_html").Parse(`<!doctype html>
   <p>สวัสดีคุณ {{.AgentName}},</p>
   <p>มีลูกค้านัดหมายชมทรัพย์ของคุณดังนี้:</p>
   <table cellpadding="6" style="border-collapse:collapse; font-size:14px;">
-    <tr><td><strong>ทรัพย์</strong></td><td>{{.PropertyTitle}}{{if .PropertyCode}} <span style="color:#888;">(รหัส {{.PropertyCode}})</span>{{end}}</td></tr>
+    <tr><td><strong>ชื่อโครงการ</strong></td><td>{{.PropertyTitle}}{{if .PropertyCode}} <span style="color:#888;">(รหัส {{.PropertyCode}})</span>{{end}}</td></tr>
     <tr><td><strong>วันนัดหมาย</strong></td><td>{{.Appointment}}</td></tr>
     <tr><td><strong>ชื่อลูกค้า</strong></td><td>{{.CustomerName}}</td></tr>
     {{if .CustomerPhone}}<tr><td><strong>เบอร์</strong></td><td>{{.CustomerPhone}}</td></tr>{{end}}
+    {{if .CustomerSecondaryPhone}}<tr><td><strong>เบอร์สำรอง</strong></td><td>{{.CustomerSecondaryPhone}}</td></tr>{{end}}
     {{if .CustomerEmail}}<tr><td><strong>อีเมล</strong></td><td>{{.CustomerEmail}}</td></tr>{{end}}
     {{if .CustomerLineID}}<tr><td><strong>Line ID</strong></td><td>{{.CustomerLineID}}</td></tr>{{end}}
+    {{if .CustomerWhatsapp}}<tr><td><strong>WhatsApp</strong></td><td>{{.CustomerWhatsapp}}</td></tr>{{end}}
+    {{if .CustomerWechat}}<tr><td><strong>WeChat</strong></td><td>{{.CustomerWechat}}</td></tr>{{end}}
+    {{if .CustomerFacebook}}<tr><td><strong>Facebook</strong></td><td>{{.CustomerFacebook}}</td></tr>{{end}}
     {{if .Note}}<tr><td><strong>หมายเหตุ</strong></td><td>{{.Note}}</td></tr>{{end}}
   </table>
   <p style="margin-top:24px;">
@@ -195,12 +207,16 @@ var apptTextTpl = template.Must(template.New("appt_text").Parse(`สวัสด
 
 มีลูกค้านัดหมายชมทรัพย์ของคุณ:
 
-ทรัพย์: {{.PropertyTitle}}{{if .PropertyCode}} (รหัส {{.PropertyCode}}){{end}}
+ชื่อโครงการ: {{.PropertyTitle}}{{if .PropertyCode}} (รหัส {{.PropertyCode}}){{end}}
 วันนัดหมาย: {{.Appointment}}
 ชื่อลูกค้า: {{.CustomerName}}{{if .CustomerPhone}}
-เบอร์: {{.CustomerPhone}}{{end}}{{if .CustomerEmail}}
+เบอร์: {{.CustomerPhone}}{{end}}{{if .CustomerSecondaryPhone}}
+เบอร์สำรอง: {{.CustomerSecondaryPhone}}{{end}}{{if .CustomerEmail}}
 อีเมล: {{.CustomerEmail}}{{end}}{{if .CustomerLineID}}
-Line ID: {{.CustomerLineID}}{{end}}{{if .Note}}
+Line ID: {{.CustomerLineID}}{{end}}{{if .CustomerWhatsapp}}
+WhatsApp: {{.CustomerWhatsapp}}{{end}}{{if .CustomerWechat}}
+WeChat: {{.CustomerWechat}}{{end}}{{if .CustomerFacebook}}
+Facebook: {{.CustomerFacebook}}{{end}}{{if .Note}}
 หมายเหตุ: {{.Note}}{{end}}
 
 ดูรายละเอียดเพิ่มเติม: {{.DashboardURL}}

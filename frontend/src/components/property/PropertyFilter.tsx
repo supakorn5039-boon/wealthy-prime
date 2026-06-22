@@ -60,6 +60,9 @@ interface MultiPickGroup<T> {
 // (e.g. the Leaflet map below the hero). Either flat `options` or grouped `groups`.
 interface MultiPickProps<T extends string | number> {
   allLabel: string
+  // placeholder shown on the trigger when nothing is selected — usually the
+  // field name ("Type", "Price", ...) so empty dropdowns aren't ambiguous.
+  placeholder: string
   selectedLabel: string
   selected: T[]
   onToggle: (value: T) => void
@@ -73,6 +76,7 @@ interface MultiPickProps<T extends string | number> {
 
 function MultiPick<T extends string | number>({
   allLabel,
+  placeholder,
   selectedLabel,
   selected,
   onToggle,
@@ -83,7 +87,9 @@ function MultiPick<T extends string | number>({
   minWidth = 220,
   align = 'left',
 }: MultiPickProps<T>) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState('')
   const triggerRef = useRef<HTMLButtonElement | null>(null)
   const menuRef = useRef<HTMLDivElement | null>(null)
   const [position, setPosition] = useState<{ top: number; left: number; width: number } | null>(null)
@@ -111,12 +117,27 @@ function MultiPick<T extends string | number>({
     return () => document.removeEventListener('mousedown', onClick)
   }, [open])
 
-  const flatOptions = options ?? groups?.flatMap((g) => g.options) ?? []
+  useEffect(() => {
+    if (!open) setQuery('')
+  }, [open])
+
+  const { flatOptions, filteredOptions, filteredGroups } = useMemo(() => {
+    const flat = options ?? groups?.flatMap((g) => g.options) ?? []
+    const q = query.trim().toLowerCase()
+    const matches = (label: string) => !q || label.toLowerCase().includes(q)
+    return {
+      flatOptions: flat,
+      filteredOptions: options?.filter((o) => matches(o.label)),
+      filteredGroups: groups
+        ?.map((g) => ({ header: g.header, options: g.options.filter((o) => matches(o.label)) }))
+        .filter((g) => g.options.length > 0),
+    }
+  }, [options, groups, query])
   const triggerText =
     selected.length === 0
-      ? allLabel
+      ? placeholder
       : selected.length === 1
-        ? flatOptions.find((o) => o.value === selected[0])?.label ?? allLabel
+        ? flatOptions.find((o) => o.value === selected[0])?.label ?? placeholder
         : selectedLabel
   const allChecked = selected.length === 0
 
@@ -171,25 +192,43 @@ function MultiPick<T extends string | number>({
             width: position.width,
             zIndex: 1000,
           }}
-          className="max-h-96 overflow-y-auto rounded-md border border-border bg-popover shadow-lg p-1"
+          className="max-h-96 overflow-hidden rounded-md border border-border bg-popover shadow-lg flex flex-col"
         >
-          <button
-            type="button"
-            onClick={onClear}
-            className="flex items-center gap-2 w-full px-2 py-1.5 rounded hover:bg-muted text-sm text-left font-medium border-b border-border/60 mb-1"
-          >
-            {checkbox(allChecked)}
-            <span className="truncate">{allLabel}</span>
-          </button>
-          {options?.map(renderItem)}
-          {groups?.map((g) => (
-            <div key={g.header}>
-              <div className="sticky top-0 z-10 bg-popover px-3 py-1.5 text-xs font-semibold text-primary border-b border-border">
-                {g.header}
-              </div>
-              {g.options.map(renderItem)}
+          <div className="p-2 border-b border-border/60">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <input
+                autoFocus
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={t('common.search')}
+                className="h-8 w-full rounded border border-input bg-background pl-7 pr-2 text-sm outline-none focus:ring-1 focus:ring-ring"
+              />
             </div>
-          ))}
+          </div>
+          <div className="overflow-y-auto p-1">
+            <button
+              type="button"
+              onClick={onClear}
+              className="flex items-center gap-2 w-full px-2 py-1.5 rounded hover:bg-muted text-sm text-left font-medium border-b border-border/60 mb-1"
+            >
+              {checkbox(allChecked)}
+              <span className="truncate">{allLabel}</span>
+            </button>
+            {filteredOptions?.map(renderItem)}
+            {filteredGroups?.map((g) => (
+              <div key={g.header}>
+                <div className="sticky top-0 z-10 bg-popover px-3 py-1.5 text-xs font-semibold text-primary border-b border-border">
+                  {g.header}
+                </div>
+                {g.options.map(renderItem)}
+              </div>
+            ))}
+            {query && !filteredOptions?.length && !filteredGroups?.length && (
+              <p className="px-3 py-2 text-sm text-muted-foreground">{t('common.noResults')}</p>
+            )}
+          </div>
         </div>,
         document.body,
       )}
@@ -310,6 +349,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 lg:divide-x lg:divide-border">
         <MultiPick<PropertyKind>
           allLabel={allLabel}
+          placeholder={t('home.filterLabel.kind')}
           selectedLabel={countLabel(kinds.length)}
           options={kindOptions}
           selected={kinds}
@@ -318,6 +358,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
         />
         <MultiPick<PropertyType>
           allLabel={allLabel}
+          placeholder={t('home.filterLabel.type')}
           selectedLabel={countLabel(types.length)}
           options={typeOptions}
           selected={types}
@@ -326,6 +367,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
         />
         <MultiPick<string>
           allLabel={allLabel}
+          placeholder={t('home.filterLabel.price')}
           selectedLabel={countLabel(priceIds.length)}
           options={priceOptions}
           selected={priceIds}
@@ -334,6 +376,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
         />
         <MultiPick<string>
           allLabel={allLabel}
+          placeholder={t('home.filterLabel.province')}
           selectedLabel={countLabel(provinces.length)}
           options={provinceOptions}
           selected={provinces}
@@ -342,6 +385,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
         />
         <MultiPick<string>
           allLabel={allLabel}
+          placeholder={t('home.filterLabel.district')}
           selectedLabel={countLabel(districts.length)}
           options={districtOptionItems}
           selected={districts}
@@ -351,6 +395,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
         />
         <MultiPick<number>
           allLabel={allLabel}
+          placeholder={t('home.filterLabel.btsMrt')}
           selectedLabel={stationCountLabel}
           groups={stationGroups}
           selected={stationIds}

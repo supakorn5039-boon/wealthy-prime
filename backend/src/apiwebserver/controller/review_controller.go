@@ -52,7 +52,7 @@ func (ctrl *ReviewController) resolveToken(c *gin.Context) {
 
 	successResponse(c, gin.H{
 		"propertyId":    prop.ID,
-		"propertyTitle": prop.Title,
+		"propertyTitle": prop.ProjectName,
 	})
 }
 

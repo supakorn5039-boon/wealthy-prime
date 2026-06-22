@@ -3,14 +3,6 @@ import { Badge } from '@/components/ui/badge'
 import type { PropertyStatus } from '@/types/Property'
 import type { BookingStatus } from '@/types/Booking'
 
-const propertyVariantMap: Record<PropertyStatus, 'success' | 'warning' | 'info' | 'destructive' | 'secondary'> = {
-  available: 'success',
-  reserved: 'info',
-  sold: 'destructive',
-  unavailable: 'secondary',
-  owner_update: 'warning',
-}
-
 const bookingVariantMap: Record<BookingStatus, 'success' | 'warning' | 'info' | 'destructive' | 'secondary'> = {
   pending: 'warning',
   assigned: 'info',
@@ -20,9 +12,8 @@ const bookingVariantMap: Record<BookingStatus, 'success' | 'warning' | 'info' | 
 
 export function PropertyStatusBadge({ status }: { status: PropertyStatus }) {
   const { t } = useTranslation()
-  const variant = propertyVariantMap[status] ?? 'secondary'
   const label = t(`property.status.${status}`, { defaultValue: status })
-  return <Badge variant={variant}>{label}</Badge>
+  return <Badge className="bg-black text-white border-white/20 hover:bg-black">{label}</Badge>
 }
 
 export function BookingStatusBadge({ status }: { status: BookingStatus }) {

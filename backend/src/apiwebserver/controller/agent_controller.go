@@ -63,7 +63,14 @@ func (ctrl *AgentController) getDashboard(c *gin.Context) {
 
 func (ctrl *AgentController) listProperties(c *gin.Context) {
 	agentID := middleware.GetUserID(c)
-	dtos, err := ctrl.propertySvc.GetAgentProperties(agentID)
+	filter := service.PropertyFilter{
+		Search:      c.Query("search"),
+		Types:       parseStringCSV(c.Query("types")),
+		Kinds:       parseStringCSV(c.Query("kinds")),
+		Statuses:    parseStringCSV(c.Query("statuses")),
+		ProjectName: c.Query("project_name"),
+	}
+	dtos, err := ctrl.propertySvc.GetAgentProperties(agentID, filter)
 	if err != nil {
 		errorResponse(c, err)
 		return
@@ -80,15 +87,14 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 		return
 	}
 
-	title := formVal(form.Value, "title")
 	projectName := formVal(form.Value, "project_name")
 	location := formVal(form.Value, "location")
 	ownerInfo := formVal(form.Value, "owner_info")
 	// `type` is no longer sent by the frontend; it is derived from `listing` server-side.
 	propType := formVal(form.Value, "type")
 
-	if title == "" || projectName == "" || location == "" || ownerInfo == "" {
-		badRequest(c, "title, project_name, location, and owner_info are required")
+	if projectName == "" || location == "" || ownerInfo == "" {
+		badRequest(c, "project_name, location, and owner_info are required")
 		return
 	}
 
@@ -138,7 +144,7 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 
 	images := form.File["images"]
 
-	fields := buildPropertyFields(form.Value, title, projectName, location, ownerInfo, price, sizeSqm, model.PropertyType(propType), rentalPeriodMonths, lat, lng)
+	fields := buildPropertyFields(form.Value, projectName, location, ownerInfo, price, sizeSqm, model.PropertyType(propType), rentalPeriodMonths, lat, lng)
 
 	dto, err := ctrl.propertySvc.CreateProperty(service.CreatePropertyInput{
 		PropertyFields: fields,
@@ -168,14 +174,13 @@ func (ctrl *AgentController) editProperty(c *gin.Context) {
 		return
 	}
 
-	title := formVal(form.Value, "title")
 	projectName := formVal(form.Value, "project_name")
 	location := formVal(form.Value, "location")
 	ownerInfo := formVal(form.Value, "owner_info")
 	// `type` is derived from `listing` server-side; not required from frontend.
 	propType := formVal(form.Value, "type")
-	if title == "" || projectName == "" || location == "" || ownerInfo == "" {
-		badRequest(c, "title, project_name, location, and owner_info are required")
+	if projectName == "" || location == "" || ownerInfo == "" {
+		badRequest(c, "project_name, location, and owner_info are required")
 		return
 	}
 
@@ -217,7 +222,7 @@ func (ctrl *AgentController) editProperty(c *gin.Context) {
 		return
 	}
 
-	fields := buildPropertyFields(form.Value, title, projectName, location, ownerInfo, price, sizeSqm, model.PropertyType(propType), rentalPeriodMonths, lat, lng)
+	fields := buildPropertyFields(form.Value, projectName, location, ownerInfo, price, sizeSqm, model.PropertyType(propType), rentalPeriodMonths, lat, lng)
 
 	dto, err := ctrl.propertySvc.UpdateProperty(propertyID, agentID, role, service.UpdatePropertyInput{
 		PropertyFields: fields,
@@ -451,7 +456,7 @@ func parseImageIDs(raw []string) ([]uint, error) {
 // the multipart form values, layering the required fields on top of the optional ones.
 func buildPropertyFields(
 	values map[string][]string,
-	title, projectName, location, ownerInfo string,
+	projectName, location, ownerInfo string,
 	price, sizeSqm float64,
 	propType model.PropertyType,
 	rentalPeriodMonths *int,
@@ -462,7 +467,6 @@ func buildPropertyFields(
 		return n
 	}
 	return service.PropertyFields{
-		Title:              title,
 		ProjectName:        projectName,
 		Location:           location,
 		Price:              price,

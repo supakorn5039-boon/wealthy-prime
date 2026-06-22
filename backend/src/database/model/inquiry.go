@@ -50,7 +50,7 @@ func (i *Inquiry) ToDto() *InquiryDto {
 		UserName:      i.User.Name,
 		UserEmail:     i.User.Email,
 		PropertyID:    i.PropertyID,
-		PropertyTitle: i.Property.Title,
+		PropertyTitle: i.Property.ProjectName,
 		AgentID:       i.AgentID,
 		Name:          i.Name,
 		Phone:         i.Phone,

@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, Trash2, Pencil, Eye, UploadCloud } from "lucide-react";
+import { Plus, Trash2, Pencil, Eye, UploadCloud, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { PropertyService } from "@/services/PropertyService";
+import { useAuthStore } from "@/store/authStore";
+import { Input } from "@/components/ui/input";
 import { PropertyStatusBadge } from "@/components/shared/StatusBadge";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -32,13 +34,18 @@ import {
 } from "@/components/ui/dialog";
 import { EditPropertyDialog } from "@/components/property/EditPropertyDialog";
 import { FormSelect } from "@/components/form/FormSelect";
+import { MultiSelectFilter } from "@/components/shared/MultiSelectFilter";
 import { formatPrice } from "@/utils/date";
 import {
   propertyStatusSchema,
   type PropertyStatusSchema,
 } from "@/dto/PropertyValidation";
-import type { Property } from "@/types/Property";
+import type { Property, PropertyKind, PropertyStatus, PropertyType } from "@/types/Property";
 import { ROUTES } from "@/constants/Routes";
+
+const STATUS_VALUES: PropertyStatus[] = ['available', 'reserved', 'sold', 'unavailable', 'owner_update']
+const TYPE_VALUES: PropertyType[] = ['buy', 'rent']
+const KIND_VALUES: Exclude<PropertyKind, ''>[] = ['condo', 'house', 'townhouse']
 
 function StatusModal({
   property,
@@ -90,7 +97,7 @@ function StatusModal({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {t("property.updateStatusTitle")}: {property.title}
+            {t("property.updateStatusTitle")}: {property.projectName}
           </DialogTitle>
           <DialogDescription>
             {t("property.updateStatusDesc")}
@@ -126,16 +133,47 @@ function StatusModal({
 export default function MyPropertiesIndex() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === 'admin';
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(
     null,
   );
   const [editTarget, setEditTarget] = useState<Property | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Property | null>(null);
+  const [statusFilters, setStatusFilters] = useState<PropertyStatus[]>([]);
+  const [typeFilters, setTypeFilters] = useState<PropertyType[]>([]);
+  const [kindFilters, setKindFilters] = useState<Exclude<PropertyKind, ''>[]>([]);
+  const [projectFilter, setProjectFilter] = useState('');
+
+  // Admin uses the admin endpoint (full list + owner info); agents use their
+  // own. Same Property[] shape so the table renders identically either way.
+  const baseKey = isAdmin ? 'admin-properties' : PropertyService.QUERY_KEYS.AGENT_LIST;
 
   const { data: properties = [], isLoading } = useQuery({
-    queryKey: [PropertyService.QUERY_KEYS.AGENT_LIST],
-    queryFn: PropertyService.getAgentProperties,
+    queryKey: [baseKey, { statusFilters, typeFilters, kindFilters, projectFilter }],
+    queryFn: () => {
+      const params = {
+        statuses: statusFilters.length ? statusFilters : undefined,
+        types: typeFilters.length ? typeFilters : undefined,
+        kinds: kindFilters.length ? kindFilters : undefined,
+        projectName: projectFilter || undefined,
+      };
+      return isAdmin
+        ? PropertyService.getAdminProperties(params)
+        : PropertyService.getAgentProperties(params);
+    },
   });
+  const hasFilters = !!(statusFilters.length || typeFilters.length || kindFilters.length || projectFilter);
+  const clearFilters = () => {
+    setStatusFilters([]);
+    setTypeFilters([]);
+    setKindFilters([]);
+    setProjectFilter('');
+  };
+
+  const statusOptions = useMemo(() => STATUS_VALUES.map((s) => ({ value: s, label: t(`property.status.${s}`) })), [t]);
+  const typeOptions = useMemo(() => TYPE_VALUES.map((v) => ({ value: v, label: t(`property.${v}`) })), [t]);
+  const kindOptions = useMemo(() => KIND_VALUES.map((v) => ({ value: v, label: t(`property.kind.${v}`) })), [t]);
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => PropertyService.delete(id),
@@ -157,14 +195,50 @@ export default function MyPropertiesIndex() {
       <PageTitle
         title={t("property.myPropertiesTitle")}
         actions={
-          <Link to={ROUTES.AGENT_ADD_PROPERTY}>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              {t("property.addProperty")}
-            </Button>
-          </Link>
+          !isAdmin && (
+            <Link to={ROUTES.AGENT_ADD_PROPERTY}>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                {t("property.addProperty")}
+              </Button>
+            </Link>
+          )
         }
       />
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+        <MultiSelectFilter
+          placeholder={t('property.statusCol')}
+          selected={statusFilters}
+          options={statusOptions}
+          onChange={(next) => setStatusFilters(next as PropertyStatus[])}
+        />
+        <MultiSelectFilter
+          placeholder={t('property.typeCol')}
+          selected={typeFilters}
+          options={typeOptions}
+          onChange={(next) => setTypeFilters(next as PropertyType[])}
+        />
+        <MultiSelectFilter
+          placeholder={t('property.kindLabel')}
+          selected={kindFilters}
+          options={kindOptions}
+          onChange={(next) => setKindFilters(next as Exclude<PropertyKind, ''>[])}
+        />
+        <div className="flex items-center gap-1">
+          <Input
+            value={projectFilter}
+            onChange={(e) => setProjectFilter(e.target.value)}
+            placeholder={t('property.projectName')}
+            className="h-9"
+          />
+          {hasFilters && (
+            <Button type="button" variant="ghost" size="icon" onClick={clearFilters} aria-label="clear">
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      </div>
 
       {isLoading ? (
         <LoadingSpinner text={t("common.loading")} />
@@ -172,12 +246,14 @@ export default function MyPropertiesIndex() {
         <EmptyState
           title={t("property.noProperties")}
           actions={
-            <Link to={ROUTES.AGENT_ADD_PROPERTY}>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                {t("property.addProperty")}
-              </Button>
-            </Link>
+            !isAdmin && !hasFilters && (
+              <Link to={ROUTES.AGENT_ADD_PROPERTY}>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  {t("property.addProperty")}
+                </Button>
+              </Link>
+            )
           }
         />
       ) : (
@@ -204,10 +280,7 @@ export default function MyPropertiesIndex() {
                       {p.propertyCode ?? "-"}
                     </TableCell>
                     <TableCell>
-                      <div>
-                        <p className="font-medium">{p.title}</p>
-                        <p className="text-xs text-muted-foreground">{p.projectName}</p>
-                      </div>
+                      <p className="font-medium">{p.projectName}</p>
                     </TableCell>
                     <TableCell>{t(`property.${p.type}`)}</TableCell>
                     <TableCell className="text-sm">
@@ -295,7 +368,7 @@ export default function MyPropertiesIndex() {
             <DialogTitle>{t("property.deleteTitle")}</DialogTitle>
             <DialogDescription>
               {t("property.deleteConfirm", {
-                title: deleteTarget?.title ?? "",
+                title: deleteTarget?.projectName ?? "",
               })}
             </DialogDescription>
           </DialogHeader>

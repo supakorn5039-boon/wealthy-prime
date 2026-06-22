@@ -51,18 +51,38 @@ func (s *AgentService) GetDashboard(agentID uint) (*AgentDashboard, error) {
 	}, nil
 }
 
-// GetContacts returns bookings assigned to the agent.
+// GetContacts returns bookings assigned to the agent. When the booking's
+// property was listed by a different agent, the listing-agent's contact info
+// is attached so the assigned agent can coordinate with the owner of the
+// listing.
 func (s *AgentService) GetContacts(agentID uint) ([]model.BookingDto, error) {
 	var bookings []model.Booking
-	if err := s.db.Preload("User").Preload("Property").Preload("AssignedAgent").
-		Where("assigned_agent_id = ?", agentID).Find(&bookings).Error; err != nil {
+	if err := s.db.
+		Preload("User").
+		Preload("Property").
+		Preload("Property.Agent").
+		Preload("AssignedAgent").
+		Where("assigned_agent_id = ?", agentID).
+		Find(&bookings).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "failed to fetch contacts")
 	}
 	dtos := make([]model.BookingDto, len(bookings))
 	for i, b := range bookings {
-		dtos[i] = *b.ToDto()
+		dto := *b.ToDto()
+		attachListingAgent(&dto, &b, agentID)
+		dtos[i] = dto
 	}
 	return dtos, nil
+}
+
+func attachListingAgent(dto *model.BookingDto, b *model.Booking, callerID uint) {
+	if b.AssignedAgentID == nil || *b.AssignedAgentID != callerID {
+		return
+	}
+	if b.Property.AgentID == nil || *b.Property.AgentID == callerID {
+		return
+	}
+	dto.ListingAgent = model.NewListingAgentPreview(b.Property.Agent)
 }
 
 // UpdateWorkStatus updates the appointment work-status on a booking assigned to this agent.
@@ -121,9 +141,6 @@ func (s *AgentService) UpdateNote(agentID, bookingID uint, note string) (*model.
 	return full.ToDto(), nil
 }
 
-// GenerateReviewLink creates an HMAC-signed URL for a property review.
-// Token format: base64url(propertyID:agentID).base64url(hmac)
-// The token is self-contained — ParseReviewToken decodes it without DB lookup.
 func (s *AgentService) GenerateReviewLink(agentID, propertyID uint, baseURL string) (string, error) {
 	token := signReviewToken(propertyID, agentID)
 

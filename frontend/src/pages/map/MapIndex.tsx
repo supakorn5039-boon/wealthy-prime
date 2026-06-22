@@ -111,7 +111,7 @@ export default function MapIndex() {
                     eventHandlers={{ click: () => handleMarkerClick(p) }}
                   >
                     <Popup>
-                      <div className="text-sm font-medium">{p.title}</div>
+                      <div className="text-sm font-medium">{p.projectName}</div>
                       <div className="text-xs text-muted-foreground mt-0.5">
                         {formatPrice(p.price)}
                         {p.type === 'rent' && <span className="ml-1">/ {t('property.perMonth')}</span>}
@@ -151,7 +151,7 @@ export default function MapIndex() {
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm line-clamp-1">{p.title}</p>
+                    <p className="font-medium text-sm line-clamp-1">{p.projectName}</p>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
                       <MapPin className="h-3 w-3 flex-shrink-0" />
                       <span className="line-clamp-1">{p.location}</span>
@@ -184,7 +184,7 @@ export default function MapIndex() {
           {selected && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-base leading-snug pr-6">{selected.title}</DialogTitle>
+                <DialogTitle className="text-base leading-snug pr-6">{selected.projectName}</DialogTitle>
               </DialogHeader>
 
               <div className="space-y-3 mt-1">

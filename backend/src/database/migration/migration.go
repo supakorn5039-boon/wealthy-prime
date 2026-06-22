@@ -22,6 +22,12 @@ func Run(db *gorm.DB) {
 	if err := migrateProperties(db); err != nil {
 		log.Fatalf("[migration] properties: %v", err)
 	}
+	// Must run after migrateProperties: AutoMigrate would re-add title as a
+	// not-null column on existing databases. Drop it here once the project_name
+	// backfill is safe.
+	if err := dropPropertyTitle(db); err != nil {
+		log.Fatalf("[migration] drop properties.title: %v", err)
+	}
 	if err := migrateBookings(db); err != nil {
 		log.Fatalf("[migration] bookings: %v", err)
 	}

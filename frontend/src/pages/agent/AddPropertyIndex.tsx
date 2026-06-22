@@ -49,7 +49,6 @@ export default function AddPropertyIndex() {
   const { control, handleSubmit, setValue } = useForm<PropertySchema>({
     resolver: zodResolver(propertySchema),
     defaultValues: {
-      title: "",
       projectName: "",
       location: "",
       price: "",
@@ -109,7 +108,6 @@ export default function AddPropertyIndex() {
     mutationFn: (values: PropertySchema) =>
       PropertyService.createWithImages(
         {
-          title: values.title,
           projectName: values.projectName,
           location: values.location || values.district || "",
           price: Number(values.price),
@@ -195,13 +193,6 @@ export default function AddPropertyIndex() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <FormInput
-              control={control}
-              name="title"
-              label={t("property.title")}
-              placeholder={t("property.title")}
-              required
-            />
             <FormInput
               control={control}
               name="projectName"

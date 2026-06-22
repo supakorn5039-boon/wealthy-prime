@@ -69,7 +69,10 @@ export const routes: AppRoute[] = [
 
   // Agent protected
   { path: ROUTES.AGENT_DASHBOARD, element: wrap(<AgentDashboardIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
-  { path: ROUTES.AGENT_PROPERTIES, element: wrap(<MyPropertiesIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
+  // MyPropertiesIndex serves both: agents see only their own listings,
+  // admins see ALL listings (route-level role check is broadened; the page
+  // dispatches to the correct API based on the caller's role).
+  { path: ROUTES.AGENT_PROPERTIES, element: wrap(<MyPropertiesIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ['agent', 'admin'] },
   { path: ROUTES.AGENT_ADD_PROPERTY, element: wrap(<AddPropertyIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
   { path: ROUTES.AGENT_CONTACT_HISTORY, element: wrap(<ContactHistoryIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
   { path: ROUTES.AGENT_INQUIRIES, element: wrap(<InquiriesIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },

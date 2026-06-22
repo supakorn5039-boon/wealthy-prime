@@ -102,7 +102,7 @@ function PropertyRow({ property, active, onHover }: PropertyRowProps) {
           <>
             <img
               src={resolveImageUrl(property.imageUrls[0])}
-              alt={property.title}
+              alt={property.projectName}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
             <ImageWatermark compact />
@@ -120,7 +120,10 @@ function PropertyRow({ property, active, onHover }: PropertyRowProps) {
       <div className="flex-1 min-w-0 py-2 pr-3 flex flex-col">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <p className="text-lg font-bold text-primary leading-tight">
+            <h3 className="font-semibold text-foreground text-base line-clamp-1 group-hover:text-primary transition-colors">
+              {property.projectName}
+            </h3>
+            <p className="text-lg font-bold text-primary leading-tight mt-0.5">
               ฿{formatPrice(property.price).replace(/^฿/, "")}
               {isRent && (
                 <span className="ml-1 text-xs font-medium text-muted-foreground">
@@ -128,9 +131,6 @@ function PropertyRow({ property, active, onHover }: PropertyRowProps) {
                 </span>
               )}
             </p>
-            <h3 className="font-semibold text-foreground text-sm mt-0.5 line-clamp-1 group-hover:text-primary transition-colors">
-              {property.title}
-            </h3>
           </div>
           <div className="flex items-center gap-1 shrink-0">
             {petAllowed && (
@@ -298,7 +298,7 @@ export default function HomeIndex() {
                         eventHandlers={{ click: () => handleMarkerClick(p) }}
                       >
                         <Popup>
-                          <div className="text-sm font-medium">{p.title}</div>
+                          <div className="text-sm font-medium">{p.projectName}</div>
                           <div className="text-xs text-muted-foreground mt-0.5">
                             {formatPrice(p.price)}
                             {p.type === "rent" && (
@@ -338,7 +338,7 @@ export default function HomeIndex() {
             <>
               <DialogHeader>
                 <DialogTitle className="text-base leading-snug pr-6">
-                  {selected.title}
+                  {selected.projectName}
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-3 mt-1">

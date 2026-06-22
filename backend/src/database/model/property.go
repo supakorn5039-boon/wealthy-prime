@@ -48,8 +48,6 @@ const (
 
 type Property struct {
 	gorm.Model
-	// Legacy / existing fields — keep
-	Title              string         `gorm:"not null"`
 	ProjectName        string         `gorm:"not null"`
 	Location           string         `gorm:"not null"`
 	Price              float64        `gorm:"not null"`
@@ -151,7 +149,6 @@ type PropertyImageDto struct {
 type PropertyDto struct {
 	ID                 uint               `json:"id"`
 	PropertyCode       string             `json:"propertyCode"`
-	Title              string             `json:"title"`
 	ProjectName        string             `json:"projectName"`
 	Location           string             `json:"location"`
 	Price              float64            `json:"price"`
@@ -196,7 +193,6 @@ func (p *Property) ToDto() *PropertyDto {
 	dto := &PropertyDto{
 		ID:                 p.ID,
 		PropertyCode:       p.PropertyCode,
-		Title:              p.Title,
 		ProjectName:        p.ProjectName,
 		Location:           p.Location,
 		Price:              p.Price,

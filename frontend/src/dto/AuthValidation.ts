@@ -1,23 +1,27 @@
 import { z } from 'zod'
+import { isValidPhoneNumber } from 'libphonenumber-js'
 
-// Thai mobile phone: 9-10 digits total, leading 0.
-// Accepts dashes/spaces in input ("081-111-1111", "081 111 1111", "0811111111")
-// — we strip them before validation. Rejects all-zero placeholder values.
-const stripPhone = (v: string) => v.replace(/[\s-]/g, '')
-const isValidPhone = (v: string) => /^0\d{8,9}$/.test(stripPhone(v))
-const isNotAllZeros = (v: string) => !/^0+$/.test(stripPhone(v))
-
+// Registration / profile phones flow through PhoneInput which yields E.164.
+// Validation delegates to libphonenumber so any country works, not just TH.
 export const phoneSchema = z
   .string()
   .min(1, 'กรุณากรอกเบอร์โทร')
-  .refine(isValidPhone, 'รูปแบบเบอร์โทรไม่ถูกต้อง')
-  .refine(isNotAllZeros, 'กรุณากรอกเบอร์จริง')
+  .refine((v) => isValidPhoneNumber(v), 'รูปแบบเบอร์โทรไม่ถูกต้อง')
 
+// Permissive variant for legacy plain-text phone fields (e.g. property owner
+// phone on the Add/Edit Property form). Accepts E.164 ("+66...") or a Thai
+// local number ("0812345678") so existing flows keep working until they are
+// also migrated to the picker.
+const stripPhone = (v: string) => v.replace(/[\s-]/g, '')
+const isLooseValidPhone = (v: string) => {
+  const cleaned = stripPhone(v)
+  if (/^0\d{8,9}$/.test(cleaned)) return true
+  return isValidPhoneNumber(cleaned)
+}
 export const optionalPhoneSchema = z
   .string()
   .optional()
-  .refine((v) => !v || isValidPhone(v), 'รูปแบบเบอร์โทรไม่ถูกต้อง')
-  .refine((v) => !v || isNotAllZeros(v), 'กรุณากรอกเบอร์จริง')
+  .refine((v) => !v || isLooseValidPhone(v), 'รูปแบบเบอร์โทรไม่ถูกต้อง')
 
 export const loginSchema = z.object({
   email: z.string().email('อีเมลไม่ถูกต้อง'),

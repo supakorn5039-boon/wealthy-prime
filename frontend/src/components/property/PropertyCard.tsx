@@ -38,7 +38,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
             <>
               <img
                 src={resolveImageUrl(property.imageUrls[0])}
-                alt={property.title}
+                alt={property.projectName}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
               <ImageWatermark compact />
@@ -84,7 +84,10 @@ export function PropertyCard({ property }: PropertyCardProps) {
 
       <div className="p-4">
         <Link to={`/property/${property.id}`} className="block">
-          <p className="text-xl font-bold text-primary break-words leading-tight tracking-tight">
+          <h3 className="font-semibold text-foreground text-base line-clamp-1 hover:text-primary transition-colors">
+            {property.projectName}
+          </h3>
+          <p className="text-xl font-bold text-primary break-words leading-tight tracking-tight mt-1">
             ฿{formatPrice(property.price).replace(/^฿/, "")}
             {isRent && (
               <span className="ml-1 text-xs font-medium text-muted-foreground">
@@ -92,9 +95,6 @@ export function PropertyCard({ property }: PropertyCardProps) {
               </span>
             )}
           </p>
-          <h3 className="font-semibold text-foreground text-sm mt-1 line-clamp-1 hover:text-primary transition-colors">
-            {property.title}
-          </h3>
         </Link>
 
         <div className="flex items-center gap-1 mt-2 text-muted-foreground text-xs">

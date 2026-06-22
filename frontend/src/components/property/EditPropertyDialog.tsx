@@ -59,7 +59,6 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
     useForm<PropertySchema>({
       resolver: zodResolver(propertySchema),
       defaultValues: {
-        title: property.title,
         projectName: property.projectName,
         location: property.location,
         price: String(property.price),
@@ -124,7 +123,6 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
       PropertyService.edit(
         property.id,
         {
-          title: values.title,
           projectName: values.projectName,
           location: values.location || values.district || "",
           price: Number(values.price),
@@ -201,7 +199,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {t("property.editTitle")}: {property.title}
+            {t("property.editTitle")}: {property.projectName}
           </DialogTitle>
           <DialogDescription>{t("property.editDesc")}</DialogDescription>
         </DialogHeader>
@@ -210,12 +208,6 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
           onSubmit={handleSubmit((values) => mutation.mutate(values))}
           className="space-y-4"
         >
-          <FormInput
-            control={control}
-            name="title"
-            label={t("property.title")}
-            required
-          />
           <FormInput
             control={control}
             name="projectName"
