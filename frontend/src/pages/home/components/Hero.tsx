@@ -18,7 +18,7 @@ export function Hero({ children }: HeroProps) {
       <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/60 to-background" />
 
       <div
-        className="pointer-events-none absolute hidden lg:block border-2 border-primary top-[14%] right-[8%] w-80 h-80"
+        className="pointer-events-none absolute hidden lg:block border-2 border-primary top-[14%] right-[8%] size-80"
         aria-hidden
       />
 

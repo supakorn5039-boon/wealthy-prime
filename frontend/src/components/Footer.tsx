@@ -36,9 +36,9 @@ export function Footer() {
         <div>
           <h3 className="text-foreground font-semibold text-sm mb-3 tracking-luxury uppercase">{t('footer.contact')}</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li className="flex items-center gap-2"><MessageCircle className="h-4 w-4" /> LINE: @wealthyprime</li>
-            <li className="flex items-center gap-2"><Phone className="h-4 w-4" /> 02-XXX-XXXX</li>
-            <li className="flex items-center gap-2"><Mail className="h-4 w-4" /> info@wealthyprimeestate.com</li>
+            <li className="flex items-center gap-2"><MessageCircle className="size-4" /> LINE: @wealthyprime</li>
+            <li className="flex items-center gap-2"><Phone className="size-4" /> 02-XXX-XXXX</li>
+            <li className="flex items-center gap-2"><Mail className="size-4" /> info@wealthyprimeestate.com</li>
           </ul>
         </div>
 

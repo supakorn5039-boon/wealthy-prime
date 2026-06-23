@@ -40,11 +40,11 @@ import {
   propertyStatusSchema,
   type PropertyStatusSchema,
 } from "@/dto/PropertyValidation";
-import type { Property, PropertyKind, PropertyStatus, PropertyType } from "@/types/Property";
+import type { Property, PropertyKind, PropertyStatus, ListingFilter } from "@/types/Property";
 import { ROUTES } from "@/constants/Routes";
 
 const STATUS_VALUES: PropertyStatus[] = ['available', 'reserved', 'sold', 'unavailable', 'owner_update']
-const TYPE_VALUES: PropertyType[] = ['buy', 'rent']
+const TYPE_VALUES: ListingFilter[] = ['sell', 'rent', 'both']
 const KIND_VALUES: Exclude<PropertyKind, ''>[] = ['condo', 'house', 'townhouse']
 
 function StatusModal({
@@ -141,7 +141,7 @@ export default function MyPropertiesIndex() {
   const [editTarget, setEditTarget] = useState<Property | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Property | null>(null);
   const [statusFilters, setStatusFilters] = useState<PropertyStatus[]>([]);
-  const [typeFilters, setTypeFilters] = useState<PropertyType[]>([]);
+  const [typeFilters, setTypeFilters] = useState<ListingFilter[]>([]);
   const [kindFilters, setKindFilters] = useState<Exclude<PropertyKind, ''>[]>([]);
   const [projectFilter, setProjectFilter] = useState('');
 
@@ -172,7 +172,7 @@ export default function MyPropertiesIndex() {
   };
 
   const statusOptions = useMemo(() => STATUS_VALUES.map((s) => ({ value: s, label: t(`property.status.${s}`) })), [t]);
-  const typeOptions = useMemo(() => TYPE_VALUES.map((v) => ({ value: v, label: t(`property.${v}`) })), [t]);
+  const typeOptions = useMemo(() => TYPE_VALUES.map((v) => ({ value: v, label: t(`property.listing.${v}`) })), [t]);
   const kindOptions = useMemo(() => KIND_VALUES.map((v) => ({ value: v, label: t(`property.kind.${v}`) })), [t]);
 
   const deleteMutation = useMutation({
@@ -198,7 +198,7 @@ export default function MyPropertiesIndex() {
           !isAdmin && (
             <Link to={ROUTES.AGENT_ADD_PROPERTY}>
               <Button>
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="size-4 mr-2" />
                 {t("property.addProperty")}
               </Button>
             </Link>
@@ -217,7 +217,7 @@ export default function MyPropertiesIndex() {
           placeholder={t('property.typeCol')}
           selected={typeFilters}
           options={typeOptions}
-          onChange={(next) => setTypeFilters(next as PropertyType[])}
+          onChange={(next) => setTypeFilters(next as ListingFilter[])}
         />
         <MultiSelectFilter
           placeholder={t('property.kindLabel')}
@@ -234,7 +234,7 @@ export default function MyPropertiesIndex() {
           />
           {hasFilters && (
             <Button type="button" variant="ghost" size="icon" onClick={clearFilters} aria-label="clear">
-              <X className="h-4 w-4" />
+              <X className="size-4" />
             </Button>
           )}
         </div>
@@ -249,7 +249,7 @@ export default function MyPropertiesIndex() {
             !isAdmin && !hasFilters && (
               <Link to={ROUTES.AGENT_ADD_PROPERTY}>
                 <Button>
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="size-4 mr-2" />
                   {t("property.addProperty")}
                 </Button>
               </Link>
@@ -305,7 +305,7 @@ export default function MyPropertiesIndex() {
                             variant="ghost"
                             title={t("common.view")}
                           >
-                            <Eye className="h-4 w-4" />
+                            <Eye className="size-4" />
                           </Button>
                         </Link>
                         <Button
@@ -314,7 +314,7 @@ export default function MyPropertiesIndex() {
                           title={t("common.edit")}
                           onClick={() => setEditTarget(p)}
                         >
-                          <Pencil className="h-4 w-4" />
+                          <Pencil className="size-4" />
                         </Button>
                         <Button
                           size="icon"
@@ -322,7 +322,7 @@ export default function MyPropertiesIndex() {
                           title={t("property.updateStatus")}
                           onClick={() => setSelectedProperty(p)}
                         >
-                          <UploadCloud className="h-4 w-4" />
+                          <UploadCloud className="size-4" />
                         </Button>
                         <Button
                           size="icon"
@@ -331,7 +331,7 @@ export default function MyPropertiesIndex() {
                           title={t("common.delete")}
                           onClick={() => setDeleteTarget(p)}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="size-4" />
                         </Button>
                       </div>
                     </TableCell>

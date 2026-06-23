@@ -34,7 +34,7 @@ export function ListingAgentPreviewDialog({ preview, fullWidth }: Props) {
         onClick={() => setOpen(true)}
         className={fullWidth ? 'w-full' : ''}
       >
-        <UserCog className={fullWidth ? 'h-4 w-4 mr-2' : 'h-3.5 w-3.5 mr-1'} />
+        <UserCog className={fullWidth ? 'size-4 mr-2' : 'size-3.5 mr-1'} />
         {t('agent.listingAgentPreview')}
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -47,37 +47,37 @@ export function ListingAgentPreviewDialog({ preview, fullWidth }: Props) {
             <div className="font-medium text-base">{preview.name}</div>
             {preview.phone && (
               <div className="flex items-center gap-2">
-                <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                <Phone className="size-3.5 text-muted-foreground" />
                 <a href={`tel:${preview.phone}`} className="hover:underline">{preview.phone}</a>
               </div>
             )}
             {preview.email && (
               <div className="flex items-center gap-2">
-                <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                <Mail className="size-3.5 text-muted-foreground" />
                 <a href={`mailto:${preview.email}`} className="hover:underline">{preview.email}</a>
               </div>
             )}
             {preview.lineId && (
               <div className="flex items-center gap-2">
-                <MessageCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                <MessageCircle className="size-3.5 text-muted-foreground" />
                 <span>Line: {preview.lineId}</span>
               </div>
             )}
             {preview.whatsapp && (
               <div className="flex items-center gap-2">
-                <MessageCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                <MessageCircle className="size-3.5 text-muted-foreground" />
                 <span>WhatsApp: {preview.whatsapp}</span>
               </div>
             )}
             {preview.wechat && (
               <div className="flex items-center gap-2">
-                <MessageCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                <MessageCircle className="size-3.5 text-muted-foreground" />
                 <span>WeChat: {preview.wechat}</span>
               </div>
             )}
             {preview.facebook && (
               <div className="flex items-center gap-2">
-                <MessageCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                <MessageCircle className="size-3.5 text-muted-foreground" />
                 <span>Facebook: {preview.facebook}</span>
               </div>
             )}

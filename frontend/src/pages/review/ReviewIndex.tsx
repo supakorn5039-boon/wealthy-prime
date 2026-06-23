@@ -59,7 +59,7 @@ export default function ReviewIndex() {
       <div className="w-full max-w-md px-4">
         <Card>
           <CardContent className="pt-8 pb-8 text-center">
-            <Star className="h-12 w-12 text-muted-foreground/60 mx-auto mb-4" />
+            <Star className="size-12 text-muted-foreground/60 mx-auto mb-4" />
             <p className="text-lg font-medium">{t('review.invalidLink')}</p>
             <p className="text-sm text-muted-foreground mt-2">{t('review.requestNewLink')}</p>
           </CardContent>
@@ -73,7 +73,7 @@ export default function ReviewIndex() {
       <div className="w-full max-w-md px-4">
         <Card>
           <CardContent className="pt-8 pb-8 text-center">
-            <Star className="h-12 w-12 text-yellow-400 mx-auto mb-4 fill-yellow-400" />
+            <Star className="size-12 text-yellow-400 mx-auto mb-4 fill-yellow-400" />
             <p className="text-xl font-bold">{t('review.thankYou')}</p>
             <p className="text-sm text-muted-foreground mt-2">{t('review.willBeShown')}</p>
           </CardContent>
@@ -101,7 +101,7 @@ export default function ReviewIndex() {
               className="w-full"
               onClick={() => navigate(ROUTES.LOGIN, { state: { from: location } })}
             >
-              <LogIn className="h-4 w-4 mr-2" />
+              <LogIn className="size-4 mr-2" />
               {t('nav.login')}
             </Button>
             <p className="text-center text-sm text-muted-foreground">

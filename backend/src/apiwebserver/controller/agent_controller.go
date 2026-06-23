@@ -17,6 +17,7 @@ type AgentController struct {
 	svc         *service.AgentService
 	propertySvc *service.PropertyService
 	inquirySvc  *service.InquiryService
+	auditSvc    *service.AuditService
 }
 
 func NewAgentController() *AgentController {
@@ -24,6 +25,7 @@ func NewAgentController() *AgentController {
 		svc:         service.NewAgentService(),
 		propertySvc: service.NewPropertyService(),
 		inquirySvc:  service.NewInquiryService(),
+		auditSvc:    service.NewAuditService(),
 	}
 }
 
@@ -156,6 +158,12 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 		return
 	}
 
+	ctrl.auditSvc.Log(c, service.AuditEntry{
+		Action:     model.AuditCreate,
+		EntityType: model.EntityProperty,
+		EntityID:   &dto.ID,
+		Summary:    fmt.Sprintf("Created property %s (%s)", dto.ProjectName, dto.PropertyCode),
+	})
 	created(c, dto)
 }
 
@@ -234,6 +242,12 @@ func (ctrl *AgentController) editProperty(c *gin.Context) {
 		return
 	}
 
+	ctrl.auditSvc.Log(c, service.AuditEntry{
+		Action:     model.AuditUpdate,
+		EntityType: model.EntityProperty,
+		EntityID:   &propertyID,
+		Summary:    fmt.Sprintf("Edited property %s (%s)", dto.ProjectName, dto.PropertyCode),
+	})
 	successResponse(c, dto)
 }
 
@@ -280,6 +294,13 @@ func (ctrl *AgentController) updateStatus(c *gin.Context) {
 		return
 	}
 
+	ctrl.auditSvc.Log(c, service.AuditEntry{
+		Action:     model.AuditStatusChange,
+		EntityType: model.EntityProperty,
+		EntityID:   &propertyID,
+		Summary:    fmt.Sprintf("Set %s status to %s", dto.ProjectName, statusStr),
+		Metadata:   map[string]any{"status": statusStr},
+	})
 	successResponse(c, dto)
 }
 
@@ -297,6 +318,12 @@ func (ctrl *AgentController) deleteProperty(c *gin.Context) {
 		return
 	}
 
+	ctrl.auditSvc.Log(c, service.AuditEntry{
+		Action:     model.AuditDelete,
+		EntityType: model.EntityProperty,
+		EntityID:   &propertyID,
+		Summary:    fmt.Sprintf("Deleted property #%d", propertyID),
+	})
 	c.JSON(200, gin.H{"success": true})
 }
 
@@ -332,6 +359,12 @@ func (ctrl *AgentController) updateNote(c *gin.Context) {
 		return
 	}
 
+	ctrl.auditSvc.Log(c, service.AuditEntry{
+		Action:     model.AuditNoteUpdate,
+		EntityType: model.EntityBooking,
+		EntityID:   &bookingID,
+		Summary:    fmt.Sprintf("Updated note on booking #%d", bookingID),
+	})
 	successResponse(c, dto)
 }
 
@@ -356,6 +389,13 @@ func (ctrl *AgentController) updateWorkStatus(c *gin.Context) {
 		errorResponse(c, err)
 		return
 	}
+	ctrl.auditSvc.Log(c, service.AuditEntry{
+		Action:     model.AuditWorkStatusSet,
+		EntityType: model.EntityBooking,
+		EntityID:   &bookingID,
+		Summary:    fmt.Sprintf("Set work status on booking #%d to %s", bookingID, body.WorkStatus),
+		Metadata:   map[string]any{"workStatus": body.WorkStatus},
+	})
 	successResponse(c, dto)
 }
 
@@ -412,6 +452,13 @@ func (ctrl *AgentController) updateInquiryStatus(c *gin.Context) {
 		errorResponse(c, err)
 		return
 	}
+	ctrl.auditSvc.Log(c, service.AuditEntry{
+		Action:     model.AuditStatusChange,
+		EntityType: model.EntityInquiry,
+		EntityID:   &inquiryID,
+		Summary:    fmt.Sprintf("Set inquiry #%d status to %s", inquiryID, body.Status),
+		Metadata:   map[string]any{"status": body.Status},
+	})
 	successResponse(c, dto)
 }
 

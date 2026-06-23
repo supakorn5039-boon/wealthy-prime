@@ -112,7 +112,7 @@ export default function UserManagementIndex() {
                     <TableCell>{formatDate(u.createdAt)}</TableCell>
                     <TableCell className="text-right">
                       <Button size="sm" variant="ghost" onClick={() => setEditingUser(u)}>
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="size-4" />
                       </Button>
                     </TableCell>
                   </TableRow>

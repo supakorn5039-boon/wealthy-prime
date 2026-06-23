@@ -105,7 +105,7 @@ export function DataTable<T>({
                           onClick={header.column.getToggleSortingHandler()}
                         >
                           {flexRender(header.column.columnDef.header, header.getContext())}
-                          <ArrowUpDown className="h-3 w-3 opacity-60" />
+                          <ArrowUpDown className="size-3 opacity-60" />
                         </button>
                       ) : (
                         flexRender(header.column.columnDef.header, header.getContext())
@@ -170,7 +170,7 @@ export function DataTable<T>({
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="size-4" />
           </Button>
           <Button
             size="sm"
@@ -178,7 +178,7 @@ export function DataTable<T>({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="size-4" />
           </Button>
         </div>
       </div>

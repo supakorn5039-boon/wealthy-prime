@@ -27,8 +27,6 @@ import {
 import { usePropertyOptions } from "@/hooks/usePropertyOptions";
 import { parseGoogleMapsUrl } from "@/utils/parseGoogleMapsUrl";
 
-const PHONE_PLACEHOLDER = "081-111-1111";
-
 export default function AddPropertyIndex() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -404,7 +402,7 @@ export default function AddPropertyIndex() {
                 control={control}
                 name="ownerPhone"
                 label={t("property.ownerPhone")}
-                placeholder={PHONE_PLACEHOLDER}
+                placeholder={t('common.phonePlaceholder')}
               />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -487,9 +485,9 @@ export default function AddPropertyIndex() {
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="w-24 h-24 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-1 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+                className="size-24 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-1 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
               >
-                <ImagePlus className="h-6 w-6" />
+                <ImagePlus className="size-6" />
                 <span className="text-xs">{t("property.addImage")}</span>
               </button>
             </div>

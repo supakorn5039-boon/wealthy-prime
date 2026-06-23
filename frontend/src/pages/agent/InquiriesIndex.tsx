@@ -63,7 +63,7 @@ export default function InquiriesIndex() {
                           href={`tel:${inquiry.phone}`}
                           className="text-xs text-primary hover:underline inline-flex items-center gap-1 mt-0.5"
                         >
-                          <Phone className="h-3 w-3" />
+                          <Phone className="size-3" />
                           {inquiry.phone}
                         </a>
                       </div>
@@ -88,7 +88,7 @@ export default function InquiriesIndex() {
                           onClick={() => markContacted.mutate(inquiry.id)}
                           disabled={markContacted.isPending}
                         >
-                          <CheckCircle2 className="h-4 w-4 mr-1" />
+                          <CheckCircle2 className="size-4 mr-1" />
                           {t('inquiries.markContacted')}
                         </Button>
                       )}

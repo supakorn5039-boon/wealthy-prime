@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import { ROUTES, RouteLayout } from '@/constants/Routes'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
+import { RoleSwitch } from '@/router/RoleSwitch'
 import lazyWithReload from '@/utils/lazyWithReload'
 import type { UserRole } from '@/types/Auth'
 
@@ -25,7 +26,6 @@ const ReviewLinkIndex = lazyWithReload(() => import('@/pages/agent/ReviewLinkInd
 const LeadsIndex = lazyWithReload(() => import('@/pages/agent/LeadsIndex'))
 const AgentProfileIndex = lazyWithReload(() => import('@/pages/agent/AgentProfileIndex'))
 const AgentOverviewIndex = lazyWithReload(() => import('@/pages/agent/AgentOverviewIndex'))
-const OwnerLogIndex = lazyWithReload(() => import('@/pages/agent/OwnerLogIndex'))
 const AdminDashboardIndex = lazyWithReload(() => import('@/pages/admin/AdminDashboardIndex'))
 const PendingUsersIndex = lazyWithReload(() => import('@/pages/admin/PendingUsersIndex'))
 const AgentManagementIndex = lazyWithReload(() => import('@/pages/admin/AgentManagementIndex'))
@@ -33,6 +33,7 @@ const UserManagementIndex = lazyWithReload(() => import('@/pages/admin/UserManag
 const CaseReassignmentIndex = lazyWithReload(() => import('@/pages/admin/CaseReassignmentIndex'))
 const AdminVisitRequestsIndex = lazyWithReload(() => import('@/pages/admin/VisitRequestsIndex'))
 const FinancialIndex = lazyWithReload(() => import('@/pages/admin/FinancialIndex'))
+const AuditLogsIndex = lazyWithReload(() => import('@/pages/admin/AuditLogsIndex'))
 
 function wrap(element: React.ReactElement) {
   return <Suspense fallback={<LoadingSpinner />}>{element}</Suspense>
@@ -67,27 +68,33 @@ export const routes: AppRoute[] = [
   { path: ROUTES.HISTORY, element: wrap(<HistoryIndex />), layout: RouteLayout.PROTECTED, allowedRoles: USER_ONLY },
   { path: ROUTES.CONTACTS, element: wrap(<ContactsIndex />), layout: RouteLayout.PROTECTED, allowedRoles: USER_ONLY },
 
-  // Agent protected
-  { path: ROUTES.AGENT_DASHBOARD, element: wrap(<AgentDashboardIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
-  // MyPropertiesIndex serves both: agents see only their own listings,
-  // admins see ALL listings (route-level role check is broadened; the page
-  // dispatches to the correct API based on the caller's role).
+  // Workspace (agent + admin). URLs are prefix-free; pages that diverge per
+  // role are wrapped in RoleSwitch so one URL renders the right component.
+  {
+    path: ROUTES.AGENT_DASHBOARD,
+    element: wrap(<RoleSwitch admin={<AdminDashboardIndex />} agent={<AgentDashboardIndex />} />),
+    layout: RouteLayout.PROTECTED,
+    allowedRoles: ['agent', 'admin'],
+  },
   { path: ROUTES.AGENT_PROPERTIES, element: wrap(<MyPropertiesIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ['agent', 'admin'] },
   { path: ROUTES.AGENT_ADD_PROPERTY, element: wrap(<AddPropertyIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
-  { path: ROUTES.AGENT_CONTACT_HISTORY, element: wrap(<ContactHistoryIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
+  {
+    path: ROUTES.AGENT_CONTACT_HISTORY,
+    element: wrap(<RoleSwitch admin={<AdminVisitRequestsIndex />} agent={<ContactHistoryIndex />} />),
+    layout: RouteLayout.PROTECTED,
+    allowedRoles: ['agent', 'admin'],
+  },
   { path: ROUTES.AGENT_INQUIRIES, element: wrap(<InquiriesIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
   { path: ROUTES.AGENT_REVIEW_LINK, element: wrap(<ReviewLinkIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
   { path: ROUTES.AGENT_LEADS, element: wrap(<LeadsIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
   { path: ROUTES.AGENT_PROFILE, element: wrap(<AgentProfileIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
   { path: ROUTES.AGENT_OVERVIEW, element: wrap(<AgentOverviewIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
-  { path: ROUTES.AGENT_OWNER_LOG, element: wrap(<OwnerLogIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
 
-  // Admin protected
-  { path: ROUTES.ADMIN_DASHBOARD, element: wrap(<AdminDashboardIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
+  // Admin-only
   { path: ROUTES.ADMIN_PENDING_USERS, element: wrap(<PendingUsersIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
   { path: ROUTES.ADMIN_AGENTS, element: wrap(<AgentManagementIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
   { path: ROUTES.ADMIN_USERS, element: wrap(<UserManagementIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
   { path: ROUTES.ADMIN_REASSIGN, element: wrap(<CaseReassignmentIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
-  { path: ROUTES.ADMIN_VISIT_REQUESTS, element: wrap(<AdminVisitRequestsIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
   { path: ROUTES.ADMIN_FINANCIAL, element: wrap(<FinancialIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
+  { path: ROUTES.ADMIN_AUDIT_LOGS, element: wrap(<AuditLogsIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
 ]

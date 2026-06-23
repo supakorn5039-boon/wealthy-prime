@@ -44,7 +44,7 @@ export default function FinancialIndex() {
         subtitle={`${t('admin.totalRevenue')}: ${formatPrice(totalRevenue)}`}
         actions={
           <Button onClick={() => exportMutation.mutate()} disabled={exportMutation.isPending}>
-            <Download className="h-4 w-4 mr-2" />
+            <Download className="size-4 mr-2" />
             {exportMutation.isPending ? t('admin.exporting') : t('admin.export')}
           </Button>
         }

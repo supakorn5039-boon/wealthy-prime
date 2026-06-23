@@ -11,7 +11,7 @@ import {
   type BtsMrtLine,
   type BtsMrtStation,
 } from '@/constants/Locations'
-import type { PropertyListParams, PropertyType, PropertyKind } from '@/types/Property'
+import type { PropertyListParams, ListingFilter, PropertyKind } from '@/types/Property'
 
 interface PropertyFilterProps {
   onFilter: (params: PropertyListParams) => void
@@ -144,11 +144,11 @@ function MultiPick<T extends string | number>({
   const checkbox = (checked: boolean) => (
     <span
       className={cn(
-        'h-4 w-4 rounded border flex items-center justify-center shrink-0',
+        'size-4 rounded border flex items-center justify-center shrink-0',
         checked ? 'bg-primary border-primary' : 'border-input',
       )}
     >
-      {checked && <Check className="h-3 w-3 text-primary-foreground" />}
+      {checked && <Check className="size-3 text-primary-foreground" />}
     </span>
   )
 
@@ -180,7 +180,7 @@ function MultiPick<T extends string | number>({
         )}
       >
         <span className="truncate">{triggerText}</span>
-        <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ml-2" />
+        <ChevronDown className="size-4 opacity-50 shrink-0 ml-2" />
       </button>
       {open && position && createPortal(
         <div
@@ -196,7 +196,7 @@ function MultiPick<T extends string | number>({
         >
           <div className="p-2 border-b border-border/60">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Search className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
               <input
                 autoFocus
                 type="text"
@@ -243,7 +243,7 @@ function toggleArray<T>(prev: T[], value: T): T[] {
 export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps) {
   const { t } = useTranslation()
   const [search, setSearch] = useState(initialValues?.search ?? '')
-  const [types, setTypes] = useState<PropertyType[]>(initialValues?.types ?? [])
+  const [types, setTypes] = useState<ListingFilter[]>(initialValues?.types ?? [])
   const [kinds, setKinds] = useState<PropertyKind[]>(initialValues?.kinds ?? [])
   const [priceIds, setPriceIds] = useState<string[]>(presetIdsFromRanges(initialValues?.priceRanges))
   const [provinces, setProvinces] = useState<string[]>(initialValues?.provinces ?? [])
@@ -274,10 +274,11 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     ],
     [t],
   )
-  const typeOptions = useMemo<MultiPickOption<PropertyType>[]>(
+  const typeOptions = useMemo<MultiPickOption<ListingFilter>[]>(
     () => [
-      { value: 'buy', label: t('home.filterBuy') },
-      { value: 'rent', label: t('home.filterRent') },
+      { value: 'sell', label: t('property.listing.sell') },
+      { value: 'rent', label: t('property.listing.rent') },
+      { value: 'both', label: t('property.listing.both') },
     ],
     [t],
   )
@@ -356,7 +357,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
           onToggle={(v) => setKinds((p) => toggleArray(p, v))}
           onClear={() => setKinds([])}
         />
-        <MultiPick<PropertyType>
+        <MultiPick<ListingFilter>
           allLabel={allLabel}
           placeholder={t('home.filterLabel.type')}
           selectedLabel={countLabel(types.length)}
@@ -407,7 +408,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
       </div>
 
       <div className="flex items-center gap-2 p-2 border-t border-border">
-        <Search className="h-4 w-4 ml-3 text-muted-foreground shrink-0" />
+        <Search className="size-4 ml-3 text-muted-foreground shrink-0" />
         <input
           type="text"
           value={search}
@@ -422,10 +423,10 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
             variant="ghost"
             size="icon"
             onClick={handleReset}
-            className="rounded-full h-9 w-9 shrink-0"
+            className="rounded-full size-9 shrink-0"
             aria-label="reset"
           >
-            <X className="h-4 w-4" />
+            <X className="size-4" />
           </Button>
         )}
         <Button

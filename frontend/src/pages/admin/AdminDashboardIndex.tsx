@@ -1,106 +1,249 @@
+import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
-import { Building2, Users, UserCog, DollarSign, Trophy } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Calendar, MapPin, Home } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
+import type { ColumnDef } from '@tanstack/react-table'
 import { AdminService } from '@/services/AdminService'
+import { PropertyService } from '@/services/PropertyService'
+import { PropertyStatusBadge } from '@/components/shared/StatusBadge'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { PageTitle } from '@/components/shared/PageTitle'
 import { PageContainer } from '@/components/shared/PageContainer'
+import { DataTable } from '@/components/shared/DataTable'
+import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatPrice } from '@/utils/date'
+import { formatPrice, formatDateTime } from '@/utils/date'
+import type { Property, PropertyKind } from '@/types/Property'
 
-const COLORS = ['#C9A24A', '#D4B26E', '#A88334', '#7A5F22']
+type KindKey = Exclude<PropertyKind, '' | undefined>
 
-const RANK_BADGE: Record<number | 'default', string> = {
-  0: 'bg-primary text-primary-foreground',
-  1: 'bg-accent text-accent-foreground',
-  2: 'bg-primary/60 text-primary-foreground',
-  default: 'bg-muted text-muted-foreground',
-}
+const KINDS: KindKey[] = ['condo', 'house', 'townhouse']
 
-function StatCard({ title, value, icon, sub }: { title: string; value: string | number; icon: React.ReactNode; sub?: string }) {
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-        <div className="text-primary">{icon}</div>
-      </CardHeader>
-      <CardContent>
-        <p className="text-3xl font-bold">{value}</p>
-        {sub && <p className="text-xs text-muted-foreground mt-1">{sub}</p>}
-      </CardContent>
-    </Card>
-  )
+const KIND_COLORS: Record<KindKey, string> = {
+  condo: '#3b82f6',
+  house: '#10b981',
+  townhouse: '#f59e0b',
 }
 
 export default function AdminDashboardIndex() {
   const { t } = useTranslation()
 
-  const { data, isLoading } = useQuery({
-    queryKey: [AdminService.QUERY_KEYS.DASHBOARD],
-    queryFn: AdminService.getDashboard,
+  const { data: properties = [], isLoading: propsLoading } = useQuery({
+    queryKey: ['admin-properties', 'dashboard'],
+    queryFn: () => PropertyService.getAdminProperties(),
   })
 
-  if (isLoading) return <LoadingSpinner text={t('common.loading')} />
+  const { data: bookings = [] } = useQuery({
+    queryKey: [AdminService.QUERY_KEYS.BOOKINGS],
+    queryFn: AdminService.listBookings,
+  })
 
-  const chartData = (data?.propertyStatusChart ?? []).map((item) => ({
-    ...item,
-    label: t(`property.status.${item.status}`, { defaultValue: item.status }),
-  }))
+  const kindBreakdown = useMemo(() => {
+    const counts: Record<KindKey, number> = { condo: 0, house: 0, townhouse: 0 }
+    for (const p of properties) {
+      const k = p.kind as KindKey | undefined
+      if (k && k in counts) counts[k]++
+    }
+    return KINDS.map((k) => ({
+      kind: k,
+      name: t(`property.kind.${k}`),
+      value: counts[k],
+      color: KIND_COLORS[k],
+    }))
+  }, [properties, t])
+
+  const recentRequests = useMemo(() => {
+    return [...bookings]
+      .sort(
+        (a, b) =>
+          new Date(b.appointmentDate).getTime() - new Date(a.appointmentDate).getTime(),
+      )
+      .slice(0, 6)
+  }, [bookings])
+
+  const total = kindBreakdown.reduce((sum, s) => sum + s.value, 0)
+
+  const columns = useMemo<ColumnDef<Property>[]>(
+    () => [
+      {
+        id: 'property',
+        accessorFn: (row) => row.projectName,
+        header: t('property.projectName'),
+        cell: ({ row }) => (
+          <div className="flex flex-col min-w-0">
+            <Link
+              to={`/property/${row.original.id}`}
+              className="font-medium truncate hover:underline"
+            >
+              {row.original.projectName}
+            </Link>
+            {row.original.propertyCode && (
+              <span className="text-xs text-muted-foreground font-mono">
+                {row.original.propertyCode}
+              </span>
+            )}
+          </div>
+        ),
+      },
+      {
+        id: 'kind',
+        accessorFn: (row) => row.kind ?? '',
+        header: t('property.kindLabel'),
+        cell: ({ row }) =>
+          row.original.kind ? (
+            <Badge variant="outline">{t(`property.kind.${row.original.kind}`)}</Badge>
+          ) : (
+            <span className="text-muted-foreground">-</span>
+          ),
+      },
+      {
+        id: 'status',
+        accessorFn: (row) => row.status,
+        header: t('property.statusCol'),
+        cell: ({ row }) => <PropertyStatusBadge status={row.original.status} />,
+      },
+      {
+        id: 'price',
+        accessorFn: (row) => row.price,
+        header: t('property.price'),
+        cell: ({ row }) => (
+          <span className="font-medium tabular-nums">{formatPrice(row.original.price)}</span>
+        ),
+      },
+    ],
+    [t],
+  )
+
+  if (propsLoading) {
+    return (
+      <PageContainer size="7xl">
+        <PageTitle title={t('admin.dashboardTitle')} subtitle={t('admin.dashboardSubtitle')} />
+        <LoadingSpinner text={t('common.loading')} />
+      </PageContainer>
+    )
+  }
 
   return (
     <PageContainer size="7xl" className="space-y-6">
       <PageTitle title={t('admin.dashboardTitle')} subtitle={t('admin.dashboardSubtitle')} />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title={t('admin.total')} value={data?.totalProperties ?? 0} icon={<Building2 className="h-5 w-5" />} />
-        <StatCard title={t('admin.users')} value={data?.totalUsers ?? 0} icon={<Users className="h-5 w-5" />} />
-        <StatCard title={t('admin.agents')} value={data?.totalAgents ?? 0} icon={<UserCog className="h-5 w-5" />} />
-        <StatCard title={t('admin.revenue')} value={formatPrice(data?.totalRevenue ?? 0)} icon={<DollarSign className="h-5 w-5" />} />
-      </div>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+          <CardTitle className="text-base font-semibold">{t('admin.propertiesTable')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DataTable
+            columns={columns}
+            data={properties}
+            searchPlaceholder={t('property.searchPlaceholder')}
+            emptyMessage={t('admin.noData')}
+          />
+        </CardContent>
+      </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader><CardTitle className="text-base">{t('admin.statusChart')}</CardTitle></CardHeader>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-sm font-semibold">{t('admin.total')}</CardTitle>
+          </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-                  {chartData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+              <div className="relative h-[220px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={total > 0 ? kindBreakdown : [{ name: '', value: 1, color: '#e5e7eb' }]}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={62}
+                      outerRadius={92}
+                      paddingAngle={kindBreakdown.filter((s) => s.value > 0).length > 1 ? 2 : 0}
+                      isAnimationActive={total > 0}
+                    >
+                      {(total > 0 ? kindBreakdown : [{ color: '#e5e7eb' }]).map((s, i) => (
+                        <Cell key={i} fill={s.color} />
+                      ))}
+                    </Pie>
+                    {total > 0 && <Tooltip />}
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <Home className="size-5 text-muted-foreground mb-1" />
+                  <div className="text-3xl font-bold leading-none">{total.toLocaleString()}</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {t('admin.total')}
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-2.5">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-3">
+                  {t('admin.kindBreakdown')}
+                </p>
+                {kindBreakdown.map((s) => {
+                  const pct = total > 0 ? Math.round((s.value / total) * 100) : 0
+                  return (
+                    <div key={s.kind} className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span
+                          className="size-3 rounded-full shrink-0"
+                          style={{ backgroundColor: s.color }}
+                        />
+                        <span className="truncate">{s.name}</span>
+                      </div>
+                      <div className="flex items-baseline gap-2 shrink-0">
+                        <span className="font-semibold tabular-nums">{s.value}</span>
+                        <span className="text-xs text-muted-foreground tabular-nums w-10 text-right">
+                          {pct}%
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Trophy className="h-4 w-4 text-yellow-500" />
-              {t('admin.agentRanking')}
-            </CardTitle>
+            <CardTitle className="text-sm font-semibold">{t('admin.propertyRequests')}</CardTitle>
           </CardHeader>
           <CardContent>
-            {(data?.agentLeaderboard ?? []).length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">{t('admin.noData')}</p>
+            {recentRequests.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                {t('admin.noRequests')}
+              </p>
             ) : (
-              <div className="space-y-3">
-                {data!.agentLeaderboard.map((agent, i) => (
-                  <div key={agent.agentId} className="flex items-center gap-3">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${RANK_BADGE[i] ?? RANK_BADGE.default}`}>
-                      {i + 1}
+              <ul className="space-y-1">
+                {recentRequests.map((r) => (
+                  <li
+                    key={r.id}
+                    className="flex items-start gap-3 p-2 rounded hover:bg-muted/40"
+                  >
+                    <div className="size-9 rounded bg-muted flex items-center justify-center shrink-0">
+                      <MapPin className="size-4 text-muted-foreground" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{agent.agentName}</p>
+                      <div className="text-sm font-medium truncate">
+                        {r.propertyTitle ?? `#${r.propertyId}`}
+                      </div>
+                      <div className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                        <Calendar className="size-3" />
+                        {formatDateTime(r.appointmentDate)}
+                      </div>
+                      {r.userName && (
+                        <div className="text-xs text-muted-foreground truncate mt-0.5">
+                          {r.userName}
+                        </div>
+                      )}
                     </div>
-                    <div className="text-sm font-bold text-primary">{agent.closedCount} {t('admin.caseSuffix')}</div>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
           </CardContent>
         </Card>

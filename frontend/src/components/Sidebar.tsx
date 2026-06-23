@@ -10,7 +10,6 @@ import {
   Users,
   UserCircle,
   BarChart2,
-  Eye,
   ClipboardList,
   UserCog,
   ArrowLeftRight,
@@ -18,6 +17,7 @@ import {
   LogOut,
   X,
   MessageSquare,
+  ScrollText,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
@@ -47,40 +47,39 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     navigate(ROUTES.HOME, { replace: true })
   }
 
-  const profileItem: MenuItem = { labelKey: 'sidebar.personalInfo', href: ROUTES.PROFILE, icon: <UserCircle className="h-4 w-4" /> }
+  const profileItem: MenuItem = { labelKey: 'sidebar.personalInfo', href: ROUTES.PROFILE, icon: <UserCircle className="size-4" /> }
 
   const userMenu: MenuItem[] = [
     profileItem,
-    { labelKey: 'sidebar.bookingHistory', href: ROUTES.HISTORY, icon: <History className="h-4 w-4" /> },
-    { labelKey: 'sidebar.wishlist', href: ROUTES.WISHLIST, icon: <Heart className="h-4 w-4" /> },
-    { labelKey: 'sidebar.contactHistory', href: ROUTES.CONTACTS, icon: <Phone className="h-4 w-4" /> },
+    { labelKey: 'sidebar.bookingHistory', href: ROUTES.HISTORY, icon: <History className="size-4" /> },
+    { labelKey: 'sidebar.wishlist', href: ROUTES.WISHLIST, icon: <Heart className="size-4" /> },
+    { labelKey: 'sidebar.contactHistory', href: ROUTES.CONTACTS, icon: <Phone className="size-4" /> },
   ]
 
   const agentMenu: MenuItem[] = [
     profileItem,
-    { labelKey: 'sidebar.dashboard', href: ROUTES.AGENT_DASHBOARD, icon: <LayoutDashboard className="h-4 w-4" /> },
-    { labelKey: 'sidebar.myProperties', href: ROUTES.AGENT_PROPERTIES, icon: <Building2 className="h-4 w-4" /> },
-    { labelKey: 'sidebar.visitRequests', href: ROUTES.AGENT_CONTACT_HISTORY, icon: <Calendar className="h-4 w-4" /> },
-    { labelKey: 'sidebar.inquiries', href: ROUTES.AGENT_INQUIRIES, icon: <MessageSquare className="h-4 w-4" /> },
-    { labelKey: 'sidebar.leads', href: ROUTES.AGENT_LEADS, icon: <Users className="h-4 w-4" /> },
-    { labelKey: 'sidebar.agentOverview', href: ROUTES.AGENT_OVERVIEW, icon: <BarChart2 className="h-4 w-4" /> },
-    { labelKey: 'sidebar.ownerLog', href: ROUTES.AGENT_OWNER_LOG, icon: <Eye className="h-4 w-4" /> },
+    { labelKey: 'sidebar.dashboard', href: ROUTES.AGENT_DASHBOARD, icon: <LayoutDashboard className="size-4" /> },
+    { labelKey: 'sidebar.myProperties', href: ROUTES.AGENT_PROPERTIES, icon: <Building2 className="size-4" /> },
+    { labelKey: 'sidebar.visitRequests', href: ROUTES.AGENT_CONTACT_HISTORY, icon: <Calendar className="size-4" /> },
+    { labelKey: 'sidebar.inquiries', href: ROUTES.AGENT_INQUIRIES, icon: <MessageSquare className="size-4" /> },
+    { labelKey: 'sidebar.leads', href: ROUTES.AGENT_LEADS, icon: <Users className="size-4" /> },
+    { labelKey: 'sidebar.agentOverview', href: ROUTES.AGENT_OVERVIEW, icon: <BarChart2 className="size-4" /> },
   ]
 
   const adminMenu: MenuItem[] = [
     profileItem,
-    { labelKey: 'sidebar.dashboard', href: ROUTES.ADMIN_DASHBOARD, icon: <LayoutDashboard className="h-4 w-4" /> },
-    { labelKey: 'sidebar.pendingUsers', href: ROUTES.ADMIN_PENDING_USERS, icon: <ClipboardList className="h-4 w-4" /> },
-    { labelKey: 'sidebar.agentManagement', href: ROUTES.ADMIN_AGENTS, icon: <UserCog className="h-4 w-4" /> },
-    { labelKey: 'sidebar.userManagement', href: ROUTES.ADMIN_USERS, icon: <Users className="h-4 w-4" /> },
-    { labelKey: 'sidebar.caseTransfer', href: ROUTES.ADMIN_REASSIGN, icon: <ArrowLeftRight className="h-4 w-4" /> },
-    { labelKey: 'sidebar.financialReport', href: ROUTES.ADMIN_FINANCIAL, icon: <DollarSign className="h-4 w-4" /> },
-    { labelKey: 'sidebar.myProperties', href: ROUTES.AGENT_PROPERTIES, icon: <Building2 className="h-4 w-4" /> },
-    { labelKey: 'sidebar.visitRequests', href: ROUTES.ADMIN_VISIT_REQUESTS, icon: <Calendar className="h-4 w-4" /> },
-    { labelKey: 'sidebar.inquiries', href: ROUTES.AGENT_INQUIRIES, icon: <MessageSquare className="h-4 w-4" /> },
-    { labelKey: 'sidebar.leads', href: ROUTES.AGENT_LEADS, icon: <Users className="h-4 w-4" /> },
-    { labelKey: 'sidebar.agentOverview', href: ROUTES.AGENT_OVERVIEW, icon: <BarChart2 className="h-4 w-4" /> },
-    { labelKey: 'sidebar.ownerLog', href: ROUTES.AGENT_OWNER_LOG, icon: <Eye className="h-4 w-4" /> },
+    { labelKey: 'sidebar.dashboard', href: ROUTES.ADMIN_DASHBOARD, icon: <LayoutDashboard className="size-4" /> },
+    { labelKey: 'sidebar.pendingUsers', href: ROUTES.ADMIN_PENDING_USERS, icon: <ClipboardList className="size-4" /> },
+    { labelKey: 'sidebar.agentManagement', href: ROUTES.ADMIN_AGENTS, icon: <UserCog className="size-4" /> },
+    { labelKey: 'sidebar.userManagement', href: ROUTES.ADMIN_USERS, icon: <Users className="size-4" /> },
+    { labelKey: 'sidebar.caseTransfer', href: ROUTES.ADMIN_REASSIGN, icon: <ArrowLeftRight className="size-4" /> },
+    { labelKey: 'sidebar.financialReport', href: ROUTES.ADMIN_FINANCIAL, icon: <DollarSign className="size-4" /> },
+    { labelKey: 'sidebar.myProperties', href: ROUTES.AGENT_PROPERTIES, icon: <Building2 className="size-4" /> },
+    { labelKey: 'sidebar.visitRequests', href: ROUTES.AGENT_CONTACT_HISTORY, icon: <Calendar className="size-4" /> },
+    { labelKey: 'sidebar.inquiries', href: ROUTES.AGENT_INQUIRIES, icon: <MessageSquare className="size-4" /> },
+    { labelKey: 'sidebar.leads', href: ROUTES.AGENT_LEADS, icon: <Users className="size-4" /> },
+    { labelKey: 'sidebar.agentOverview', href: ROUTES.AGENT_OVERVIEW, icon: <BarChart2 className="size-4" /> },
+    { labelKey: 'sidebar.auditLogs', href: ROUTES.ADMIN_AUDIT_LOGS, icon: <ScrollText className="size-4" /> },
   ]
 
   const menu =
@@ -121,7 +120,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             className={cn('text-foreground hover:bg-muted shrink-0', !open && 'lg:hidden')}
             onClick={onClose}
           >
-            <X className="h-5 w-5" />
+            <X className="size-5" />
           </Button>
         </div>
 
@@ -171,7 +170,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
               !open && 'lg:justify-center lg:px-2'
             )}
           >
-            <LogOut className="h-4 w-4 shrink-0" />
+            <LogOut className="size-4 shrink-0" />
             <span className={cn(!open && 'lg:hidden')}>{t('sidebar.logout')}</span>
           </button>
         </div>

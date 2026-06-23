@@ -127,7 +127,7 @@ export default function MapIndex() {
           <div className="flex flex-wrap gap-3 mt-2 px-1">
             {Object.entries(STATUS_COLOR).map(([status, color]) => (
               <div key={status} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <span className="inline-block w-3 h-3 rounded-full" style={{ background: color }} />
+                <span className="inline-block size-3 rounded-full" style={{ background: color }} />
                 {t(`property.status.${status}`)}
               </div>
             ))}
@@ -153,7 +153,7 @@ export default function MapIndex() {
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm line-clamp-1">{p.projectName}</p>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
-                      <MapPin className="h-3 w-3 flex-shrink-0" />
+                      <MapPin className="size-3 flex-shrink-0" />
                       <span className="line-clamp-1">{p.location}</span>
                     </div>
                     <p className="text-primary font-semibold text-sm mt-1">
@@ -167,7 +167,7 @@ export default function MapIndex() {
                       onClick={(e) => { e.stopPropagation(); handleMarkerClick(p) }}
                       className="text-xs text-primary hover:underline flex items-center gap-0.5"
                     >
-                      <Maximize2 className="h-3 w-3" />
+                      <Maximize2 className="size-3" />
                       {t('map.view')}
                     </button>
                   </div>
@@ -207,11 +207,11 @@ export default function MapIndex() {
                 {/* Details grid */}
                 <div className="grid grid-cols-2 gap-y-2 text-sm">
                   <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                    <MapPin className="size-3.5 shrink-0 text-muted-foreground" />
                     <span className="line-clamp-1">{selected.location}</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <Home className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                    <Home className="size-3.5 shrink-0 text-muted-foreground" />
                     <span>{selected.projectName}</span>
                   </div>
                   {selected.sizeSqm && (
@@ -229,7 +229,7 @@ export default function MapIndex() {
                 {/* Rating */}
                 {selected.rating && (
                   <div className="flex items-center gap-1 text-sm">
-                    <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    <Star className="size-4 fill-amber-400 text-amber-400" />
                     <span className="font-medium">{selected.rating.toFixed(1)}</span>
                     <span className="text-muted-foreground">({selected.reviewCount} {t('property.reviews')})</span>
                   </div>

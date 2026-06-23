@@ -70,7 +70,7 @@ export default function ReviewLinkIndex() {
               onClick={() => genMutation.mutate()}
               disabled={!selectedPropertyId || genMutation.isPending}
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${genMutation.isPending ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`size-4 mr-2 ${genMutation.isPending ? 'animate-spin' : ''}`} />
               {t('agent.generateLink')}
             </Button>
           </div>
@@ -85,7 +85,7 @@ export default function ReviewLinkIndex() {
           <EmptyState
             title={t('agent.noLinks')}
             description={t('agent.noLinksDesc')}
-            icon={<Link2 className="h-12 w-12 opacity-30" />}
+            icon={<Link2 className="size-12 opacity-30" />}
           />
         ) : (
           <div className="space-y-3">
@@ -106,7 +106,7 @@ export default function ReviewLinkIndex() {
                       onClick={() => copyLink(link.url)}
                       className="flex-shrink-0"
                     >
-                      <Copy className="h-4 w-4 mr-1.5" />
+                      <Copy className="size-4 mr-1.5" />
                       {t('agent.copy')}
                     </Button>
                   </div>

@@ -22,7 +22,7 @@ export function EmptyState({
   return (
     <div className={cn('flex flex-col items-center justify-center gap-3 py-16 text-center', className)}>
       <div className="text-muted-foreground">
-        {icon ?? <InboxIcon className="h-12 w-12 opacity-30" />}
+        {icon ?? <InboxIcon className="size-12 opacity-30" />}
       </div>
       <p className="text-lg font-medium text-foreground">{title ?? t('common.noData')}</p>
       {description && <p className="text-sm text-muted-foreground max-w-sm">{description}</p>}

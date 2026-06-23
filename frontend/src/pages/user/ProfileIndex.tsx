@@ -125,9 +125,9 @@ export default function ProfileIndex() {
           <Card>
             <CardHeader><CardTitle className="text-base">{t('profile.activitySection')}</CardTitle></CardHeader>
             <CardContent className="space-y-2">
-              <ProfileLink to={ROUTES.HISTORY} icon={<History className="h-4 w-4" />} label={t('sidebar.bookingHistory')} />
-              <ProfileLink to={ROUTES.WISHLIST} icon={<Heart className="h-4 w-4" />} label={t('sidebar.wishlist')} />
-              <ProfileLink to={ROUTES.CONTACTS} icon={<PhoneIcon className="h-4 w-4" />} label={t('sidebar.contactHistory')} />
+              <ProfileLink to={ROUTES.HISTORY} icon={<History className="size-4" />} label={t('sidebar.bookingHistory')} />
+              <ProfileLink to={ROUTES.WISHLIST} icon={<Heart className="size-4" />} label={t('sidebar.wishlist')} />
+              <ProfileLink to={ROUTES.CONTACTS} icon={<PhoneIcon className="size-4" />} label={t('sidebar.contactHistory')} />
             </CardContent>
           </Card>
         )}
@@ -152,7 +152,7 @@ function ProfileLink({ to, icon, label }: { to: string; icon: React.ReactNode; l
         <span className="text-primary">{icon}</span>
         {label}
       </span>
-      <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-muted-foreground" />
+      <ChevronRight className="size-4 text-muted-foreground group-hover:text-muted-foreground" />
     </Link>
   )
 }

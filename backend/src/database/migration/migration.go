@@ -43,6 +43,9 @@ func Run(db *gorm.DB) {
 	if err := migrateInquiries(db); err != nil {
 		log.Fatalf("[migration] inquiries: %v", err)
 	}
+	if err := migrateAuditLogs(db); err != nil {
+		log.Fatalf("[migration] audit_logs: %v", err)
+	}
 
 	log.Println("[migration] all migrations completed")
 }

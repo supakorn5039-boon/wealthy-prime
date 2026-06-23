@@ -1,8 +1,10 @@
 import { fetchClient } from '@/utils/axios'
+import { cleanParams } from '@/utils/serviceHelpers'
 import { API } from '@/constants/ApiRoutes'
 import type { AuthUser } from '@/types/Auth'
 import type { Booking } from '@/types/Booking'
 import type { ApiResponse } from '@/types/Commons'
+import type { AuditLog, AuditLogFilters } from '@/types/AuditLog'
 
 export interface AdminDashboardData {
   totalProperties: number
@@ -31,6 +33,7 @@ export const AdminService = {
     USERS: 'admin-users',
     BOOKINGS: 'admin-bookings',
     FINANCIAL: 'admin-financial',
+    AUDIT_LOGS: 'admin-audit-logs',
   },
 
   getDashboard: async (): Promise<AdminDashboardData> => {
@@ -88,5 +91,18 @@ export const AdminService = {
   exportFinancial: async (): Promise<Blob> => {
     const res = await fetchClient.get(API.ADMIN_FINANCIAL_EXPORT, { responseType: 'blob' })
     return res.data as Blob
+  },
+
+  listAuditLogs: async (filters: AuditLogFilters = {}): Promise<AuditLog[]> => {
+    const params = cleanParams({
+      actor_role: filters.actorRole,
+      action: filters.action,
+      entity_type: filters.entityType,
+      search: filters.search,
+      limit: filters.limit,
+      offset: filters.offset,
+    })
+    const res = await fetchClient.get<ApiResponse<AuditLog[]>>(API.ADMIN_AUDIT_LOGS, { params })
+    return res.data.data ?? []
   },
 }

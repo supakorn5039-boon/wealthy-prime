@@ -114,14 +114,14 @@ export default function AgentManagementIndex() {
                     <TableCell>{agent.phone}</TableCell>
                     <TableCell>
                       <Badge variant={agent.role === 'admin' ? 'destructive' : agent.role === 'agent' ? 'secondary' : 'outline'}>
-                        <UserCheck className="h-3 w-3 mr-1" />
+                        <UserCheck className="size-3 mr-1" />
                         {t(`role.${agent.role}`)}
                       </Badge>
                     </TableCell>
                     <TableCell>{formatDate(agent.createdAt)}</TableCell>
                     <TableCell className="text-right">
                       <Button size="sm" variant="ghost" onClick={() => setEditingAgent(agent)}>
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="size-4" />
                       </Button>
                     </TableCell>
                   </TableRow>

@@ -138,14 +138,14 @@ export default function PropertyDetailIndex() {
               </div>
 
               <div className="flex items-center gap-1.5 text-muted-foreground">
-                <MapPin className="h-4 w-4 flex-shrink-0 text-primary" />
+                <MapPin className="size-4 flex-shrink-0 text-primary" />
                 <span>{property.location}</span>
               </div>
 
               <div className="flex flex-wrap gap-4">
                 {property.sizeSqm && (
                   <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <Maximize2 className="h-4 w-4 text-primary" />
+                    <Maximize2 className="size-4 text-primary" />
                     <span>{property.sizeSqm} {t('property.sqm')}</span>
                   </div>
                 )}
@@ -174,40 +174,40 @@ export default function PropertyDetailIndex() {
             <CardContent>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3 text-sm">
                 {property.kind && (
-                  <DetailItem icon={<Building className="h-4 w-4" />} label={t('property.kindLabel')} value={t(`property.kind.${property.kind}`, { defaultValue: property.kind })} />
+                  <DetailItem icon={<Building className="size-4" />} label={t('property.kindLabel')} value={t(`property.kind.${property.kind}`, { defaultValue: property.kind })} />
                 )}
                 {property.listing && (
-                  <DetailItem icon={<FileText className="h-4 w-4" />} label={t('property.listingLabel')} value={t(`property.listing.${property.listing}`, { defaultValue: property.listing })} />
+                  <DetailItem icon={<FileText className="size-4" />} label={t('property.listingLabel')} value={t(`property.listing.${property.listing}`, { defaultValue: property.listing })} />
                 )}
                 {property.bedrooms != null && (
-                  <DetailItem icon={<Bed className="h-4 w-4" />} label={t('property.bedrooms')} value={String(property.bedrooms)} />
+                  <DetailItem icon={<Bed className="size-4" />} label={t('property.bedrooms')} value={String(property.bedrooms)} />
                 )}
                 {property.bathrooms != null && (
-                  <DetailItem icon={<Bath className="h-4 w-4" />} label={t('property.bathrooms')} value={String(property.bathrooms)} />
+                  <DetailItem icon={<Bath className="size-4" />} label={t('property.bathrooms')} value={String(property.bathrooms)} />
                 )}
                 {property.floor != null && (
-                  <DetailItem icon={<Building className="h-4 w-4" />} label={t('property.floor')} value={String(property.floor)} />
+                  <DetailItem icon={<Building className="size-4" />} label={t('property.floor')} value={String(property.floor)} />
                 )}
                 {property.sizeSqm != null && (
-                  <DetailItem icon={<Maximize2 className="h-4 w-4" />} label={t('property.size')} value={`${property.sizeSqm} ${t('property.sqm')}`} />
+                  <DetailItem icon={<Maximize2 className="size-4" />} label={t('property.size')} value={`${property.sizeSqm} ${t('property.sqm')}`} />
                 )}
                 {property.minContract != null && property.minContract > 0 && (
-                  <DetailItem icon={<FileText className="h-4 w-4" />} label={t('property.minContract')} value={`${property.minContract} ${t('property.months')}`} />
+                  <DetailItem icon={<FileText className="size-4" />} label={t('property.minContract')} value={`${property.minContract} ${t('property.months')}`} />
                 )}
                 {property.pets && (
-                  <DetailItem icon={<PawPrint className="h-4 w-4" />} label={t('property.petsLabel')} value={t(`property.pets.${property.pets}`, { defaultValue: property.pets })} />
+                  <DetailItem icon={<PawPrint className="size-4" />} label={t('property.petsLabel')} value={t(`property.pets.${property.pets}`, { defaultValue: property.pets })} />
                 )}
                 {property.furniture && (
-                  <DetailItem icon={<Sofa className="h-4 w-4" />} label={t('property.furnitureLabel')} value={t(`property.furniture.${property.furniture}`, { defaultValue: property.furniture })} />
+                  <DetailItem icon={<Sofa className="size-4" />} label={t('property.furnitureLabel')} value={t(`property.furniture.${property.furniture}`, { defaultValue: property.furniture })} />
                 )}
                 {formatBtsMrt(property.btsMrt) && (
-                  <DetailItem icon={<Train className="h-4 w-4" />} label={t('property.btsMrt')} value={formatBtsMrt(property.btsMrt)} />
+                  <DetailItem icon={<Train className="size-4" />} label={t('property.btsMrt')} value={formatBtsMrt(property.btsMrt)} />
                 )}
                 {property.province && (
-                  <DetailItem icon={<MapPin className="h-4 w-4" />} label={t('property.province')} value={property.province} />
+                  <DetailItem icon={<MapPin className="size-4" />} label={t('property.province')} value={property.province} />
                 )}
                 {property.district && (
-                  <DetailItem icon={<MapPin className="h-4 w-4" />} label={t('property.district')} value={property.district} />
+                  <DetailItem icon={<MapPin className="size-4" />} label={t('property.district')} value={property.district} />
                 )}
               </div>
             </CardContent>
@@ -218,7 +218,7 @@ export default function PropertyDetailIndex() {
               <CardHeader className="flex flex-row items-center justify-between space-y-0">
                 <CardTitle className="text-base">{t('property.adCaption')}</CardTitle>
                 <Button variant="ghost" size="sm" onClick={handleCopyCaption}>
-                  <Copy className="h-3.5 w-3.5 mr-1.5" />
+                  <Copy className="size-3.5 mr-1.5" />
                   {t('common.copy')}
                 </Button>
               </CardHeader>
@@ -247,7 +247,7 @@ export default function PropertyDetailIndex() {
                   </MapContainer>
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground text-sm gap-2">
-                    <MapPin className="h-6 w-6" />
+                    <MapPin className="size-6" />
                     <span>{t('property.noCoordsAvailable')}</span>
                   </div>
                 )}
@@ -261,7 +261,7 @@ export default function PropertyDetailIndex() {
                 <CardTitle className="text-base">{t('property.reviewsTitle')}</CardTitle>
                 {user && (
                   <Button size="sm" onClick={() => setWriteReviewOpen(true)}>
-                    <Star className="h-3.5 w-3.5 mr-1.5" />
+                    <Star className="size-3.5 mr-1.5" />
                     {myReview ? t('review.editYourReview') : t('review.writeReview')}
                   </Button>
                 )}
@@ -304,7 +304,7 @@ export default function PropertyDetailIndex() {
               <div className="space-y-2">
                 {property.status === 'available' && (
                   <Button className="w-full" onClick={handleAddToCart}>
-                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    <ShoppingCart className="size-4 mr-2" />
                     {t('property.addToCart')}
                   </Button>
                 )}
@@ -313,7 +313,7 @@ export default function PropertyDetailIndex() {
                 )}
                 {canEdit && (
                   <Button variant="outline" className="w-full" onClick={() => setEditOpen(true)}>
-                    <Pencil className="h-4 w-4 mr-2" />
+                    <Pencil className="size-4 mr-2" />
                     {t('common.edit')}
                   </Button>
                 )}
@@ -381,7 +381,7 @@ function ReviewItem({
     <div className="border-b pb-4 last:border-0">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
+          <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
             {review.userName?.[0] ?? 'U'}
           </div>
           <span className="font-medium text-sm">{review.userName ?? t('role.user')}</span>
@@ -395,7 +395,7 @@ function ReviewItem({
         <div className="mt-3 ml-4 pl-4 border-l-2 border-primary/30 bg-muted/40 rounded-r p-3">
           <div className="flex items-center justify-between gap-2 mb-1">
             <div className="flex items-center gap-2 text-xs">
-              <MessageSquare className="h-3.5 w-3.5 text-primary" />
+              <MessageSquare className="size-3.5 text-primary" />
               <span className="font-medium">{review.repliedByName ?? replyRoleLabel}</span>
               <Badge variant="outline" className="text-[10px] px-1.5 py-0">
                 {replyRoleLabel}
@@ -420,7 +420,7 @@ function ReviewItem({
                 setEditing(true)
               }}
             >
-              <MessageSquare className="h-3.5 w-3.5 mr-1.5" />
+              <MessageSquare className="size-3.5 mr-1.5" />
               {review.reply ? t('review.editReply') : t('review.reply')}
             </Button>
           ) : (

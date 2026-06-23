@@ -45,7 +45,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
           className="text-foreground hover:bg-muted"
           onClick={onMenuClick}
         >
-          <Menu className="h-5 w-5" />
+          <Menu className="size-5" />
         </Button>
       )}
 
@@ -95,7 +95,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
               size="icon"
               className="text-foreground hover:bg-muted"
             >
-              <Heart className="h-5 w-5" />
+              <Heart className="size-5" />
             </Button>
           </Link>
 
@@ -105,9 +105,9 @@ export function Navbar({ onMenuClick }: NavbarProps) {
             className="relative text-foreground hover:bg-muted"
             onClick={openCart}
           >
-            <ShoppingCart className="h-5 w-5" />
+            <ShoppingCart className="size-5" />
             {items.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold">
+              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs size-4 rounded-full flex items-center justify-center font-bold">
                 {items.length}
               </span>
             )}

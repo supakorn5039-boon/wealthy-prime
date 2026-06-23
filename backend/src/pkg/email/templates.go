@@ -41,7 +41,7 @@ func BuildAppointmentNotification(booking *model.Booking, agent *model.User) (Me
 		CustomerFacebook:       firstNonEmpty(booking.Facebook, booking.User.Facebook),
 		Appointment:            apptTime,
 		Note:                   strings.TrimSpace(booking.Note),
-		DashboardURL:           config.App.SMTP.AppURL + "/agent/contacts",
+		DashboardURL:           config.App.SMTP.AppURL + "/visit-requests",
 	}
 
 	var htmlBuf, textBuf bytes.Buffer

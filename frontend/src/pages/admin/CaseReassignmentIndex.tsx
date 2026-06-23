@@ -144,7 +144,7 @@ export default function CaseReassignmentIndex() {
                             variant="outline"
                             disabled={!selectedAgentId[booking.id]}
                           >
-                            <ArrowLeftRight className="h-4 w-4 mr-1" />
+                            <ArrowLeftRight className="size-4 mr-1" />
                             {t("admin.transfer")}
                           </Button>
                         }

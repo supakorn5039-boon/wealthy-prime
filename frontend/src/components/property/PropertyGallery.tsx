@@ -18,7 +18,7 @@ export function PropertyGallery({ images: rawImages = [], title }: PropertyGalle
   if (images.length === 0) {
     return (
       <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-        <Maximize2 className="h-16 w-16 text-muted-foreground/60" />
+        <Maximize2 className="size-16 text-muted-foreground/60" />
       </div>
     )
   }
@@ -39,7 +39,7 @@ export function PropertyGallery({ images: rawImages = [], title }: PropertyGalle
               className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 text-white hover:bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity"
               onClick={prev}
             >
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="size-5" />
             </Button>
             <Button
               variant="ghost"
@@ -47,14 +47,14 @@ export function PropertyGallery({ images: rawImages = [], title }: PropertyGalle
               className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 text-white hover:bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity"
               onClick={next}
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="size-5" />
             </Button>
             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
               {images.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrent(i)}
-                  className={`w-2 h-2 rounded-full transition-colors ${i === current ? 'bg-card' : 'bg-card/50'}`}
+                  className={`size-2 rounded-full transition-colors ${i === current ? 'bg-card' : 'bg-card/50'}`}
                 />
               ))}
             </div>
@@ -66,7 +66,7 @@ export function PropertyGallery({ images: rawImages = [], title }: PropertyGalle
           className="absolute top-3 right-3 bg-black/40 text-white hover:bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity"
           onClick={() => setLightboxOpen(true)}
         >
-          <Maximize2 className="h-4 w-4" />
+          <Maximize2 className="size-4" />
         </Button>
         <div className="absolute bottom-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded">
           {current + 1} / {images.length}

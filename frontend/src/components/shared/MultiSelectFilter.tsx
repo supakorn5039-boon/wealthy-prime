@@ -123,10 +123,10 @@ export function MultiSelectFilter<T extends string | number>({
               }}
               className="rounded hover:bg-muted p-0.5 cursor-pointer"
             >
-              <X className="h-3.5 w-3.5 opacity-60" />
+              <X className="size-3.5 opacity-60" />
             </span>
           )}
-          <ChevronDown className="h-4 w-4 opacity-50" />
+          <ChevronDown className="size-4 opacity-50" />
         </span>
       </button>
       {open && position && createPortal(
@@ -143,7 +143,7 @@ export function MultiSelectFilter<T extends string | number>({
         >
           <div className="p-2 border-b border-border/60">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Search className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
               <input
                 autoFocus
                 type="text"
@@ -169,11 +169,11 @@ export function MultiSelectFilter<T extends string | number>({
                   >
                     <span
                       className={cn(
-                        'h-4 w-4 rounded border flex items-center justify-center shrink-0',
+                        'size-4 rounded border flex items-center justify-center shrink-0',
                         checked ? 'bg-primary border-primary' : 'border-input',
                       )}
                     >
-                      {checked && <Check className="h-3 w-3 text-primary-foreground" />}
+                      {checked && <Check className="size-3 text-primary-foreground" />}
                     </span>
                     <span className="truncate">{opt.label}</span>
                   </button>

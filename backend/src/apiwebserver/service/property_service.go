@@ -108,26 +108,28 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 		Preload("Images").
 		Preload("Agent")
 
-	// Map ?types=buy,rent to listing rows. ListingBoth matches either side,
+	// Map ?types=sell,rent,both to listing rows. ListingBoth matches either side,
 	// so it's included whenever any type is picked.
 	if len(filter.Types) > 0 {
-		var hasBuy, hasRent bool
+		var hasSell, hasRent, hasBoth bool
 		for _, ty := range filter.Types {
 			switch ty {
-			case "buy":
-				hasBuy = true
+			case "sell":
+				hasSell = true
 			case "rent":
 				hasRent = true
+			case "both":
+				hasBoth = true
 			}
 		}
 		listings := make([]string, 0, 3)
-		if hasBuy {
+		if hasSell {
 			listings = append(listings, string(model.ListingSell))
 		}
 		if hasRent {
 			listings = append(listings, string(model.ListingRent))
 		}
-		if hasBuy || hasRent {
+		if hasSell || hasRent || hasBoth {
 			listings = append(listings, string(model.ListingBoth))
 		}
 		if len(listings) > 0 {

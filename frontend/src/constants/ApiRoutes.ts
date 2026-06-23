@@ -54,4 +54,5 @@ export const API = {
   ADMIN_PROPERTIES: '/admin/properties',
   ADMIN_FINANCIAL: '/admin/financial',
   ADMIN_FINANCIAL_EXPORT: '/admin/financial/export',
+  ADMIN_AUDIT_LOGS: '/admin/audit-logs',
 } as const

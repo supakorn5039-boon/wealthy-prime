@@ -16,8 +16,6 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { ROUTES } from '@/constants/Routes'
 import { cn } from '@/lib/utils'
 
-const PHONE_PLACEHOLDER = '081-111-1111'
-
 interface ContactForm {
   firstName: string
   lastName: string
@@ -124,21 +122,21 @@ export function CartDrawer() {
       >
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center gap-2 font-semibold text-lg">
-            <ShoppingCart className="h-5 w-5 text-primary" />
+            <ShoppingCart className="size-5 text-primary" />
             {t('cart.title')}
             {items.length > 0 && (
               <span className="bg-primary text-primary-foreground text-xs rounded-full px-2 py-0.5">{items.length}</span>
             )}
           </div>
           <Button variant="ghost" size="icon" onClick={closeCart}>
-            <X className="h-5 w-5" />
+            <X className="size-5" />
           </Button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
-              <ShoppingCart className="h-12 w-12 text-muted-foreground/60" />
+              <ShoppingCart className="size-12 text-muted-foreground/60" />
               <p className="text-muted-foreground">{t('cart.empty')}</p>
               <Button variant="outline" size="sm" onClick={closeCart}>
                 {t('cart.browseProperties')}
@@ -157,15 +155,15 @@ export function CartDrawer() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="flex-shrink-0 text-red-500 hover:text-red-600 hover:bg-red-50 h-8 w-8"
+                      className="flex-shrink-0 text-red-500 hover:text-red-600 hover:bg-red-50 size-8"
                       onClick={() => removeItem(item.propertyId)}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="size-4" />
                     </Button>
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <CalendarDays className="h-3.5 w-3.5" />
+                      <CalendarDays className="size-3.5" />
                       <span>{t('cart.appointmentDate')}</span>
                       <span className="text-red-500">*</span>
                     </div>
@@ -191,7 +189,7 @@ export function CartDrawer() {
                   className="w-full flex items-center justify-between p-3 text-sm font-medium"
                 >
                   <span>{t('cart.contactSection')}</span>
-                  <ChevronDown className={cn('h-4 w-4 transition-transform', showContact && 'rotate-180')} />
+                  <ChevronDown className={cn('size-4 transition-transform', showContact && 'rotate-180')} />
                 </button>
                 {showContact && (
                   <div className="p-3 pt-0 space-y-2">
@@ -209,17 +207,17 @@ export function CartDrawer() {
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <Label className="text-xs">{t('auth.phone')}</Label>
-                        <Input placeholder={PHONE_PLACEHOLDER} value={contact.phone} onChange={(e) => updateContact('phone', e.target.value)} />
+                        <Input placeholder={t('common.phonePlaceholder')} value={contact.phone} onChange={(e) => updateContact('phone', e.target.value)} />
                       </div>
                       <div>
                         <Label className="text-xs">{t('auth.secondaryPhone')}</Label>
-                        <Input placeholder={PHONE_PLACEHOLDER} value={contact.secondaryPhone} onChange={(e) => updateContact('secondaryPhone', e.target.value)} />
+                        <Input placeholder={t('common.phonePlaceholder')} value={contact.secondaryPhone} onChange={(e) => updateContact('secondaryPhone', e.target.value)} />
                       </div>
                     </div>
                     <div>
                       <Label className="text-xs">{t('cart.latestContact')}</Label>
                       <Input
-                        placeholder={PHONE_PLACEHOLDER}
+                        placeholder={t('common.phonePlaceholder')}
                         value={contact.latestContact}
                         onChange={(e) => updateContact('latestContact', e.target.value)}
                       />

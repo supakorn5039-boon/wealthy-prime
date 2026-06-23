@@ -68,27 +68,27 @@ export default function AgentDashboardIndex() {
         <StatCard
           title={t('agent.total')}
           value={data?.totalProperties ?? 0}
-          icon={<Building2 className="h-5 w-5 text-blue-600" />}
+          icon={<Building2 className="size-5 text-blue-600" />}
           color="bg-blue-50"
         />
         <StatCard
           title={t('agent.available')}
           value={data?.availableProperties ?? 0}
           sub={t('agent.noRented')}
-          icon={<TrendingUp className="h-5 w-5 text-green-600" />}
+          icon={<TrendingUp className="size-5 text-green-600" />}
           color="bg-green-50"
         />
         <StatCard
           title={t('agent.visitRequests')}
           value={contacts.length}
           sub={`${pendingVisits} ${t('agent.pending')}`}
-          icon={<Calendar className="h-5 w-5 text-yellow-600" />}
+          icon={<Calendar className="size-5 text-yellow-600" />}
           color="bg-yellow-50"
         />
         <StatCard
           title={t('agent.leads')}
           value={contacts.length}
-          icon={<Users className="h-5 w-5 text-purple-600" />}
+          icon={<Users className="size-5 text-purple-600" />}
           color="bg-purple-50"
         />
       </div>

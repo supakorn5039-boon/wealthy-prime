@@ -1,4 +1,5 @@
 export type PropertyType = 'buy' | 'rent'
+export type ListingFilter = 'sell' | 'rent' | 'both'
 export type PropertyStatus =
   | 'available'
   | 'reserved'
@@ -61,7 +62,7 @@ export interface Property {
 
 export interface PropertyListParams {
   search?: string
-  types?: PropertyType[]
+  types?: ListingFilter[]
   kinds?: PropertyKind[]
   provinces?: string[]
   districts?: string[]

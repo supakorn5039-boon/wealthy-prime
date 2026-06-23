@@ -45,7 +45,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
             </>
           ) : (
             <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-              <Maximize2 className="h-10 w-10" />
+              <Maximize2 className="size-10" />
             </div>
           )}
 
@@ -56,7 +56,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
           <div className="absolute top-2 right-2 flex items-center gap-1.5">
             {petAllowed && (
               <span className="inline-flex items-center gap-1 bg-background/80 border border-primary/40 text-primary text-xs font-medium rounded-full px-2.5 py-1 backdrop-blur-sm">
-                <PawPrint className="h-3 w-3" />
+                <PawPrint className="size-3" />
                 Pet OK
               </span>
             )}
@@ -71,7 +71,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
                 title={t("common.edit")}
                 className="bg-background/80 hover:bg-background border border-border rounded-full p-1.5 text-foreground hover:text-primary backdrop-blur-sm transition-colors"
               >
-                <Pencil className="h-4 w-4" />
+                <Pencil className="size-4" />
               </button>
             )}
             <WishlistButton
@@ -98,13 +98,13 @@ export function PropertyCard({ property }: PropertyCardProps) {
         </Link>
 
         <div className="flex items-center gap-1 mt-2 text-muted-foreground text-xs">
-          <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+          <MapPin className="size-3.5 flex-shrink-0" />
           <span className="line-clamp-1">{property.location}</span>
         </div>
 
         {btsMrtText && (
           <div className="flex items-center gap-1 mt-1 text-muted-foreground text-xs">
-            <Train className="h-3.5 w-3.5 flex-shrink-0" />
+            <Train className="size-3.5 flex-shrink-0" />
             <span className="line-clamp-1">{btsMrtText}</span>
           </div>
         )}
@@ -112,17 +112,17 @@ export function PropertyCard({ property }: PropertyCardProps) {
         <div className="mt-3 pt-3 border-t border-border flex items-center gap-3 text-muted-foreground text-xs">
           {property.bedrooms != null && (
             <span className="flex items-center gap-1">
-              <Bed className="h-3.5 w-3.5" /> {property.bedrooms}
+              <Bed className="size-3.5" /> {property.bedrooms}
             </span>
           )}
           {property.bathrooms != null && (
             <span className="flex items-center gap-1">
-              <Bath className="h-3.5 w-3.5" /> {property.bathrooms}
+              <Bath className="size-3.5" /> {property.bathrooms}
             </span>
           )}
           {property.sizeSqm != null && (
             <span className="flex items-center gap-1">
-              <Maximize2 className="h-3.5 w-3.5" /> {property.sizeSqm} {t("property.sqm")}
+              <Maximize2 className="size-3.5" /> {property.sizeSqm} {t("property.sqm")}
             </span>
           )}
         </div>

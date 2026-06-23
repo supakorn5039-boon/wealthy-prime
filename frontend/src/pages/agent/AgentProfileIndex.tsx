@@ -23,7 +23,7 @@ export default function AgentProfileIndex() {
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
             <div className="bg-primary/10 rounded-full p-4">
-              <UserCircle className="h-12 w-12 text-primary" />
+              <UserCircle className="size-12 text-primary" />
             </div>
             <div className="flex-1 space-y-3">
               <div>
@@ -32,17 +32,17 @@ export default function AgentProfileIndex() {
                   variant={user.role === "admin" ? "destructive" : "secondary"}
                   className="mt-1"
                 >
-                  <Shield className="h-3 w-3 mr-1" />
+                  <Shield className="size-3 mr-1" />
                   {t(`role.${user.role}`)}
                 </Badge>
               </div>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">
-                  <Mail className="h-4 w-4" />
+                  <Mail className="size-4" />
                   <span>{user.email}</span>
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
-                  <PhoneIcon className="h-4 w-4" />
+                  <PhoneIcon className="size-4" />
                   <span>{user.phone}</span>
                 </div>
               </div>

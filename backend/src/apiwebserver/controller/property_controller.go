@@ -72,11 +72,12 @@ func parsePriceRanges(s string) []service.PriceRange {
 }
 
 type PropertyController struct {
-	svc *service.PropertyService
+	svc      *service.PropertyService
+	auditSvc *service.AuditService
 }
 
 func NewPropertyController() *PropertyController {
-	return &PropertyController{svc: service.NewPropertyService()}
+	return &PropertyController{svc: service.NewPropertyService(), auditSvc: service.NewAuditService()}
 }
 
 func (ctrl *PropertyController) RegisterRoutes(r *gin.RouterGroup) {
@@ -135,6 +136,8 @@ func (ctrl *PropertyController) getProperty(c *gin.Context) {
 
 	if !canSeeOwnerInfo(middleware.GetRole(c)) {
 		dto.StripOwnerInfo()
+	} else {
+		ctrl.auditSvc.LogViewOwner(c, id, "Viewed owner info for "+dto.ProjectName)
 	}
 
 	successResponse(c, dto)

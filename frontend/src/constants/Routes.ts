@@ -26,24 +26,24 @@ export const ROUTES = {
   // Review (public token page)
   REVIEW: '/review/:token',
 
-  // Agent
-  AGENT_DASHBOARD: '/agent/dashboard',
-  AGENT_PROPERTIES: '/agent/properties',
-  AGENT_ADD_PROPERTY: '/agent/properties/add',
-  AGENT_CONTACT_HISTORY: '/agent/contacts',
-  AGENT_INQUIRIES: '/agent/inquiries',
-  AGENT_REVIEW_LINK: '/agent/review-link',
-  AGENT_LEADS: '/agent/leads',
-  AGENT_PROFILE: '/agent/profile',
-  AGENT_OVERVIEW: '/agent/overview',
-  AGENT_OWNER_LOG: '/agent/owner-log',
+  // Workspace (shared admin/agent) — paths are role-agnostic; the router uses
+  // role-dispatch wrappers for URLs that map to different pages per role
+  // (e.g., /dashboard, /visit-requests).
+  AGENT_DASHBOARD: '/dashboard',
+  AGENT_PROPERTIES: '/properties',
+  AGENT_ADD_PROPERTY: '/properties/add',
+  AGENT_CONTACT_HISTORY: '/visit-requests',
+  AGENT_INQUIRIES: '/inquiries',
+  AGENT_REVIEW_LINK: '/review-link',
+  AGENT_LEADS: '/leads',
+  AGENT_PROFILE: '/agent-profile',
+  AGENT_OVERVIEW: '/agent-overview',
 
-  // Admin
-  ADMIN_DASHBOARD: '/admin/dashboard',
-  ADMIN_PENDING_USERS: '/admin/pending-users',
-  ADMIN_AGENTS: '/admin/agents',
-  ADMIN_USERS: '/admin/users',
-  ADMIN_REASSIGN: '/admin/reassign',
-  ADMIN_VISIT_REQUESTS: '/admin/visit-requests',
-  ADMIN_FINANCIAL: '/admin/financial',
+  ADMIN_DASHBOARD: '/dashboard',
+  ADMIN_PENDING_USERS: '/pending-users',
+  ADMIN_AGENTS: '/agents',
+  ADMIN_USERS: '/users',
+  ADMIN_REASSIGN: '/reassign',
+  ADMIN_FINANCIAL: '/financial',
+  ADMIN_AUDIT_LOGS: '/audit-logs',
 } as const

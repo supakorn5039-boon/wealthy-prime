@@ -24,3 +24,7 @@ export function formatPrice(price: number | null | undefined): string {
   if (price === null || price === undefined) return '-'
   return price.toLocaleString('th-TH', { style: 'currency', currency: 'THB', maximumFractionDigits: 0 })
 }
+
+export function daysSince(iso: string): number {
+  return Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000)
+}

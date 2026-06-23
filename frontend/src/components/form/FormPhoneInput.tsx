@@ -108,7 +108,7 @@ export function FormPhoneInput<T extends FieldValues>({
           className="flex items-center gap-1.5 px-2.5 border-r border-border bg-input text-foreground shrink-0"
         >
           <FlagImage iso2={country.iso2} size="20px" />
-          <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+          <ChevronDown className="size-3.5 opacity-60" />
         </button>
         <input
           ref={inputRef}
@@ -137,7 +137,7 @@ export function FormPhoneInput<T extends FieldValues>({
         >
           <div className="p-2 border-b border-border/60">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Search className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
               <input
                 autoFocus
                 type="text"

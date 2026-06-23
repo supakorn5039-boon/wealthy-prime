@@ -31,8 +31,6 @@ import {
 import { usePropertyOptions } from "@/hooks/usePropertyOptions";
 import { parseGoogleMapsUrl } from "@/utils/parseGoogleMapsUrl";
 
-const PHONE_PLACEHOLDER = "081-111-1111";
-
 interface Props {
   property: Property;
   open: boolean;
@@ -382,7 +380,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
               control={control}
               name="ownerPhone"
               label={t("property.ownerPhone")}
-              placeholder={PHONE_PLACEHOLDER}
+              placeholder={t('common.phonePlaceholder')}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -429,7 +427,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
                   .map((img) => (
                     <div
                       key={img.id}
-                      className="relative w-20 h-20 rounded-lg overflow-hidden border"
+                      className="relative size-20 rounded-lg overflow-hidden border"
                     >
                       <img
                         src={resolveImageUrl(img.url)}
@@ -444,7 +442,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
                         title={t("common.delete")}
                         className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5 hover:bg-black/80"
                       >
-                        <X className="h-3 w-3" />
+                        <X className="size-3" />
                       </button>
                     </div>
                   ))}
@@ -467,7 +465,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
               {previews.map((src, i) => (
                 <div
                   key={i}
-                  className="relative w-20 h-20 rounded-lg overflow-hidden border"
+                  className="relative size-20 rounded-lg overflow-hidden border"
                 >
                   <img
                     src={src}
@@ -479,16 +477,16 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
                     onClick={() => removePending(i)}
                     className="absolute top-0.5 right-0.5 bg-black/60 text-white rounded-full p-0.5 hover:bg-black/80"
                   >
-                    <X className="h-3 w-3" />
+                    <X className="size-3" />
                   </button>
                 </div>
               ))}
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="w-20 h-20 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-1 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+                className="size-20 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-1 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
               >
-                <ImagePlus className="h-5 w-5" />
+                <ImagePlus className="size-5" />
                 <span className="text-[10px]">{t("property.addImage")}</span>
               </button>
             </div>

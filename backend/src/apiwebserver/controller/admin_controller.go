@@ -14,11 +14,12 @@ import (
 )
 
 type AdminController struct {
-	svc *service.AdminService
+	svc      *service.AdminService
+	auditSvc *service.AuditService
 }
 
 func NewAdminController() *AdminController {
-	return &AdminController{svc: service.NewAdminService()}
+	return &AdminController{svc: service.NewAdminService(), auditSvc: service.NewAuditService()}
 }
 
 func (ctrl *AdminController) RegisterRoutes(r *gin.RouterGroup) {
@@ -49,6 +50,30 @@ func (ctrl *AdminController) RegisterRoutes(r *gin.RouterGroup) {
 
 	admin.GET("/financial", ctrl.getFinancial)
 	admin.GET("/financial/export", ctrl.exportFinancial)
+
+	admin.GET("/audit-logs", ctrl.listAuditLogs)
+}
+
+func (ctrl *AdminController) listAuditLogs(c *gin.Context) {
+	filter := service.AuditFilter{
+		ActorRole:  model.UserRole(c.Query("actor_role")),
+		Action:     model.AuditAction(c.Query("action")),
+		EntityType: model.AuditEntityType(c.Query("entity_type")),
+		Search:     c.Query("search"),
+	}
+	if v, err := strconv.Atoi(c.Query("limit")); err == nil {
+		filter.Limit = v
+	}
+	if v, err := strconv.Atoi(c.Query("offset")); err == nil {
+		filter.Offset = v
+	}
+
+	dtos, err := ctrl.auditSvc.List(filter)
+	if err != nil {
+		errorResponse(c, err)
+		return
+	}
+	successResponse(c, dtos)
 }
 
 func (ctrl *AdminController) listProperties(c *gin.Context) {
@@ -135,6 +160,13 @@ func (ctrl *AdminController) updateAgent(c *gin.Context) {
 		errorResponse(c, err)
 		return
 	}
+	ctrl.auditSvc.Log(c, service.AuditEntry{
+		Action:     model.AuditUpdate,
+		EntityType: model.EntityAgent,
+		EntityID:   &id,
+		Summary:    fmt.Sprintf("Updated agent profile %s", dto.Name),
+		Metadata:   updates,
+	})
 	successResponse(c, dto)
 }
 
@@ -158,6 +190,13 @@ func (ctrl *AdminController) updateAgentRole(c *gin.Context) {
 		errorResponse(c, err)
 		return
 	}
+	ctrl.auditSvc.Log(c, service.AuditEntry{
+		Action:     model.AuditRoleChange,
+		EntityType: model.EntityUser,
+		EntityID:   &id,
+		Summary:    fmt.Sprintf("Set role of %s to %s", dto.Name, body.Role),
+		Metadata:   map[string]any{"role": body.Role},
+	})
 	successResponse(c, dto)
 }
 
@@ -181,6 +220,12 @@ func (ctrl *AdminController) approveUser(c *gin.Context) {
 		errorResponse(c, err)
 		return
 	}
+	ctrl.auditSvc.Log(c, service.AuditEntry{
+		Action:     model.AuditApprove,
+		EntityType: model.EntityUser,
+		EntityID:   &id,
+		Summary:    fmt.Sprintf("Approved user %s (%s)", dto.Name, dto.Email),
+	})
 	successResponse(c, dto)
 }
 
@@ -194,6 +239,11 @@ func (ctrl *AdminController) rejectUser(c *gin.Context) {
 		errorResponse(c, err)
 		return
 	}
+	ctrl.auditSvc.Log(c, service.AuditEntry{
+		Action:     model.AuditReject,
+		EntityType: model.EntityUser,
+		EntityID:   &id,
+	})
 	successResponse(c, gin.H{"ok": true})
 }
 
@@ -244,6 +294,13 @@ func (ctrl *AdminController) updateUser(c *gin.Context) {
 		errorResponse(c, err)
 		return
 	}
+	ctrl.auditSvc.Log(c, service.AuditEntry{
+		Action:     model.AuditUpdate,
+		EntityType: model.EntityUser,
+		EntityID:   &id,
+		Summary:    fmt.Sprintf("Updated user profile %s", dto.Name),
+		Metadata:   updates,
+	})
 	successResponse(c, dto)
 }
 
@@ -276,6 +333,13 @@ func (ctrl *AdminController) reassignBooking(c *gin.Context) {
 		errorResponse(c, err)
 		return
 	}
+	ctrl.auditSvc.Log(c, service.AuditEntry{
+		Action:     model.AuditReassign,
+		EntityType: model.EntityBooking,
+		EntityID:   &bookingID,
+		Summary:    fmt.Sprintf("Reassigned booking #%d to agent #%d", bookingID, body.AgentID),
+		Metadata:   map[string]any{"agentId": body.AgentID},
+	})
 	successResponse(c, dto)
 }
 

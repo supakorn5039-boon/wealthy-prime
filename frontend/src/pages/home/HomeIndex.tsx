@@ -109,7 +109,7 @@ function PropertyRow({ property, active, onHover }: PropertyRowProps) {
           </>
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-            <Maximize2 className="h-8 w-8" />
+            <Maximize2 className="size-8" />
           </div>
         )}
         <div className="absolute top-1.5 left-1.5">
@@ -135,7 +135,7 @@ function PropertyRow({ property, active, onHover }: PropertyRowProps) {
           <div className="flex items-center gap-1 shrink-0">
             {petAllowed && (
               <span className="inline-flex items-center gap-0.5 bg-background/80 border border-primary/40 text-primary text-[10px] font-medium rounded-full px-2 py-0.5 backdrop-blur-sm">
-                <PawPrint className="h-2.5 w-2.5" />
+                <PawPrint className="size-2.5" />
                 Pet
               </span>
             )}
@@ -148,12 +148,12 @@ function PropertyRow({ property, active, onHover }: PropertyRowProps) {
 
         <div className="mt-1 text-xs text-muted-foreground space-y-0.5">
           <div className="flex items-center gap-1">
-            <MapPin className="h-3 w-3 shrink-0" />
+            <MapPin className="size-3 shrink-0" />
             <span className="line-clamp-1">{property.location}</span>
           </div>
           {formatBtsMrt(property.btsMrt) && (
             <div className="flex items-center gap-1">
-              <Train className="h-3 w-3 shrink-0" />
+              <Train className="size-3 shrink-0" />
               <span className="line-clamp-1">{formatBtsMrt(property.btsMrt)}</span>
             </div>
           )}
@@ -162,17 +162,17 @@ function PropertyRow({ property, active, onHover }: PropertyRowProps) {
         <div className="mt-auto pt-2 flex items-center gap-3 text-xs text-muted-foreground">
           {property.bedrooms != null && (
             <span className="flex items-center gap-1">
-              <Bed className="h-3.5 w-3.5" /> {property.bedrooms}
+              <Bed className="size-3.5" /> {property.bedrooms}
             </span>
           )}
           {property.bathrooms != null && (
             <span className="flex items-center gap-1">
-              <Bath className="h-3.5 w-3.5" /> {property.bathrooms}
+              <Bath className="size-3.5" /> {property.bathrooms}
             </span>
           )}
           {property.sizeSqm != null && (
             <span className="flex items-center gap-1">
-              <Maximize2 className="h-3.5 w-3.5" /> {property.sizeSqm}{" "}
+              <Maximize2 className="size-3.5" /> {property.sizeSqm}{" "}
               {t("property.sqm")}
             </span>
           )}
@@ -319,7 +319,7 @@ export default function HomeIndex() {
                       className="flex items-center gap-1.5 text-xs text-muted-foreground"
                     >
                       <span
-                        className="inline-block w-3 h-3 rounded-full"
+                        className="inline-block size-3 rounded-full"
                         style={{ background: color }}
                       />
                       {t(`property.status.${status}`)}
@@ -358,17 +358,17 @@ export default function HomeIndex() {
                 </div>
                 <div className="grid grid-cols-2 gap-y-2 text-sm">
                   <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5 shrink-0" />
+                    <MapPin className="size-3.5 shrink-0" />
                     <span className="line-clamp-1">{selected.location}</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <HomeIcon className="h-3.5 w-3.5 shrink-0" />
+                    <HomeIcon className="size-3.5 shrink-0" />
                     <span>{selected.projectName}</span>
                   </div>
                 </div>
                 {selected.rating && (
                   <div className="flex items-center gap-1 text-sm">
-                    <Star className="h-4 w-4 fill-primary text-primary" />
+                    <Star className="size-4 fill-primary text-primary" />
                     <span className="font-medium text-foreground">
                       {selected.rating.toFixed(1)}
                     </span>
