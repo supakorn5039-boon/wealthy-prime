@@ -42,6 +42,12 @@ func NewBookingService() *BookingService {
 	return &BookingService{db: database.DB, mailer: email.New()}
 }
 
+// NewBookingServiceWithDeps lets tests inject an isolated DB + non-real
+// email sender instead of mutating the package globals.
+func NewBookingServiceWithDeps(db *gorm.DB, mailer email.Sender) *BookingService {
+	return &BookingService{db: db, mailer: mailer}
+}
+
 type CreateBookingsInput struct {
 	PropertyIDs     []uint    `json:"property_ids" binding:"required,min=1"`
 	AppointmentDate time.Time `json:"appointment_date" binding:"required"`

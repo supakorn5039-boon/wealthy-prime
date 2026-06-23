@@ -46,6 +46,10 @@ func NewAuditService() *AuditService {
 	return auditInstance
 }
 
+func NewAuditServiceWithDB(db *gorm.DB) *AuditService {
+	return &AuditService{db: db, queue: make(chan model.AuditLog, auditQueueSize)}
+}
+
 func (s *AuditService) run() {
 	defer func() {
 		if r := recover(); r != nil {

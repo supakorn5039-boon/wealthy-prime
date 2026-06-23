@@ -32,6 +32,10 @@ func NewAuthService() *AuthService {
 	return &AuthService{db: database.DB, mailer: email.New()}
 }
 
+func NewAuthServiceWithDeps(db *gorm.DB, mailer email.Sender) *AuthService {
+	return &AuthService{db: db, mailer: mailer}
+}
+
 type RegisterInput struct {
 	Name           string         `json:"name"`
 	FirstName      string         `json:"firstName"`
