@@ -53,9 +53,10 @@ export default function AgentDashboardIndex() {
   const districtData = Object.entries(districtMap).slice(0, 6).map(([name, value]) => ({ name, value }))
 
   const typeData = [
-    { name: t('property.buy'), value: data?.totalProperties ?? 0 },
-    { name: t('property.rent'), value: data?.reservedProperties ?? 0 },
-  ]
+    { name: t('property.listing.sell'), value: data?.sellListings ?? 0 },
+    { name: t('property.listing.rent'), value: data?.rentListings ?? 0 },
+    { name: t('property.listing.both'), value: data?.bothListings ?? 0 },
+  ].filter((d) => d.value > 0)
 
   return (
     <PageContainer size="7xl" className="space-y-6">

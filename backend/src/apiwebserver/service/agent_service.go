@@ -28,11 +28,15 @@ type AgentDashboard struct {
 	TotalProperties     int64 `json:"totalProperties"`
 	ReservedProperties  int64 `json:"reservedProperties"`
 	AvailableProperties int64 `json:"availableProperties"`
+	// Listing-type breakdown for the dashboard pie chart. Sum equals total.
+	SellListings int64 `json:"sellListings"`
+	RentListings int64 `json:"rentListings"`
+	BothListings int64 `json:"bothListings"`
 }
 
 // GetDashboard returns property counts for the agent.
 func (s *AgentService) GetDashboard(agentID uint) (*AgentDashboard, error) {
-	var total, reserved, available int64
+	var total, reserved, available, sell, rent, both int64
 
 	if err := s.db.Model(&model.Property{}).Where("agent_id = ?", agentID).Count(&total).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "failed to count total properties")
@@ -43,11 +47,23 @@ func (s *AgentService) GetDashboard(agentID uint) (*AgentDashboard, error) {
 	if err := s.db.Model(&model.Property{}).Where("agent_id = ? AND status = ?", agentID, model.StatusAvailable).Count(&available).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "failed to count available properties")
 	}
+	if err := s.db.Model(&model.Property{}).Where("agent_id = ? AND listing = ?", agentID, model.ListingSell).Count(&sell).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to count sell listings")
+	}
+	if err := s.db.Model(&model.Property{}).Where("agent_id = ? AND listing = ?", agentID, model.ListingRent).Count(&rent).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to count rent listings")
+	}
+	if err := s.db.Model(&model.Property{}).Where("agent_id = ? AND listing = ?", agentID, model.ListingBoth).Count(&both).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to count both listings")
+	}
 
 	return &AgentDashboard{
 		TotalProperties:     total,
 		ReservedProperties:  reserved,
 		AvailableProperties: available,
+		SellListings:        sell,
+		RentListings:        rent,
+		BothListings:        both,
 	}, nil
 }
 

@@ -125,4 +125,7 @@ export interface AgentDashboardStats {
   totalProperties: number
   reservedProperties: number
   availableProperties: number
+  sellListings: number
+  rentListings: number
+  bothListings: number
 }
