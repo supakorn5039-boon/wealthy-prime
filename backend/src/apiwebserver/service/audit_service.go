@@ -46,6 +46,11 @@ func NewAuditService() *AuditService {
 	return auditInstance
 }
 
+// NewAuditServiceWithDB builds a fresh AuditService against a caller-supplied
+// DB, bypassing the package singleton. Used by integration tests so each
+// run starts from clean state. The worker goroutine is intentionally NOT
+// started — tests exercise the synchronous List() / dedupe paths, and
+// starting the worker would race with the truncate in helpers.TestDB.
 func NewAuditServiceWithDB(db *gorm.DB) *AuditService {
 	return &AuditService{db: db, queue: make(chan model.AuditLog, auditQueueSize)}
 }

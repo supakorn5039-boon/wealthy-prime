@@ -48,13 +48,13 @@ type AgentDashboard struct {
 func (s *AgentService) GetDashboard(agentID uint) (*AgentDashboard, error) {
 	var d AgentDashboard
 	err := s.db.Model(&model.Property{}).
-		Select(
-			"COUNT(*) AS total_properties,"+
-				" COUNT(*) FILTER (WHERE status = ?) AS available_properties,"+
-				" COUNT(*) FILTER (WHERE status = ?) AS reserved_properties,"+
-				" COUNT(*) FILTER (WHERE listing = ?) AS sell_listings,"+
-				" COUNT(*) FILTER (WHERE listing = ?) AS rent_listings,"+
-				" COUNT(*) FILTER (WHERE listing = ?) AS both_listings",
+		Select(`
+			COUNT(*) AS total_properties,
+			COUNT(*) FILTER (WHERE status = ?) AS available_properties,
+			COUNT(*) FILTER (WHERE status = ?) AS reserved_properties,
+			COUNT(*) FILTER (WHERE listing = ?) AS sell_listings,
+			COUNT(*) FILTER (WHERE listing = ?) AS rent_listings,
+			COUNT(*) FILTER (WHERE listing = ?) AS both_listings`,
 			model.StatusAvailable, model.StatusReserved,
 			model.ListingSell, model.ListingRent, model.ListingBoth,
 		).

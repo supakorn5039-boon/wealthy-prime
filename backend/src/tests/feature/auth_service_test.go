@@ -8,21 +8,14 @@ import (
 	"github.com/wealthy-prime/backend/src/apperror"
 	"github.com/wealthy-prime/backend/src/config"
 	"github.com/wealthy-prime/backend/src/database/model"
-	"github.com/wealthy-prime/backend/src/pkg/email"
 	"github.com/wealthy-prime/backend/src/security"
 	"github.com/wealthy-prime/backend/src/tests/helpers"
 )
 
-// captureSender records sent messages so tests can assert on outbound mail
-// without touching real SMTP.
-type captureSender struct{ sent []email.Message }
-
-func (c *captureSender) Send(m email.Message) error { c.sent = append(c.sent, m); return nil }
-
-func newAuthSvc(t *testing.T) (*service.AuthService, *captureSender, func()) {
+func newAuthSvc(t *testing.T) (*service.AuthService, *helpers.CaptureSender, func()) {
 	db, cleanup := helpers.TestDB(t)
 	config.App.Server.JWTSecret = "test-jwt-secret"
-	sender := &captureSender{}
+	sender := &helpers.CaptureSender{}
 	return service.NewAuthServiceWithDeps(db, sender), sender, cleanup
 }
 

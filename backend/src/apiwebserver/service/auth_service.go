@@ -32,6 +32,8 @@ func NewAuthService() *AuthService {
 	return &AuthService{db: database.DB, mailer: email.New()}
 }
 
+// NewAuthServiceWithDeps lets tests swap in an isolated DB and a no-op
+// (or capturing) email sender instead of mutating the package globals.
 func NewAuthServiceWithDeps(db *gorm.DB, mailer email.Sender) *AuthService {
 	return &AuthService{db: db, mailer: mailer}
 }
