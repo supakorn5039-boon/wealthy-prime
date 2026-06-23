@@ -144,10 +144,15 @@ func (ctrl *PropertyController) getProperty(c *gin.Context) {
 }
 
 // getListingAgent returns the listing-agent's contact preview for a property.
-// Visible to anyone (incl. anonymous) so users / other agents can reach out
-// directly from the property detail page. Returns null when the property has
-// no agent assigned.
+// The frontend dialog presents this as "owner info" (the agent is the contact
+// point for the owner), so we gate it behind canSeeOwnerInfo — same rule as
+// other owner-contact surfaces. Returns null when the property has no agent
+// assigned.
 func (ctrl *PropertyController) getListingAgent(c *gin.Context) {
+	if !canSeeOwnerInfo(middleware.GetRole(c)) {
+		successResponse(c, nil)
+		return
+	}
 	id, err := parseUintParam(c, "id")
 	if err != nil {
 		badRequest(c, "invalid property id")

@@ -60,13 +60,14 @@ export default function PropertyDetailIndex() {
     enabled: !!id,
   })
 
-  // Listing-agent contact preview is fetched for all viewers (incl. anonymous)
-  // so anyone can reach out from the property page. The button is hidden only
-  // when the current viewer IS the listing agent themselves.
+  // Owner-info dialog is restricted to agent/admin viewers — same compliance
+  // rule as the rest of the owner-contact surfaces. The query is gated so we
+  // don't even issue the request for non-privileged viewers.
+  const canSeeOwnerInfo = user?.role === 'admin' || user?.role === 'agent'
   const { data: listingAgentPreview } = useQuery({
     queryKey: ['listing-agent-preview', id],
     queryFn: () => PropertyService.getListingAgent(id!),
-    enabled: !!id,
+    enabled: !!id && canSeeOwnerInfo,
   })
   const isOwnListing = !!user && !!property && property.agentId === user.id
 
