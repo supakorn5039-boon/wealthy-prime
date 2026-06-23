@@ -35,13 +35,31 @@ For things that span packages or exercise the HTTP layer end-to-end. Use `helper
 
 ## Integration tests (DB-backed)
 
-Not yet scaffolded. The recommended pattern when you add them:
+`helpers.TestDB(t)` opens the URL in `TEST_DATABASE_URL`, runs every migration, and truncates all tables before each test so it starts from a known-empty state. When the env var is unset, the test is **skipped** (not failed) — so `make test` stays fast for everyone without a test postgres.
 
-1. Add a `helpers/testdb.go` that opens `TEST_DATABASE_URL` and skips if unset.
-2. Gate the test file with a build tag: `//go:build integration`.
-3. Run with `go test -tags integration ./...` (also wired in `make test-integration` once added).
+Run them:
 
-This keeps the default `go test ./...` fast and DB-free, while letting CI run the full suite when a test postgres is available.
+```bash
+# 1. spin up a dedicated test database (NEVER reuse dev / prod)
+createdb wealthy_prime_test
+
+# 2. point the tests at it
+TEST_DATABASE_URL='postgres://postgres:postgres@localhost:5433/wealthy_prime_test?sslmode=disable' \
+  make test-integration
+```
+
+The build tag `//go:build integration` at the top of a test file gates it so only `-tags integration` picks it up.
+
+| File | What it covers |
+|---|---|
+| `feature/agent_dashboard_test.go` | the six dashboard counters the agent pie chart depends on, scoping across agents |
+
+### Adding a new integration test
+
+1. Drop a `*_test.go` file under `tests/feature/` (or wherever it belongs).
+2. First line: `//go:build integration`.
+3. Use `helpers.TestDB(t)` for the DB and `helpers.SeedAgent(t, db, email)` for a quick agent fixture.
+4. Construct the service against the test DB via `NewXxxServiceWithDB(db)` — don't mutate the package-global `database.DB`.
 
 ## Running
 

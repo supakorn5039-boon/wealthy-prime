@@ -24,6 +24,13 @@ func NewAgentService() *AgentService {
 	return &AgentService{db: database.DB}
 }
 
+// NewAgentServiceWithDB constructs an AgentService against a caller-supplied
+// connection. Used by integration tests to point the service at an isolated
+// test database instead of the package-global one.
+func NewAgentServiceWithDB(db *gorm.DB) *AgentService {
+	return &AgentService{db: db}
+}
+
 type AgentDashboard struct {
 	TotalProperties     int64 `json:"totalProperties"`
 	ReservedProperties  int64 `json:"reservedProperties"`
