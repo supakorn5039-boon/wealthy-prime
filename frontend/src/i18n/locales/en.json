@@ -109,7 +109,6 @@
     "actions": "Actions",
     "view": "View",
     "phaseNext": "This feature ships in the next phase",
-    "noResults": "No results.",
     "totalRows": "{{count}} rows",
     "rowsPerPage": "Rows per page",
     "pageOf": "Page {{page}} of {{total}}"

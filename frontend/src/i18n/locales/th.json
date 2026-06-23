@@ -109,7 +109,6 @@
     "actions": "การจัดการ",
     "view": "ดูรายละเอียด",
     "phaseNext": "ฟีเจอร์นี้จะเปิดในเฟสถัดไป",
-    "noResults": "ไม่พบข้อมูล",
     "totalRows": "{{count}} รายการ",
     "rowsPerPage": "รายการต่อหน้า",
     "pageOf": "หน้า {{page}} จาก {{total}}"

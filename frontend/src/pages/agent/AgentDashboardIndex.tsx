@@ -119,18 +119,22 @@ export default function AgentDashboardIndex() {
           <CardHeader>
             <CardTitle className="text-sm font-semibold">{t('agent.byType')}</CardTitle>
           </CardHeader>
-          <CardContent className="flex items-center justify-center">
-            <ResponsiveContainer width="100%" height={200}>
-              <PieChart>
-                <Pie data={typeData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label>
-                  {typeData.map((_, i) => (
-                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value: number, name: string) => [value, name]} />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
+          <CardContent>
+            {typeData.length === 0 ? (
+              <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">{t('common.noData')}</div>
+            ) : (
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie data={typeData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label>
+                    {typeData.map((_, i) => (
+                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value: number, name: string) => [value, name]} />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </CardContent>
         </Card>
       </div>

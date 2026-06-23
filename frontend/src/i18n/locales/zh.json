@@ -109,7 +109,6 @@
     "actions": "操作",
     "view": "查看",
     "phaseNext": "此功能将在下个阶段上线",
-    "noResults": "无结果",
     "totalRows": "{{count}} 行",
     "rowsPerPage": "每页行数",
     "pageOf": "第 {{page}} 页 / 共 {{total}} 页"
