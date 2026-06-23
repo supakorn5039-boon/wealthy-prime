@@ -321,7 +321,9 @@ export default function PropertyDetailIndex() {
 
               <div className="pt-2 border-t text-xs text-muted-foreground space-y-1">
                 <p>{t('property.listedAt')} {formatDate(property.createdAt)}</p>
-                <p>{t('property.propertyCode')} #{property.id}</p>
+                {property.propertyCode && (
+                  <p>{t('property.propertyCode')} {property.propertyCode}</p>
+                )}
               </div>
             </CardContent>
           </Card>
