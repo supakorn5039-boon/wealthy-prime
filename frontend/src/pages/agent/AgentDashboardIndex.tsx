@@ -107,7 +107,7 @@ export default function AgentDashboardIndex() {
                 <BarChart data={districtData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                   <XAxis dataKey="name" tick={{ fontSize: 10 }} />
                   <YAxis tick={{ fontSize: 10 }} />
-                  <Tooltip />
+                  <Tooltip formatter={(value: number) => [value, t('common.items')]} />
                   <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -127,7 +127,7 @@ export default function AgentDashboardIndex() {
                     <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip formatter={(value: number, name: string) => [value, name]} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>

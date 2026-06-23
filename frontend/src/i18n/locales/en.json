@@ -77,6 +77,7 @@
     }
   },
   "common": {
+    "items": "items",
     "loading": "Loading...",
     "save": "Save",
     "saving": "Saving...",
