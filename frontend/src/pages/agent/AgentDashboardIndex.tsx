@@ -125,7 +125,7 @@ export default function AgentDashboardIndex() {
             ) : (
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
-                  <Pie data={typeData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label>
+                  <Pie data={typeData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={55} label>
                     {typeData.map((_, i) => (
                       <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                     ))}
