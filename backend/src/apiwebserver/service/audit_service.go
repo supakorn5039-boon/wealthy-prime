@@ -15,16 +15,49 @@ import (
 	"github.com/wealthy-prime/backend/src/database/model"
 )
 
-type AuditService struct {
-	db *gorm.DB
+// auditQueueSize bounds the number of pending audit writes held in memory.
+// A backed-up DB can never block request handlers or leak goroutines: writes
+// are dropped (with a warning) once the queue is full.
+const auditQueueSize = 1024
 
-	viewOwnerSeen   sync.Map
-	viewOwnerBucket string
-	viewOwnerMu     sync.Mutex
+type AuditService struct {
+	db    *gorm.DB
+	queue chan model.AuditLog
+
+	// viewOwnerSeen folds the date into the key (`YYYY-MM-DD:actorID:propID`)
+	// so day rollover is implicit and the map is never reassigned — sync.Map
+	// is safe for concurrent method calls but NOT safe to overwrite.
+	viewOwnerSeen sync.Map
 }
 
+var (
+	auditOnce     sync.Once
+	auditInstance *AuditService
+)
+
 func NewAuditService() *AuditService {
-	return &AuditService{db: database.DB}
+	auditOnce.Do(func() {
+		auditInstance = &AuditService{
+			db:    database.DB,
+			queue: make(chan model.AuditLog, auditQueueSize),
+		}
+		go auditInstance.run()
+	})
+	return auditInstance
+}
+
+func (s *AuditService) run() {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("[audit] worker panicked, restarting: %v", r)
+			go s.run()
+		}
+	}()
+	for row := range s.queue {
+		if err := s.db.Create(&row).Error; err != nil {
+			log.Printf("[audit] write failed action=%s entity=%s: %v", row.Action, row.EntityType, err)
+		}
+	}
 }
 
 type AuditEntry struct {
@@ -47,8 +80,6 @@ type AuditFilter struct {
 func (s *AuditService) Log(c *gin.Context, entry AuditEntry) {
 	actorID := middleware.GetUserID(c)
 	actorRole := middleware.GetRole(c)
-	ip := c.ClientIP()
-	ua := c.Request.UserAgent()
 
 	var actorIDPtr *uint
 	if actorID != 0 {
@@ -72,20 +103,15 @@ func (s *AuditService) Log(c *gin.Context, entry AuditEntry) {
 		EntityID:    entry.EntityID,
 		Summary:     entry.Summary,
 		Metadata:    metaJSON,
-		IP:          ip,
-		UserAgent:   ua,
+		IP:          c.ClientIP(),
+		UserAgent:   c.Request.UserAgent(),
 	}
 
-	go func() {
-		defer func() {
-			if r := recover(); r != nil {
-				log.Printf("[audit] write panicked: %v", r)
-			}
-		}()
-		if err := s.db.Create(&row).Error; err != nil {
-			log.Printf("[audit] write failed action=%s entity=%s: %v", entry.Action, entry.EntityType, err)
-		}
-	}()
+	select {
+	case s.queue <- row:
+	default:
+		log.Printf("[audit] queue full (>%d pending), dropping action=%s entity=%s", auditQueueSize, row.Action, row.EntityType)
+	}
 }
 
 // LogViewOwner records an owner-info view, but at most once per actor+property
@@ -96,15 +122,7 @@ func (s *AuditService) LogViewOwner(c *gin.Context, propertyID uint, summary str
 		return
 	}
 
-	today := time.Now().UTC().Format("2006-01-02")
-	s.viewOwnerMu.Lock()
-	if s.viewOwnerBucket != today {
-		s.viewOwnerSeen = sync.Map{}
-		s.viewOwnerBucket = today
-	}
-	s.viewOwnerMu.Unlock()
-
-	key := fmt.Sprintf("%d:%d", actorID, propertyID)
+	key := fmt.Sprintf("%s:%d:%d", time.Now().UTC().Format("2006-01-02"), actorID, propertyID)
 	if _, seen := s.viewOwnerSeen.LoadOrStore(key, struct{}{}); seen {
 		return
 	}
