@@ -31,3 +31,6 @@ npm-debug.log*
 # Go
 *.test
 coverage.out
+
+# Local API client collection (Bruno) — personal, not for repo
+bruno/
