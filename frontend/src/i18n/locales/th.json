@@ -221,7 +221,7 @@
     "listingLabel": "ประเภทรายการ",
     "listing": {
       "rent": "เช่า",
-      "sell": "มีขาย",
+      "sell": "ขาย",
       "both": "ขายและเช่า"
     },
     "province": "จังหวัด",
@@ -364,9 +364,9 @@
     "workStatusConfirmTitle": "ยืนยันการเปลี่ยนสถานะ",
     "workStatusConfirmDesc": "ต้องการเปลี่ยนสถานะเป็น \"{{status}}\" ใช่หรือไม่? การเปลี่ยนแปลงจะถูกบันทึก Log",
     "ownerInfo": "ข้อมูลเจ้าของ",
-    "listingAgentPreview": "ดูข้อมูลเอเจนต์เจ้าของประกาศ",
-    "listingAgentTitle": "ติดต่อเอเจนต์ผู้ลงประกาศ",
-    "listingAgentDesc": "เอเจนต์คนนี้เป็นผู้ลงประกาศทรัพย์รายนี้ — ใช้สอบถามรายละเอียดเพิ่มเติม",
+    "listingAgentPreview": "ดูข้อมูลเจ้าของทรัพย์",
+    "listingAgentTitle": "ข้อมูลเจ้าของทรัพย์",
+    "listingAgentDesc": "ติดต่อสอบถามรายละเอียดทรัพย์รายนี้ผ่านช่องทางด้านล่าง",
     "ownerInfoWarning": "การเปิดดูข้อมูลนี้ถูกบันทึก Log และแจ้งให้ Admin ทราบ",
     "leadsTitle": "ลูกค้า/Leads",
     "leadsSubtitle": "รายชื่อลูกค้าที่ติดต่อเข้ามา",
