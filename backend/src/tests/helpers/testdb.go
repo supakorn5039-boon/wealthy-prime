@@ -68,3 +68,36 @@ func SeedAgent(t *testing.T, db *gorm.DB, email string) uint {
 	}
 	return u.ID
 }
+
+// SeedUser inserts a regular (non-agent) approved user and returns its ID.
+func SeedUser(t *testing.T, db *gorm.DB, email string) uint {
+	t.Helper()
+	u := model.User{
+		Name:         "Test User",
+		Email:        email,
+		PasswordHash: "x",
+		Phone:        "0000000000",
+		Role:         model.RoleUser,
+		IsApproved:   true,
+	}
+	if err := db.Create(&u).Error; err != nil {
+		t.Fatalf("seed user: %v", err)
+	}
+	return u.ID
+}
+
+// NewProperty builds an in-memory Property fixture with sensible defaults so
+// tests only spell out the attributes they care about (listing, status, …).
+// Callers pass it to db.Create themselves so they can stitch multiple
+// fixtures into one round-trip.
+func NewProperty(agentID uint, name string, listing model.ListingType, status model.PropertyStatus) model.Property {
+	return model.Property{
+		ProjectName: name,
+		Location:    "Test Location",
+		Price:       1_000_000,
+		OwnerInfo:   "owner",
+		AgentID:     &agentID,
+		Listing:     listing,
+		Status:      status,
+	}
+}

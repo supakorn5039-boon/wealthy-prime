@@ -27,6 +27,7 @@ import { useCartStore } from '@/hooks/useCartStore'
 import { useAuthStore } from '@/store/authStore'
 import { formatPrice, formatDate } from '@/utils/date'
 import { formatBtsMrt } from '@/utils/btsMrt'
+import { canSeeOwnerInfo } from '@/utils/permissions'
 import type { Review } from '@/types/Review'
 
 // Reviews UI (รีวิวจากผู้จอง) is hidden until next phase. Flip to true to re-enable.
@@ -63,11 +64,11 @@ export default function PropertyDetailIndex() {
   // Owner-info dialog is restricted to agent/admin viewers — same compliance
   // rule as the rest of the owner-contact surfaces. The query is gated so we
   // don't even issue the request for non-privileged viewers.
-  const canSeeOwnerInfo = user?.role === 'admin' || user?.role === 'agent'
+  const ownerInfoAllowed = canSeeOwnerInfo(user?.role)
   const { data: listingAgentPreview } = useQuery({
     queryKey: ['listing-agent-preview', id],
     queryFn: () => PropertyService.getListingAgent(id!),
-    enabled: !!id && canSeeOwnerInfo,
+    enabled: !!id && ownerInfoAllowed,
   })
   const isOwnListing = !!user && !!property && property.agentId === user.id
 

@@ -41,37 +41,29 @@ type AgentDashboard struct {
 	BothListings int64 `json:"bothListings"`
 }
 
-// GetDashboard returns property counts for the agent.
+// GetDashboard returns property counts for the agent. Uses Postgres
+// FILTER aggregates so the six metrics come back from a single scan of
+// the (agent_id-indexed) properties table — six COUNT round-trips would
+// be wasteful on a hot dashboard endpoint.
 func (s *AgentService) GetDashboard(agentID uint) (*AgentDashboard, error) {
-	var total, reserved, available, sell, rent, both int64
-
-	if err := s.db.Model(&model.Property{}).Where("agent_id = ?", agentID).Count(&total).Error; err != nil {
-		return nil, apperror.Wrap(err, 500, "failed to count total properties")
+	var d AgentDashboard
+	err := s.db.Model(&model.Property{}).
+		Select(
+			"COUNT(*) AS total_properties,"+
+				" COUNT(*) FILTER (WHERE status = ?) AS available_properties,"+
+				" COUNT(*) FILTER (WHERE status = ?) AS reserved_properties,"+
+				" COUNT(*) FILTER (WHERE listing = ?) AS sell_listings,"+
+				" COUNT(*) FILTER (WHERE listing = ?) AS rent_listings,"+
+				" COUNT(*) FILTER (WHERE listing = ?) AS both_listings",
+			model.StatusAvailable, model.StatusReserved,
+			model.ListingSell, model.ListingRent, model.ListingBoth,
+		).
+		Where("agent_id = ?", agentID).
+		Scan(&d).Error
+	if err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to load agent dashboard")
 	}
-	if err := s.db.Model(&model.Property{}).Where("agent_id = ? AND status = ?", agentID, model.StatusReserved).Count(&reserved).Error; err != nil {
-		return nil, apperror.Wrap(err, 500, "failed to count reserved properties")
-	}
-	if err := s.db.Model(&model.Property{}).Where("agent_id = ? AND status = ?", agentID, model.StatusAvailable).Count(&available).Error; err != nil {
-		return nil, apperror.Wrap(err, 500, "failed to count available properties")
-	}
-	if err := s.db.Model(&model.Property{}).Where("agent_id = ? AND listing = ?", agentID, model.ListingSell).Count(&sell).Error; err != nil {
-		return nil, apperror.Wrap(err, 500, "failed to count sell listings")
-	}
-	if err := s.db.Model(&model.Property{}).Where("agent_id = ? AND listing = ?", agentID, model.ListingRent).Count(&rent).Error; err != nil {
-		return nil, apperror.Wrap(err, 500, "failed to count rent listings")
-	}
-	if err := s.db.Model(&model.Property{}).Where("agent_id = ? AND listing = ?", agentID, model.ListingBoth).Count(&both).Error; err != nil {
-		return nil, apperror.Wrap(err, 500, "failed to count both listings")
-	}
-
-	return &AgentDashboard{
-		TotalProperties:     total,
-		ReservedProperties:  reserved,
-		AvailableProperties: available,
-		SellListings:        sell,
-		RentListings:        rent,
-		BothListings:        both,
-	}, nil
+	return &d, nil
 }
 
 // GetContacts returns bookings assigned to the agent. When the booking's

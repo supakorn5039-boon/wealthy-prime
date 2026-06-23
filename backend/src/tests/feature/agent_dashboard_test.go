@@ -1,5 +1,3 @@
-//go:build integration
-
 package feature
 
 import (
@@ -20,14 +18,14 @@ func TestAgentDashboard_Counts(t *testing.T) {
 
 	agentID := helpers.SeedAgent(t, db, "dashboard.agent@test.local")
 
-	// Layout — 2 sell, 1 rent, 3 both = 6 total; 4 available, 1 reserved, 1 sold.
+	// 2 sell, 1 rent, 3 both = 6 total; 4 available, 1 reserved, 1 sold.
 	props := []model.Property{
-		{ProjectName: "S1", Location: "L", Price: 100, OwnerInfo: "o", AgentID: &agentID, Listing: model.ListingSell, Status: model.StatusAvailable},
-		{ProjectName: "S2", Location: "L", Price: 100, OwnerInfo: "o", AgentID: &agentID, Listing: model.ListingSell, Status: model.StatusSold},
-		{ProjectName: "R1", Location: "L", Price: 100, OwnerInfo: "o", AgentID: &agentID, Listing: model.ListingRent, Status: model.StatusReserved},
-		{ProjectName: "B1", Location: "L", Price: 100, OwnerInfo: "o", AgentID: &agentID, Listing: model.ListingBoth, Status: model.StatusAvailable},
-		{ProjectName: "B2", Location: "L", Price: 100, OwnerInfo: "o", AgentID: &agentID, Listing: model.ListingBoth, Status: model.StatusAvailable},
-		{ProjectName: "B3", Location: "L", Price: 100, OwnerInfo: "o", AgentID: &agentID, Listing: model.ListingBoth, Status: model.StatusAvailable},
+		helpers.NewProperty(agentID, "S1", model.ListingSell, model.StatusAvailable),
+		helpers.NewProperty(agentID, "S2", model.ListingSell, model.StatusSold),
+		helpers.NewProperty(agentID, "R1", model.ListingRent, model.StatusReserved),
+		helpers.NewProperty(agentID, "B1", model.ListingBoth, model.StatusAvailable),
+		helpers.NewProperty(agentID, "B2", model.ListingBoth, model.StatusAvailable),
+		helpers.NewProperty(agentID, "B3", model.ListingBoth, model.StatusAvailable),
 	}
 	if err := db.Create(&props).Error; err != nil {
 		t.Fatalf("seed properties: %v", err)
@@ -61,9 +59,9 @@ func TestAgentDashboard_IgnoresOtherAgents(t *testing.T) {
 	other := helpers.SeedAgent(t, db, "other@test.local")
 
 	props := []model.Property{
-		{ProjectName: "Mine-1", Location: "L", Price: 1, OwnerInfo: "o", AgentID: &mine, Listing: model.ListingSell, Status: model.StatusAvailable},
-		{ProjectName: "Other-1", Location: "L", Price: 1, OwnerInfo: "o", AgentID: &other, Listing: model.ListingRent, Status: model.StatusAvailable},
-		{ProjectName: "Other-2", Location: "L", Price: 1, OwnerInfo: "o", AgentID: &other, Listing: model.ListingBoth, Status: model.StatusReserved},
+		helpers.NewProperty(mine, "Mine-1", model.ListingSell, model.StatusAvailable),
+		helpers.NewProperty(other, "Other-1", model.ListingRent, model.StatusAvailable),
+		helpers.NewProperty(other, "Other-2", model.ListingBoth, model.StatusReserved),
 	}
 	if err := db.Create(&props).Error; err != nil {
 		t.Fatalf("seed properties: %v", err)

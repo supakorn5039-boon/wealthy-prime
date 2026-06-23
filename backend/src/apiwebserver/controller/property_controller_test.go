@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/wealthy-prime/backend/src/apiwebserver/service"
@@ -20,8 +21,7 @@ func TestParseIntCSV(t *testing.T) {
 		{"abc", []int32{}},
 	}
 	for _, tc := range cases {
-		got := parseIntCSV(tc.in)
-		if !int32SliceEq(got, tc.want) {
+		if got := parseIntCSV(tc.in); !reflect.DeepEqual(got, tc.want) {
 			t.Errorf("parseIntCSV(%q) = %v, want %v", tc.in, got, tc.want)
 		}
 	}
@@ -40,8 +40,7 @@ func TestParseStringCSV(t *testing.T) {
 		{",,,", []string{}},
 	}
 	for _, tc := range cases {
-		got := parseStringCSV(tc.in)
-		if !stringSliceEq(got, tc.want) {
+		if got := parseStringCSV(tc.in); !reflect.DeepEqual(got, tc.want) {
 			t.Errorf("parseStringCSV(%q) = %v, want %v", tc.in, got, tc.want)
 		}
 	}
@@ -58,56 +57,12 @@ func TestParsePriceRanges(t *testing.T) {
 		{"-500", []service.PriceRange{{Max: f(500)}}},
 		{"100-", []service.PriceRange{{Min: f(100)}}},
 		{"100-500,1000-2000", []service.PriceRange{{Min: f(100), Max: f(500)}, {Min: f(1000), Max: f(2000)}}},
-		{"-", nil},
-		{"abc-def", nil},
+		{"-", []service.PriceRange{}},
+		{"abc-def", []service.PriceRange{}},
 	}
 	for _, tc := range cases {
-		got := parsePriceRanges(tc.in)
-		if !priceRangeSliceEq(got, tc.want) {
+		if got := parsePriceRanges(tc.in); !reflect.DeepEqual(got, tc.want) {
 			t.Errorf("parsePriceRanges(%q) = %v, want %v", tc.in, got, tc.want)
 		}
 	}
-}
-
-func int32SliceEq(a, b []int32) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-	return true
-}
-
-func stringSliceEq(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-	return true
-}
-
-func priceRangeSliceEq(a, b []service.PriceRange) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i := range a {
-		if !floatPtrEq(a[i].Min, b[i].Min) || !floatPtrEq(a[i].Max, b[i].Max) {
-			return false
-		}
-	}
-	return true
-}
-
-func floatPtrEq(a, b *float64) bool {
-	if a == nil || b == nil {
-		return a == b
-	}
-	return *a == *b
 }
