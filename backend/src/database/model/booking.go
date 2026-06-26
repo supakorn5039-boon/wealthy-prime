@@ -76,40 +76,7 @@ type BookingDto struct {
 	Wechat          string                `json:"wechat"`
 	Whatsapp        string                `json:"whatsapp"`
 	CreatedAt       string                `json:"createdAt"`
-	// ListingAgent is populated only when the viewer is assigned to handle the
-	// booking but is NOT the listing agent — they need the original agent's
-	// contact info to ask questions about the unit. Hidden by omitempty so the
-	// field is absent when the viewer owns the listing.
-	ListingAgent *ListingAgentPreview `json:"listingAgent,omitempty"`
-}
-
-// ListingAgentPreview is the subset of an agent's profile shown to another
-// agent who has been assigned a booking on this listing.
-type ListingAgentPreview struct {
-	ID       uint   `json:"id"`
-	Name     string `json:"name"`
-	Phone    string `json:"phone"`
-	Email    string `json:"email"`
-	LineID   string `json:"lineId"`
-	Facebook string `json:"facebook"`
-	Wechat   string `json:"wechat"`
-	Whatsapp string `json:"whatsapp"`
-}
-
-func NewListingAgentPreview(a *User) *ListingAgentPreview {
-	if a == nil {
-		return nil
-	}
-	return &ListingAgentPreview{
-		ID:       a.ID,
-		Name:     a.Name,
-		Phone:    a.Phone,
-		Email:    a.Email,
-		LineID:   a.LineID,
-		Facebook: a.Facebook,
-		Wechat:   a.Wechat,
-		Whatsapp: a.Whatsapp,
-	}
+	ListingOwner *ListingOwnerPreview `json:"listingOwner,omitempty"`
 }
 
 func (b *Booking) ToDto() *BookingDto {

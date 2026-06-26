@@ -66,16 +66,14 @@ func (s *AgentService) GetDashboard(agentID uint) (*AgentDashboard, error) {
 	return &d, nil
 }
 
-// GetContacts returns bookings assigned to the agent. When the booking's
-// property was listed by a different agent, the listing-agent's contact info
-// is attached so the assigned agent can coordinate with the owner of the
-// listing.
+// GetContacts returns bookings assigned to the agent. The booking's property
+// owner contact preview is attached so the assigned agent can reach the owner
+// directly.
 func (s *AgentService) GetContacts(agentID uint) ([]model.BookingDto, error) {
 	var bookings []model.Booking
 	if err := s.db.
 		Preload("User").
 		Preload("Property").
-		Preload("Property.Agent").
 		Preload("AssignedAgent").
 		Where("assigned_agent_id = ?", agentID).
 		Find(&bookings).Error; err != nil {
@@ -84,20 +82,10 @@ func (s *AgentService) GetContacts(agentID uint) ([]model.BookingDto, error) {
 	dtos := make([]model.BookingDto, len(bookings))
 	for i, b := range bookings {
 		dto := *b.ToDto()
-		attachListingAgent(&dto, &b, agentID)
+		dto.ListingOwner = model.NewListingOwnerPreview(&b.Property)
 		dtos[i] = dto
 	}
 	return dtos, nil
-}
-
-func attachListingAgent(dto *model.BookingDto, b *model.Booking, callerID uint) {
-	if b.AssignedAgentID == nil || *b.AssignedAgentID != callerID {
-		return
-	}
-	if b.Property.AgentID == nil || *b.Property.AgentID == callerID {
-		return
-	}
-	dto.ListingAgent = model.NewListingAgentPreview(b.Property.Agent)
 }
 
 // UpdateWorkStatus updates the appointment work-status on a booking assigned to this agent.

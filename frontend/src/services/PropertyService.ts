@@ -1,8 +1,7 @@
 import { fetchClient } from '@/utils/axios'
 import { API } from '@/constants/ApiRoutes'
 import { cleanParams } from '@/utils/serviceHelpers'
-import type { Property, PropertyListParams, CreatePropertyPayload, UpdatePropertyStatusPayload, EditPropertyPayload, PropertyFormFields } from '@/types/Property'
-import type { ListingAgentPreview } from '@/types/Booking'
+import type { Property, PropertyListParams, CreatePropertyPayload, UpdatePropertyStatusPayload, EditPropertyPayload, PropertyFormFields, ListingOwnerPreview } from '@/types/Property'
 import type { ApiResponse, ApiListResponse } from '@/types/Commons'
 
 function appendCommonFields(fd: FormData, payload: PropertyFormFields) {
@@ -77,9 +76,9 @@ export const PropertyService = {
     return res.data.data
   },
 
-  getListingAgent: async (id: number | string): Promise<ListingAgentPreview | null> => {
-    const res = await fetchClient.get<ApiResponse<ListingAgentPreview | null>>(
-      API.PROPERTY_LISTING_AGENT(id),
+  getListingOwner: async (id: number | string): Promise<ListingOwnerPreview | null> => {
+    const res = await fetchClient.get<ApiResponse<ListingOwnerPreview | null>>(
+      API.PROPERTY_LISTING_OWNER(id),
     )
     return res.data.data
   },

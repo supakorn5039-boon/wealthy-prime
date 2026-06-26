@@ -1,3 +1,5 @@
+import type { ListingOwnerPreview } from '@/types/Property'
+
 export type BookingStatus = 'pending' | 'assigned' | 'completed' | 'cancelled'
 
 export type AppointmentWorkStatus =
@@ -33,21 +35,9 @@ export interface Booking {
   wechat?: string
   whatsapp?: string
   createdAt: string
-  // Populated by the backend only when the viewing agent was assigned a
-  // booking on a listing owned by a different agent. Lets the assignee
-  // contact the listing agent for unit-specific questions.
-  listingAgent?: ListingAgentPreview
-}
-
-export interface ListingAgentPreview {
-  id: number
-  name: string
-  phone?: string
-  email?: string
-  lineId?: string
-  facebook?: string
-  wechat?: string
-  whatsapp?: string
+  // Owner-contact preview of the booking's property, attached server-side for
+  // agent/admin viewers so they can reach the actual property owner directly.
+  listingOwner?: ListingOwnerPreview
 }
 
 export interface CreateBookingPayload {

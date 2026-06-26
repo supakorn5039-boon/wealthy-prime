@@ -16,6 +16,17 @@ export interface PropertyImage {
   url: string
 }
 
+export interface ListingOwnerPreview {
+  info: string
+  name: string
+  phone: string
+  email: string
+  lineId: string
+  facebook: string
+  wechat: string
+  whatsapp: string
+}
+
 export interface Property {
   id: number
   propertyCode?: string

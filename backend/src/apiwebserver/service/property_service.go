@@ -212,22 +212,19 @@ func (s *PropertyService) GetProperty(id uint) (*model.PropertyDto, error) {
 	return p.ToDto(), nil
 }
 
-// GetListingAgent returns the property's listing-agent contact preview, or
-// nil if no agent is assigned. Visible to all roles (incl. anonymous) so any
-// viewer can reach the agent of the listing directly.
-func (s *PropertyService) GetListingAgent(propertyID uint) (*model.ListingAgentPreview, error) {
+// GetListingOwner returns the property's owner-contact preview. Restricted at
+// the controller level to agent/admin viewers — owner contact data is the
+// PII captured at listing time, not the listing agent's profile.
+func (s *PropertyService) GetListingOwner(propertyID uint) (*model.ListingOwnerPreview, error) {
 	var prop model.Property
-	err := s.db.Preload("Agent").First(&prop, propertyID).Error
+	err := s.db.First(&prop, propertyID).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, apperror.NotFound("property")
 	}
 	if err != nil {
 		return nil, apperror.Wrap(err, 500, "fetch property")
 	}
-	if prop.AgentID == nil {
-		return nil, nil
-	}
-	return model.NewListingAgentPreview(prop.Agent), nil
+	return model.NewListingOwnerPreview(&prop), nil
 }
 
 // GetPropertyReviews returns all reviews for a property, newest first.

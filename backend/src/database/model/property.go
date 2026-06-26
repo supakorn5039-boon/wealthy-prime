@@ -242,6 +242,39 @@ func (p *Property) ToDto() *PropertyDto {
 	return dto
 }
 
+// ListingOwnerPreview is the subset of a property's owner-contact fields shown
+// to agent/admin viewers via the dedicated owner-info dialog.
+type ListingOwnerPreview struct {
+	Info     string `json:"info"`
+	Name     string `json:"name"`
+	Phone    string `json:"phone"`
+	Email    string `json:"email"`
+	LineID   string `json:"lineId"`
+	Facebook string `json:"facebook"`
+	Wechat   string `json:"wechat"`
+	Whatsapp string `json:"whatsapp"`
+}
+
+// NewListingOwnerPreview builds a preview from a Property. Always returns a
+// populated struct (with empty fields if the owner data is blank) so the
+// agent/admin frontend can render an empty state rather than hiding the entry
+// point entirely.
+func NewListingOwnerPreview(p *Property) *ListingOwnerPreview {
+	if p == nil {
+		return nil
+	}
+	return &ListingOwnerPreview{
+		Info:     p.OwnerInfo,
+		Name:     p.OwnerName,
+		Phone:    p.OwnerPhone,
+		Email:    p.OwnerEmail,
+		LineID:   p.OwnerLineID,
+		Facebook: p.OwnerFacebook,
+		Wechat:   p.OwnerWechat,
+		Whatsapp: p.OwnerWhatsapp,
+	}
+}
+
 // StripOwnerInfo blanks out owner contact fields. Call this before returning
 // the DTO to non-agent/admin viewers — owner info is restricted per spec.
 func (d *PropertyDto) StripOwnerInfo() {

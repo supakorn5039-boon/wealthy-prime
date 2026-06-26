@@ -10,7 +10,7 @@ export const API = {
   PROPERTIES: '/properties',
   PROPERTY_DETAIL: (id: number | string) => `/properties/${id}`,
   PROPERTY_REVIEWS: (id: number | string) => `/properties/${id}/reviews`,
-  PROPERTY_LISTING_AGENT: (id: number | string) => `/properties/${id}/listing-agent`,
+  PROPERTY_LISTING_OWNER: (id: number | string) => `/properties/${id}/listing-owner`,
 
   // User scoped
   BOOKINGS: '/user/bookings',

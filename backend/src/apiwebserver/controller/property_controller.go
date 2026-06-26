@@ -85,7 +85,7 @@ func (ctrl *PropertyController) RegisterRoutes(r *gin.RouterGroup) {
 	props.GET("", ctrl.listProperties)
 	props.GET("/:id", ctrl.getProperty)
 	props.GET("/:id/reviews", ctrl.getPropertyReviews)
-	props.GET("/:id/listing-agent", ctrl.getListingAgent)
+	props.GET("/:id/listing-owner", ctrl.getListingOwner)
 }
 
 // canSeeOwnerInfo returns true if the viewer is an agent or admin.
@@ -143,12 +143,11 @@ func (ctrl *PropertyController) getProperty(c *gin.Context) {
 	successResponse(c, dto)
 }
 
-// getListingAgent returns the listing-agent's contact preview for a property.
-// The frontend dialog presents this as "owner info" (the agent is the contact
-// point for the owner), so we gate it behind canSeeOwnerInfo — same rule as
-// other owner-contact surfaces. Returns null when the property has no agent
-// assigned.
-func (ctrl *PropertyController) getListingAgent(c *gin.Context) {
+// getListingOwner returns the property owner's contact preview (Name/Phone/
+// Email/Line/etc. captured at listing time). Gated behind canSeeOwnerInfo —
+// same restriction applied to the owner fields embedded in the property detail
+// response. Returns null when every owner field is empty.
+func (ctrl *PropertyController) getListingOwner(c *gin.Context) {
 	if !canSeeOwnerInfo(middleware.GetRole(c)) {
 		successResponse(c, nil)
 		return
@@ -158,7 +157,7 @@ func (ctrl *PropertyController) getListingAgent(c *gin.Context) {
 		badRequest(c, "invalid property id")
 		return
 	}
-	preview, err := ctrl.svc.GetListingAgent(id)
+	preview, err := ctrl.svc.GetListingOwner(id)
 	if err != nil {
 		errorResponse(c, err)
 		return

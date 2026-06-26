@@ -12,7 +12,7 @@ import { ReviewService } from '@/services/ReviewService'
 import { PropertyGallery } from '@/components/property/PropertyGallery'
 import { EditPropertyDialog } from '@/components/property/EditPropertyDialog'
 import { WriteReviewDialog } from '@/components/property/WriteReviewDialog'
-import { ListingAgentPreviewDialog } from '@/components/agent/ListingAgentPreviewDialog'
+import { ListingOwnerPreviewDialog } from '@/components/property/ListingOwnerPreviewDialog'
 import { PropertyStatusBadge } from '@/components/shared/StatusBadge'
 import { WishlistButton } from '@/components/WishlistButton'
 import { StarRating } from '@/components/StarRating'
@@ -65,12 +65,11 @@ export default function PropertyDetailIndex() {
   // rule as the rest of the owner-contact surfaces. The query is gated so we
   // don't even issue the request for non-privileged viewers.
   const ownerInfoAllowed = canSeeOwnerInfo(user?.role)
-  const { data: listingAgentPreview } = useQuery({
-    queryKey: ['listing-agent-preview', id],
-    queryFn: () => PropertyService.getListingAgent(id!),
+  const { data: listingOwnerPreview } = useQuery({
+    queryKey: ['listing-owner-preview', id],
+    queryFn: () => PropertyService.getListingOwner(id!),
     enabled: !!id && ownerInfoAllowed,
   })
-  const isOwnListing = !!user && !!property && property.agentId === user.id
 
   const { data: reviews = [] } = useQuery({
     queryKey: [ReviewService.QUERY_KEYS.PROPERTY_REVIEWS, id],
@@ -310,8 +309,8 @@ export default function PropertyDetailIndex() {
                     {t('property.addToCart')}
                   </Button>
                 )}
-                {listingAgentPreview && !isOwnListing && (
-                  <ListingAgentPreviewDialog preview={listingAgentPreview} fullWidth />
+                {ownerInfoAllowed && (
+                  <ListingOwnerPreviewDialog preview={listingOwnerPreview} fullWidth />
                 )}
                 {canEdit && (
                   <Button variant="outline" className="w-full" onClick={() => setEditOpen(true)}>
