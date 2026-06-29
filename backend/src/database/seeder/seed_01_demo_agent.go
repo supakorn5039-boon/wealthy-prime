@@ -16,7 +16,6 @@ const demoAgentEmail = "agent.demo@example.com"
 func seedDemoAgent(db *gorm.DB) uint {
 	var existing model.User
 	if err := db.Where("email = ?", demoAgentEmail).First(&existing).Error; err == nil {
-		backfillDemoAgentSocials(db, &existing)
 		return existing.ID
 	}
 
@@ -33,10 +32,6 @@ func seedDemoAgent(db *gorm.DB) uint {
 		Email:        demoAgentEmail,
 		PasswordHash: hash,
 		Phone:        "0811111111",
-		LineID:       "demo.agent",
-		Whatsapp:     "+66811111111",
-		Wechat:       "demo_agent_wp",
-		Facebook:     "https://facebook.com/demo.agent.wpe",
 		AgentCode:    "A100001",
 		Role:         model.RoleAgent,
 		IsApproved:   true,
@@ -47,31 +42,4 @@ func seedDemoAgent(db *gorm.DB) uint {
 	}
 	log.Printf("[seeder] demo agent created: %s (password: agent123)", demoAgentEmail)
 	return agent.ID
-}
-
-// backfillDemoAgentSocials fills the four social-handle columns when the demo
-// agent predates the appointment-email feature and would otherwise render
-// empty contact rows in confirmation emails.
-func backfillDemoAgentSocials(db *gorm.DB, u *model.User) {
-	updates := map[string]any{}
-	if u.LineID == "" {
-		updates["line_id"] = "demo.agent"
-	}
-	if u.Whatsapp == "" {
-		updates["whatsapp"] = "+66811111111"
-	}
-	if u.Wechat == "" {
-		updates["wechat"] = "demo_agent_wp"
-	}
-	if u.Facebook == "" {
-		updates["facebook"] = "https://facebook.com/demo.agent.wpe"
-	}
-	if len(updates) == 0 {
-		return
-	}
-	if err := db.Model(u).Updates(updates).Error; err != nil {
-		log.Printf("[seeder] failed to backfill demo agent socials: %v", err)
-		return
-	}
-	log.Printf("[seeder] demo agent socials backfilled (%d fields)", len(updates))
 }
