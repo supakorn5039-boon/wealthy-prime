@@ -1,6 +1,7 @@
 package security
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/wealthy-prime/backend/src/config"
@@ -44,11 +45,22 @@ func TestValidateToken_RejectsTamperedToken(t *testing.T) {
 
 	token, _ := GenerateJWT(1, model.RoleUser, "u@x.com")
 
-	// Flip the last character to corrupt the signature.
-	tampered := token[:len(token)-1] + "0"
-	if token[len(token)-1] == '0' {
-		tampered = token[:len(token)-1] + "1"
+	// Flip the FIRST char of the signature segment, not the last. The last
+	// base64url char of an HS256 (32-byte) signature carries only 2 real
+	// bits + 4 padding bits — so two different chars sharing the same top
+	// two bits decode to identical bytes and the "tamper" silently no-ops.
+	// The first char carries a full 6 bits, so a swap always changes the
+	// decoded signature.
+	parts := strings.Split(token, ".")
+	if len(parts) != 3 {
+		t.Fatalf("expected 3 JWT segments, got %d", len(parts))
 	}
+	flipped := byte('A')
+	if parts[2][0] == 'A' {
+		flipped = 'B'
+	}
+	parts[2] = string(flipped) + parts[2][1:]
+	tampered := strings.Join(parts, ".")
 
 	if _, err := ValidateToken(tampered); err == nil {
 		t.Fatal("ValidateToken should reject tampered token")
