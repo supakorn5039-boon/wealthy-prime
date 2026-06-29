@@ -174,6 +174,7 @@ export function CartDrawer() {
                       showTimeSelect
                       timeFormat="HH:mm"
                       timeIntervals={30}
+                      filterTime={(time) => time.getTime() > Date.now()}
                       dateFormat="dd/MM/yyyy HH:mm"
                       placeholderText={t('cart.selectDateTime')}
                       className="w-full text-sm"
