@@ -213,7 +213,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
             label={t("property.projectName")}
             required
           />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormSelect
               control={control}
               name="kind"
@@ -229,7 +229,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
               required
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormPriceInput
               control={control}
               name="price"
@@ -262,7 +262,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
             rows={2}
           />
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormSelect
               control={control}
               name="province"
@@ -323,7 +323,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
             {t("property.coordsHint")}
           </p>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <FormInput
               control={control}
               name="bedrooms"
@@ -349,7 +349,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
               step={1}
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormSelect
               control={control}
               name="pets"
@@ -371,7 +371,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
             required
             rows={3}
           />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormInput
               control={control}
               name="ownerName"
@@ -384,7 +384,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
               placeholder={t('common.phonePlaceholder')}
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormInput
               control={control}
               name="ownerLineId"
@@ -404,7 +404,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
             placeholder="https://facebook.com/..."
             required
           />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormInput
               control={control}
               name="ownerWechat"

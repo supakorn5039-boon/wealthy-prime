@@ -53,7 +53,9 @@ export function FormPhoneInput<T extends FieldValues>({
   useLayoutEffect(() => {
     if (!open || !triggerRef.current) return
     const rect = triggerRef.current.getBoundingClientRect()
-    const w = Math.max(rect.width + 240, 320)
+    const preferred = Math.max(rect.width + 240, 320)
+    const maxAvailable = window.innerWidth - rect.left - 8
+    const w = Math.min(preferred, Math.max(maxAvailable, 240))
     setPosition({
       top: rect.bottom + window.scrollY + 4,
       left: rect.left + window.scrollX,

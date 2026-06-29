@@ -77,12 +77,12 @@ export function DataTable<T>({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         <Input
           placeholder={placeholder}
           value={searchValue}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="max-w-xs"
+          className="w-full sm:max-w-xs"
         />
         <div className="text-sm text-muted-foreground">
           {t('common.totalRows', { count: table.getFilteredRowModel().rows.length })}

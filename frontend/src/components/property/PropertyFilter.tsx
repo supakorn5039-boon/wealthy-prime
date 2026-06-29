@@ -407,7 +407,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
         />
       </div>
 
-      <div className="flex items-center gap-2 p-2 border-t border-border">
+      <div className="flex flex-wrap items-center gap-2 p-2 border-t border-border">
         <Search className="size-4 ml-3 text-muted-foreground shrink-0" />
         <input
           type="text"
@@ -415,7 +415,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
           placeholder={t('home.searchPlaceholder')}
-          className="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground text-sm py-2 px-1"
+          className="flex-1 min-w-0 bg-transparent outline-none text-foreground placeholder:text-muted-foreground text-sm py-2 px-1"
         />
         {hasFilters && (
           <Button
@@ -432,7 +432,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
         <Button
           type="button"
           onClick={applyFilters}
-          className="rounded-full px-7 h-10 bg-primary hover:bg-accent text-primary-foreground tracking-luxury uppercase font-semibold shrink-0"
+          className="rounded-full w-full sm:w-auto px-4 sm:px-7 h-10 bg-primary hover:bg-accent text-primary-foreground tracking-luxury uppercase font-semibold shrink-0"
         >
           {t('common.search')}
         </Button>
