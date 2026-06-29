@@ -80,15 +80,19 @@ func BuildAppointmentConfirmation(booking *model.Booking, agent *model.User) (Me
 	apptTime := booking.AppointmentDate.In(timezone.ICT).Format("2 Jan 2006 15:04 น.")
 
 	data := confirmationData{
-		CustomerName:  customerName,
-		PropertyTitle: property.ProjectName,
-		PropertyCode:  property.PropertyCode,
-		Appointment:   apptTime,
-		AgentName:     agent.Name,
-		AgentPhone:    agent.Phone,
-		AgentEmail:    agent.Email,
-		Note:          strings.TrimSpace(booking.Note),
-		HistoryURL:    config.App.SMTP.AppURL + "/history",
+		CustomerName:   customerName,
+		PropertyTitle:  property.ProjectName,
+		PropertyCode:   property.PropertyCode,
+		Appointment:    apptTime,
+		AgentName:      agent.Name,
+		AgentPhone:     agent.Phone,
+		AgentEmail:     agent.Email,
+		AgentLineID:    agent.LineID,
+		AgentWhatsapp:  agent.Whatsapp,
+		AgentWechat:    agent.Wechat,
+		AgentFacebook:  agent.Facebook,
+		Note:           strings.TrimSpace(booking.Note),
+		HistoryURL:     config.App.SMTP.AppURL + "/history",
 	}
 
 	var htmlBuf, textBuf bytes.Buffer
@@ -111,15 +115,19 @@ func BuildAppointmentConfirmation(booking *model.Booking, agent *model.User) (Me
 }
 
 type confirmationData struct {
-	CustomerName  string
-	PropertyTitle string
-	PropertyCode  string
-	Appointment   string
-	AgentName     string
-	AgentPhone    string
-	AgentEmail    string
-	Note          string
-	HistoryURL    string
+	CustomerName   string
+	PropertyTitle  string
+	PropertyCode   string
+	Appointment    string
+	AgentName      string
+	AgentPhone     string
+	AgentEmail     string
+	AgentLineID    string
+	AgentWhatsapp  string
+	AgentWechat    string
+	AgentFacebook  string
+	Note           string
+	HistoryURL     string
 }
 
 var confirmHTMLTpl = template.Must(template.New("confirm_html").Parse(`<!doctype html>
@@ -133,6 +141,10 @@ var confirmHTMLTpl = template.Must(template.New("confirm_html").Parse(`<!doctype
     {{if .AgentName}}<tr><td><strong>ตัวแทนที่ดูแล</strong></td><td>{{.AgentName}}</td></tr>{{end}}
     {{if .AgentPhone}}<tr><td><strong>เบอร์ตัวแทน</strong></td><td>{{.AgentPhone}}</td></tr>{{end}}
     {{if .AgentEmail}}<tr><td><strong>อีเมลตัวแทน</strong></td><td>{{.AgentEmail}}</td></tr>{{end}}
+    {{if .AgentLineID}}<tr><td><strong>Line ID ตัวแทน</strong></td><td>{{.AgentLineID}}</td></tr>{{end}}
+    {{if .AgentWhatsapp}}<tr><td><strong>WhatsApp ตัวแทน</strong></td><td>{{.AgentWhatsapp}}</td></tr>{{end}}
+    {{if .AgentWechat}}<tr><td><strong>WeChat ตัวแทน</strong></td><td>{{.AgentWechat}}</td></tr>{{end}}
+    {{if .AgentFacebook}}<tr><td><strong>Facebook ตัวแทน</strong></td><td>{{.AgentFacebook}}</td></tr>{{end}}
     {{if .Note}}<tr><td><strong>หมายเหตุ</strong></td><td>{{.Note}}</td></tr>{{end}}
   </table>
   <p style="margin-top:16px;">ตัวแทนของเราจะติดต่อกลับเพื่อยืนยันรายละเอียดเพิ่มเติม</p>
@@ -151,7 +163,11 @@ var confirmTextTpl = template.Must(template.New("confirm_text").Parse(`สวั
 วันนัดหมาย: {{.Appointment}}{{if .AgentName}}
 ตัวแทนที่ดูแล: {{.AgentName}}{{end}}{{if .AgentPhone}}
 เบอร์ตัวแทน: {{.AgentPhone}}{{end}}{{if .AgentEmail}}
-อีเมลตัวแทน: {{.AgentEmail}}{{end}}{{if .Note}}
+อีเมลตัวแทน: {{.AgentEmail}}{{end}}{{if .AgentLineID}}
+Line ID ตัวแทน: {{.AgentLineID}}{{end}}{{if .AgentWhatsapp}}
+WhatsApp ตัวแทน: {{.AgentWhatsapp}}{{end}}{{if .AgentWechat}}
+WeChat ตัวแทน: {{.AgentWechat}}{{end}}{{if .AgentFacebook}}
+Facebook ตัวแทน: {{.AgentFacebook}}{{end}}{{if .Note}}
 หมายเหตุ: {{.Note}}{{end}}
 
 ตัวแทนของเราจะติดต่อกลับเพื่อยืนยันรายละเอียดเพิ่มเติม
