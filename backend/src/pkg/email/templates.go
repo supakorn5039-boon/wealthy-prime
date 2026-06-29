@@ -141,10 +141,10 @@ var confirmHTMLTpl = template.Must(template.New("confirm_html").Parse(`<!doctype
     {{if .AgentName}}<tr><td><strong>ตัวแทนที่ดูแล</strong></td><td>{{.AgentName}}</td></tr>{{end}}
     {{if .AgentPhone}}<tr><td><strong>เบอร์ตัวแทน</strong></td><td>{{.AgentPhone}}</td></tr>{{end}}
     {{if .AgentEmail}}<tr><td><strong>อีเมลตัวแทน</strong></td><td>{{.AgentEmail}}</td></tr>{{end}}
-    {{if .AgentLineID}}<tr><td><strong>Line ID ตัวแทน</strong></td><td>{{.AgentLineID}}</td></tr>{{end}}
-    {{if .AgentWhatsapp}}<tr><td><strong>WhatsApp ตัวแทน</strong></td><td>{{.AgentWhatsapp}}</td></tr>{{end}}
-    {{if .AgentWechat}}<tr><td><strong>WeChat ตัวแทน</strong></td><td>{{.AgentWechat}}</td></tr>{{end}}
-    {{if .AgentFacebook}}<tr><td><strong>Facebook ตัวแทน</strong></td><td>{{.AgentFacebook}}</td></tr>{{end}}
+    <tr><td><strong>Line ID ตัวแทน</strong></td><td>{{or .AgentLineID "-"}}</td></tr>
+    <tr><td><strong>WhatsApp ตัวแทน</strong></td><td>{{or .AgentWhatsapp "-"}}</td></tr>
+    <tr><td><strong>WeChat ตัวแทน</strong></td><td>{{or .AgentWechat "-"}}</td></tr>
+    <tr><td><strong>Facebook ตัวแทน</strong></td><td>{{or .AgentFacebook "-"}}</td></tr>
     {{if .Note}}<tr><td><strong>หมายเหตุ</strong></td><td>{{.Note}}</td></tr>{{end}}
   </table>
   <p style="margin-top:16px;">ตัวแทนของเราจะติดต่อกลับเพื่อยืนยันรายละเอียดเพิ่มเติม</p>
@@ -163,11 +163,11 @@ var confirmTextTpl = template.Must(template.New("confirm_text").Parse(`สวั
 วันนัดหมาย: {{.Appointment}}{{if .AgentName}}
 ตัวแทนที่ดูแล: {{.AgentName}}{{end}}{{if .AgentPhone}}
 เบอร์ตัวแทน: {{.AgentPhone}}{{end}}{{if .AgentEmail}}
-อีเมลตัวแทน: {{.AgentEmail}}{{end}}{{if .AgentLineID}}
-Line ID ตัวแทน: {{.AgentLineID}}{{end}}{{if .AgentWhatsapp}}
-WhatsApp ตัวแทน: {{.AgentWhatsapp}}{{end}}{{if .AgentWechat}}
-WeChat ตัวแทน: {{.AgentWechat}}{{end}}{{if .AgentFacebook}}
-Facebook ตัวแทน: {{.AgentFacebook}}{{end}}{{if .Note}}
+อีเมลตัวแทน: {{.AgentEmail}}{{end}}
+Line ID ตัวแทน: {{or .AgentLineID "-"}}
+WhatsApp ตัวแทน: {{or .AgentWhatsapp "-"}}
+WeChat ตัวแทน: {{or .AgentWechat "-"}}
+Facebook ตัวแทน: {{or .AgentFacebook "-"}}{{if .Note}}
 หมายเหตุ: {{.Note}}{{end}}
 
 ตัวแทนของเราจะติดต่อกลับเพื่อยืนยันรายละเอียดเพิ่มเติม
