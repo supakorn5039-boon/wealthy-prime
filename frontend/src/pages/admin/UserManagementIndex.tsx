@@ -17,6 +17,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { FormInput } from '@/components/form/FormInput'
+import { scrollToFirstError } from '@/lib/scrollToFirstError'
 import { formatDate } from '@/utils/date'
 import type { AuthUser } from '@/types/Auth'
 
@@ -51,7 +52,7 @@ function EditUserModal({ user, open, onClose }: { user: AuthUser; open: boolean;
         <DialogHeader>
           <DialogTitle>{t('admin.editTitle')} {user.name}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit((values) => mutation.mutate(values))} className="space-y-4">
+        <form onSubmit={handleSubmit((values) => mutation.mutate(values), scrollToFirstError)} className="space-y-4">
           <FormInput control={control} name="name" label={t('admin.nameLabel')} required />
           <FormInput control={control} name="phone" label={t('admin.phoneLabel')} required />
           <DialogFooter>

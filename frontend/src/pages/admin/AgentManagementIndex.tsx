@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Badge } from '@/components/ui/badge'
 import { FormInput } from '@/components/form/FormInput'
 import { FormSelect } from '@/components/form/FormSelect'
+import { scrollToFirstError } from '@/lib/scrollToFirstError'
 import { formatDate } from '@/utils/date'
 import type { AuthUser } from '@/types/Auth'
 
@@ -59,7 +60,7 @@ function EditAgentModal({ agent, open, onClose }: { agent: AuthUser; open: boole
         <DialogHeader>
           <DialogTitle>{t('admin.editTitle')} {agent.name}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit((values) => mutation.mutate(values))} className="space-y-4">
+        <form onSubmit={handleSubmit((values) => mutation.mutate(values), scrollToFirstError)} className="space-y-4">
           <FormInput control={control} name="name" label={t('admin.nameLabel')} required />
           <FormInput control={control} name="phone" label={t('admin.phoneLabel')} required />
           <FormSelect control={control} name="role" label={t('admin.roleLabel')} options={roleOptions} required />

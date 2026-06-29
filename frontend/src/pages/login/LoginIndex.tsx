@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/Logo'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { FormInput } from '@/components/form/FormInput'
+import { scrollToFirstError } from '@/lib/scrollToFirstError'
 import { AuthService } from '@/services/AuthService'
 import { useAuthStore } from '@/store/authStore'
 import { loginSchema, type LoginSchema } from '@/dto/AuthValidation'
@@ -57,7 +58,7 @@ export default function LoginIndex() {
           <CardDescription className="text-center">{t('auth.loginSubtitle')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit((values) => mutation.mutate(values))} className="space-y-4">
+          <form onSubmit={handleSubmit((values) => mutation.mutate(values), scrollToFirstError)} className="space-y-4">
             <FormInput control={control} name="email" label={t('auth.email')} type="email" placeholder={t('auth.emailPlaceholder')} required />
             <FormInput control={control} name="password" label={t('auth.password')} type="password" placeholder={t('auth.passwordPlaceholder')} required />
             <Link to={ROUTES.FORGOT_PASSWORD} className="block -mt-2 text-right text-sm text-primary hover:underline">

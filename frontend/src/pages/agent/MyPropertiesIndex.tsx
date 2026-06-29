@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/dialog";
 import { EditPropertyDialog } from "@/components/property/EditPropertyDialog";
 import { FormSelect } from "@/components/form/FormSelect";
+import { scrollToFirstError } from "@/lib/scrollToFirstError";
 import { MultiSelectFilter } from "@/components/shared/MultiSelectFilter";
 import { formatPrice } from "@/utils/date";
 import {
@@ -104,7 +105,7 @@ function StatusModal({
           </DialogDescription>
         </DialogHeader>
         <form
-          onSubmit={handleSubmit((values) => mutation.mutate(values))}
+          onSubmit={handleSubmit((values) => mutation.mutate(values), scrollToFirstError)}
           className="space-y-4"
         >
           <FormSelect

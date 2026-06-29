@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { FormTextarea } from '@/components/form/FormTextarea'
+import { scrollToFirstError } from '@/lib/scrollToFirstError'
 import { WorkStatusSelect } from '@/components/agent/WorkStatusSelect'
 import { ListingOwnerPreviewDialog } from '@/components/property/ListingOwnerPreviewDialog'
 import { agentNoteSchema, type AgentNoteSchema } from '@/dto/ReviewValidation'
@@ -43,7 +44,7 @@ function NoteEditor({ contact, onDone }: { contact: Booking; onDone: () => void 
   })
 
   return (
-    <form onSubmit={handleSubmit((values) => mutation.mutate(values))} className="flex gap-2 items-start">
+    <form onSubmit={handleSubmit((values) => mutation.mutate(values), scrollToFirstError)} className="flex gap-2 items-start">
       <FormTextarea control={control} name="note" label="" rows={2} placeholder={t('agent.notePlaceholder')} />
       <div className="flex flex-col gap-1 pt-1">
         <button type="submit" className="text-green-600 hover:text-green-700">

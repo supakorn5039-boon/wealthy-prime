@@ -38,7 +38,10 @@ export function FormSelect<T extends FieldValues>({
         {required && <span className="text-red-500 ml-0.5">*</span>}
       </Label>
       <Select value={field.value} onValueChange={field.onChange} disabled={disabled}>
-        <SelectTrigger className={cn(fieldState.error && 'border-red-500')}>
+        <SelectTrigger
+          aria-invalid={!!fieldState.error}
+          className={cn(fieldState.error && 'border-red-500')}
+        >
           <SelectValue placeholder={placeholder ?? t('common.search')} />
         </SelectTrigger>
         <SelectContent>

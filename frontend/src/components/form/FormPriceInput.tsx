@@ -44,6 +44,7 @@ export function FormPriceInput<T extends FieldValues>({
         onBlur={field.onBlur}
         name={field.name}
         ref={field.ref}
+        aria-invalid={!!fieldState.error}
         className={cn(fieldState.error && 'border-red-500', disabled && 'bg-muted')}
       />
       {fieldState.error && <p className="text-sm text-red-500">{fieldState.error.message}</p>}

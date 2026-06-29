@@ -118,6 +118,7 @@ export function FormPhoneInput<T extends FieldValues>({
           onBlur={field.onBlur}
           name={field.name}
           placeholder={placeholder}
+          aria-invalid={!!fieldState.error}
           className="flex-1 bg-input px-3 text-sm text-foreground placeholder:text-muted-foreground outline-none"
         />
       </div>

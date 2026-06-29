@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/Logo'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { FormInput } from '@/components/form/FormInput'
+import { scrollToFirstError } from '@/lib/scrollToFirstError'
 import { AuthService } from '@/services/AuthService'
 import { forgotPasswordSchema, type ForgotPasswordSchema } from '@/dto/AuthValidation'
 import { ROUTES } from '@/constants/Routes'
@@ -46,7 +47,7 @@ export default function ForgotPasswordIndex() {
           <CardDescription className="text-center">{t('auth.forgotPasswordSubtitle')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit((values) => mutation.mutate(values))} className="space-y-4">
+          <form onSubmit={handleSubmit((values) => mutation.mutate(values), scrollToFirstError)} className="space-y-4">
             <FormInput
               control={control}
               name="email"

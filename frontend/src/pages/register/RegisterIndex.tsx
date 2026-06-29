@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { FormInput } from '@/components/form/FormInput'
 import { FormPhoneInput } from '@/components/form/FormPhoneInput'
 import { FormSelect } from '@/components/form/FormSelect'
+import { scrollToFirstError } from '@/lib/scrollToFirstError'
 import { AuthService } from '@/services/AuthService'
 import { registerSchema, type RegisterSchema } from '@/dto/AuthValidation'
 import { ROUTES } from '@/constants/Routes'
@@ -67,7 +68,7 @@ export default function RegisterIndex() {
           <CardDescription className="text-center">{t('auth.registerSubtitle')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit((values) => mutation.mutate(values))} className="space-y-4">
+          <form onSubmit={handleSubmit((values) => mutation.mutate(values), scrollToFirstError)} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FormInput control={control} name="firstName" label={t('auth.firstName')} placeholder={t('auth.firstNamePlaceholder')} required />
               <FormInput control={control} name="lastName" label={t('auth.lastName')} placeholder={t('auth.lastNamePlaceholder')} required />

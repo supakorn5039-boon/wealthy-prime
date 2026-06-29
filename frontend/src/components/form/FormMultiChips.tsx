@@ -46,7 +46,10 @@ export function FormMultiChips<T extends FieldValues>({
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
       </Label>
-      <div className="flex flex-wrap gap-1.5 max-h-44 overflow-y-auto p-2 border rounded-md bg-muted/40/50">
+      <div
+        aria-invalid={!!fieldState.error}
+        className="flex flex-wrap gap-1.5 max-h-44 overflow-y-auto p-2 border rounded-md bg-muted/40/50"
+      >
         {options.map((opt) => {
           const active = selected.has(opt.value)
           return (

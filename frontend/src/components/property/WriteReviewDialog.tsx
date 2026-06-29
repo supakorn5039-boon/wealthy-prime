@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { FormTextarea } from '@/components/form/FormTextarea'
+import { scrollToFirstError } from '@/lib/scrollToFirstError'
 import { StarRating } from '@/components/StarRating'
 import { ReviewService } from '@/services/ReviewService'
 import { reviewSchema, type ReviewSchema } from '@/dto/ReviewValidation'
@@ -66,12 +67,12 @@ export function WriteReviewDialog({ propertyId, propertyTitle, existing, open, o
           <DialogDescription>{propertyTitle}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit((v) => mutation.mutate(v))} className="space-y-4">
+        <form onSubmit={handleSubmit((v) => mutation.mutate(v), scrollToFirstError)} className="space-y-4">
           <Controller
             control={control}
             name="rating"
             render={({ field, fieldState }) => (
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" aria-invalid={!!fieldState.error}>
                 <label className="text-sm font-medium text-foreground">
                   {t('review.rating')} <span className="text-red-500">*</span>
                 </label>

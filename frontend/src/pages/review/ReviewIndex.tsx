@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/Logo'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { FormTextarea } from '@/components/form/FormTextarea'
+import { scrollToFirstError } from '@/lib/scrollToFirstError'
 import { StarRating } from '@/components/StarRating'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { reviewSchema, type ReviewSchema } from '@/dto/ReviewValidation'
@@ -135,7 +136,7 @@ export default function ReviewIndex() {
           <CardDescription>{data.propertyTitle}</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit((values) => mutation.mutate(values))} className="space-y-4">
+          <form onSubmit={handleSubmit((values) => mutation.mutate(values), scrollToFirstError)} className="space-y-4">
             <Controller
               control={control}
               name="rating"

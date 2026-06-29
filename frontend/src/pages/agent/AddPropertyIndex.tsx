@@ -13,6 +13,7 @@ import { FormPriceInput } from "@/components/form/FormPriceInput";
 import { FormSelect } from "@/components/form/FormSelect";
 import { FormTextarea } from "@/components/form/FormTextarea";
 import { FormMultiChips } from "@/components/form/FormMultiChips";
+import { scrollToFirstError } from "@/lib/scrollToFirstError";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageTitle } from "@/components/shared/PageTitle";
@@ -181,7 +182,7 @@ export default function AddPropertyIndex() {
       />
 
       <form
-        onSubmit={handleSubmit((values) => mutation.mutate(values))}
+        onSubmit={handleSubmit((values) => mutation.mutate(values), scrollToFirstError)}
         className="space-y-6"
       >
         <Card>

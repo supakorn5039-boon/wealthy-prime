@@ -45,6 +45,7 @@ export function FormInput<T extends FieldValues>({
         min={min}
         max={max}
         step={step}
+        aria-invalid={!!fieldState.error}
         onKeyDown={(e) => {
           if (type === 'number' && (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+')) {
             e.preventDefault()

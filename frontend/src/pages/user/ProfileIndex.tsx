@@ -10,6 +10,7 @@ import { AuthService } from '@/services/AuthService'
 import { useAuthStore } from '@/store/authStore'
 import { FormInput } from '@/components/form/FormInput'
 import { FormPhoneInput } from '@/components/form/FormPhoneInput'
+import { scrollToFirstError } from '@/lib/scrollToFirstError'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { PageTitle } from '@/components/shared/PageTitle'
@@ -74,7 +75,7 @@ export default function ProfileIndex() {
     <PageContainer size="7xl">
       <PageTitle title={t('profile.title')} subtitle={t('profile.subtitle')} />
 
-      <form onSubmit={handleSubmit((v) => mutation.mutate(v))} className="space-y-6">
+      <form onSubmit={handleSubmit((v) => mutation.mutate(v), scrollToFirstError)} className="space-y-6">
         <Card>
           <CardHeader><CardTitle className="text-base">{t('profile.identitySection')}</CardTitle></CardHeader>
           <CardContent className="space-y-4">

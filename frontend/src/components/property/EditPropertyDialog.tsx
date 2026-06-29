@@ -11,6 +11,7 @@ import { FormPriceInput } from "@/components/form/FormPriceInput";
 import { FormSelect } from "@/components/form/FormSelect";
 import { FormTextarea } from "@/components/form/FormTextarea";
 import { FormMultiChips } from "@/components/form/FormMultiChips";
+import { scrollToFirstError } from "@/lib/scrollToFirstError";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -203,7 +204,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
         </DialogHeader>
 
         <form
-          onSubmit={handleSubmit((values) => mutation.mutate(values))}
+          onSubmit={handleSubmit((values) => mutation.mutate(values), scrollToFirstError)}
           className="space-y-4"
         >
           <FormInput
