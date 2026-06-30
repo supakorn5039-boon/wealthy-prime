@@ -17,13 +17,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { FormInput } from '@/components/form/FormInput'
+import { FormPhoneInput } from '@/components/form/FormPhoneInput'
+import { requiredLoosePhoneSchema } from '@/dto/AuthValidation'
 import { scrollToFirstError } from '@/lib/scrollToFirstError'
 import { formatDate } from '@/utils/date'
 import type { AuthUser } from '@/types/Auth'
 
 const editUserSchema = z.object({
   name: z.string().min(1),
-  phone: z.string().min(1),
+  phone: requiredLoosePhoneSchema,
 })
 type EditUserSchema = z.infer<typeof editUserSchema>
 
@@ -54,7 +56,7 @@ function EditUserModal({ user, open, onClose }: { user: AuthUser; open: boolean;
         </DialogHeader>
         <form onSubmit={handleSubmit((values) => mutation.mutate(values), scrollToFirstError)} className="space-y-4">
           <FormInput control={control} name="name" label={t('admin.nameLabel')} required />
-          <FormInput control={control} name="phone" label={t('admin.phoneLabel')} required />
+          <FormPhoneInput control={control} name="phone" label={t('admin.phoneLabel')} required />
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>{t('common.cancel')}</Button>
             <Button type="submit" disabled={mutation.isPending}>

@@ -17,6 +17,7 @@ i18n
     lng: savedLang,
     fallbackLng: 'th',
     interpolation: { escapeValue: false },
+    react: { useSuspense: false },
   })
 
 export default i18n

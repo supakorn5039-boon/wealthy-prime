@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { ChevronDown, Search } from 'lucide-react'
 import { useController, type Control, type FieldValues, type Path } from 'react-hook-form'
@@ -10,39 +10,75 @@ import {
   parseCountry,
   type ParsedCountry,
 } from 'react-international-phone'
+import { getExampleNumber, type CountryCode } from 'libphonenumber-js'
+import examples from 'libphonenumber-js/examples.mobile.json'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 
 const PARSED_COUNTRIES: ParsedCountry[] = defaultCountries.map((c) => parseCountry(c))
 
-interface FormPhoneInputProps<T extends FieldValues> {
-  control: Control<T>
-  name: Path<T>
-  label: string
-  placeholder?: string
-  required?: boolean
+// Per-country national-number length, sourced from libphonenumber-js's mobile
+// example for each region. Cached so we don't reparse on every keystroke.
+// E.164 caps national digits at 15; that's the fallback for regions with no
+// example (none in defaultCountries today, but defensive).
+const NATIONAL_LENGTH_CACHE = new Map<string, number>()
+function getNationalLength(iso2: string): number {
+  const key = iso2.toLowerCase()
+  const cached = NATIONAL_LENGTH_CACHE.get(key)
+  if (cached !== undefined) return cached
+  let length = 15
+  try {
+    const example = getExampleNumber(iso2.toUpperCase() as CountryCode, examples)
+    if (example) length = example.nationalNumber.length
+  } catch {
+    // fall through to default
+  }
+  NATIONAL_LENGTH_CACHE.set(key, length)
+  return length
 }
 
-// Phone input built on react-international-phone's usePhoneInput hook for
-// E.164 + per-country formatting, plus a custom searchable country dropdown
-// (the bundled <PhoneInput> has no search in v4.8). Styling matches the rest
-// of the shadcn-style form inputs (same height, bg-input, border, no hover).
-export function FormPhoneInput<T extends FieldValues>({
-  control,
+interface PhoneInputProps {
+  value: string
+  onChange: (value: string) => void
+  onBlur?: () => void
+  name?: string
+  placeholder?: string
+  error?: boolean
+}
+
+// Controlled phone primitive. Left chip = flag + +dialCode + chevron;
+// right input = national digits only (dial code is stripped from the visible
+// value via `disableDialCodeAndPrefix`). The hook still emits full E.164 on
+// change so callers keep storing a single "+66..." string.
+export function PhoneInput({
+  value,
+  onChange,
+  onBlur,
   name,
-  label,
   placeholder,
-  required,
-}: FormPhoneInputProps<T>) {
+  error,
+}: PhoneInputProps) {
   const { t } = useTranslation()
-  const { field, fieldState } = useController({ control, name })
 
   const { inputValue, country, setCountry, handlePhoneValueChange, inputRef } = usePhoneInput({
     defaultCountry: 'th',
-    value: (field.value as string | undefined) ?? '',
+    value: value ?? '',
     countries: defaultCountries,
-    onChange: ({ phone }) => field.onChange(phone),
+    disableDialCodeAndPrefix: true,
+    onChange: ({ phone }) => onChange(phone),
   })
+
+  const maxDigits = useMemo(() => getNationalLength(country.iso2), [country.iso2])
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const sanitized = e.target.value.replace(/[^\d\s()\-]/g, '')
+    const digitCount = sanitized.replace(/\D/g, '').length
+    if (digitCount > maxDigits) return
+    if (sanitized !== e.target.value) {
+      e.target.value = sanitized
+    }
+    handlePhoneValueChange(e)
+  }
 
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -66,9 +102,9 @@ export function FormPhoneInput<T extends FieldValues>({
   useEffect(() => {
     if (!open) return
     const onClick = (e: MouseEvent) => {
-      const t = e.target as Node
-      if (triggerRef.current?.contains(t)) return
-      if (menuRef.current?.contains(t)) return
+      const target = e.target as Node
+      if (triggerRef.current?.contains(target)) return
+      if (menuRef.current?.contains(target)) return
       setOpen(false)
     }
     document.addEventListener('mousedown', onClick)
@@ -92,15 +128,11 @@ export function FormPhoneInput<T extends FieldValues>({
   }, [query])
 
   return (
-    <div className="space-y-1.5">
-      <Label>
-        {label}
-        {required && <span className="text-red-500 ml-0.5">*</span>}
-      </Label>
+    <>
       <div
         className={cn(
           'flex h-10 w-full rounded-md border border-border bg-input overflow-hidden',
-          fieldState.error && 'border-red-500',
+          error && 'border-red-500',
         )}
       >
         <button
@@ -110,21 +142,22 @@ export function FormPhoneInput<T extends FieldValues>({
           className="flex items-center gap-1.5 px-2.5 border-r border-border bg-input text-foreground shrink-0"
         >
           <FlagImage iso2={country.iso2} size="20px" />
+          <span className="text-sm text-foreground">+{country.dialCode}</span>
           <ChevronDown className="size-3.5 opacity-60" />
         </button>
         <input
           ref={inputRef}
           type="tel"
+          inputMode="numeric"
           value={inputValue}
-          onChange={handlePhoneValueChange}
-          onBlur={field.onBlur}
-          name={field.name}
+          onChange={handleChange}
+          onBlur={onBlur}
+          name={name}
           placeholder={placeholder}
-          aria-invalid={!!fieldState.error}
-          className="flex-1 bg-input px-3 text-sm text-foreground placeholder:text-muted-foreground outline-none"
+          aria-invalid={error}
+          className="flex-1 min-w-0 bg-input px-3 text-sm text-foreground placeholder:text-muted-foreground outline-none"
         />
       </div>
-      {fieldState.error && <p className="text-sm text-red-500">{fieldState.error.message}</p>}
 
       {open && position && createPortal(
         <div
@@ -178,6 +211,44 @@ export function FormPhoneInput<T extends FieldValues>({
         </div>,
         document.body,
       )}
+    </>
+  )
+}
+
+interface FormPhoneInputProps<T extends FieldValues> {
+  control: Control<T>
+  name: Path<T>
+  label: string
+  placeholder?: string
+  required?: boolean
+}
+
+// RHF wrapper around PhoneInput. Adds Label + error message; field value stays
+// a single E.164 string ("+66...").
+export function FormPhoneInput<T extends FieldValues>({
+  control,
+  name,
+  label,
+  placeholder,
+  required,
+}: FormPhoneInputProps<T>) {
+  const { field, fieldState } = useController({ control, name })
+
+  return (
+    <div className="space-y-1.5">
+      <Label>
+        {label}
+        {required && <span className="text-red-500 ml-0.5">*</span>}
+      </Label>
+      <PhoneInput
+        value={(field.value as string | undefined) ?? ''}
+        onChange={field.onChange}
+        onBlur={field.onBlur}
+        name={field.name}
+        placeholder={placeholder}
+        error={!!fieldState.error}
+      />
+      {fieldState.error && <p className="text-sm text-red-500">{fieldState.error.message}</p>}
     </div>
   )
 }

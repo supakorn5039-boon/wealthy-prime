@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { Pencil, Check, X, User, Phone, MessageCircle, Calendar, MapPin, Search } from 'lucide-react'
+import { Pencil, Check, X, User, Phone, MessageCircle, Calendar, MapPin, Search, StickyNote } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { AgentService } from '@/services/AgentService'
 import { BookingStatusBadge } from '@/components/shared/StatusBadge'
@@ -15,13 +15,16 @@ import { PageContainer } from '@/components/shared/PageContainer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { MultiSelectFilter } from '@/components/shared/MultiSelectFilter'
 import { FormTextarea } from '@/components/form/FormTextarea'
 import { scrollToFirstError } from '@/lib/scrollToFirstError'
 import { WorkStatusSelect } from '@/components/agent/WorkStatusSelect'
 import { ListingOwnerPreviewDialog } from '@/components/property/ListingOwnerPreviewDialog'
 import { agentNoteSchema, type AgentNoteSchema } from '@/dto/ReviewValidation'
 import { formatDateTime } from '@/utils/date'
-import type { Booking } from '@/types/Booking'
+import type { Booking, BookingStatus } from '@/types/Booking'
+
+const STATUS_VALUES: BookingStatus[] = ['pending', 'assigned', 'completed', 'cancelled']
 
 function NoteEditor({ contact, onDone }: { contact: Booking; onDone: () => void }) {
   const { t } = useTranslation()
@@ -62,6 +65,7 @@ export default function ContactHistoryIndex() {
   const { t } = useTranslation()
   const [editingId, setEditingId] = useState<number | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [statusFilters, setStatusFilters] = useState<BookingStatus[]>([])
 
   const { data: contacts = [], isLoading } = useQuery({
     queryKey: [AgentService.QUERY_KEYS.CONTACTS],
@@ -70,9 +74,15 @@ export default function ContactHistoryIndex() {
 
   const filteredContacts = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
-    if (!q) return contacts
-    return contacts.filter((c) => (c.userName ?? '').toLowerCase().includes(q))
-  }, [contacts, searchQuery])
+    return contacts.filter((c) => {
+      if (statusFilters.length && !statusFilters.includes(c.status)) return false
+      if (!q) return true
+      const hay = `${c.userName ?? ''} ${c.propertyTitle ?? ''}`.toLowerCase()
+      return hay.includes(q)
+    })
+  }, [contacts, searchQuery, statusFilters])
+
+  const statusOptions = STATUS_VALUES.map((s) => ({ value: s, label: t(`booking.${s}`) }))
 
   return (
     <PageContainer size="7xl">
@@ -84,14 +94,23 @@ export default function ContactHistoryIndex() {
         <EmptyState title={t('agent.noHistory')} description={t('agent.noHistoryDesc')} />
       ) : (
         <>
-          <div className="relative mb-3">
-            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t('agent.visitRequestsSearchPlaceholder')}
-              className="pl-9"
+          <div className="flex flex-col sm:flex-row gap-2 mb-3">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t('agent.visitRequestsSearchPlaceholder')}
+                className="pl-9"
+              />
+            </div>
+            <MultiSelectFilter
+              placeholder={t('property.statusCol')}
+              selected={statusFilters}
+              options={statusOptions}
+              onChange={(next) => setStatusFilters(next as BookingStatus[])}
+              className="sm:w-44"
             />
           </div>
           <p className="text-sm text-muted-foreground mb-3">
@@ -144,9 +163,13 @@ export default function ContactHistoryIndex() {
                           )}
                         </div>
                         {!isEditing && contact.note && (
-                          <p className="text-sm text-muted-foreground pt-1 border-t border-border mt-2">
-                            {contact.note}
-                          </p>
+                          <div className="flex items-start gap-2 pt-2 mt-2 border-t border-border text-sm">
+                            <StickyNote className="size-3.5 text-muted-foreground mt-0.5 shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <span className="text-muted-foreground font-medium mr-1">{t('contacts.note')}</span>
+                              <span className="text-foreground whitespace-pre-wrap">{contact.note}</span>
+                            </div>
+                          </div>
                         )}
                         {isEditing && (
                           <div className="pt-2 border-t border-border mt-2">

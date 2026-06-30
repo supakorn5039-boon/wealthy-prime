@@ -62,14 +62,9 @@ export default function PropertyDetailIndex() {
   })
 
   // Owner-info dialog is restricted to agent/admin viewers — same compliance
-  // rule as the rest of the owner-contact surfaces. The query is gated so we
-  // don't even issue the request for non-privileged viewers.
+  // rule as the rest of the owner-contact surfaces. The fetch is lazy: the
+  // dialog itself only issues the request once the user opens it.
   const ownerInfoAllowed = canSeeOwnerInfo(user?.role)
-  const { data: listingOwnerPreview } = useQuery({
-    queryKey: ['listing-owner-preview', id],
-    queryFn: () => PropertyService.getListingOwner(id!),
-    enabled: !!id && ownerInfoAllowed,
-  })
 
   const { data: reviews = [] } = useQuery({
     queryKey: [ReviewService.QUERY_KEYS.PROPERTY_REVIEWS, id],
@@ -309,8 +304,8 @@ export default function PropertyDetailIndex() {
                     {t('property.addToCart')}
                   </Button>
                 )}
-                {ownerInfoAllowed && (
-                  <ListingOwnerPreviewDialog preview={listingOwnerPreview} fullWidth />
+                {ownerInfoAllowed && id && (
+                  <ListingOwnerPreviewDialog propertyId={id} fullWidth />
                 )}
                 {canEdit && (
                   <Button variant="outline" className="w-full" onClick={() => setEditOpen(true)}>

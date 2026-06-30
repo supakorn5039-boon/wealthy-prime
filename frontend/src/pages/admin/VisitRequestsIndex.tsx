@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { User, Phone, MessageCircle, Calendar, Search, UserCog } from 'lucide-react'
+import { User, Phone, MessageCircle, Calendar, Search, UserCog, StickyNote } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { AdminService } from '@/services/AdminService'
 import { BookingStatusBadge } from '@/components/shared/StatusBadge'
@@ -176,9 +176,13 @@ export default function VisitRequestsIndex() {
                         <span className="text-foreground">{booking.agentName ?? '-'}</span>
                       </div>
                       {booking.note && (
-                        <p className="text-sm text-muted-foreground pt-1 border-t border-border mt-2">
-                          {booking.note}
-                        </p>
+                        <div className="flex items-start gap-2 pt-2 mt-2 border-t border-border text-sm">
+                          <StickyNote className="size-3.5 text-muted-foreground mt-0.5 shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <span className="text-muted-foreground font-medium mr-1">{t('contacts.note')}</span>
+                            <span className="text-foreground whitespace-pre-wrap">{booking.note}</span>
+                          </div>
+                        </div>
                       )}
                     </div>
                     <div className="flex sm:flex-col items-center sm:items-end gap-2 shrink-0">

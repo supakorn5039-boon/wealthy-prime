@@ -202,6 +202,7 @@
   "property": {
     "buy": "Buy",
     "rent": "Rent",
+    "searchPlaceholder": "Search properties...",
     "deleteTitle": "Delete property",
     "deleteConfirm": "Are you sure you want to delete \"{{title}}\"? This action cannot be undone.",
     "status": {

@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { Calendar, MapPin, Home } from 'lucide-react'
@@ -27,6 +27,106 @@ const KIND_COLORS: Record<KindKey, string> = {
   townhouse: '#f59e0b',
 }
 
+type PieSlice = { kind: string; value: number; color: string }
+
+const EMPTY_PIE: PieSlice[] = [{ kind: '', value: 1, color: '#e5e7eb' }]
+
+// Module-scope so columns/cell components hold stable references across renders.
+// Without this, useReactTable rebuilds on every language change.
+function HeaderT({ k }: { k: string }) {
+  const { t } = useTranslation()
+  return <>{t(k)}</>
+}
+
+function KindCell({ kind }: { kind: PropertyKind | undefined }) {
+  const { t } = useTranslation()
+  if (!kind) return <span className="text-muted-foreground">-</span>
+  return <Badge variant="outline">{t(`property.kind.${kind}`)}</Badge>
+}
+
+function KindName({ kind }: { kind: KindKey }) {
+  const { t } = useTranslation()
+  return <span className="truncate">{t(`property.kind.${kind}`)}</span>
+}
+
+// Memoized so recharts doesn't re-render its SVG on language change — the chart
+// has no translatable text, so props stay stable when only the language toggles.
+const PropertyPieChart = memo(function PropertyPieChart({
+  data,
+  paddingAngle,
+  showTooltip,
+}: {
+  data: PieSlice[]
+  paddingAngle: number
+  showTooltip: boolean
+}) {
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <PieChart>
+        <Pie
+          data={data}
+          dataKey="value"
+          nameKey="kind"
+          cx="50%"
+          cy="50%"
+          innerRadius={62}
+          outerRadius={92}
+          paddingAngle={paddingAngle}
+          isAnimationActive={false}
+        >
+          {data.map((s, i) => (
+            <Cell key={i} fill={s.color} />
+          ))}
+        </Pie>
+        {showTooltip && <Tooltip />}
+      </PieChart>
+    </ResponsiveContainer>
+  )
+})
+
+const DASHBOARD_COLUMNS: ColumnDef<Property>[] = [
+  {
+    id: 'property',
+    accessorFn: (row) => row.projectName,
+    header: () => <HeaderT k="property.projectName" />,
+    cell: ({ row }) => (
+      <div className="flex flex-col min-w-0">
+        <Link
+          to={`/property/${row.original.id}`}
+          className="font-medium truncate hover:underline"
+        >
+          {row.original.projectName}
+        </Link>
+        {row.original.propertyCode && (
+          <span className="text-xs text-muted-foreground font-mono">
+            {row.original.propertyCode}
+          </span>
+        )}
+      </div>
+    ),
+  },
+  {
+    id: 'kind',
+    accessorFn: (row) => row.kind ?? '',
+    header: () => <HeaderT k="property.kindLabel" />,
+    cell: ({ row }) => <KindCell kind={row.original.kind} />,
+  },
+  {
+    id: 'status',
+    accessorFn: (row) => row.status,
+    header: () => <HeaderT k="property.statusCol" />,
+    cell: ({ row }) => <PropertyStatusBadge status={row.original.status} />,
+  },
+  {
+    id: 'price',
+    accessorFn: (row) => row.price,
+    header: () => <HeaderT k="property.price" />,
+    cell: ({ row }) => (
+      <span className="font-medium tabular-nums">{formatPrice(row.original.price)}</span>
+    ),
+  },
+]
+
 export default function AdminDashboardIndex() {
   const { t } = useTranslation()
 
@@ -48,11 +148,10 @@ export default function AdminDashboardIndex() {
     }
     return KINDS.map((k) => ({
       kind: k,
-      name: t(`property.kind.${k}`),
       value: counts[k],
       color: KIND_COLORS[k],
     }))
-  }, [properties, t])
+  }, [properties])
 
   const recentRequests = useMemo(() => {
     return [...bookings]
@@ -63,57 +162,14 @@ export default function AdminDashboardIndex() {
       .slice(0, 6)
   }, [bookings])
 
-  const total = kindBreakdown.reduce((sum, s) => sum + s.value, 0)
-
-  const columns = useMemo<ColumnDef<Property>[]>(
-    () => [
-      {
-        id: 'property',
-        accessorFn: (row) => row.projectName,
-        header: t('property.projectName'),
-        cell: ({ row }) => (
-          <div className="flex flex-col min-w-0">
-            <Link
-              to={`/property/${row.original.id}`}
-              className="font-medium truncate hover:underline"
-            >
-              {row.original.projectName}
-            </Link>
-            {row.original.propertyCode && (
-              <span className="text-xs text-muted-foreground font-mono">
-                {row.original.propertyCode}
-              </span>
-            )}
-          </div>
-        ),
-      },
-      {
-        id: 'kind',
-        accessorFn: (row) => row.kind ?? '',
-        header: t('property.kindLabel'),
-        cell: ({ row }) =>
-          row.original.kind ? (
-            <Badge variant="outline">{t(`property.kind.${row.original.kind}`)}</Badge>
-          ) : (
-            <span className="text-muted-foreground">-</span>
-          ),
-      },
-      {
-        id: 'status',
-        accessorFn: (row) => row.status,
-        header: t('property.statusCol'),
-        cell: ({ row }) => <PropertyStatusBadge status={row.original.status} />,
-      },
-      {
-        id: 'price',
-        accessorFn: (row) => row.price,
-        header: t('property.price'),
-        cell: ({ row }) => (
-          <span className="font-medium tabular-nums">{formatPrice(row.original.price)}</span>
-        ),
-      },
-    ],
-    [t],
+  const total = useMemo(
+    () => kindBreakdown.reduce((sum, s) => sum + s.value, 0),
+    [kindBreakdown],
+  )
+  const pieData = total > 0 ? kindBreakdown : EMPTY_PIE
+  const paddingAngle = useMemo(
+    () => (kindBreakdown.filter((s) => s.value > 0).length > 1 ? 2 : 0),
+    [kindBreakdown],
   )
 
   if (propsLoading) {
@@ -135,7 +191,7 @@ export default function AdminDashboardIndex() {
         </CardHeader>
         <CardContent>
           <DataTable
-            columns={columns}
+            columns={DASHBOARD_COLUMNS}
             data={properties}
             searchPlaceholder={t('property.searchPlaceholder')}
             emptyMessage={t('admin.noData')}
@@ -151,26 +207,7 @@ export default function AdminDashboardIndex() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
               <div className="relative h-[220px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={total > 0 ? kindBreakdown : [{ name: '', value: 1, color: '#e5e7eb' }]}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={62}
-                      outerRadius={92}
-                      paddingAngle={kindBreakdown.filter((s) => s.value > 0).length > 1 ? 2 : 0}
-                      isAnimationActive={total > 0}
-                    >
-                      {(total > 0 ? kindBreakdown : [{ color: '#e5e7eb' }]).map((s, i) => (
-                        <Cell key={i} fill={s.color} />
-                      ))}
-                    </Pie>
-                    {total > 0 && <Tooltip />}
-                  </PieChart>
-                </ResponsiveContainer>
+                <PropertyPieChart data={pieData} paddingAngle={paddingAngle} showTooltip={total > 0} />
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                   <Home className="size-5 text-muted-foreground mb-1" />
                   <div className="text-3xl font-bold leading-none">{total.toLocaleString()}</div>
@@ -192,7 +229,7 @@ export default function AdminDashboardIndex() {
                           className="size-3 rounded-full shrink-0"
                           style={{ backgroundColor: s.color }}
                         />
-                        <span className="truncate">{s.name}</span>
+                        <KindName kind={s.kind} />
                       </div>
                       <div className="flex items-baseline gap-2 shrink-0">
                         <span className="font-semibold tabular-nums">{s.value}</span>

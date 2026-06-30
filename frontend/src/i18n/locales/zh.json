@@ -202,6 +202,7 @@
   "property": {
     "buy": "购买",
     "rent": "租赁",
+    "searchPlaceholder": "搜索房产...",
     "deleteTitle": "删除房产",
     "deleteConfirm": "确认删除 \"{{title}}\"？此操作不可撤销。",
     "status": {

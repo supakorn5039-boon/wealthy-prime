@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { UserCog, Phone, Mail, MessageCircle, FileText } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
@@ -9,17 +10,32 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
+import { PropertyService } from '@/services/PropertyService'
 import type { ListingOwnerPreview } from '@/types/Property'
 
-interface Props {
-  preview: ListingOwnerPreview | null | undefined
-  fullWidth?: boolean
-}
+type Props = (
+  | { preview: ListingOwnerPreview | null | undefined; propertyId?: never }
+  | { propertyId: number | string; preview?: never }
+) & { fullWidth?: boolean }
 
-export function ListingOwnerPreviewDialog({ preview, fullWidth }: Props) {
+export function ListingOwnerPreviewDialog(props: Props) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+  const { fullWidth } = props
+  const propertyId = 'propertyId' in props ? props.propertyId : undefined
+  const presetPreview = 'preview' in props ? props.preview : undefined
 
+  // Lazy fetch: query only fires after the user opens the dialog. React Query
+  // caches by key so subsequent opens are instant.
+  const { data: fetchedPreview, isLoading } = useQuery({
+    queryKey: ['listing-owner-preview', propertyId],
+    queryFn: () => PropertyService.getListingOwner(propertyId!),
+    enabled: open && propertyId != null,
+  })
+
+  const preview = presetPreview ?? fetchedPreview
+  const showLoading = propertyId != null && isLoading
   const hasAny = !!preview && Object.values(preview).some(Boolean)
 
   return (
@@ -40,7 +56,9 @@ export function ListingOwnerPreviewDialog({ preview, fullWidth }: Props) {
             <DialogTitle>{t('agent.listingOwnerTitle')}</DialogTitle>
             <DialogDescription>{t('agent.listingOwnerDesc')}</DialogDescription>
           </DialogHeader>
-          {preview && hasAny ? (
+          {showLoading ? (
+            <LoadingSpinner text={t('common.loading')} />
+          ) : preview && hasAny ? (
             <div className="space-y-2 text-sm">
               {preview.name && <div className="font-medium text-base">{preview.name}</div>}
               {preview.phone && (

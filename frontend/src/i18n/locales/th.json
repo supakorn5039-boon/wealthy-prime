@@ -202,6 +202,7 @@
   "property": {
     "buy": "ซื้อ",
     "rent": "เช่า",
+    "searchPlaceholder": "ค้นหาทรัพย์สิน...",
     "deleteTitle": "ลบทรัพย์สิน",
     "deleteConfirm": "ยืนยันการลบ \"{{title}}\"? การลบนี้ไม่สามารถย้อนกลับได้",
     "status": {

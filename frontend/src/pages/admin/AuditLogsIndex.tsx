@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Search } from 'lucide-react'
@@ -49,6 +49,95 @@ const ENTITY_VALUES: AuditEntityType[] = [
 
 const ROLE_VALUES: UserRole[] = ['admin', 'agent', 'user']
 
+// Stable header/cell components keep the `columns` array reference constant
+// across language changes. Without this, useReactTable rebuilds all internal
+// row models on every t() change, freezing the page on heavy tables.
+function HeaderT({ k }: { k: string }) {
+  const { t } = useTranslation()
+  return <>{t(k)}</>
+}
+
+function ActionBadge({ a }: { a: AuditAction }) {
+  const { t } = useTranslation()
+  return (
+    <Badge variant="outline" className={ACTION_TONE[a] ?? ''}>
+      {t(`audit.actions.${a}`, a)}
+    </Badge>
+  )
+}
+
+function EntityLabel({ entityType, entityId }: { entityType: string; entityId: number | null }) {
+  const { t } = useTranslation()
+  return (
+    <span className="text-sm">
+      {t(`audit.entities.${entityType}`, entityType)}
+      {entityId != null && (
+        <span className="text-xs text-muted-foreground ml-1">#{entityId}</span>
+      )}
+    </span>
+  )
+}
+
+const AUDIT_COLUMNS: ColumnDef<AuditLog>[] = [
+  {
+    id: 'when',
+    accessorFn: (r) => r.createdAt,
+    header: () => <HeaderT k="audit.when" />,
+    cell: ({ row }) => (
+      <span className="text-xs whitespace-nowrap text-muted-foreground tabular-nums">
+        {formatDateTime(row.original.createdAt)}
+      </span>
+    ),
+  },
+  {
+    id: 'actor',
+    accessorFn: (r) => r.actorName,
+    header: () => <HeaderT k="audit.actor" />,
+    cell: ({ row }) => (
+      <div className="flex flex-col min-w-0">
+        <span className="font-medium truncate">{row.original.actorName || '-'}</span>
+        {row.original.actorRole && (
+          <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+            {row.original.actorRole}
+          </span>
+        )}
+      </div>
+    ),
+  },
+  {
+    id: 'action',
+    accessorFn: (r) => r.action,
+    header: () => <HeaderT k="audit.action" />,
+    cell: ({ row }) => <ActionBadge a={row.original.action} />,
+  },
+  {
+    id: 'entity',
+    accessorFn: (r) => r.entityType,
+    header: () => <HeaderT k="audit.entity" />,
+    cell: ({ row }) => (
+      <EntityLabel entityType={row.original.entityType} entityId={row.original.entityId ?? null} />
+    ),
+  },
+  {
+    id: 'summary',
+    accessorFn: (r) => r.summary,
+    header: () => <HeaderT k="audit.summary" />,
+    cell: ({ row }) => (
+      <span className="text-sm text-foreground">{row.original.summary || '-'}</span>
+    ),
+  },
+  {
+    id: 'ip',
+    accessorFn: (r) => r.ip,
+    header: 'IP',
+    cell: ({ row }) => (
+      <span className="text-xs font-mono text-muted-foreground">
+        {row.original.ip || '-'}
+      </span>
+    ),
+  },
+]
+
 const ACTION_TONE: Record<AuditAction, string> = {
   create: 'bg-emerald-50 text-emerald-700 border-emerald-300',
   update: 'bg-blue-50 text-blue-700 border-blue-300',
@@ -88,81 +177,6 @@ export default function AuditLogsIndex() {
         limit: 300,
       }),
   })
-
-  const columns = useMemo<ColumnDef<AuditLog>[]>(
-    () => [
-      {
-        id: 'when',
-        accessorFn: (r) => r.createdAt,
-        header: t('audit.when'),
-        cell: ({ row }) => (
-          <span className="text-xs whitespace-nowrap text-muted-foreground tabular-nums">
-            {formatDateTime(row.original.createdAt)}
-          </span>
-        ),
-      },
-      {
-        id: 'actor',
-        accessorFn: (r) => r.actorName,
-        header: t('audit.actor'),
-        cell: ({ row }) => (
-          <div className="flex flex-col min-w-0">
-            <span className="font-medium truncate">{row.original.actorName || '-'}</span>
-            {row.original.actorRole && (
-              <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                {row.original.actorRole}
-              </span>
-            )}
-          </div>
-        ),
-      },
-      {
-        id: 'action',
-        accessorFn: (r) => r.action,
-        header: t('audit.action'),
-        cell: ({ row }) => {
-          const a = row.original.action
-          return (
-            <Badge variant="outline" className={ACTION_TONE[a] ?? ''}>
-              {t(`audit.actions.${a}`, a)}
-            </Badge>
-          )
-        },
-      },
-      {
-        id: 'entity',
-        accessorFn: (r) => r.entityType,
-        header: t('audit.entity'),
-        cell: ({ row }) => (
-          <span className="text-sm">
-            {t(`audit.entities.${row.original.entityType}`, row.original.entityType)}
-            {row.original.entityId != null && (
-              <span className="text-xs text-muted-foreground ml-1">#{row.original.entityId}</span>
-            )}
-          </span>
-        ),
-      },
-      {
-        id: 'summary',
-        accessorFn: (r) => r.summary,
-        header: t('audit.summary'),
-        cell: ({ row }) => (
-          <span className="text-sm text-foreground">{row.original.summary || '-'}</span>
-        ),
-      },
-      {
-        id: 'ip',
-        accessorFn: (r) => r.ip,
-        header: 'IP',
-        cell: ({ row }) => (
-          <span className="text-xs font-mono text-muted-foreground">
-            {row.original.ip || '-'}
-          </span>
-        ),
-      },
-    ],
-    [t],
-  )
 
   return (
     <PageContainer size="7xl" className="space-y-6">
@@ -226,7 +240,7 @@ export default function AuditLogsIndex() {
             <LoadingSpinner text={t('common.loading')} />
           ) : (
             <DataTable
-              columns={columns}
+              columns={AUDIT_COLUMNS}
               data={logs}
               searchPlaceholder={t('audit.searchPlaceholder')}
               emptyMessage={t('audit.noData')}

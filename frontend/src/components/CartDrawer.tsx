@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { PhoneInput } from '@/components/form/FormPhoneInput'
 import { useCartStore } from '@/hooks/useCartStore'
 import { BookingService } from '@/services/BookingService'
 import { formatPrice } from '@/utils/date'
@@ -205,14 +206,20 @@ export function CartDrawer() {
                         <Input value={contact.lastName} onChange={(e) => updateContact('lastName', e.target.value)} />
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-2">
                       <div>
                         <Label className="text-xs">{t('auth.phone')}</Label>
-                        <Input placeholder={t('common.phonePlaceholder')} value={contact.phone} onChange={(e) => updateContact('phone', e.target.value)} />
+                        <PhoneInput
+                          value={contact.phone}
+                          onChange={(v) => updateContact('phone', v)}
+                        />
                       </div>
                       <div>
                         <Label className="text-xs">{t('auth.secondaryPhone')}</Label>
-                        <Input placeholder={t('common.phonePlaceholder')} value={contact.secondaryPhone} onChange={(e) => updateContact('secondaryPhone', e.target.value)} />
+                        <PhoneInput
+                          value={contact.secondaryPhone}
+                          onChange={(v) => updateContact('secondaryPhone', v)}
+                        />
                       </div>
                     </div>
                     <div>

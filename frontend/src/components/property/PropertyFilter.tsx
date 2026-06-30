@@ -32,12 +32,11 @@ const STATIONS_BY_LINE: readonly { line: BtsMrtLine; stations: readonly BtsMrtSt
 })()
 
 const PRICE_PRESETS: readonly { id: string; label: string; min?: number; max?: number }[] = [
-  { id: 'lt5k', label: 'น้อยกว่า 5,000', max: 5000 },
-  { id: '5k-10k', label: '5,000 - 10,000', min: 5000, max: 10000 },
-  { id: '10k-20k', label: '10,000 - 20,000', min: 10000, max: 20000 },
-  { id: '20k-30k', label: '20,000 - 30,000', min: 20000, max: 30000 },
-  { id: '30k-50k', label: '30,000 - 50,000', min: 30000, max: 50000 },
-  { id: 'gt50k', label: 'มากกว่า 50,000', min: 50000 },
+  { id: 'lt10k', label: 'น้อยกว่า 10,000', max: 10000 },
+  { id: '10k-50k', label: '10,000 - 50,000', min: 10000, max: 50000 },
+  { id: '50k-100k', label: '50,000 - 100,000', min: 50000, max: 100000 },
+  { id: '100k-300k', label: '100,000 - 300,000', min: 100000, max: 300000 },
+  { id: 'gt300k', label: 'มากกว่า 300,000', min: 300000 },
 ]
 
 function presetIdsFromRanges(ranges?: { min?: number; max?: number }[]): string[] {

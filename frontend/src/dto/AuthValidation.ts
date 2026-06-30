@@ -23,6 +23,16 @@ export const optionalPhoneSchema = z
   .optional()
   .refine((v) => !v || isLooseValidPhone(v), 'รูปแบบเบอร์โทรไม่ถูกต้อง')
 
+// Required-loose variant: required, but accepts legacy Thai local format too.
+// Used by admin edit modals where existing users may have phones stored in
+// pre-E.164 format — the PhoneInput emits E.164 on new edits, but the initial
+// prefilled value can still be legacy. Without this, the admin would have to
+// retype every legacy phone before being able to save anything.
+export const requiredLoosePhoneSchema = z
+  .string()
+  .min(1, 'กรุณากรอกเบอร์โทร')
+  .refine(isLooseValidPhone, 'รูปแบบเบอร์โทรไม่ถูกต้อง')
+
 export const loginSchema = z.object({
   email: z.string().email('อีเมลไม่ถูกต้อง'),
   password: z.string().min(6, 'รหัสผ่านอย่างน้อย 6 ตัวอักษร'),

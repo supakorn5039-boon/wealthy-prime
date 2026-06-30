@@ -9,6 +9,7 @@ import { ImagePlus, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PropertyService } from "@/services/PropertyService";
 import { FormInput } from "@/components/form/FormInput";
+import { FormPhoneInput } from "@/components/form/FormPhoneInput";
 import { FormPriceInput } from "@/components/form/FormPriceInput";
 import { FormSelect } from "@/components/form/FormSelect";
 import { FormTextarea } from "@/components/form/FormTextarea";
@@ -399,11 +400,10 @@ export default function AddPropertyIndex() {
                 name="ownerName"
                 label={t("property.ownerName")}
               />
-              <FormInput
+              <FormPhoneInput
                 control={control}
                 name="ownerPhone"
                 label={t("property.ownerPhone")}
-                placeholder={t('common.phonePlaceholder')}
               />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

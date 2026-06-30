@@ -3,20 +3,16 @@ import { useTranslation } from 'react-i18next'
 import {
   Heart,
   History,
-  Phone,
   LayoutDashboard,
   Building2,
   Calendar,
   Users,
   UserCircle,
-  BarChart2,
   ClipboardList,
   UserCog,
   ArrowLeftRight,
-  DollarSign,
   LogOut,
   X,
-  MessageSquare,
   ScrollText,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -53,7 +49,6 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     profileItem,
     { labelKey: 'sidebar.bookingHistory', href: ROUTES.HISTORY, icon: <History className="size-4" /> },
     { labelKey: 'sidebar.wishlist', href: ROUTES.WISHLIST, icon: <Heart className="size-4" /> },
-    { labelKey: 'sidebar.contactHistory', href: ROUTES.CONTACTS, icon: <Phone className="size-4" /> },
   ]
 
   const agentMenu: MenuItem[] = [
@@ -61,9 +56,6 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     { labelKey: 'sidebar.dashboard', href: ROUTES.AGENT_DASHBOARD, icon: <LayoutDashboard className="size-4" /> },
     { labelKey: 'sidebar.myProperties', href: ROUTES.AGENT_PROPERTIES, icon: <Building2 className="size-4" /> },
     { labelKey: 'sidebar.visitRequests', href: ROUTES.AGENT_CONTACT_HISTORY, icon: <Calendar className="size-4" /> },
-    { labelKey: 'sidebar.inquiries', href: ROUTES.AGENT_INQUIRIES, icon: <MessageSquare className="size-4" /> },
-    { labelKey: 'sidebar.leads', href: ROUTES.AGENT_LEADS, icon: <Users className="size-4" /> },
-    { labelKey: 'sidebar.agentOverview', href: ROUTES.AGENT_OVERVIEW, icon: <BarChart2 className="size-4" /> },
   ]
 
   const adminMenu: MenuItem[] = [
@@ -73,12 +65,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     { labelKey: 'sidebar.agentManagement', href: ROUTES.ADMIN_AGENTS, icon: <UserCog className="size-4" /> },
     { labelKey: 'sidebar.userManagement', href: ROUTES.ADMIN_USERS, icon: <Users className="size-4" /> },
     { labelKey: 'sidebar.caseTransfer', href: ROUTES.ADMIN_REASSIGN, icon: <ArrowLeftRight className="size-4" /> },
-    { labelKey: 'sidebar.financialReport', href: ROUTES.ADMIN_FINANCIAL, icon: <DollarSign className="size-4" /> },
     { labelKey: 'sidebar.myProperties', href: ROUTES.AGENT_PROPERTIES, icon: <Building2 className="size-4" /> },
     { labelKey: 'sidebar.visitRequests', href: ROUTES.AGENT_CONTACT_HISTORY, icon: <Calendar className="size-4" /> },
-    { labelKey: 'sidebar.inquiries', href: ROUTES.AGENT_INQUIRIES, icon: <MessageSquare className="size-4" /> },
-    { labelKey: 'sidebar.leads', href: ROUTES.AGENT_LEADS, icon: <Users className="size-4" /> },
-    { labelKey: 'sidebar.agentOverview', href: ROUTES.AGENT_OVERVIEW, icon: <BarChart2 className="size-4" /> },
     { labelKey: 'sidebar.auditLogs', href: ROUTES.ADMIN_AUDIT_LOGS, icon: <ScrollText className="size-4" /> },
   ]
 
