@@ -103,7 +103,17 @@ func (s *AgentService) UpdateWorkStatus(agentID, bookingID uint, ws model.Appoin
 		return nil, apperror.Forbidden("this booking is not assigned to you")
 	}
 
-	if err := s.db.Model(&booking).Update("work_status", ws).Error; err != nil {
+	// Keep booking.status coherent with terminal work states so the two fields
+	// stop diverging. Middle states (contacted / visited / booked) leave
+	// status at "assigned" — the case is still in flight.
+	updates := map[string]interface{}{"work_status": ws}
+	switch ws {
+	case model.WorkClosedDeal:
+		updates["status"] = model.BookingCompleted
+	case model.WorkCustomerCancelled:
+		updates["status"] = model.BookingCancelled
+	}
+	if err := s.db.Model(&booking).Updates(updates).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "failed to update work status")
 	}
 

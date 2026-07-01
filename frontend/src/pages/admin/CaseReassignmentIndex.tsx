@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { ArrowLeftRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { AdminService } from "@/services/AdminService";
-import { BookingStatusBadge } from "@/components/shared/StatusBadge";
+import { WorkStatusBadge } from "@/components/shared/StatusBadge";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -36,10 +36,13 @@ export default function CaseReassignmentIndex() {
     Record<number, string>
   >({});
 
-  const { data: bookings = [], isLoading } = useQuery({
+  const { data: allBookings = [], isLoading } = useQuery({
     queryKey: [AdminService.QUERY_KEYS.BOOKINGS],
     queryFn: AdminService.listBookings,
   });
+
+  // Reassignment only applies pre-contact — once the agent reaches out, the case is theirs.
+  const bookings = allBookings.filter((b) => !b.workStatus);
 
   const { data: agents = [] } = useQuery({
     queryKey: [AdminService.QUERY_KEYS.AGENTS],
@@ -111,7 +114,7 @@ export default function CaseReassignmentIndex() {
                       {formatDateTime(booking.appointmentDate)}
                     </TableCell>
                     <TableCell>
-                      <BookingStatusBadge status={booking.status} />
+                      <WorkStatusBadge workStatus={booking.workStatus} />
                     </TableCell>
                     <TableCell>{booking.agentName ?? "-"}</TableCell>
                     <TableCell>

@@ -15,6 +15,7 @@ const (
 	BookingCompleted BookingStatus = "completed"
 	BookingCancelled BookingStatus = "cancelled"
 
+	WorkNotSet             AppointmentWorkStatus = ""
 	WorkContacted          AppointmentWorkStatus = "contacted"
 	WorkVisited            AppointmentWorkStatus = "visited"
 	WorkBooked             AppointmentWorkStatus = "booked"

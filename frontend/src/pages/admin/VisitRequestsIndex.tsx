@@ -3,21 +3,21 @@ import { useQuery } from '@tanstack/react-query'
 import { User, Phone, MessageCircle, Calendar, Search, UserCog, StickyNote } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { AdminService } from '@/services/AdminService'
-import { BookingStatusBadge } from '@/components/shared/StatusBadge'
+import { WorkStatusBadge } from '@/components/shared/StatusBadge'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { PageTitle } from '@/components/shared/PageTitle'
 import { PageContainer } from '@/components/shared/PageContainer'
 import { MissedContactBadge } from '@/components/shared/MissedContactBadge'
-import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { MultiSelectFilter } from '@/components/shared/MultiSelectFilter'
 import { formatDateTime } from '@/utils/date'
-import { WORK_STATUS_LABEL_KEYS } from '@/constants/WorkStatus'
 import type { BookingStatus } from '@/types/Booking'
 
-const STATUS_VALUES: BookingStatus[] = ['pending', 'assigned', 'completed', 'cancelled']
+// Backend filters bookings to active statuses only, so the older completed
+// and cancelled options wouldn't match anything.
+const STATUS_VALUES: BookingStatus[] = ['pending', 'assigned']
 
 export default function VisitRequestsIndex() {
   const { t } = useTranslation()
@@ -130,7 +130,6 @@ export default function VisitRequestsIndex() {
         <div className="space-y-3">
           {filtered.map((booking) => {
             const phone = booking.phone || booking.userPhone || booking.latestContact
-            const workKey = booking.workStatus ? WORK_STATUS_LABEL_KEYS[booking.workStatus] : null
             return (
               <Card key={booking.id}>
                 <CardContent className="p-4">
@@ -145,7 +144,6 @@ export default function VisitRequestsIndex() {
                             {booking.propertyCode}
                           </span>
                         )}
-                        <BookingStatusBadge status={booking.status} />
                         <MissedContactBadge booking={booking} />
                       </div>
                       <div className="flex items-center gap-2 flex-wrap text-sm">
@@ -186,13 +184,7 @@ export default function VisitRequestsIndex() {
                       )}
                     </div>
                     <div className="flex sm:flex-col items-center sm:items-end gap-2 shrink-0">
-                      {workKey ? (
-                        <Badge variant="outline">{t(workKey)}</Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-muted-foreground">
-                          {t('workStatus.notSet')}
-                        </Badge>
-                      )}
+                      <WorkStatusBadge workStatus={booking.workStatus} />
                     </div>
                   </div>
                 </CardContent>

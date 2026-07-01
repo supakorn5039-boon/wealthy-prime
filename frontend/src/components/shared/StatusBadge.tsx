@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
+import { WORK_STATUS_LABEL_KEYS } from '@/constants/WorkStatus'
 import type { PropertyStatus } from '@/types/Property'
-import type { BookingStatus } from '@/types/Booking'
+import type { BookingStatus, AppointmentWorkStatus } from '@/types/Booking'
 
 const bookingVariantMap: Record<BookingStatus, 'success' | 'warning' | 'info' | 'destructive' | 'secondary'> = {
   pending: 'warning',
@@ -21,4 +22,12 @@ export function BookingStatusBadge({ status }: { status: BookingStatus }) {
   const variant = bookingVariantMap[status] ?? 'secondary'
   const label = t(`booking.${status}`, { defaultValue: status })
   return <Badge variant={variant}>{label}</Badge>
+}
+
+export function WorkStatusBadge({ workStatus }: { workStatus?: AppointmentWorkStatus }) {
+  const { t } = useTranslation()
+  if (!workStatus) {
+    return <Badge variant="outline" className="text-muted-foreground">{t('workStatus.notSet')}</Badge>
+  }
+  return <Badge variant="outline">{t(WORK_STATUS_LABEL_KEYS[workStatus])}</Badge>
 }

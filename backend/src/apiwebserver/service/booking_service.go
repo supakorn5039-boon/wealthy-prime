@@ -21,6 +21,12 @@ import (
 // filter "open" bookings share the same definition.
 var ActiveBookingStatuses = []model.BookingStatus{model.BookingPending, model.BookingAssigned}
 
+// AdminVisibleWorkStatuses is the set of work states that still warrant admin
+// attention: the case hasn't been contacted yet, or the agent has just made
+// first contact. Anything further (visited / booked / closed_deal /
+// customer_cancelled) is owned by the agent and drops off admin views.
+var AdminVisibleWorkStatuses = []model.AppointmentWorkStatus{model.WorkNotSet, model.WorkContacted}
+
 // maxBookingsPerAgentPerDay caps an agent at 3 active bookings per calendar
 // day (ICT). Beyond that, new bookings get assigned to a random other agent
 // to spread the load.

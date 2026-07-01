@@ -6,7 +6,6 @@ import { toast } from 'sonner'
 import { Pencil, Check, X, User, Phone, MessageCircle, Calendar, MapPin, Search, StickyNote } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { AgentService } from '@/services/AgentService'
-import { BookingStatusBadge } from '@/components/shared/StatusBadge'
 import { MissedContactBadge } from '@/components/shared/MissedContactBadge'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { EmptyState } from '@/components/shared/EmptyState'
@@ -131,7 +130,6 @@ export default function ContactHistoryIndex() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <User className="h-4 w-4 text-muted-foreground" />
                           <span className="font-medium">{contact.userName ?? '-'}</span>
-                          <BookingStatusBadge status={contact.status} />
                           <MissedContactBadge booking={contact} />
                         </div>
                         <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
