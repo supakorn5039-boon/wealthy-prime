@@ -26,7 +26,10 @@ npm-debug.log*
 .idea/
 *.swp
 .DS_Store
-.claude
+
+# AI assistant / Claude Code — keep everything local, never push
+CLAUDE.md
+.claude/
 
 # Go
 *.test
