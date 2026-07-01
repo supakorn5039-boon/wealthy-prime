@@ -41,7 +41,6 @@ export default function CaseReassignmentIndex() {
     queryFn: AdminService.listBookings,
   });
 
-  // Reassignment only applies pre-contact — once the agent reaches out, the case is theirs.
   const bookings = allBookings.filter((b) => !b.workStatus);
 
   const { data: agents = [] } = useQuery({

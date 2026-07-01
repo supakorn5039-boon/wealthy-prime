@@ -12,8 +12,6 @@ func TestAudit_List_FiltersByActorRole(t *testing.T) {
 	db, cleanup := helpers.TestDB(t)
 	defer cleanup()
 
-	// Two rows: one by an admin actor, one by an agent. Filter must
-	// return exactly one when scoped to a single role.
 	rows := []model.AuditLog{
 		{ActorName: "Admin One", ActorRole: model.RoleAdmin, Action: model.AuditCreate, EntityType: model.EntityProperty, Summary: "by admin"},
 		{ActorName: "Agent One", ActorRole: model.RoleAgent, Action: model.AuditCreate, EntityType: model.EntityProperty, Summary: "by agent"},
@@ -67,7 +65,6 @@ func TestAudit_List_DefaultLimitCaps(t *testing.T) {
 	db, cleanup := helpers.TestDB(t)
 	defer cleanup()
 
-	// Seed 6 rows so we can prove the explicit limit takes effect.
 	for range 6 {
 		row := model.AuditLog{
 			ActorName: "X", ActorRole: model.RoleAdmin,

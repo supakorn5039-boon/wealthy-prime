@@ -41,7 +41,7 @@ func TestAuth_RegisterThenLogin(t *testing.T) {
 	if got.Token == "" {
 		t.Error("Login returned empty token")
 	}
-	// Token must validate against the configured secret.
+
 	if _, err := security.ValidateToken(got.Token); err != nil {
 		t.Errorf("returned token does not validate: %v", err)
 	}

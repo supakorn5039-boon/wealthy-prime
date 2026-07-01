@@ -40,19 +40,11 @@ type SMTPConfig struct {
 	From            string
 	FromName        string
 	AppURL          string
-	NotificationBcc string // optional — BCC every appointment notification here
+	NotificationBcc string
 }
 
-// Enabled requires both Host and Password — a host without credentials would
-// pick the smtp sender and then silently fail auth on every send (goroutine).
-// Empty password → fall back to log-only sender instead.
 func (s SMTPConfig) Enabled() bool { return s.Host != "" && s.Password != "" }
 
-// R2Config drives uploads to Cloudflare R2. Required on Render (and any
-// PaaS with ephemeral storage) — without it, uploaded files vanish when
-// the container restarts. When all fields are set, saveUpload routes to R2
-// instead of local disk. PublicURL is the bucket's public r2.dev URL
-// (or custom domain) without a trailing slash.
 type R2Config struct {
 	AccountID string
 	Bucket    string
@@ -65,10 +57,6 @@ func (r R2Config) Enabled() bool {
 	return r.AccountID != "" && r.Bucket != "" && r.AccessKey != "" && r.SecretKey != "" && r.PublicURL != ""
 }
 
-// MailjetConfig drives the Mailjet HTTPS sender. Used in environments where
-// raw SMTP egress is blocked (e.g. Render). Mailjet allows single-sender
-// verification, so no custom domain is required. Auth uses an API key +
-// secret pair. When both are set, this takes precedence over SMTPConfig.
 type MailjetConfig struct {
 	APIKey    string
 	APISecret string
@@ -76,10 +64,6 @@ type MailjetConfig struct {
 
 func (m MailjetConfig) Enabled() bool { return m.APIKey != "" && m.APISecret != "" }
 
-// ResendConfig drives the Resend HTTPS sender. Resend hosts on Cloudflare's
-// network, which has reliably worked from Render where Mailjet's GCP-hosted
-// endpoint suffers TCP resets. Requires a verified sending domain (DKIM/SPF)
-// configured in the Resend dashboard. Takes precedence over Mailjet.
 type ResendConfig struct {
 	APIKey string
 }
@@ -114,7 +98,6 @@ func Load(path string) {
 	App.Server.PublicBaseURL = strings.TrimRight(getVal(serverSection, "public_base_url", ""), "/")
 	App.Server.UploadDir = resolveUploadDir(resolved, getVal(serverSection, "upload_dir", ""))
 
-	// Override with environment variables
 	if v := os.Getenv("JWT_SECRET"); v != "" {
 		App.Server.JWTSecret = v
 	}
@@ -148,7 +131,6 @@ func Load(path string) {
 	App.Database.Database = getVal(dbSection, "database", "wealthy_prime")
 	App.Database.SSLMode = getVal(dbSection, "ssl_mode", "disable")
 
-	// Override database config with env vars
 	if v := os.Getenv("DB_HOST"); v != "" {
 		App.Database.Host = v
 	}
@@ -168,7 +150,6 @@ func Load(path string) {
 		App.Database.SSLMode = v
 	}
 
-	// Build DSN
 	App.Database.DSN = buildDSN()
 	if v := os.Getenv("DATABASE_URL"); v != "" {
 		App.Database.DSN = v
@@ -232,11 +213,6 @@ func buildDSN() string {
 		" TimeZone=UTC"
 }
 
-// resolveUploadDir returns an absolute upload directory, anchored to the
-// directory of the resolved config.ini path. This keeps uploads cwd-independent
-// (the server can be started from backend/ or backend/src/ and writes the same place).
-// An explicit override (from config or env) takes precedence; if relative, it's
-// resolved against the config-file directory, not cwd.
 func resolveUploadDir(resolvedConfigPath, override string) string {
 	anchorDir, err := filepath.Abs(filepath.Dir(resolvedConfigPath))
 	if err != nil {
@@ -256,8 +232,6 @@ func resolveUploadDir(resolvedConfigPath, override string) string {
 	return abs
 }
 
-// resolveConfigPath checks the given path, then walks up to 3 parent directories
-// so the app loads config.ini whether run from backend/ or backend/src/.
 func resolveConfigPath(path string) string {
 	if filepath.IsAbs(path) {
 		return path

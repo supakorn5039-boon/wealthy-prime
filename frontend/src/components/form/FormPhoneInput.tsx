@@ -17,10 +17,6 @@ import { cn } from '@/lib/utils'
 
 const PARSED_COUNTRIES: ParsedCountry[] = defaultCountries.map((c) => parseCountry(c))
 
-// Per-country national-number length, sourced from libphonenumber-js's mobile
-// example for each region. Cached so we don't reparse on every keystroke.
-// E.164 caps national digits at 15; that's the fallback for regions with no
-// example (none in defaultCountries today, but defensive).
 const NATIONAL_LENGTH_CACHE = new Map<string, number>()
 function getNationalLength(iso2: string): number {
   const key = iso2.toLowerCase()
@@ -31,7 +27,7 @@ function getNationalLength(iso2: string): number {
     const example = getExampleNumber(iso2.toUpperCase() as CountryCode, examples)
     if (example) length = example.nationalNumber.length
   } catch {
-    // fall through to default
+
   }
   NATIONAL_LENGTH_CACHE.set(key, length)
   return length
@@ -46,10 +42,6 @@ interface PhoneInputProps {
   error?: boolean
 }
 
-// Controlled phone primitive. Left chip = flag + +dialCode + chevron;
-// right input = national digits only (dial code is stripped from the visible
-// value via `disableDialCodeAndPrefix`). The hook still emits full E.164 on
-// change so callers keep storing a single "+66..." string.
 export function PhoneInput({
   value,
   onChange,
@@ -223,8 +215,6 @@ interface FormPhoneInputProps<T extends FieldValues> {
   required?: boolean
 }
 
-// RHF wrapper around PhoneInput. Adds Label + error message; field value stays
-// a single E.164 string ("+66...").
 export function FormPhoneInput<T extends FieldValues>({
   control,
   name,

@@ -9,13 +9,9 @@ import (
 	"github.com/wealthy-prime/backend/src/config"
 )
 
-// resendSender posts messages to Resend's HTTPS Send API. Resend's API runs on
-// Cloudflare, which has reliable connectivity from Render where Mailjet's
-// GCP-hosted endpoint frequently resets connections. Requires a verified
-// sending domain in the Resend dashboard (DKIM/SPF records in DNS).
 type resendSender struct {
-	authHeader string // precomputed "Bearer <apiKey>" — avoid per-send concat
-	fromHeader string // precomputed "<Name> <email>" — RFC 5322 From line
+	authHeader string
+	fromHeader string
 	client     *http.Client
 }
 

@@ -12,16 +12,13 @@ import (
 var jwtKey []byte
 
 func init() {
-	// Deferred init: key is loaded when config is available.
-	// Call InitJWT() after config.Load().
+
 }
 
-// InitJWT must be called once after config.Load().
 func InitJWT() {
 	jwtKey = []byte(config.App.Server.JWTSecret)
 }
 
-// GenerateJWT creates a signed HS256 JWT valid for 72 hours.
 func GenerateJWT(id uint, role model.UserRole, email string) (string, error) {
 	if len(jwtKey) == 0 {
 		InitJWT()
@@ -39,7 +36,6 @@ func GenerateJWT(id uint, role model.UserRole, email string) (string, error) {
 	return token.SignedString(jwtKey)
 }
 
-// ValidateToken parses and verifies a JWT string, returning its claims.
 func ValidateToken(tokenString string) (*model.Claims, error) {
 	if len(jwtKey) == 0 {
 		InitJWT()

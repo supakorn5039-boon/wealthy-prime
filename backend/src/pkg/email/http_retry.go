@@ -10,11 +10,6 @@ import (
 	"time"
 )
 
-// renderSafeHTTPClient builds an *http.Client tuned for outbound API calls from
-// Render. DisableKeepAlives forces a fresh TCP+TLS handshake per request —
-// Render's outbound network silently kills idle keep-alive connections, which
-// manifests as "connection reset by peer" on the next request reusing the conn.
-// Adds ~50 ms per send but eliminates the reset.
 func renderSafeHTTPClient() *http.Client {
 	return &http.Client{
 		Timeout: 15 * time.Second,
@@ -27,11 +22,6 @@ func renderSafeHTTPClient() *http.Client {
 
 var retryBackoffs = []time.Duration{500 * time.Millisecond, 1500 * time.Millisecond, 4 * time.Second}
 
-// postWithRetry executes the request built by buildReq, retrying on transient
-// network errors (per isTransientNetErr) with retryBackoffs. HTTP error
-// responses (>=300) are NOT retried — those indicate the provider rejected the
-// message, and a retry could duplicate. provider and recipient are used only
-// for error messages.
 func postWithRetry(client *http.Client, provider, recipient string, buildReq func() (*http.Request, error)) error {
 	var lastErr error
 	for attempt := 0; attempt < len(retryBackoffs)+1; attempt++ {

@@ -255,7 +255,7 @@ export default function HomeIndex() {
           </>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* List: 50% on lg+. Heading lives inside so the map column can fill its full half. */}
+
             <div className="lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-1 space-y-3">
               <div className="pb-1">
                 <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
@@ -275,7 +275,6 @@ export default function HomeIndex() {
               ))}
             </div>
 
-            {/* Map: 50% on lg+, sticky to viewport. Mobile shows it above the list. */}
             <div className="order-first lg:order-last">
               <div className="lg:sticky lg:top-4">
                 <div className="isolate rounded-md overflow-hidden border border-border h-[320px] lg:h-[calc(100vh-6rem)]">

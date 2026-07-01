@@ -23,20 +23,17 @@ import (
 )
 
 func main() {
-	// Load configuration from config.ini, then override with environment variables
+
 	configPath := "config.ini"
 	if v := os.Getenv("CONFIG_PATH"); v != "" {
 		configPath = v
 	}
 	config.Load(configPath)
 
-	// Init security (JWT key)
 	security.InitJWT()
 
-	// Connect to database
 	database.Init()
 
-	// Handle CLI sub-commands
 	if len(os.Args) > 1 {
 		switch os.Args[1] {
 		case "seed":
@@ -73,16 +70,13 @@ func main() {
 		}
 	}
 
-	// Run migrations and seed on every startup
 	migration.Run(database.DB)
 	seeder.Run(database.DB)
 
-	// Set Gin mode
 	if config.App.Server.Production {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	// Setup router
 	r := gin.New()
 	r.Use(gin.Recovery())
 	pkg.MountAPIWebServer(r)
@@ -98,7 +92,6 @@ func main() {
 		IdleTimeout:  120 * time.Second,
 	}
 
-	// Start server in goroutine for graceful shutdown
 	go func() {
 		slog.Info("server starting", "addr", addr)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -106,7 +99,6 @@ func main() {
 		}
 	}()
 
-	// Wait for interrupt signal
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit

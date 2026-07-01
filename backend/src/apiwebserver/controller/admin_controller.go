@@ -359,9 +359,6 @@ func (ctrl *AdminController) exportFinancial(c *gin.Context) {
 	}
 }
 
-// profileUpdateBody captures the JSON shape used by admin updateUser / updateAgent
-// and by personal-info self-updates. Empty strings are dropped from the update map
-// so callers can do partial updates without overwriting existing values.
 type profileUpdateBody struct {
 	Name           string `json:"name"`
 	FirstName      string `json:"firstName"`
@@ -383,7 +380,6 @@ func (b profileUpdateBody) toUpdates() map[string]any {
 		}
 	}
 
-	// If firstName or lastName provided, sync the legacy Name field too.
 	if b.FirstName != "" || b.LastName != "" {
 		composed := b.FirstName
 		if b.FirstName != "" && b.LastName != "" {
@@ -408,13 +404,8 @@ func (b profileUpdateBody) toUpdates() map[string]any {
 	return updates
 }
 
-// Accepts either legacy Thai local format (0XXXXXXXXX) or E.164 (+CCXXXXXX...).
-// Frontend collects via libphonenumber and submits E.164; legacy rows can still
-// pass through unchanged.
 var phoneFormat = regexp.MustCompile(`^\+?[1-9]\d{6,14}$|^0\d{8,9}$`)
 
-// validate enforces phone-format rules per requirement.md lines 5-6: both phone
-// and secondary phone must match Thai mobile format and must not be all-zeros.
 func (b profileUpdateBody) validate() error {
 	if b.Phone != "" {
 		if err := validatePhone("phone", b.Phone); err != nil {

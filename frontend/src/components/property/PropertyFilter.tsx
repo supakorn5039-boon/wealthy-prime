@@ -55,12 +55,9 @@ interface MultiPickGroup<T> {
   options: MultiPickOption<T>[]
 }
 
-// Portal-rendered so it can't be clipped or covered by sibling stacking contexts
-// (e.g. the Leaflet map below the hero). Either flat `options` or grouped `groups`.
 interface MultiPickProps<T extends string | number> {
   allLabel: string
-  // placeholder shown on the trigger when nothing is selected — usually the
-  // field name ("Type", "Price", ...) so empty dropdowns aren't ambiguous.
+
   placeholder: string
   selectedLabel: string
   selected: T[]
@@ -345,7 +342,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
 
   return (
     <div className="bg-card/95 backdrop-blur border border-border rounded-2xl shadow-xl">
-      {/* Vertical dividers only on lg: at sm/mobile the grid wraps and divide-x would draw on partial cells. */}
+
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 lg:divide-x lg:divide-border">
         <MultiPick<PropertyKind>
           allLabel={allLabel}

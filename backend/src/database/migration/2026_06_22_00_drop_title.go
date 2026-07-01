@@ -4,12 +4,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// dropPropertyTitle backfills empty project_name from the legacy title column
-// then drops title. Title and ProjectName had overlapping meanings; consolidating
-// on ProjectName removes the duplicate field per the 2026-06 feedback round.
-//
-// The backfill only touches rows where project_name is blank — rows that already
-// have a distinct project name keep theirs.
 func dropPropertyTitle(db *gorm.DB) error {
 	var hasColumn bool
 	if err := db.Raw(`

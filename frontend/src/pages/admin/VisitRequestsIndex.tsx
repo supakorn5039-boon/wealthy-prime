@@ -15,8 +15,6 @@ import { MultiSelectFilter } from '@/components/shared/MultiSelectFilter'
 import { formatDateTime } from '@/utils/date'
 import type { BookingStatus } from '@/types/Booking'
 
-// Backend filters bookings to active statuses only, so the older completed
-// and cancelled options wouldn't match anything.
 const STATUS_VALUES: BookingStatus[] = ['pending', 'assigned']
 
 export default function VisitRequestsIndex() {

@@ -17,7 +17,6 @@ import { Badge } from '@/components/ui/badge'
 import { formatPrice } from '@/utils/date'
 import type { Property } from '@/types/Property'
 
-// Fix leaflet default marker icon broken by bundlers
 delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -84,7 +83,7 @@ export default function MapIndex() {
       <PageTitle title={t('nav.map')} subtitle={t('map.subtitle')} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Map */}
+
         <div className="lg:col-span-2">
           <div className="rounded-xl overflow-hidden border shadow-sm" style={{ height: 540 }}>
             {isLoading ? (
@@ -123,7 +122,6 @@ export default function MapIndex() {
             )}
           </div>
 
-          {/* Legend */}
           <div className="flex flex-wrap gap-3 mt-2 px-1">
             {Object.entries(STATUS_COLOR).map(([status, color]) => (
               <div key={status} className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -134,7 +132,6 @@ export default function MapIndex() {
           </div>
         </div>
 
-        {/* Property list */}
         <div className="space-y-2 overflow-y-auto pr-1" style={{ maxHeight: 540 }}>
           {isLoading ? (
             <LoadingSpinner text={t('common.loading')} />
@@ -178,7 +175,6 @@ export default function MapIndex() {
         </div>
       </div>
 
-      {/* Property detail modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="max-w-md">
           {selected && (
@@ -188,7 +184,7 @@ export default function MapIndex() {
               </DialogHeader>
 
               <div className="space-y-3 mt-1">
-                {/* Status + type */}
+
                 <div className="flex items-center gap-2">
                   <PropertyStatusBadge status={selected.status} />
                   <Badge variant="outline" className="text-xs capitalize">
@@ -196,7 +192,6 @@ export default function MapIndex() {
                   </Badge>
                 </div>
 
-                {/* Price */}
                 <div className="text-2xl font-bold text-primary">
                   {formatPrice(selected.price)}
                   {selected.type === 'rent' && (
@@ -204,7 +199,6 @@ export default function MapIndex() {
                   )}
                 </div>
 
-                {/* Details grid */}
                 <div className="grid grid-cols-2 gap-y-2 text-sm">
                   <div className="flex items-center gap-1.5 text-muted-foreground">
                     <MapPin className="size-3.5 shrink-0 text-muted-foreground" />
@@ -226,7 +220,6 @@ export default function MapIndex() {
                   )}
                 </div>
 
-                {/* Rating */}
                 {selected.rating && (
                   <div className="flex items-center gap-1 text-sm">
                     <Star className="size-4 fill-amber-400 text-amber-400" />
@@ -235,7 +228,6 @@ export default function MapIndex() {
                   </div>
                 )}
 
-                {/* Agent */}
                 {selected.agentName && (
                   <p className="text-xs text-muted-foreground">
                     {t('property.responsibleAgent')}: <span className="font-medium text-foreground">{selected.agentName}</span>

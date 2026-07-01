@@ -6,9 +6,6 @@ import App from '@/App'
 import '@/i18n'
 import '@/index.css'
 
-// Global safety net: after any successful mutation (POST/PUT/DELETE)
-// invalidate every cached query so reads always reflect the latest state.
-// Mounted queries refetch immediately; unmounted ones are marked stale.
 const queryClient: QueryClient = new QueryClient({
   defaultOptions: {
     queries: {

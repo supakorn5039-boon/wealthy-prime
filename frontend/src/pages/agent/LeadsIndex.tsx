@@ -51,7 +51,7 @@ export default function LeadsIndex() {
                         <User className="size-4 text-muted-foreground" />
                         <span className="font-medium">{c.userName ?? '-'}</span>
                         <BookingStatusBadge status={c.status} />
-                        {/* TODO Phase Next: source badge (website/line) when backend exposes it */}
+
                       </div>
                       <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
                         {phone && (
@@ -82,7 +82,7 @@ export default function LeadsIndex() {
                           )}
                         </div>
                       )}
-                      {/* TODO Phase Next: budget, area, description when Lead resource lands */}
+
                     </div>
                     <div className="shrink-0">
                       <WorkStatusSelect contact={c} />

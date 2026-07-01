@@ -14,28 +14,16 @@ import (
 	"github.com/wealthy-prime/backend/src/pkg/email"
 )
 
-// CaptureSender is a test-only email.Sender that records every message
-// instead of dispatching it. Tests that exercise auth / booking flows
-// pass &CaptureSender{} so they don't touch real SMTP.
 type CaptureSender struct{ Sent []email.Message }
 
 func (c *CaptureSender) Send(m email.Message) error { c.Sent = append(c.Sent, m); return nil }
 
-// migrateOnce caches the migrated *gorm.DB so the (expensive) migration
-// run only happens once per test process — even when dozens of tests
-// call TestDB. Subsequent calls just truncate and hand back the same
-// connection.
 var (
 	migrateOnce sync.Once
 	sharedDB    *gorm.DB
 	migrateErr  error
 )
 
-// TestDB returns a connection to the integration-test database. The caller-
-// supplied cleanup function truncates every table after the test so the
-// next one starts from a known-empty state. Skips (not fails) the test
-// when TEST_DATABASE_URL is unset, so plain `go test ./...` keeps working
-// on machines without a test postgres handy.
 func TestDB(t *testing.T) (*gorm.DB, func()) {
 	t.Helper()
 
@@ -64,9 +52,6 @@ func TestDB(t *testing.T) (*gorm.DB, func()) {
 	return sharedDB, cleanup
 }
 
-// truncateAll wipes every table the migrations create. RESTART IDENTITY
-// rewinds the auto-increment counters so test assertions on IDs stay
-// stable across runs.
 func truncateAll(db *gorm.DB) {
 	tables := []string{
 		"audit_logs", "reviews", "wishlists", "view_histories",
@@ -77,13 +62,10 @@ func truncateAll(db *gorm.DB) {
 	}
 }
 
-// SeedAgent inserts a single agent user and returns its ID. Convenience for
-// tests that need an agent owner without going through bcrypt + auth flow.
 func SeedAgent(t *testing.T, db *gorm.DB, email string) uint {
 	return seedUser(t, db, email, model.RoleAgent)
 }
 
-// SeedUser inserts a regular (non-agent) approved user and returns its ID.
 func SeedUser(t *testing.T, db *gorm.DB, email string) uint {
 	return seedUser(t, db, email, model.RoleUser)
 }
@@ -93,7 +75,7 @@ func seedUser(t *testing.T, db *gorm.DB, email string, role model.UserRole) uint
 	u := model.User{
 		Name:         "Test " + string(role),
 		Email:        email,
-		PasswordHash: "x", // unused — tests never hit the login path
+		PasswordHash: "x",
 		Phone:        "0000000000",
 		Role:         role,
 		IsApproved:   true,
@@ -104,10 +86,6 @@ func seedUser(t *testing.T, db *gorm.DB, email string, role model.UserRole) uint
 	return u.ID
 }
 
-// NewProperty builds an in-memory Property fixture with sensible defaults so
-// tests only spell out the attributes they care about (listing, status, …).
-// Callers pass it to db.Create themselves so they can stitch multiple
-// fixtures into one round-trip.
 func NewProperty(agentID uint, name string, listing model.ListingType, status model.PropertyStatus) model.Property {
 	return model.Property{
 		ProjectName: name,

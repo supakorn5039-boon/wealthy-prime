@@ -1,8 +1,5 @@
 import { BTS_MRT_STATION_BY_ID } from '@/constants/Locations'
 
-// formatBtsMrt resolves station IDs to human-readable names. Accepts either
-// a number[] (current wire shape) or a CSV string (legacy rows + the
-// react-hook-form chip field which stores selection as a CSV of IDs).
 export function formatBtsMrt(
   value: readonly number[] | number[] | string | null | undefined,
 ): string {

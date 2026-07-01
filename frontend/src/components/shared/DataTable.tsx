@@ -38,9 +38,6 @@ interface DataTableProps<T> {
   emptyMessage?: string
 }
 
-// DataTable wraps TanStack Table with the project's shadcn primitives. Adds
-// global text search, column sorting, and client-side pagination. Pass a
-// `searchColumn` to scope search to one column; omit it for a global filter.
 export function DataTable<T>({
   columns,
   data,

@@ -21,18 +21,14 @@ func NewReviewController() *ReviewController {
 }
 
 func (ctrl *ReviewController) RegisterRoutes(r *gin.RouterGroup) {
-	// Public: resolve a review-link token into property info (no auth needed)
+
 	r.GET("/reviews/token/:token", ctrl.resolveToken)
 
-	// Token-gated submission. Token authorizes which property is being reviewed.
 	reviews := r.Group("/reviews", middleware.Protected())
 	reviews.POST("", ctrl.createReview)
-	// Agents/admins reply to a user review. Property-agent or admin only —
-	// enforced inside the handler since "agent" alone is too broad.
+
 	reviews.PATCH("/:id/reply", middleware.Rbac(model.RoleAgent), ctrl.replyReview)
 
-	// Direct submission from a property page. Any logged-in user can post one
-	// review per property; the path :id binds the review to that property.
 	r.POST("/properties/:id/reviews", middleware.Protected(), ctrl.createDirectReview)
 }
 
@@ -71,9 +67,6 @@ func (ctrl *ReviewController) createReview(c *gin.Context) {
 		return
 	}
 
-	// Token is the source of truth for which property is being reviewed —
-	// never trust a client-supplied property_id, which would let anyone with
-	// a single valid token post reviews on other properties.
 	propertyID, _, err := service.ParseReviewToken(input.Token)
 	if err != nil {
 		errorResponse(c, err)
@@ -116,9 +109,6 @@ func (ctrl *ReviewController) createDirectReview(c *gin.Context) {
 	created(c, dto)
 }
 
-// saveReview is the shared insert path for both the token and direct flows.
-// One review per (property,user) — repeat submissions overwrite the previous
-// one so a user can refine their rating without spamming the list.
 func saveReview(propertyID, userID uint, rating int, comment string) (*model.ReviewDto, error) {
 	var prop model.Property
 	if err := database.DB.First(&prop, propertyID).Error; errors.Is(err, gorm.ErrRecordNotFound) {
@@ -185,7 +175,6 @@ func (ctrl *ReviewController) replyReview(c *gin.Context) {
 		return
 	}
 
-	// Agent can only reply on properties they own. Admin can reply anywhere.
 	if callerRole != model.RoleAdmin {
 		if review.Property.AgentID == nil || *review.Property.AgentID != callerID {
 			errorResponse(c, apperror.Forbidden("you can only reply on your own properties"))

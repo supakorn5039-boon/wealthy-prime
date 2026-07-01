@@ -9,8 +9,6 @@ import (
 	"github.com/wealthy-prime/backend/src/tests/helpers"
 )
 
-// TestHealthz proves the public-engine factory mounts /healthz and that the
-// shape stays {"status":"ok"} — used by load balancers and uptime probes.
 func TestHealthz(t *testing.T) {
 	r := helpers.NewPublicEngine()
 

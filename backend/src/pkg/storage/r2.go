@@ -1,6 +1,3 @@
-// Package storage handles persistent file uploads. Local disk is the dev
-// fallback; in production we use Cloudflare R2 because Render's filesystem
-// is wiped on every container restart (free tier).
 package storage
 
 import (
@@ -22,8 +19,6 @@ var (
 	r2InitErr    error
 )
 
-// R2 lazily builds an R2 client from config. Returns nil + error if R2 is
-// not configured — callers should fall back to local disk in that case.
 func R2() (*minio.Client, error) {
 	cfg := config.App.R2
 	if !cfg.Enabled() {
@@ -40,10 +35,6 @@ func R2() (*minio.Client, error) {
 	return r2Client, r2InitErr
 }
 
-// UploadToR2 streams the reader's bytes to the configured bucket under
-// objectName and returns a public URL (PublicURL/objectName). The caller
-// must provide an accurate contentType so browsers render images inline
-// instead of triggering a download.
 func UploadToR2(ctx context.Context, objectName string, reader io.Reader, size int64, contentType string) (string, error) {
 	client, err := R2()
 	if err != nil {

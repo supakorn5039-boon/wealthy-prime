@@ -38,7 +38,7 @@ func TestBooking_CreateBookings(t *testing.T) {
 	if dtos[0].PropertyID != prop.ID {
 		t.Errorf("propertyID: got %d, want %d", dtos[0].PropertyID, prop.ID)
 	}
-	// The property has an agent assigned, so booking auto-assigns to it.
+
 	if dtos[0].AssignedAgentID == nil || *dtos[0].AssignedAgentID != agentID {
 		t.Errorf("expected assigned agent %d, got %v", agentID, dtos[0].AssignedAgentID)
 	}
@@ -51,7 +51,7 @@ func TestBooking_CreateRejectsTooManyProperties(t *testing.T) {
 	userID := helpers.SeedUser(t, db, "spam@test.local")
 
 	svc := service.NewBookingServiceWithDeps(db, &helpers.CaptureSender{})
-	// Cap is maxPropertiesPerRequest = 5; pass 6 to trigger the guard.
+
 	_, err := svc.CreateBookings(userID, service.CreateBookingsInput{
 		PropertyIDs:     []uint{1, 2, 3, 4, 5, 6},
 		AppointmentDate: time.Now().Add(24 * time.Hour),
@@ -78,7 +78,6 @@ func TestBooking_GetUserBookings_ScopesToCaller(t *testing.T) {
 
 	svc := service.NewBookingServiceWithDeps(db, &helpers.CaptureSender{})
 
-	// Each user creates one booking against the same property.
 	for _, uid := range []uint{me, other} {
 		if _, err := svc.CreateBookings(uid, service.CreateBookingsInput{
 			PropertyIDs:     []uint{prop.ID},

@@ -4,18 +4,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// migrateBtsMrtToArray converts properties.bts_mrt from the legacy CSV
-// varchar to a native Postgres INTEGER[] and adds a GIN index so future
-// "filter properties near station X" queries can use array containment
-// (`bts_mrt @> ARRAY[12]`) without a table scan.
-//
-// The USING clause parses any pre-existing rows: each comma-separated
-// numeric token becomes an array element. Empty / NULL / non-numeric rows
-// land as an empty array.
 func migrateBtsMrtToArray(db *gorm.DB) error {
-	// On a fresh database the properties table doesn't exist yet — AutoMigrate
-	// will create the column directly as integer[]. Bail out so we don't try
-	// to ALTER / CREATE INDEX against a non-existent table.
+
 	var dataType string
 	if err := db.Raw(`
 		SELECT data_type
@@ -29,10 +19,7 @@ func migrateBtsMrtToArray(db *gorm.DB) error {
 	}
 
 	if dataType != "ARRAY" {
-		// Postgres forbids subqueries in ALTER ... USING (SQLSTATE 0A000),
-		// so first rewrite each varchar row into a valid integer-array literal
-		// ('{}' for NULL/empty/non-numeric, '{5,12}' for CSV), then the ALTER
-		// only needs a plain cast.
+
 		if err := db.Exec(`
 			UPDATE properties
 			SET bts_mrt = COALESCE(

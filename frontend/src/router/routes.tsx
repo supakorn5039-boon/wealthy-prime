@@ -60,16 +60,12 @@ export const routes: AppRoute[] = [
   { path: ROUTES.PROPERTY_DETAIL, element: wrap(<PropertyDetailIndex />), layout: RouteLayout.PUBLIC },
   { path: ROUTES.REVIEW, element: wrap(<ReviewIndex />), layout: RouteLayout.BLANK },
 
-  // Personal info — available to all authenticated roles
   { path: ROUTES.PROFILE, element: wrap(<ProfileIndex />), layout: RouteLayout.PROTECTED },
 
-  // User protected
   { path: ROUTES.WISHLIST, element: wrap(<WishlistIndex />), layout: RouteLayout.PROTECTED, allowedRoles: USER_ONLY },
   { path: ROUTES.HISTORY, element: wrap(<HistoryIndex />), layout: RouteLayout.PROTECTED, allowedRoles: USER_ONLY },
   { path: ROUTES.CONTACTS, element: wrap(<ContactsIndex />), layout: RouteLayout.PROTECTED, allowedRoles: USER_ONLY },
 
-  // Workspace (agent + admin). URLs are prefix-free; pages that diverge per
-  // role are wrapped in RoleSwitch so one URL renders the right component.
   {
     path: ROUTES.AGENT_DASHBOARD,
     element: wrap(<RoleSwitch admin={<AdminDashboardIndex />} agent={<AgentDashboardIndex />} />),
@@ -90,7 +86,6 @@ export const routes: AppRoute[] = [
   { path: ROUTES.AGENT_PROFILE, element: wrap(<AgentProfileIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
   { path: ROUTES.AGENT_OVERVIEW, element: wrap(<AgentOverviewIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
 
-  // Admin-only
   { path: ROUTES.ADMIN_PENDING_USERS, element: wrap(<PendingUsersIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
   { path: ROUTES.ADMIN_AGENTS, element: wrap(<AgentManagementIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
   { path: ROUTES.ADMIN_USERS, element: wrap(<UserManagementIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },

@@ -146,8 +146,6 @@ export default function MyPropertiesIndex() {
   const [kindFilters, setKindFilters] = useState<Exclude<PropertyKind, ''>[]>([]);
   const [projectFilter, setProjectFilter] = useState('');
 
-  // Admin uses the admin endpoint (full list + owner info); agents use their
-  // own. Same Property[] shape so the table renders identically either way.
   const baseKey = isAdmin ? 'admin-properties' : PropertyService.QUERY_KEYS.AGENT_LIST;
 
   const { data: properties = [], isLoading } = useQuery({

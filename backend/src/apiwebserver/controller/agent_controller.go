@@ -92,7 +92,7 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 	projectName := formVal(form.Value, "project_name")
 	location := formVal(form.Value, "location")
 	ownerInfo := formVal(form.Value, "owner_info")
-	// `type` is no longer sent by the frontend; it is derived from `listing` server-side.
+
 	propType := formVal(form.Value, "type")
 
 	if projectName == "" || location == "" || ownerInfo == "" {
@@ -133,7 +133,6 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 		return
 	}
 
-	// Duplicate check
 	isDuplicate, err := ctrl.propertySvc.DuplicateCheck(projectName, ownerInfo)
 	if err != nil {
 		errorResponse(c, err)
@@ -185,7 +184,7 @@ func (ctrl *AgentController) editProperty(c *gin.Context) {
 	projectName := formVal(form.Value, "project_name")
 	location := formVal(form.Value, "location")
 	ownerInfo := formVal(form.Value, "owner_info")
-	// `type` is derived from `listing` server-side; not required from frontend.
+
 	propType := formVal(form.Value, "type")
 	if projectName == "" || location == "" || ownerInfo == "" {
 		badRequest(c, "project_name, location, and owner_info are required")
@@ -462,7 +461,6 @@ func (ctrl *AgentController) updateInquiryStatus(c *gin.Context) {
 	successResponse(c, dto)
 }
 
-// formVal safely reads a form value by key.
 func formVal(values map[string][]string, key string) string {
 	if vals, ok := values[key]; ok && len(vals) > 0 {
 		return vals[0]
@@ -470,8 +468,6 @@ func formVal(values map[string][]string, key string) string {
 	return ""
 }
 
-// parseImageIDs accepts repeated form values OR a single comma-separated value
-// and returns the deduplicated list of positive uint IDs.
 func parseImageIDs(raw []string) ([]uint, error) {
 	if len(raw) == 0 {
 		return nil, nil
@@ -499,8 +495,6 @@ func parseImageIDs(raw []string) ([]uint, error) {
 	return out, nil
 }
 
-// buildPropertyFields assembles the shared PropertyFields struct from
-// the multipart form values, layering the required fields on top of the optional ones.
 func buildPropertyFields(
 	values map[string][]string,
 	projectName, location, ownerInfo string,
@@ -548,8 +542,6 @@ func buildPropertyFields(
 	}
 }
 
-// parseLatLng extracts optional lat/lng form values. Both must be supplied
-// together (a single coordinate without its pair is meaningless), or both omitted.
 func parseLatLng(values map[string][]string) (*float64, *float64, error) {
 	latStr := formVal(values, "lat")
 	lngStr := formVal(values, "lng")

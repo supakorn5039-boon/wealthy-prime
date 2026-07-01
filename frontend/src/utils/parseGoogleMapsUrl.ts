@@ -1,11 +1,7 @@
-// Extracts (lat, lng) from a Google Maps URL.
-// Tries the place pin first (!3d / !4d), then the map center (@lat,lng),
-// then the legacy ?q= / ?ll= query forms.
+
 export function parseGoogleMapsUrl(url: string): { lat: number; lng: number } | null {
   if (!url) return null
 
-  // Google Maps URLs can contain multiple !3d!4d blocks (parent place → child place).
-  // The deepest/most specific place is the LAST occurrence, so grab the final match.
   const placePins = Array.from(url.matchAll(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/g))
   const lastPin = placePins[placePins.length - 1]
   if (lastPin) return coords(lastPin[1], lastPin[2])

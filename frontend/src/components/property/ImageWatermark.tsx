@@ -4,8 +4,6 @@ interface ImageWatermarkProps {
   compact?: boolean
 }
 
-// Centered over the photo at low opacity. Centering deters screenshot
-// re-use better than a corner placement; opacity keeps the room readable.
 export function ImageWatermark({ compact = false }: ImageWatermarkProps) {
   return (
     <div className="pointer-events-none absolute inset-0 flex items-center justify-center">

@@ -107,9 +107,6 @@ type resetPasswordRequest struct {
 	NewPassword string `json:"newPassword" binding:"required,min=6"`
 }
 
-// forgotPassword always returns the same generic 200 response — regardless of
-// whether the email is registered or whether the email send succeeded — so a
-// caller can't enumerate registered accounts.
 func (ctrl *AuthController) forgotPassword(c *gin.Context) {
 	var body forgotPasswordRequest
 	if err := c.ShouldBindJSON(&body); err != nil {

@@ -6,7 +6,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// Run executes all seeders in order.
 func Run(db *gorm.DB) {
 	log.Println("[seeder] running seeders...")
 	seedAdmin(db)

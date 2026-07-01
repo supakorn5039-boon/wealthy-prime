@@ -1,4 +1,4 @@
-// All 77 Thai provinces (จังหวัด). Ordered: Bangkok first, then alphabetical (Thai).
+
 export const PROVINCES = [
   'กรุงเทพมหานคร',
   'กระบี่',
@@ -79,7 +79,6 @@ export const PROVINCES = [
   'อุบลราชธานี',
 ] as const
 
-// Districts (เขต for Bangkok, อำเภอ for all other provinces).
 export const DISTRICTS_BY_PROVINCE: Record<string, readonly string[]> = {
   กรุงเทพมหานคร: [
     'พระนคร', 'ดุสิต', 'หนองจอก', 'บางรัก', 'บางเขน', 'บางกะปิ', 'ปทุมวัน',
@@ -168,9 +167,6 @@ export const DISTRICTS_BY_PROVINCE: Record<string, readonly string[]> = {
   อุบลราชธานี: ['เมืองอุบลราชธานี', 'ศรีเมืองใหม่', 'โขงเจียม', 'เขื่องใน', 'เขมราฐ', 'เดชอุดม', 'นาจะหลวย', 'น้ำยืน', 'บุณฑริก', 'ตระการพืชผล', 'กุดข้าวปุ้น', 'ม่วงสามสิบ', 'วารินชำราบ', 'พิบูลมังสาหาร', 'ตาลสุม', 'โพธิ์ไทร', 'สำโรง', 'ดอนมดแดง', 'สิรินธร', 'ทุ่งศรีอุดม', 'นาเยีย', 'นาตาล', 'เหล่าเสือโก้ก', 'สว่างวีระวงศ์', 'น้ำขุ่น'],
 }
 
-// BTS + MRT stations (Bangkok metropolitan area).
-// IDs are stable: never renumber an existing entry. Append new stations
-// with the next free id. The DB stores a CSV of these ids on Property.BtsMrt.
 export type BtsMrtLine =
   | 'BTS_SUKHUMVIT'
   | 'BTS_SILOM'
@@ -188,7 +184,7 @@ export interface BtsMrtStation {
 }
 
 export const BTS_MRT_STATIONS: readonly BtsMrtStation[] = [
-  // BTS Sukhumvit Line
+
   { id: 1, name: 'หมอชิต (BTS)', line: 'BTS_SUKHUMVIT' },
   { id: 2, name: 'สะพานควาย (BTS)', line: 'BTS_SUKHUMVIT' },
   { id: 3, name: 'อารีย์ (BTS)', line: 'BTS_SUKHUMVIT' },
@@ -211,7 +207,7 @@ export const BTS_MRT_STATIONS: readonly BtsMrtStation[] = [
   { id: 20, name: 'อุดมสุข (BTS)', line: 'BTS_SUKHUMVIT' },
   { id: 21, name: 'บางนา (BTS)', line: 'BTS_SUKHUMVIT' },
   { id: 22, name: 'แบริ่ง (BTS)', line: 'BTS_SUKHUMVIT' },
-  // BTS Silom Line
+
   { id: 23, name: 'สนามกีฬาแห่งชาติ (BTS)', line: 'BTS_SILOM' },
   { id: 24, name: 'ราชดำริ (BTS)', line: 'BTS_SILOM' },
   { id: 25, name: 'ศาลาแดง (BTS)', line: 'BTS_SILOM' },
@@ -219,7 +215,7 @@ export const BTS_MRT_STATIONS: readonly BtsMrtStation[] = [
   { id: 27, name: 'เซนต์หลุยส์ (BTS)', line: 'BTS_SILOM' },
   { id: 28, name: 'สุรศักดิ์ (BTS)', line: 'BTS_SILOM' },
   { id: 29, name: 'สะพานตากสิน (BTS)', line: 'BTS_SILOM' },
-  // MRT Blue Line
+
   { id: 30, name: 'สีลม (MRT)', line: 'MRT_BLUE' },
   { id: 31, name: 'ลุมพินี (MRT)', line: 'MRT_BLUE' },
   { id: 32, name: 'คลองเตย (MRT)', line: 'MRT_BLUE' },
@@ -236,7 +232,7 @@ export const BTS_MRT_STATIONS: readonly BtsMrtStation[] = [
   { id: 43, name: 'สวนจตุจักร (MRT)', line: 'MRT_BLUE' },
   { id: 44, name: 'กำแพงเพชร (MRT)', line: 'MRT_BLUE' },
   { id: 45, name: 'บางซื่อ (MRT)', line: 'MRT_BLUE' },
-  // MRT Purple Line
+
   { id: 46, name: 'เตาปูน (MRT)', line: 'MRT_PURPLE' },
   { id: 47, name: 'บางซ่อน (MRT)', line: 'MRT_PURPLE' },
   { id: 48, name: 'วงศ์สว่าง (MRT)', line: 'MRT_PURPLE' },
@@ -245,7 +241,7 @@ export const BTS_MRT_STATIONS: readonly BtsMrtStation[] = [
   { id: 51, name: 'แยกนนทบุรี 1 (MRT)', line: 'MRT_PURPLE' },
   { id: 52, name: 'บางกระสอ (MRT)', line: 'MRT_PURPLE' },
   { id: 53, name: 'ศูนย์ราชการนนทบุรี (MRT)', line: 'MRT_PURPLE' },
-  // BTS Sukhumvit Line — north extension (Mo Chit → Khu Khot)
+
   { id: 54, name: 'ห้าแยกลาดพร้าว (BTS)', line: 'BTS_SUKHUMVIT' },
   { id: 55, name: 'พหลโยธิน 24 (BTS)', line: 'BTS_SUKHUMVIT' },
   { id: 56, name: 'รัชโยธิน (BTS)', line: 'BTS_SUKHUMVIT' },
@@ -260,7 +256,7 @@ export const BTS_MRT_STATIONS: readonly BtsMrtStation[] = [
   { id: 65, name: 'รพ.ภูมิพลอดุลยเดช (BTS)', line: 'BTS_SUKHUMVIT' },
   { id: 66, name: 'แยก คปอ. (BTS)', line: 'BTS_SUKHUMVIT' },
   { id: 67, name: 'คูคต (BTS)', line: 'BTS_SUKHUMVIT' },
-  // BTS Sukhumvit Line — south extension (Bearing → Kheha)
+
   { id: 68, name: 'สำโรง (BTS)', line: 'BTS_SUKHUMVIT' },
   { id: 69, name: 'ปู่เจ้า (BTS)', line: 'BTS_SUKHUMVIT' },
   { id: 70, name: 'ช้างเอราวัณ (BTS)', line: 'BTS_SUKHUMVIT' },
@@ -270,17 +266,17 @@ export const BTS_MRT_STATIONS: readonly BtsMrtStation[] = [
   { id: 74, name: 'แพรกษา (BTS)', line: 'BTS_SUKHUMVIT' },
   { id: 75, name: 'สายลวด (BTS)', line: 'BTS_SUKHUMVIT' },
   { id: 76, name: 'เคหะฯ (BTS)', line: 'BTS_SUKHUMVIT' },
-  // BTS Silom Line — south extension (Saphan Taksin → Bang Wa)
+
   { id: 77, name: 'กรุงธนบุรี (BTS)', line: 'BTS_SILOM' },
   { id: 78, name: 'วงเวียนใหญ่ (BTS)', line: 'BTS_SILOM' },
   { id: 79, name: 'โพธิ์นิมิตร (BTS)', line: 'BTS_SILOM' },
   { id: 80, name: 'ตลาดพลู (BTS)', line: 'BTS_SILOM' },
   { id: 81, name: 'วุฒากาศ (BTS)', line: 'BTS_SILOM' },
   { id: 82, name: 'บางหว้า (BTS)', line: 'BTS_SILOM' },
-  // BTS Gold Line
+
   { id: 83, name: 'เจริญนคร (Gold Line)', line: 'BTS_GOLD' },
   { id: 84, name: 'คลองสาน (Gold Line)', line: 'BTS_GOLD' },
-  // MRT Blue Line — loop completion (Hua Lamphong → Tha Phra → Lak Song)
+
   { id: 85, name: 'หัวลำโพง (MRT)', line: 'MRT_BLUE' },
   { id: 86, name: 'วัดมังกร (MRT)', line: 'MRT_BLUE' },
   { id: 87, name: 'สามยอด (MRT)', line: 'MRT_BLUE' },
@@ -298,7 +294,7 @@ export const BTS_MRT_STATIONS: readonly BtsMrtStation[] = [
   { id: 99, name: 'บางขุนนนท์ (MRT)', line: 'MRT_BLUE' },
   { id: 100, name: 'บางยี่ขัน (MRT)', line: 'MRT_BLUE' },
   { id: 101, name: 'สิรินธร (MRT)', line: 'MRT_BLUE' },
-  // MRT Purple Line — south extension (Tao Poon → Khlong Bang Phai)
+
   { id: 102, name: 'คลองบางไผ่ (MRT)', line: 'MRT_PURPLE' },
   { id: 103, name: 'ตลาดบางใหญ่ (MRT)', line: 'MRT_PURPLE' },
   { id: 104, name: 'สามแยกบางใหญ่ (MRT)', line: 'MRT_PURPLE' },
@@ -307,7 +303,7 @@ export const BTS_MRT_STATIONS: readonly BtsMrtStation[] = [
   { id: 107, name: 'บางรักน้อย-ท่าอิฐ (MRT)', line: 'MRT_PURPLE' },
   { id: 108, name: 'ไทรม้า (MRT)', line: 'MRT_PURPLE' },
   { id: 109, name: 'สะพานพระนั่งเกล้า (MRT)', line: 'MRT_PURPLE' },
-  // MRT Yellow Line (Lat Phrao → Samrong)
+
   { id: 110, name: 'ลาดพร้าว (MRT Yellow)', line: 'MRT_YELLOW' },
   { id: 111, name: 'ภาวนา (MRT Yellow)', line: 'MRT_YELLOW' },
   { id: 112, name: 'โชคชัย 4 (MRT Yellow)', line: 'MRT_YELLOW' },
@@ -331,7 +327,7 @@ export const BTS_MRT_STATIONS: readonly BtsMrtStation[] = [
   { id: 130, name: 'ศรีเทพา (MRT Yellow)', line: 'MRT_YELLOW' },
   { id: 131, name: 'ทิพวัล (MRT Yellow)', line: 'MRT_YELLOW' },
   { id: 132, name: 'สำโรง (MRT Yellow)', line: 'MRT_YELLOW' },
-  // MRT Pink Line (Nonthaburi Civic Center → Min Buri)
+
   { id: 133, name: 'ศูนย์ราชการนนทบุรี (MRT Pink)', line: 'MRT_PINK' },
   { id: 134, name: 'แคราย (MRT Pink)', line: 'MRT_PINK' },
   { id: 135, name: 'สนามบินน้ำ (MRT Pink)', line: 'MRT_PINK' },
@@ -362,7 +358,7 @@ export const BTS_MRT_STATIONS: readonly BtsMrtStation[] = [
   { id: 160, name: 'เศรษฐบุตรบำเพ็ญ (MRT Pink)', line: 'MRT_PINK' },
   { id: 161, name: 'ตลาดมีนบุรี (MRT Pink)', line: 'MRT_PINK' },
   { id: 162, name: 'มีนบุรี (MRT Pink)', line: 'MRT_PINK' },
-  // Airport Rail Link (Phaya Thai → Suvarnabhumi)
+
   { id: 163, name: 'พญาไท (Airport Link)', line: 'ARL' },
   { id: 164, name: 'ราชปรารภ (Airport Link)', line: 'ARL' },
   { id: 165, name: 'มักกะสัน (Airport Link)', line: 'ARL' },
@@ -377,7 +373,6 @@ export const BTS_MRT_STATION_BY_ID: ReadonlyMap<number, BtsMrtStation> = new Map
   BTS_MRT_STATIONS.map((s) => [s.id, s]),
 )
 
-// Precomputed FormMultiChips option list — value = stable id, label = Thai name.
 export const BTS_MRT_OPTIONS: readonly { value: string; label: string }[] =
   BTS_MRT_STATIONS.map((s) => ({ value: String(s.id), label: s.name }))
 

@@ -20,9 +20,9 @@ type Inquiry struct {
 	PropertyID uint     `gorm:"not null"`
 	Property   Property `gorm:"foreignKey:PropertyID"`
 	AgentID    *uint    `gorm:"index"`
-	Agent      *User `gorm:"foreignKey:AgentID"`
-	Name       string `gorm:"not null"`
-	Phone      string `gorm:"not null"`
+	Agent      *User    `gorm:"foreignKey:AgentID"`
+	Name       string   `gorm:"not null"`
+	Phone      string   `gorm:"not null"`
 	Message    string
 	Status     InquiryStatus `gorm:"type:varchar(20);not null;default:'new'"`
 }

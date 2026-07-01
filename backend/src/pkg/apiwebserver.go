@@ -12,30 +12,24 @@ import (
 	"github.com/wealthy-prime/backend/src/config"
 )
 
-// MountAPIWebServer attaches all middleware, static routes, and API routes to the engine.
 func MountAPIWebServer(r *gin.Engine) {
-	// Global middleware
+
 	r.Use(middleware.RequestLogger())
 	r.Use(corsMiddleware())
 	r.Use(middleware.SecurityHeaders())
 
-	// Health check endpoint
 	r.GET("/healthz", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
-	// Render's port-scan probe and external load balancers hit `/` (GET/HEAD)
-	// at startup; without a handler they get logged as 404 WARNs. Answer 200.
 	rootHandler := func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok", "service": "wealthy-prime-api"})
 	}
 	r.GET("/", rootHandler)
 	r.HEAD("/", rootHandler)
 
-	// Serve uploaded files from the configured (absolute) upload directory.
 	r.Static("/uploads", config.App.Server.UploadDir)
 
-	// API routes
 	api := r.Group("/api")
 	controller.NewAuthController().RegisterRoutes(api)
 	controller.NewPropertyController().RegisterRoutes(api)

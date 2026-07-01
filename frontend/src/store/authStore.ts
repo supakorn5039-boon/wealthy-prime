@@ -88,7 +88,6 @@ export const useAuthStore = create<AuthState>()(
   )
 )
 
-// Handle cross-tab auth sync
 if (typeof window !== 'undefined') {
   const channel = getBroadcastChannel()
   channel.addEventListener('message', (event) => {

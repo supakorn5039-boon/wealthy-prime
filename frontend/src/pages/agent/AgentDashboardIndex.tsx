@@ -44,7 +44,6 @@ export default function AgentDashboardIndex() {
 
   const pendingVisits = contacts.filter((c) => c.status === 'pending' || c.status === 'assigned').length
 
-  // Build district chart from contacts
   const districtMap: Record<string, number> = {}
   contacts.forEach((c) => {
     const loc = c.propertyTitle ?? t('common.noData')

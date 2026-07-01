@@ -8,17 +8,12 @@ import (
 	"github.com/wealthy-prime/backend/src/tests/helpers"
 )
 
-// TestAgentDashboard_Counts locks in the six fields the dashboard depends on:
-// total/available/reserved + the sell/rent/both listing-type breakdown the
-// pie chart plots. Regressions here render the pie as empty slices, which
-// is exactly the bug we just fixed (chart was wired to total vs reserved).
 func TestAgentDashboard_Counts(t *testing.T) {
 	db, cleanup := helpers.TestDB(t)
 	defer cleanup()
 
 	agentID := helpers.SeedAgent(t, db, "dashboard.agent@test.local")
 
-	// 2 sell, 1 rent, 3 both = 6 total; 4 available, 1 reserved, 1 sold.
 	props := []model.Property{
 		helpers.NewProperty(agentID, "S1", model.ListingSell, model.StatusAvailable),
 		helpers.NewProperty(agentID, "S2", model.ListingSell, model.StatusSold),
@@ -49,8 +44,6 @@ func TestAgentDashboard_Counts(t *testing.T) {
 	}
 }
 
-// TestAgentDashboard_IgnoresOtherAgents proves the counts scope correctly —
-// a different agent's properties must not bleed into the result.
 func TestAgentDashboard_IgnoresOtherAgents(t *testing.T) {
 	db, cleanup := helpers.TestDB(t)
 	defer cleanup()

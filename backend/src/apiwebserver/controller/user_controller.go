@@ -14,8 +14,6 @@ import (
 	"github.com/wealthy-prime/backend/src/database/model"
 )
 
-// Booking creation rate limit per authenticated user. Allows a small burst
-// for a normal cart submit but blocks scripted floods.
 const (
 	bookingRatePerSecond = 10.0 / 60.0
 	bookingBurst         = 5
@@ -57,8 +55,6 @@ func (ctrl *UserController) RegisterRoutes(r *gin.RouterGroup) {
 	user.POST("/inquiries", ctrl.createInquiry)
 }
 
-// Wishlist
-
 func (ctrl *UserController) getWishlist(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 
@@ -87,7 +83,6 @@ func (ctrl *UserController) addWishlist(c *gin.Context) {
 		return
 	}
 
-	// Check property exists
 	var prop model.Property
 	if err := database.DB.First(&prop, body.PropertyID).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		errorResponse(c, apperror.NotFound("property"))
@@ -96,7 +91,7 @@ func (ctrl *UserController) addWishlist(c *gin.Context) {
 
 	item := model.Wishlist{UserID: userID, PropertyID: body.PropertyID}
 	if err := database.DB.Create(&item).Error; err != nil {
-		// Unique constraint violation means already in wishlist
+
 		if strings.Contains(err.Error(), "duplicate") || strings.Contains(err.Error(), "unique") {
 			errorResponse(c, apperror.Conflict("property already in wishlist"))
 			return
@@ -129,8 +124,6 @@ func (ctrl *UserController) removeWishlist(c *gin.Context) {
 	successResponse(c, gin.H{"message": "removed from wishlist"})
 }
 
-// Browse History
-
 func (ctrl *UserController) getHistory(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 
@@ -156,18 +149,16 @@ func (ctrl *UserController) addHistory(c *gin.Context) {
 		return
 	}
 
-	// Check property exists
 	var prop model.Property
 	if err := database.DB.First(&prop, propertyID).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		errorResponse(c, apperror.NotFound("property"))
 		return
 	}
 
-	// Upsert: update or insert
 	var existing model.BrowseHistory
 	res := database.DB.Where("user_id = ? AND property_id = ?", userID, propertyID).First(&existing)
 	if res.Error == nil {
-		// Already exists — update timestamp
+
 		database.DB.Model(&existing).Update("updated_at", gorm.Expr("NOW()"))
 	} else {
 		item := model.BrowseHistory{UserID: userID, PropertyID: propertyID}
@@ -179,8 +170,6 @@ func (ctrl *UserController) addHistory(c *gin.Context) {
 
 	successResponse(c, gin.H{"message": "history recorded"})
 }
-
-// Bookings
 
 func (ctrl *UserController) createBookings(c *gin.Context) {
 	userID := middleware.GetUserID(c)

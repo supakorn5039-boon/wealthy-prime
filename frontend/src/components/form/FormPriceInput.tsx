@@ -12,9 +12,6 @@ interface FormPriceInputProps<T extends FieldValues> {
   disabled?: boolean
 }
 
-// Numeric input that renders the current value with thousands separators
-// (e.g. "1,000,000") while storing it in the form state as a plain digit
-// string ("1000000"). Validation that calls Number(value) continues to work.
 export function FormPriceInput<T extends FieldValues>({
   control,
   name,

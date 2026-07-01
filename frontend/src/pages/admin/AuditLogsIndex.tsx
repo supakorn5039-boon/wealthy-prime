@@ -49,9 +49,6 @@ const ENTITY_VALUES: AuditEntityType[] = [
 
 const ROLE_VALUES: UserRole[] = ['admin', 'agent', 'user']
 
-// Stable header/cell components keep the `columns` array reference constant
-// across language changes. Without this, useReactTable rebuilds all internal
-// row models on every t() change, freezing the page on heavy tables.
 function HeaderT({ k }: { k: string }) {
   const { t } = useTranslation()
   return <>{t(k)}</>

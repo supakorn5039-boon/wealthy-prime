@@ -11,13 +11,9 @@ import (
 	"github.com/wealthy-prime/backend/src/pkg/timezone"
 )
 
-// BuildAppointmentNotification renders the email an agent receives when a
-// customer schedules a property viewing through the cart/booking flow.
 func BuildAppointmentNotification(booking *model.Booking, agent *model.User) (Message, error) {
 	property := booking.Property
 
-	// Compose the customer-facing display name from the snapshot fields
-	// captured at booking time, falling back to the user's profile name.
 	customerName := strings.TrimSpace(strings.Join([]string{booking.FirstName, booking.LastName}, " "))
 	if customerName == "" {
 		customerName = booking.User.Name
@@ -63,9 +59,6 @@ func BuildAppointmentNotification(booking *model.Booking, agent *model.User) (Me
 	}, nil
 }
 
-// BuildAppointmentConfirmation renders the email a CUSTOMER receives when
-// they successfully schedule a property viewing — a polite confirmation of
-// the booking with the assigned agent's contact details.
 func BuildAppointmentConfirmation(booking *model.Booking, agent *model.User) (Message, error) {
 	property := booking.Property
 
@@ -80,19 +73,19 @@ func BuildAppointmentConfirmation(booking *model.Booking, agent *model.User) (Me
 	apptTime := booking.AppointmentDate.In(timezone.ICT).Format("2 Jan 2006 15:04 น.")
 
 	data := confirmationData{
-		CustomerName:   customerName,
-		PropertyTitle:  property.ProjectName,
-		PropertyCode:   property.PropertyCode,
-		Appointment:    apptTime,
-		AgentName:      agent.Name,
-		AgentPhone:     agent.Phone,
-		AgentEmail:     agent.Email,
-		AgentLineID:    agent.LineID,
-		AgentWhatsapp:  agent.Whatsapp,
-		AgentWechat:    agent.Wechat,
-		AgentFacebook:  agent.Facebook,
-		Note:           strings.TrimSpace(booking.Note),
-		HistoryURL:     config.App.SMTP.AppURL + "/history",
+		CustomerName:  customerName,
+		PropertyTitle: property.ProjectName,
+		PropertyCode:  property.PropertyCode,
+		Appointment:   apptTime,
+		AgentName:     agent.Name,
+		AgentPhone:    agent.Phone,
+		AgentEmail:    agent.Email,
+		AgentLineID:   agent.LineID,
+		AgentWhatsapp: agent.Whatsapp,
+		AgentWechat:   agent.Wechat,
+		AgentFacebook: agent.Facebook,
+		Note:          strings.TrimSpace(booking.Note),
+		HistoryURL:    config.App.SMTP.AppURL + "/history",
 	}
 
 	var htmlBuf, textBuf bytes.Buffer
@@ -115,19 +108,19 @@ func BuildAppointmentConfirmation(booking *model.Booking, agent *model.User) (Me
 }
 
 type confirmationData struct {
-	CustomerName   string
-	PropertyTitle  string
-	PropertyCode   string
-	Appointment    string
-	AgentName      string
-	AgentPhone     string
-	AgentEmail     string
-	AgentLineID    string
-	AgentWhatsapp  string
-	AgentWechat    string
-	AgentFacebook  string
-	Note           string
-	HistoryURL     string
+	CustomerName  string
+	PropertyTitle string
+	PropertyCode  string
+	Appointment   string
+	AgentName     string
+	AgentPhone    string
+	AgentEmail    string
+	AgentLineID   string
+	AgentWhatsapp string
+	AgentWechat   string
+	AgentFacebook string
+	Note          string
+	HistoryURL    string
 }
 
 var confirmHTMLTpl = template.Must(template.New("confirm_html").Parse(`<!doctype html>
@@ -240,9 +233,6 @@ Facebook: {{.CustomerFacebook}}{{end}}{{if .Note}}
 — ระบบ Wealthy Prime Estate
 `))
 
-// BuildPasswordResetEmail renders the email a user receives when they request
-// a password reset. resetURL points at the frontend reset page with the raw
-// (un-hashed) token embedded as a query parameter.
 func BuildPasswordResetEmail(toEmail, toName, resetURL string) (Message, error) {
 	displayName := strings.TrimSpace(toName)
 	if displayName == "" {

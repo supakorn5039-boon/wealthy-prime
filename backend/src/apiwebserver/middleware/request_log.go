@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// generateRequestID creates a short random hex string for correlating log lines.
 func generateRequestID() string {
 	b := make([]byte, 8)
 	if _, err := rand.Read(b); err != nil {
@@ -18,7 +17,6 @@ func generateRequestID() string {
 	return hex.EncodeToString(b)
 }
 
-// RequestLogger returns a Gin middleware that logs each request with slog.
 func RequestLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()

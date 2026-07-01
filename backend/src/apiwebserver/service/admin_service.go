@@ -27,9 +27,6 @@ func NewAdminService() *AdminService {
 	}
 }
 
-// ListAllProperties returns every property regardless of agent ownership.
-// Owner contact fields are intentionally NOT stripped — admins see the
-// full record so they can intervene on a listing.
 func (s *AdminService) ListAllProperties(filter PropertyFilter) ([]model.PropertyDto, error) {
 	return s.propertySvc.ListProperties(filter)
 }
@@ -54,7 +51,6 @@ type AdminDashboard struct {
 	AgentLeaderboard    []AgentLeaderEntry    `json:"agentLeaderboard"`
 }
 
-// GetDashboard returns top-line counts, property status chart, and agent leaderboard.
 func (s *AdminService) GetDashboard() (*AdminDashboard, error) {
 	var totalProperties, totalUsers, totalAgents int64
 	if err := s.db.Model(&model.Property{}).Count(&totalProperties).Error; err != nil {
@@ -104,9 +100,6 @@ func (s *AdminService) GetDashboard() (*AdminDashboard, error) {
 	}, nil
 }
 
-// ListBookings returns bookings that still need admin attention: active
-// (pending / assigned) and in the early work states. Cases the agent has
-// moved past first contact drop off admin views — the agent owns them.
 func (s *AdminService) ListBookings() ([]model.BookingDto, error) {
 	var bookings []model.Booking
 	if err := s.db.Preload("User").Preload("Property").Preload("AssignedAgent").
@@ -122,7 +115,6 @@ func (s *AdminService) ListBookings() ([]model.BookingDto, error) {
 	return dtos, nil
 }
 
-// ReassignBooking updates the assigned agent on a booking.
 func (s *AdminService) ReassignBooking(bookingID, agentID uint) (*model.BookingDto, error) {
 	var booking model.Booking
 	err := s.db.First(&booking, bookingID).Error
@@ -133,7 +125,6 @@ func (s *AdminService) ReassignBooking(bookingID, agentID uint) (*model.BookingD
 		return nil, apperror.Wrap(err, 500, "database error")
 	}
 
-	// Verify agent exists and has agent role
 	var agent model.User
 	err = s.db.Where("id = ? AND role = ?", agentID, model.RoleAgent).First(&agent).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -157,9 +148,6 @@ func (s *AdminService) ReassignBooking(bookingID, agentID uint) (*model.BookingD
 		return nil, apperror.Wrap(err, 500, "failed to reload booking")
 	}
 
-	// Fire the agent notification only after an admin has explicitly assigned
-	// the booking. Reassign to a different agent re-fires the notification so
-	// the new agent learns about the appointment.
 	s.bookingSvc.NotifyAgentAssignedAsync(full)
 
 	return full.ToDto(), nil
@@ -175,7 +163,6 @@ type FinancialRecord struct {
 	ClosedAt      string  `json:"closedAt"`
 }
 
-// GetFinancialReport returns sold properties shaped as FinancialRecord rows.
 func (s *AdminService) GetFinancialReport() ([]FinancialRecord, error) {
 	var properties []model.Property
 	if err := s.db.Preload("Agent").
@@ -201,7 +188,6 @@ func (s *AdminService) GetFinancialReport() ([]FinancialRecord, error) {
 	return records, nil
 }
 
-// ExportFinancial streams an xlsx file of sold properties.
 func (s *AdminService) ExportFinancial(w http.ResponseWriter) error {
 	var properties []model.Property
 	if err := s.db.Preload("Agent").Where("status = ?", model.StatusSold).Find(&properties).Error; err != nil {
@@ -267,7 +253,6 @@ func (s *AdminService) ExportFinancial(w http.ResponseWriter) error {
 	return nil
 }
 
-// ListAgents returns all users with role=agent.
 func (s *AdminService) ListAgents() ([]model.UserDto, error) {
 	var agents []model.User
 	if err := s.db.Where("role = ?", model.RoleAgent).Find(&agents).Error; err != nil {
@@ -280,7 +265,6 @@ func (s *AdminService) ListAgents() ([]model.UserDto, error) {
 	return dtos, nil
 }
 
-// GetAgent returns a single agent by ID.
 func (s *AdminService) GetAgent(agentID uint) (*model.UserDto, error) {
 	var agent model.User
 	err := s.db.Where("id = ? AND role = ?", agentID, model.RoleAgent).First(&agent).Error
@@ -293,7 +277,6 @@ func (s *AdminService) GetAgent(agentID uint) (*model.UserDto, error) {
 	return agent.ToDto(), nil
 }
 
-// UpdateAgentRole changes the role of a user.
 func (s *AdminService) UpdateAgentRole(userID uint, role model.UserRole) (*model.UserDto, error) {
 	var user model.User
 	err := s.db.First(&user, userID).Error
@@ -311,7 +294,6 @@ func (s *AdminService) UpdateAgentRole(userID uint, role model.UserRole) (*model
 	return user.ToDto(), nil
 }
 
-// UpdateAgent updates agent profile fields.
 func (s *AdminService) UpdateAgent(agentID uint, updates map[string]interface{}) (*model.UserDto, error) {
 	var agent model.User
 	err := s.db.First(&agent, agentID).Error
@@ -329,7 +311,6 @@ func (s *AdminService) UpdateAgent(agentID uint, updates map[string]interface{})
 	return agent.ToDto(), nil
 }
 
-// ListUsers returns all users.
 func (s *AdminService) ListUsers() ([]model.UserDto, error) {
 	var users []model.User
 	if err := s.db.Find(&users).Error; err != nil {
@@ -342,7 +323,6 @@ func (s *AdminService) ListUsers() ([]model.UserDto, error) {
 	return dtos, nil
 }
 
-// GetUser returns a single user by ID.
 func (s *AdminService) GetUser(userID uint) (*model.UserDto, error) {
 	var user model.User
 	err := s.db.First(&user, userID).Error
@@ -355,8 +335,6 @@ func (s *AdminService) GetUser(userID uint) (*model.UserDto, error) {
 	return user.ToDto(), nil
 }
 
-// ListPendingUsers returns users/agents who registered but are not yet approved.
-// Admins are excluded — they are always approved.
 func (s *AdminService) ListPendingUsers() ([]model.UserDto, error) {
 	var users []model.User
 	if err := s.db.
@@ -372,7 +350,6 @@ func (s *AdminService) ListPendingUsers() ([]model.UserDto, error) {
 	return dtos, nil
 }
 
-// ApproveUser flips is_approved to true so the user can log in.
 func (s *AdminService) ApproveUser(userID uint) (*model.UserDto, error) {
 	var user model.User
 	err := s.db.First(&user, userID).Error
@@ -390,7 +367,6 @@ func (s *AdminService) ApproveUser(userID uint) (*model.UserDto, error) {
 	return user.ToDto(), nil
 }
 
-// RejectUser soft-deletes a pending registration so it cannot log in or be re-approved.
 func (s *AdminService) RejectUser(userID uint) error {
 	var user model.User
 	err := s.db.First(&user, userID).Error
@@ -406,7 +382,6 @@ func (s *AdminService) RejectUser(userID uint) error {
 	return nil
 }
 
-// UpdateUser updates a user's profile fields.
 func (s *AdminService) UpdateUser(userID uint, updates map[string]interface{}) (*model.UserDto, error) {
 	var user model.User
 	err := s.db.First(&user, userID).Error

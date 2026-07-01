@@ -31,8 +31,6 @@ type PieSlice = { kind: string; value: number; color: string }
 
 const EMPTY_PIE: PieSlice[] = [{ kind: '', value: 1, color: '#e5e7eb' }]
 
-// Module-scope so columns/cell components hold stable references across renders.
-// Without this, useReactTable rebuilds on every language change.
 function HeaderT({ k }: { k: string }) {
   const { t } = useTranslation()
   return <>{t(k)}</>
@@ -49,8 +47,6 @@ function KindName({ kind }: { kind: KindKey }) {
   return <span className="truncate">{t(`property.kind.${kind}`)}</span>
 }
 
-// Memoized so recharts doesn't re-render its SVG on language change — the chart
-// has no translatable text, so props stay stable when only the language toggles.
 const PropertyPieChart = memo(function PropertyPieChart({
   data,
   paddingAngle,

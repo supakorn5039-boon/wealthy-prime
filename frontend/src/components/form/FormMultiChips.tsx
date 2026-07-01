@@ -15,9 +15,6 @@ interface FormMultiChipsProps<T extends FieldValues> {
   required?: boolean
 }
 
-// FormMultiChips renders a list of toggleable chip-buttons backed by a CSV
-// string field. The field stores CSV of `value`s ("12, 34"); chips display
-// `label`. Persisted with ", " separator to match the BTS/MRT requirement.
 export function FormMultiChips<T extends FieldValues>({
   control,
   name,

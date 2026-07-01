@@ -17,12 +17,12 @@ const (
 
 type User struct {
 	gorm.Model
-	Name           string   `gorm:"not null"`
+	Name           string `gorm:"not null"`
 	FirstName      string
 	LastName       string
-	Email          string   `gorm:"uniqueIndex;not null"`
-	PasswordHash   string   `gorm:"not null"`
-	Phone          string   `gorm:"not null"`
+	Email          string `gorm:"uniqueIndex;not null"`
+	PasswordHash   string `gorm:"not null"`
+	Phone          string `gorm:"not null"`
 	SecondaryPhone string
 	LineID         string
 	Facebook       string
@@ -30,16 +30,10 @@ type User struct {
 	Whatsapp       string
 	AgentCode      string   `gorm:"index"`
 	Role           UserRole `gorm:"type:varchar(20);not null;default:'user'"`
-	// DO NOT add a `default` tag — GORM substitutes its default value
-	// for zero-value fields on INSERT, which would silently approve every
-	// self-registration (IsApproved=false is the zero value).
-	// Existing rows are grandfathered via raw SQL in migrateUsers.
+
 	IsApproved bool `gorm:"not null"`
 
-	// Password reset: we store the SHA-256 hash of the token (never the raw
-	// token), so a DB leak can't be used to reset accounts. ExpiresAt is
-	// nullable so we can clear both fields after a successful reset.
-	PasswordResetTokenHash string     `gorm:"index"`
+	PasswordResetTokenHash string `gorm:"index"`
 	PasswordResetExpiresAt *time.Time
 }
 
@@ -81,8 +75,6 @@ func (u *User) ToDto() *UserDto {
 	}
 }
 
-// ComposeName builds Name from FirstName + LastName when both provided.
-// Existing single-field Name remains untouched if first/last empty.
 func ComposeName(first, last, fallback string) string {
 	first = strings.TrimSpace(first)
 	last = strings.TrimSpace(last)

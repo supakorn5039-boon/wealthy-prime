@@ -16,24 +16,12 @@ import (
 	"github.com/wealthy-prime/backend/src/pkg/timezone"
 )
 
-// ActiveBookingStatuses are the states that count toward an agent's daily
-// load and a user's active-booking cap. Exported so admin queries that
-// filter "open" bookings share the same definition.
 var ActiveBookingStatuses = []model.BookingStatus{model.BookingPending, model.BookingAssigned}
 
-// AdminVisibleWorkStatuses is the set of work states that still warrant admin
-// attention: the case hasn't been contacted yet, or the agent has just made
-// first contact. Anything further (visited / booked / closed_deal /
-// customer_cancelled) is owned by the agent and drops off admin views.
 var AdminVisibleWorkStatuses = []model.AppointmentWorkStatus{model.WorkNotSet, model.WorkContacted}
 
-// maxBookingsPerAgentPerDay caps an agent at 3 active bookings per calendar
-// day (ICT). Beyond that, new bookings get assigned to a random other agent
-// to spread the load.
 const maxBookingsPerAgentPerDay = 3
 
-// Per-request input caps that bound the blast radius of automated/scripted
-// abuse before any agent-assignment logic runs.
 const (
 	maxPropertiesPerRequest  = 5
 	maxActiveBookingsPerUser = 20
@@ -48,8 +36,6 @@ func NewBookingService() *BookingService {
 	return &BookingService{db: database.DB, mailer: email.New()}
 }
 
-// NewBookingServiceWithDeps lets tests inject an isolated DB + non-real
-// email sender instead of mutating the package globals.
 func NewBookingServiceWithDeps(db *gorm.DB, mailer email.Sender) *BookingService {
 	return &BookingService{db: db, mailer: mailer}
 }
@@ -71,19 +57,11 @@ type CreateBookingsInput struct {
 	Whatsapp       string `json:"whatsapp"`
 }
 
-// CreateBookings creates one booking per property ID. The booking is
-// auto-assigned to the property's owning agent (status = assigned). If that
-// agent already has maxBookingsPerAgentPerDay bookings on the appointment
-// day, the booking is assigned to a random other approved agent instead. If
-// the property has no agent at all, the booking stays pending and the admin
-// queue picks it up.
 func (s *BookingService) CreateBookings(userID uint, input CreateBookingsInput) ([]model.BookingDto, error) {
 	if len(input.PropertyIDs) > maxPropertiesPerRequest {
 		return nil, apperror.BadRequest("too many properties in one request; max " + strconv.Itoa(maxPropertiesPerRequest))
 	}
 
-	// Cap each user's active (pending + assigned) bookings. Stops a single
-	// account — including an auto-approved one — from flooding agents' days.
 	var userActive int64
 	if err := s.db.Model(&model.Booking{}).
 		Where("user_id = ? AND status IN ?", userID, ActiveBookingStatuses).
@@ -100,11 +78,6 @@ func (s *BookingService) CreateBookings(userID uint, input CreateBookingsInput) 
 		var notify model.Booking
 		var dto *model.BookingDto
 
-		// Each booking runs in its own tx so the advisory lock on
-		// (preferredAgent, day) is held across the count and the insert. This
-		// closes the read-then-write race that would otherwise let many
-		// concurrent requests all read count=0 and all assign to the same
-		// agent past the cap.
 		txErr := s.db.Transaction(func(tx *gorm.DB) error {
 			var property model.Property
 			err := tx.First(&property, propertyID).Error
@@ -162,8 +135,6 @@ func (s *BookingService) CreateBookings(userID uint, input CreateBookingsInput) 
 			return nil, txErr
 		}
 
-		// Notify only after the tx commits, so we never email about a booking
-		// that was rolled back.
 		s.notifyAppointmentAsync(notify)
 		results = append(results, *dto)
 	}
@@ -171,11 +142,6 @@ func (s *BookingService) CreateBookings(userID uint, input CreateBookingsInput) 
 	return results, nil
 }
 
-// notifyAppointmentAsync sends the customer confirmation and, when the
-// booking was auto-assigned, the agent notification — both off the request
-// path. SMTP failures must not roll the booking back, so panics are recovered
-// + logged. When unassigned, the customer email still goes out (the template
-// omits agent rows when fields are blank) and the agent step is skipped.
 func (s *BookingService) notifyAppointmentAsync(b model.Booking) {
 	go func(b model.Booking) {
 		defer func() {
@@ -200,8 +166,6 @@ func (s *BookingService) notifyAppointmentAsync(b model.Booking) {
 	}(b)
 }
 
-// sendAgentNotification builds and sends the agent notification, logging the
-// outcome. Synchronous — the caller owns goroutine + panic recovery.
 func (s *BookingService) sendAgentNotification(b model.Booking) {
 	if b.AssignedAgent == nil || b.AssignedAgent.Email == "" {
 		log.Printf("[email] skipping booking %d agent notification — no assigned agent or agent email", b.ID)
@@ -219,24 +183,11 @@ func (s *BookingService) sendAgentNotification(b model.Booking) {
 	log.Printf("[email] booking %d agent notification sent to %s (bcc=%q)", b.ID, msg.To, msg.Bcc)
 }
 
-// maybeReassignForLoadTx returns a different agent ID when preferredAgentID
-// already has maxBookingsPerAgentPerDay active bookings on the appointment
-// day (00:00–23:59 ICT). Returns nil when no reassignment is needed or no
-// other approved agent is available — the caller falls back to
-// preferredAgentID in that case.
-//
-// Must run inside a transaction. Takes a per-tx Postgres advisory lock keyed
-// on (preferredAgentID, dayStart) so the count, decision, and insert that
-// follows are serialized for that (agent, day) pair. The lock auto-releases
-// when the tx commits or rolls back. Different (agent, day) pairs do not
-// contend, so unrelated bookings stay parallel.
 func (s *BookingService) maybeReassignForLoadTx(tx *gorm.DB, preferredAgentID uint, appointmentDate time.Time) (*uint, error) {
 	local := appointmentDate.In(timezone.ICT)
 	dayStart := time.Date(local.Year(), local.Month(), local.Day(), 0, 0, 0, 0, timezone.ICT)
 	dayEnd := dayStart.Add(24 * time.Hour)
 
-	// pg_advisory_xact_lock(int4, int4) — agent ID + days-since-epoch fit
-	// comfortably in int32. Two-key form keeps the lock space sparse.
 	daysSinceEpoch := int32(dayStart.Unix() / 86400)
 	if err := tx.Exec("SELECT pg_advisory_xact_lock(?, ?)", int32(preferredAgentID), daysSinceEpoch).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "failed to acquire booking lock")
@@ -271,8 +222,6 @@ func (s *BookingService) maybeReassignForLoadTx(tx *gorm.DB, preferredAgentID ui
 	return &pick, nil
 }
 
-// NotifyAgentAssignedAsync sends the agent the appointment notification when
-// an admin assigns/reassigns the booking to them. Called by AdminService.
 func (s *BookingService) NotifyAgentAssignedAsync(b model.Booking) {
 	go func(b model.Booking) {
 		defer func() {
@@ -284,7 +233,6 @@ func (s *BookingService) NotifyAgentAssignedAsync(b model.Booking) {
 	}(b)
 }
 
-// GetUserBookings returns all bookings for a given user.
 func (s *BookingService) GetUserBookings(userID uint) ([]model.BookingDto, error) {
 	var bookings []model.Booking
 	if err := s.db.Preload("User").Preload("Property").Preload("AssignedAgent").
@@ -298,7 +246,6 @@ func (s *BookingService) GetUserBookings(userID uint) ([]model.BookingDto, error
 	return dtos, nil
 }
 
-// GetUserBooking returns a single booking owned by the given user.
 func (s *BookingService) GetUserBooking(userID, bookingID uint) (*model.BookingDto, error) {
 	var booking model.Booking
 	err := s.db.Preload("User").Preload("Property").Preload("AssignedAgent").

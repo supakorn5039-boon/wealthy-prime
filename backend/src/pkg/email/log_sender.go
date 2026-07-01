@@ -5,9 +5,6 @@ import (
 	"strings"
 )
 
-// logSender is the dev fallback when SMTP is not configured.
-// It prints a readable summary of the email to stdout so devs can verify
-// the trigger fired without setting up a real SMTP account.
 type logSender struct{}
 
 func (l *logSender) Send(msg Message) error {

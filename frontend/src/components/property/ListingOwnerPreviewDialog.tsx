@@ -26,8 +26,6 @@ export function ListingOwnerPreviewDialog(props: Props) {
   const propertyId = 'propertyId' in props ? props.propertyId : undefined
   const presetPreview = 'preview' in props ? props.preview : undefined
 
-  // Lazy fetch: query only fires after the user opens the dialog. React Query
-  // caches by key so subsequent opens are instant.
   const { data: fetchedPreview, isLoading } = useQuery({
     queryKey: ['listing-owner-preview', propertyId],
     queryFn: () => PropertyService.getListingOwner(propertyId!),

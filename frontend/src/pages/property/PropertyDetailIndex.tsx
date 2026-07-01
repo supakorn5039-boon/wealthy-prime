@@ -30,7 +30,6 @@ import { formatBtsMrt } from '@/utils/btsMrt'
 import { canSeeOwnerInfo } from '@/utils/permissions'
 import type { Review } from '@/types/Review'
 
-// Reviews UI (รีวิวจากผู้จอง) is hidden until next phase. Flip to true to re-enable.
 const REVIEWS_ENABLED = false
 
 const pinIcon = L.divIcon({
@@ -61,9 +60,6 @@ export default function PropertyDetailIndex() {
     enabled: !!id,
   })
 
-  // Owner-info dialog is restricted to agent/admin viewers — same compliance
-  // rule as the rest of the owner-contact surfaces. The fetch is lazy: the
-  // dialog itself only issues the request once the user opens it.
   const ownerInfoAllowed = canSeeOwnerInfo(user?.role)
 
   const { data: reviews = [] } = useQuery({

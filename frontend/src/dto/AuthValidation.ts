@@ -1,17 +1,11 @@
 import { z } from 'zod'
 import { isValidPhoneNumber } from 'libphonenumber-js'
 
-// Registration / profile phones flow through PhoneInput which yields E.164.
-// Validation delegates to libphonenumber so any country works, not just TH.
 export const phoneSchema = z
   .string()
   .min(1, 'กรุณากรอกเบอร์โทร')
   .refine((v) => isValidPhoneNumber(v), 'รูปแบบเบอร์โทรไม่ถูกต้อง')
 
-// Permissive variant for legacy plain-text phone fields (e.g. property owner
-// phone on the Add/Edit Property form). Accepts E.164 ("+66...") or a Thai
-// local number ("0812345678") so existing flows keep working until they are
-// also migrated to the picker.
 const stripPhone = (v: string) => v.replace(/[\s-]/g, '')
 const isLooseValidPhone = (v: string) => {
   const cleaned = stripPhone(v)
@@ -23,11 +17,6 @@ export const optionalPhoneSchema = z
   .optional()
   .refine((v) => !v || isLooseValidPhone(v), 'รูปแบบเบอร์โทรไม่ถูกต้อง')
 
-// Required-loose variant: required, but accepts legacy Thai local format too.
-// Used by admin edit modals where existing users may have phones stored in
-// pre-E.164 format — the PhoneInput emits E.164 on new edits, but the initial
-// prefilled value can still be legacy. Without this, the admin would have to
-// retype every legacy phone before being able to save anything.
 export const requiredLoosePhoneSchema = z
   .string()
   .min(1, 'กรุณากรอกเบอร์โทร')

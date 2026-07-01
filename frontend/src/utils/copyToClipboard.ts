@@ -1,7 +1,4 @@
-// Copies text to the clipboard. Falls back to the deprecated execCommand path
-// when navigator.clipboard is unavailable (which happens on http://wealthy.local
-// and other non-secure contexts — the modern API is only exposed on HTTPS or
-// localhost/127.0.0.1).
+
 export async function copyToClipboard(text: string): Promise<void> {
   if (navigator.clipboard && window.isSecureContext) {
     await navigator.clipboard.writeText(text)

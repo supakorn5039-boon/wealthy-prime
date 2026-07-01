@@ -22,9 +22,6 @@ interface MultiSelectFilterProps<T extends string | number> {
   disabled?: boolean
 }
 
-// Multi-select dropdown with built-in type-ahead search. Portal-rendered so the
-// menu doesn't get clipped by a parent's overflow / z-index. Use this for any
-// filter that picks from a finite list of items.
 export function MultiSelectFilter<T extends string | number>({
   placeholder,
   selectedLabel,

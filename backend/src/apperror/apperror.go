@@ -5,7 +5,6 @@ import (
 	"net/http"
 )
 
-// AppError is a structured application error carrying an HTTP status code.
 type AppError struct {
 	Status  int
 	Message string
@@ -23,27 +22,22 @@ func (e *AppError) Unwrap() error {
 	return e.Err
 }
 
-// New creates a plain AppError with the given status and message.
 func New(status int, message string) *AppError {
 	return &AppError{Status: status, Message: message}
 }
 
-// Wrap wraps an underlying error with an HTTP status and message.
 func Wrap(err error, status int, message string) *AppError {
 	return &AppError{Status: status, Message: message, Err: err}
 }
 
-// NotFound returns a 404 AppError.
 func NotFound(resource string) *AppError {
 	return &AppError{Status: http.StatusNotFound, Message: resource + " not found"}
 }
 
-// BadRequest returns a 400 AppError.
 func BadRequest(message string) *AppError {
 	return &AppError{Status: http.StatusBadRequest, Message: message}
 }
 
-// Unauthorized returns a 401 AppError.
 func Unauthorized(message string) *AppError {
 	if message == "" {
 		message = "unauthorized"
@@ -51,7 +45,6 @@ func Unauthorized(message string) *AppError {
 	return &AppError{Status: http.StatusUnauthorized, Message: message}
 }
 
-// Forbidden returns a 403 AppError.
 func Forbidden(message string) *AppError {
 	if message == "" {
 		message = "forbidden"
@@ -59,8 +52,6 @@ func Forbidden(message string) *AppError {
 	return &AppError{Status: http.StatusForbidden, Message: message}
 }
 
-// Conflict returns a 409 AppError.
 func Conflict(message string) *AppError {
 	return &AppError{Status: http.StatusConflict, Message: message}
 }
-

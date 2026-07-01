@@ -15,27 +15,26 @@ const (
 	BookingCompleted BookingStatus = "completed"
 	BookingCancelled BookingStatus = "cancelled"
 
-	WorkNotSet             AppointmentWorkStatus = ""
-	WorkContacted          AppointmentWorkStatus = "contacted"
-	WorkVisited            AppointmentWorkStatus = "visited"
-	WorkBooked             AppointmentWorkStatus = "booked"
-	WorkClosedDeal         AppointmentWorkStatus = "closed_deal"
-	WorkCustomerCancelled  AppointmentWorkStatus = "customer_cancelled"
+	WorkNotSet            AppointmentWorkStatus = ""
+	WorkContacted         AppointmentWorkStatus = "contacted"
+	WorkVisited           AppointmentWorkStatus = "visited"
+	WorkBooked            AppointmentWorkStatus = "booked"
+	WorkClosedDeal        AppointmentWorkStatus = "closed_deal"
+	WorkCustomerCancelled AppointmentWorkStatus = "customer_cancelled"
 )
 
 type Booking struct {
 	gorm.Model
-	UserID          uint          `gorm:"not null;index"`
-	User            User          `gorm:"foreignKey:UserID"`
-	PropertyID      uint          `gorm:"not null"`
-	Property        Property      `gorm:"foreignKey:PropertyID"`
-	AppointmentDate time.Time     `gorm:"not null"`
+	UserID          uint      `gorm:"not null;index"`
+	User            User      `gorm:"foreignKey:UserID"`
+	PropertyID      uint      `gorm:"not null"`
+	Property        Property  `gorm:"foreignKey:PropertyID"`
+	AppointmentDate time.Time `gorm:"not null"`
 	Note            string
 	Status          BookingStatus `gorm:"type:varchar(20);not null;default:'pending'"`
 	AssignedAgentID *uint         `gorm:"index"`
 	AssignedAgent   *User         `gorm:"foreignKey:AssignedAgentID"`
 
-	// Captured contact details at booking time (snapshot)
 	FirstName      string
 	LastName       string
 	Phone          string
@@ -47,7 +46,6 @@ type Booking struct {
 	Wechat         string
 	Whatsapp       string
 
-	// Agent-side work tracking (parallel to Status)
 	WorkStatus AppointmentWorkStatus `gorm:"type:varchar(30)"`
 }
 
@@ -77,7 +75,7 @@ type BookingDto struct {
 	Wechat          string                `json:"wechat"`
 	Whatsapp        string                `json:"whatsapp"`
 	CreatedAt       string                `json:"createdAt"`
-	ListingOwner *ListingOwnerPreview `json:"listingOwner,omitempty"`
+	ListingOwner    *ListingOwnerPreview  `json:"listingOwner,omitempty"`
 }
 
 func (b *Booking) ToDto() *BookingDto {

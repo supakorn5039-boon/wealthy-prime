@@ -11,7 +11,6 @@ import (
 	"github.com/wealthy-prime/backend/src/database/model"
 )
 
-// parseIntCSV converts "12,34,56" → []int32. Non-numeric tokens are skipped.
 func parseIntCSV(s string) []int32 {
 	if s == "" {
 		return nil
@@ -28,7 +27,6 @@ func parseIntCSV(s string) []int32 {
 	return out
 }
 
-// parseStringCSV trims and drops empty tokens.
 func parseStringCSV(s string) []string {
 	if s == "" {
 		return nil
@@ -43,8 +41,6 @@ func parseStringCSV(s string) []string {
 	return out
 }
 
-// parsePriceRanges accepts "min-max,min-max" where either side may be empty
-// to denote unbounded (e.g. "-5000" = up to 5000, "50000-" = 50000+).
 func parsePriceRanges(s string) []service.PriceRange {
 	if s == "" {
 		return nil
@@ -88,8 +84,6 @@ func (ctrl *PropertyController) RegisterRoutes(r *gin.RouterGroup) {
 	props.GET("/:id/listing-owner", ctrl.getListingOwner)
 }
 
-// canSeeOwnerInfo returns true if the viewer is an agent or admin.
-// Owner contact fields are restricted to those roles per requirement.md.
 func canSeeOwnerInfo(role model.UserRole) bool {
 	return role == model.RoleAgent || role == model.RoleAdmin
 }
@@ -143,10 +137,6 @@ func (ctrl *PropertyController) getProperty(c *gin.Context) {
 	successResponse(c, dto)
 }
 
-// getListingOwner returns the property owner's contact preview (Name/Phone/
-// Email/Line/etc. captured at listing time). Gated behind canSeeOwnerInfo —
-// same restriction applied to the owner fields embedded in the property detail
-// response. Returns null when every owner field is empty.
 func (ctrl *PropertyController) getListingOwner(c *gin.Context) {
 	if !canSeeOwnerInfo(middleware.GetRole(c)) {
 		successResponse(c, nil)
@@ -181,7 +171,6 @@ func (ctrl *PropertyController) getPropertyReviews(c *gin.Context) {
 	successResponse(c, reviews)
 }
 
-// parseUintParam extracts and parses a uint route parameter.
 func parseUintParam(c *gin.Context, name string) (uint, error) {
 	v := c.Param(name)
 	n, err := strconv.ParseUint(v, 10, 64)

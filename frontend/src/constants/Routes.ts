@@ -12,23 +12,16 @@ export const ROUTES = {
   FORGOT_PASSWORD: '/forgot-password',
   RESET_PASSWORD: '/reset-password',
 
-  // Personal info (shared)
   PROFILE: '/profile',
 
-  // User
   WISHLIST: '/wishlist',
   HISTORY: '/history',
   CONTACTS: '/contacts',
 
-  // Property
   PROPERTY_DETAIL: '/property/:id',
 
-  // Review (public token page)
   REVIEW: '/review/:token',
 
-  // Workspace (shared admin/agent) — paths are role-agnostic; the router uses
-  // role-dispatch wrappers for URLs that map to different pages per role
-  // (e.g., /dashboard, /visit-requests).
   AGENT_DASHBOARD: '/dashboard',
   AGENT_PROPERTIES: '/properties',
   AGENT_ADD_PROPERTY: '/properties/add',

@@ -9,10 +9,6 @@ import (
 	"github.com/wealthy-prime/backend/src/config"
 )
 
-// mailjetSender posts messages to Mailjet's HTTPS Send API v3.1. Used as a
-// fallback when Resend isn't configured. Auth is HTTP Basic using
-// APIKey:APISecret. Note: Render → Mailjet (GCP-hosted) connections frequently
-// reset; prefer Resend if available.
 type mailjetSender struct {
 	apiKey    string
 	apiSecret string

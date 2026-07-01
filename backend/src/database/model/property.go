@@ -48,41 +48,37 @@ const (
 
 type Property struct {
 	gorm.Model
-	ProjectName        string         `gorm:"not null"`
-	Location           string         `gorm:"not null"`
-	Price              float64        `gorm:"not null"`
-	Type               PropertyType   `gorm:"type:varchar(10);not null"`
+	ProjectName        string       `gorm:"not null"`
+	Location           string       `gorm:"not null"`
+	Price              float64      `gorm:"not null"`
+	Type               PropertyType `gorm:"type:varchar(10);not null"`
 	SizeSqm            float64
-	AgentID            *uint          `gorm:"index"`
-	Agent              *User          `gorm:"foreignKey:AgentID"`
-	OwnerInfo          string         `gorm:"not null"`
+	AgentID            *uint  `gorm:"index"`
+	Agent              *User  `gorm:"foreignKey:AgentID"`
+	OwnerInfo          string `gorm:"not null"`
 	RentalPeriodMonths *int
 	SlipURL            string
 	Lat                *float64
 	Lng                *float64
-	Status             PropertyStatus `gorm:"type:varchar(20);not null;default:'available'"`
+	Status             PropertyStatus  `gorm:"type:varchar(20);not null;default:'available'"`
 	Images             []PropertyImage `gorm:"foreignKey:PropertyID"`
 
-	// New fields per requirement
-	PropertyCode  string          `gorm:"uniqueIndex;type:varchar(10)"`
-	Kind          PropertyKind    `gorm:"type:varchar(20)"`
-	Listing       ListingType     `gorm:"type:varchar(10)"`
-	Province      string          `gorm:"index:idx_properties_province_district,priority:1"`
-	District      string          `gorm:"index;index:idx_properties_province_district,priority:2"`
-	GoogleMapURL  string
-	// BtsMrt holds station IDs from the frontend BTS_MRT_STATIONS constant.
-	// Stored as native Postgres INTEGER[] with a GIN index — enables fast
-	// `bts_mrt @> ARRAY[12]` / `bts_mrt && ARRAY[...]` filter queries.
-	BtsMrt pq.Int32Array `gorm:"type:integer[]"`
-	Bedrooms      int
-	Bathrooms     int
-	Floor         int
-	MinContract   int             // minimum contract months, default 12 client-side
-	Pets          PetPolicy       `gorm:"type:varchar(20)"`
-	Furniture     FurniturePolicy `gorm:"type:varchar(20)"`
-	AdCaption     string          `gorm:"type:text"`
+	PropertyCode string       `gorm:"uniqueIndex;type:varchar(10)"`
+	Kind         PropertyKind `gorm:"type:varchar(20)"`
+	Listing      ListingType  `gorm:"type:varchar(10)"`
+	Province     string       `gorm:"index:idx_properties_province_district,priority:1"`
+	District     string       `gorm:"index;index:idx_properties_province_district,priority:2"`
+	GoogleMapURL string
 
-	// Owner contact (Agent/Admin-visible)
+	BtsMrt      pq.Int32Array `gorm:"type:integer[]"`
+	Bedrooms    int
+	Bathrooms   int
+	Floor       int
+	MinContract int
+	Pets        PetPolicy       `gorm:"type:varchar(20)"`
+	Furniture   FurniturePolicy `gorm:"type:varchar(20)"`
+	AdCaption   string          `gorm:"type:text"`
+
 	OwnerName     string
 	OwnerPhone    string
 	OwnerLineID   string
@@ -92,11 +88,8 @@ type Property struct {
 	OwnerWhatsapp string
 }
 
-// BeforeCreate assigns a unique 7-digit property code when missing and
-// derives Type from Listing if Type was not provided.
 func (p *Property) BeforeCreate(tx *gorm.DB) error {
-	// Type is now derived from Listing on save. Frontend no longer sends Type
-	// because Listing (rent / sell / both) is the authoritative field.
+
 	if p.Type == "" && p.Listing != "" {
 		switch p.Listing {
 		case ListingSell:
@@ -130,7 +123,7 @@ func generatePropertyCode() (string, error) {
 	if _, err := rand.Read(buf[:]); err != nil {
 		return "", err
 	}
-	// 7-digit number: 1_000_000 .. 9_999_999
+
 	n := binary.BigEndian.Uint32(buf[:]) % 9_000_000
 	return fmt.Sprintf("%07d", 1_000_000+n), nil
 }
@@ -242,8 +235,6 @@ func (p *Property) ToDto() *PropertyDto {
 	return dto
 }
 
-// ListingOwnerPreview is the subset of a property's owner-contact fields shown
-// to agent/admin viewers via the dedicated owner-info dialog.
 type ListingOwnerPreview struct {
 	Info     string `json:"info"`
 	Name     string `json:"name"`
@@ -255,10 +246,6 @@ type ListingOwnerPreview struct {
 	Whatsapp string `json:"whatsapp"`
 }
 
-// NewListingOwnerPreview builds a preview from a Property. Always returns a
-// populated struct (with empty fields if the owner data is blank) so the
-// agent/admin frontend can render an empty state rather than hiding the entry
-// point entirely.
 func NewListingOwnerPreview(p *Property) *ListingOwnerPreview {
 	if p == nil {
 		return nil
@@ -275,8 +262,6 @@ func NewListingOwnerPreview(p *Property) *ListingOwnerPreview {
 	}
 }
 
-// StripOwnerInfo blanks out owner contact fields. Call this before returning
-// the DTO to non-agent/admin viewers — owner info is restricted per spec.
 func (d *PropertyDto) StripOwnerInfo() {
 	d.OwnerInfo = ""
 	d.OwnerName = ""
@@ -289,9 +274,6 @@ func (d *PropertyDto) StripOwnerInfo() {
 	d.SlipURL = ""
 }
 
-// absoluteURL prefixes a relative upload path with the configured public base URL.
-// If the path is already absolute (http/https) or empty, it is returned unchanged.
-// If no public base URL is configured, the path is returned unchanged (caller-side proxy resolves it).
 func absoluteURL(p string) string {
 	if p == "" {
 		return p

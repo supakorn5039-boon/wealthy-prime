@@ -26,10 +26,6 @@ type CreateInquiryInput struct {
 	Message    string `json:"message"`
 }
 
-// CreateInquiry records a user's contact request for a property. The property's
-// current AgentID is snapshotted so the inquiry routes to the right agent even
-// if the listing is later reassigned. Name/Phone default to the user's profile
-// when omitted by the client.
 func (s *InquiryService) CreateInquiry(userID uint, input CreateInquiryInput) (*model.InquiryDto, error) {
 	var property model.Property
 	err := s.db.First(&property, input.PropertyID).Error
@@ -78,7 +74,6 @@ func (s *InquiryService) CreateInquiry(userID uint, input CreateInquiryInput) (*
 	return full.ToDto(), nil
 }
 
-// GetAgentInquiries returns inquiries routed to the given agent.
 func (s *InquiryService) GetAgentInquiries(agentID uint) ([]model.InquiryDto, error) {
 	var inquiries []model.Inquiry
 	if err := s.db.Preload("User").Preload("Property").Preload("Agent").
@@ -92,7 +87,6 @@ func (s *InquiryService) GetAgentInquiries(agentID uint) ([]model.InquiryDto, er
 	return dtos, nil
 }
 
-// UpdateInquiryStatus flips the status of an inquiry. Only the assigned agent can update it.
 func (s *InquiryService) UpdateInquiryStatus(agentID, inquiryID uint, status model.InquiryStatus) (*model.InquiryDto, error) {
 	var inquiry model.Inquiry
 	err := s.db.First(&inquiry, inquiryID).Error

@@ -32,8 +32,6 @@ export function formatDateTime(date: string | Date | null | undefined): string {
   })
 }
 
-// Currency stays THB regardless of UI language — the underlying amounts are
-// always in Thai Baht. Only digit grouping follows the locale.
 export function formatPrice(price: number | null | undefined): string {
   if (price === null || price === undefined) return '-'
   return price.toLocaleString(currentLocale(), {

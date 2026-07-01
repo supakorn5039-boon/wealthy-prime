@@ -53,7 +53,6 @@ export function CartDrawer() {
   const [contact, setContact] = useState<ContactForm>(emptyContact)
   const [showContact, setShowContact] = useState(false)
 
-  // Prefill contact from user profile whenever the user changes.
   useEffect(() => {
     if (!user) return
     setContact({

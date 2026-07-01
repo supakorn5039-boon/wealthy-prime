@@ -20,7 +20,6 @@ import (
 	"github.com/wealthy-prime/backend/src/security"
 )
 
-// passwordResetTTL is how long a reset link stays valid after issuance.
 const passwordResetTTL = 30 * time.Minute
 
 type AuthService struct {
@@ -32,8 +31,6 @@ func NewAuthService() *AuthService {
 	return &AuthService{db: database.DB, mailer: email.New()}
 }
 
-// NewAuthServiceWithDeps lets tests swap in an isolated DB and a no-op
-// (or capturing) email sender instead of mutating the package globals.
 func NewAuthServiceWithDeps(db *gorm.DB, mailer email.Sender) *AuthService {
 	return &AuthService{db: db, mailer: mailer}
 }
@@ -63,9 +60,8 @@ type LoginResponse struct {
 	User  *model.UserDto `json:"user"`
 }
 
-// Register creates a new user account.
 func (s *AuthService) Register(input RegisterInput) (*model.UserDto, error) {
-	// Validate role — only user and agent allowed on self-register
+
 	if input.Role == "" {
 		input.Role = model.RoleUser
 	}
@@ -73,7 +69,6 @@ func (s *AuthService) Register(input RegisterInput) (*model.UserDto, error) {
 		input.Role = model.RoleUser
 	}
 
-	// Check email uniqueness
 	var existing model.User
 	err := s.db.Where("email = ?", input.Email).First(&existing).Error
 	if err == nil {
@@ -106,9 +101,7 @@ func (s *AuthService) Register(input RegisterInput) (*model.UserDto, error) {
 		Wechat:         input.Wechat,
 		Whatsapp:       input.Whatsapp,
 		Role:           input.Role,
-		// Customers (user role) get instant access. Agents need admin approval
-		// because admins need to vet who appears in the assignable-agent pool.
-		// Allow-list semantics: any future role defaults to needing approval.
+
 		IsApproved: input.Role == model.RoleUser,
 	}
 
@@ -146,10 +139,8 @@ func generateAgentCode(db *gorm.DB) (string, error) {
 	return "", errors.New("could not generate unique agent code")
 }
 
-// indirected to allow easy testing if needed
 var cryptoRandRead = cryptoRand.Read
 
-// Login verifies credentials and returns a JWT + user DTO.
 func (s *AuthService) Login(input LoginInput) (*LoginResponse, error) {
 	var user model.User
 	err := s.db.Where("email = ?", input.Email).First(&user).Error
@@ -176,10 +167,6 @@ func (s *AuthService) Login(input LoginInput) (*LoginResponse, error) {
 	return &LoginResponse{Token: token, User: user.ToDto()}, nil
 }
 
-// RequestPasswordReset returns immediately and dispatches the lookup + token
-// issuance + email send in a goroutine. Returning fast makes the response
-// shape (and timing) identical regardless of whether the email is registered,
-// which prevents account enumeration via timing side-channels.
 func (s *AuthService) RequestPasswordReset(emailAddr string) error {
 	emailAddr = strings.TrimSpace(emailAddr)
 	if emailAddr == "" {
@@ -234,8 +221,6 @@ func (s *AuthService) dispatchPasswordReset(emailAddr string) {
 	}
 }
 
-// ResetPassword validates a raw reset token, updates the user's password
-// hash, and clears the reset fields so the same link cannot be used again.
 func (s *AuthService) ResetPassword(rawToken, newPassword string) error {
 	rawToken = strings.TrimSpace(rawToken)
 	if rawToken == "" {

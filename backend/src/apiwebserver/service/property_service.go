@@ -29,7 +29,6 @@ func NewPropertyService() *PropertyService {
 	return &PropertyService{db: database.DB}
 }
 
-// PriceRange is one (min,max) bracket; nil = unbounded. Ranges OR together.
 type PriceRange struct {
 	Min *float64
 	Max *float64
@@ -38,16 +37,16 @@ type PriceRange struct {
 type PropertyFilter struct {
 	Location    string
 	Search      string
-	Types       []string // buy / rent (multi)
-	Kinds       []string // condo / house / townhouse (multi)
+	Types       []string
+	Kinds       []string
 	Provinces   []string
 	Districts   []string
 	PriceRanges []PriceRange
-	BtsMrtIDs   []int32 // station IDs; matched via array overlap (GIN-indexed)
-	// Agent/admin-only refinements
-	AgentID     *uint    // restrict to one agent's listings
-	Statuses    []string // available / reserved / sold / unavailable / owner_update
-	ProjectName string   // ILIKE on project_name
+	BtsMrtIDs   []int32
+
+	AgentID     *uint
+	Statuses    []string
+	ProjectName string
 }
 
 type PropertyFields struct {
@@ -102,14 +101,11 @@ type UpdatePropertyInput struct {
 	DeleteImageIDs []uint
 }
 
-// ListProperties returns all public-facing properties.
 func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.PropertyDto, error) {
 	query := s.db.Model(&model.Property{}).
 		Preload("Images").
 		Preload("Agent")
 
-	// Map ?types=sell,rent,both to listing rows. ListingBoth matches either side,
-	// so it's included whenever any type is picked.
 	if len(filter.Types) > 0 {
 		var hasSell, hasRent, hasBoth bool
 		for _, ty := range filter.Types {
@@ -173,8 +169,7 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 		query = query.Where("district IN ?", filter.Districts)
 	}
 	if len(filter.BtsMrtIDs) > 0 {
-		// Array overlap: properties whose bts_mrt shares any station ID with
-		// the filter. GIN index on bts_mrt makes this O(log n).
+
 		query = query.Where("bts_mrt && ?", pq.Int32Array(filter.BtsMrtIDs))
 	}
 	if filter.AgentID != nil {
@@ -199,7 +194,6 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 	return dtos, nil
 }
 
-// GetProperty returns a single property with images and agent preloaded.
 func (s *PropertyService) GetProperty(id uint) (*model.PropertyDto, error) {
 	var p model.Property
 	err := s.db.Preload("Images").Preload("Agent").First(&p, id).Error
@@ -212,9 +206,6 @@ func (s *PropertyService) GetProperty(id uint) (*model.PropertyDto, error) {
 	return p.ToDto(), nil
 }
 
-// GetListingOwner returns the property's owner-contact preview. Restricted at
-// the controller level to agent/admin viewers — owner contact data is the
-// PII captured at listing time, not the listing agent's profile.
 func (s *PropertyService) GetListingOwner(propertyID uint) (*model.ListingOwnerPreview, error) {
 	var prop model.Property
 	err := s.db.First(&prop, propertyID).Error
@@ -227,7 +218,6 @@ func (s *PropertyService) GetListingOwner(propertyID uint) (*model.ListingOwnerP
 	return model.NewListingOwnerPreview(&prop), nil
 }
 
-// GetPropertyReviews returns all reviews for a property, newest first.
 func (s *PropertyService) GetPropertyReviews(propertyID uint) ([]model.ReviewDto, error) {
 	var reviews []model.Review
 	err := s.db.
@@ -246,7 +236,6 @@ func (s *PropertyService) GetPropertyReviews(propertyID uint) ([]model.ReviewDto
 	return dtos, nil
 }
 
-// DuplicateCheck checks if a property with the same project name + owner info exists.
 func (s *PropertyService) DuplicateCheck(projectName, ownerInfo string) (bool, error) {
 	var count int64
 	err := s.db.Model(&model.Property{}).
@@ -258,9 +247,8 @@ func (s *PropertyService) DuplicateCheck(projectName, ownerInfo string) (bool, e
 	return count > 0, nil
 }
 
-// CreateProperty saves a new property and its images to uploads/.
 func (s *PropertyService) CreateProperty(input CreatePropertyInput) (*model.PropertyDto, error) {
-	// Save images first
+
 	var images []model.PropertyImage
 	for _, fh := range input.Images {
 		url, err := saveUpload(fh, config.App.Server.UploadDir)
@@ -311,11 +299,9 @@ func (s *PropertyService) CreateProperty(input CreatePropertyInput) (*model.Prop
 		return nil, apperror.Wrap(err, 500, "failed to create property")
 	}
 
-	// Re-fetch with relations
 	return s.GetProperty(p.ID)
 }
 
-// UpdateStatus allows an agent to update only their own property's status and attach a slip.
 func (s *PropertyService) UpdateStatus(propertyID, agentID uint, input UpdateStatusInput) (*model.PropertyDto, error) {
 	var p model.Property
 	err := s.db.First(&p, propertyID).Error
@@ -326,7 +312,6 @@ func (s *PropertyService) UpdateStatus(propertyID, agentID uint, input UpdateSta
 		return nil, apperror.Wrap(err, 500, "database error")
 	}
 
-	// Agent can only update their own property
 	if p.AgentID == nil || *p.AgentID != agentID {
 		return nil, apperror.Forbidden("you do not own this property")
 	}
@@ -352,8 +337,6 @@ func (s *PropertyService) UpdateStatus(propertyID, agentID uint, input UpdateSta
 	return s.GetProperty(propertyID)
 }
 
-// UpdateProperty edits a property's core fields. Owning agent or admin only.
-// New images are appended.
 func (s *PropertyService) UpdateProperty(propertyID, callerID uint, role model.UserRole, input UpdatePropertyInput) (*model.PropertyDto, error) {
 	var p model.Property
 	err := s.db.First(&p, propertyID).Error
@@ -370,7 +353,6 @@ func (s *PropertyService) UpdateProperty(propertyID, callerID uint, role model.U
 		}
 	}
 
-	// Type is derived from Listing — frontend no longer sends it on edit.
 	derivedType := input.Type
 	if derivedType == "" {
 		switch input.Listing {
@@ -444,7 +426,6 @@ func (s *PropertyService) UpdateProperty(propertyID, callerID uint, role model.U
 	return s.GetProperty(propertyID)
 }
 
-// DeleteProperty soft-deletes a property. Owning agent or admin only.
 func (s *PropertyService) DeleteProperty(propertyID, callerID uint, role model.UserRole) error {
 	var p model.Property
 	err := s.db.First(&p, propertyID).Error
@@ -467,19 +448,11 @@ func (s *PropertyService) DeleteProperty(propertyID, callerID uint, role model.U
 	return nil
 }
 
-// GetAgentProperties returns properties owned by a given agent, with optional
-// filter refinements (status / type / kind / project name). The agent-id scope
-// is forced regardless of any filter.AgentID the caller supplied.
 func (s *PropertyService) GetAgentProperties(agentID uint, filter PropertyFilter) ([]model.PropertyDto, error) {
 	filter.AgentID = &agentID
 	return s.ListProperties(filter)
 }
 
-// saveUpload stores a multipart file and returns its URL. When R2 is
-// configured, the file goes to Cloudflare R2 and the URL is the public
-// r2.dev URL (survives container restarts). Otherwise it falls back to
-// local disk — fine for local dev, broken on Render free tier because
-// /uploads is wiped on every redeploy.
 func saveUpload(fh *multipart.FileHeader, dir string) (string, error) {
 	ext := strings.ToLower(filepath.Ext(fh.Filename))
 	if ext == "" {

@@ -11,8 +11,6 @@ import (
 
 const demoAgentEmail = "agent.demo@example.com"
 
-// seedDemoAgent ensures a demo agent exists to own the demo properties.
-// Returns the agent's ID for downstream seeders. Returns 0 on failure.
 func seedDemoAgent(db *gorm.DB) uint {
 	var existing model.User
 	if err := db.Where("email = ?", demoAgentEmail).First(&existing).Error; err == nil {

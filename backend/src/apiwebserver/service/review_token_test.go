@@ -41,7 +41,6 @@ func TestReviewToken_RejectsTamperedPayload(t *testing.T) {
 		t.Fatalf("expected payload.sig; got %q", token)
 	}
 
-	// Replace payload with one for a different property — signature won't match.
 	wrongPayload := signReviewToken(999, 7)
 	wrongPayloadPart := strings.Split(wrongPayload, ".")[0]
 	tampered := wrongPayloadPart + "." + parts[1]

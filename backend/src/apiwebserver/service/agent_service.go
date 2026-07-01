@@ -24,9 +24,6 @@ func NewAgentService() *AgentService {
 	return &AgentService{db: database.DB}
 }
 
-// NewAgentServiceWithDB constructs an AgentService against a caller-supplied
-// connection. Used by integration tests to point the service at an isolated
-// test database instead of the package-global one.
 func NewAgentServiceWithDB(db *gorm.DB) *AgentService {
 	return &AgentService{db: db}
 }
@@ -35,16 +32,12 @@ type AgentDashboard struct {
 	TotalProperties     int64 `json:"totalProperties"`
 	ReservedProperties  int64 `json:"reservedProperties"`
 	AvailableProperties int64 `json:"availableProperties"`
-	// Listing-type breakdown for the dashboard pie chart. Sum equals total.
+
 	SellListings int64 `json:"sellListings"`
 	RentListings int64 `json:"rentListings"`
 	BothListings int64 `json:"bothListings"`
 }
 
-// GetDashboard returns property counts for the agent. Uses Postgres
-// FILTER aggregates so the six metrics come back from a single scan of
-// the (agent_id-indexed) properties table — six COUNT round-trips would
-// be wasteful on a hot dashboard endpoint.
 func (s *AgentService) GetDashboard(agentID uint) (*AgentDashboard, error) {
 	var d AgentDashboard
 	err := s.db.Model(&model.Property{}).
@@ -66,9 +59,6 @@ func (s *AgentService) GetDashboard(agentID uint) (*AgentDashboard, error) {
 	return &d, nil
 }
 
-// GetContacts returns bookings assigned to the agent. The booking's property
-// owner contact preview is attached so the assigned agent can reach the owner
-// directly.
 func (s *AgentService) GetContacts(agentID uint) ([]model.BookingDto, error) {
 	var bookings []model.Booking
 	if err := s.db.
@@ -88,7 +78,6 @@ func (s *AgentService) GetContacts(agentID uint) ([]model.BookingDto, error) {
 	return dtos, nil
 }
 
-// UpdateWorkStatus updates the appointment work-status on a booking assigned to this agent.
 func (s *AgentService) UpdateWorkStatus(agentID, bookingID uint, ws model.AppointmentWorkStatus) (*model.BookingDto, error) {
 	var booking model.Booking
 	err := s.db.First(&booking, bookingID).Error
@@ -103,9 +92,6 @@ func (s *AgentService) UpdateWorkStatus(agentID, bookingID uint, ws model.Appoin
 		return nil, apperror.Forbidden("this booking is not assigned to you")
 	}
 
-	// Keep booking.status coherent with terminal work states so the two fields
-	// stop diverging. Middle states (contacted / visited / booked) leave
-	// status at "assigned" — the case is still in flight.
 	updates := map[string]interface{}{"work_status": ws}
 	switch ws {
 	case model.WorkClosedDeal:
@@ -125,7 +111,6 @@ func (s *AgentService) UpdateWorkStatus(agentID, bookingID uint, ws model.Appoin
 	return full.ToDto(), nil
 }
 
-// UpdateNote updates the note on a booking assigned to this agent.
 func (s *AgentService) UpdateNote(agentID, bookingID uint, note string) (*model.BookingDto, error) {
 	var booking model.Booking
 	err := s.db.First(&booking, bookingID).Error
@@ -144,7 +129,6 @@ func (s *AgentService) UpdateNote(agentID, bookingID uint, note string) (*model.
 		return nil, apperror.Wrap(err, 500, "failed to update note")
 	}
 
-	// Reload with preloads
 	var full model.Booking
 	if err := s.db.Preload("User").Preload("Property").Preload("AssignedAgent").
 		First(&full, bookingID).Error; err != nil {
@@ -165,7 +149,6 @@ func (s *AgentService) GenerateReviewLink(agentID, propertyID uint, baseURL stri
 	return url, nil
 }
 
-// ParseReviewToken verifies the HMAC and returns the embedded property ID.
 func ParseReviewToken(token string) (propertyID, agentID uint, err error) {
 	parts := strings.Split(token, ".")
 	if len(parts) != 2 {

@@ -48,8 +48,7 @@ export const PropertyService = {
     const p = params ?? {}
     const csv = (xs?: (string | number)[]) =>
       xs && xs.length > 0 ? xs.join(',') : undefined
-    // Wire format: "min-max,min-max" with empty side meaning unbounded
-    // (e.g. "-5000" = up to 5000, "50000-" = 50000+).
+
     const priceRangesCsv = p.priceRanges && p.priceRanges.length > 0
       ? p.priceRanges.map((r) => `${r.min ?? ''}-${r.max ?? ''}`).join(',')
       : undefined
@@ -136,9 +135,6 @@ export const PropertyService = {
     return res.data.data
   },
 
-  // Admin variant: returns ALL properties regardless of ownership, with the
-  // same filter set as the public listing plus agent_id / statuses /
-  // project_name. Owner contacts are NOT stripped.
   getAdminProperties: async (params?: PropertyListParams): Promise<Property[]> => {
     const p = params ?? {}
     const csv = (xs?: (string | number)[]) =>

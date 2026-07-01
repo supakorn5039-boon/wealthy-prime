@@ -14,8 +14,6 @@ func init() {
 	gin.SetMode(gin.TestMode)
 }
 
-// callRbac builds a minimal gin context that simulates an authenticated request
-// with the given role, runs Rbac(allowed...), and returns the resulting status.
 func callRbac(actorRole model.UserRole, allowed ...model.UserRole) int {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
@@ -48,7 +46,6 @@ func TestRbac_RejectsMissingRole(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Request = httptest.NewRequest(http.MethodGet, "/", nil)
-	// No role set in context — simulating missing JWT context.
 
 	Rbac(model.RoleAdmin)(c)
 	if w.Code != http.StatusForbidden {

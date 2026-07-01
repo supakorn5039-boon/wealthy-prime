@@ -35,8 +35,7 @@ export interface Booking {
   wechat?: string
   whatsapp?: string
   createdAt: string
-  // Owner-contact preview of the booking's property, attached server-side for
-  // agent/admin viewers so they can reach the actual property owner directly.
+
   listingOwner?: ListingOwnerPreview
 }
 

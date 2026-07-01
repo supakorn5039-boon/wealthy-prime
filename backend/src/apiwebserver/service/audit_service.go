@@ -15,18 +15,12 @@ import (
 	"github.com/wealthy-prime/backend/src/database/model"
 )
 
-// auditQueueSize bounds the number of pending audit writes held in memory.
-// A backed-up DB can never block request handlers or leak goroutines: writes
-// are dropped (with a warning) once the queue is full.
 const auditQueueSize = 1024
 
 type AuditService struct {
 	db    *gorm.DB
 	queue chan model.AuditLog
 
-	// viewOwnerSeen folds the date into the key (`YYYY-MM-DD:actorID:propID`)
-	// so day rollover is implicit and the map is never reassigned — sync.Map
-	// is safe for concurrent method calls but NOT safe to overwrite.
 	viewOwnerSeen sync.Map
 }
 
@@ -46,11 +40,6 @@ func NewAuditService() *AuditService {
 	return auditInstance
 }
 
-// NewAuditServiceWithDB builds a fresh AuditService against a caller-supplied
-// DB, bypassing the package singleton. Used by integration tests so each
-// run starts from clean state. The worker goroutine is intentionally NOT
-// started — tests exercise the synchronous List() / dedupe paths, and
-// starting the worker would race with the truncate in helpers.TestDB.
 func NewAuditServiceWithDB(db *gorm.DB) *AuditService {
 	return &AuditService{db: db, queue: make(chan model.AuditLog, auditQueueSize)}
 }
@@ -123,8 +112,6 @@ func (s *AuditService) Log(c *gin.Context, entry AuditEntry) {
 	}
 }
 
-// LogViewOwner records an owner-info view, but at most once per actor+property
-// per day to keep the audit table from exploding on routine browsing.
 func (s *AuditService) LogViewOwner(c *gin.Context, propertyID uint, summary string) {
 	actorID := middleware.GetUserID(c)
 	if actorID == 0 {

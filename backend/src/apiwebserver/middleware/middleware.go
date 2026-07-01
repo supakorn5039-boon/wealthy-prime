@@ -16,10 +16,6 @@ const (
 	CtxRole   = "role"
 )
 
-// OptionalAuth reads a Bearer JWT IF present and sets user_id/role in the context.
-// Unlike Protected, it never aborts: missing or invalid tokens just leave the
-// context empty. Use this on public endpoints that change behavior based on role
-// (e.g., hiding owner info from anonymous viewers).
 func OptionalAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
@@ -43,7 +39,6 @@ func OptionalAuth() gin.HandlerFunc {
 	}
 }
 
-// Protected validates a Bearer JWT and sets user_id, role, email in the Gin context.
 func Protected() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
@@ -70,7 +65,6 @@ func Protected() gin.HandlerFunc {
 	}
 }
 
-// Rbac checks that the authenticated user's role is in the allowed list.
 func Rbac(roles ...model.UserRole) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		roleVal, exists := c.Get(CtxRole)
@@ -94,7 +88,6 @@ func Rbac(roles ...model.UserRole) gin.HandlerFunc {
 	}
 }
 
-// SecurityHeaders adds basic security headers to every response.
 func SecurityHeaders() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("X-Content-Type-Options", "nosniff")
@@ -104,14 +97,12 @@ func SecurityHeaders() gin.HandlerFunc {
 	}
 }
 
-// GetUserID extracts the authenticated user ID from context.
 func GetUserID(c *gin.Context) uint {
 	v, _ := c.Get(CtxUserID)
 	id, _ := v.(uint)
 	return id
 }
 
-// GetRole extracts the authenticated user role from context.
 func GetRole(c *gin.Context) model.UserRole {
 	v, _ := c.Get(CtxRole)
 	role, _ := v.(model.UserRole)

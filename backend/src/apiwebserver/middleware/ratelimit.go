@@ -9,14 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RateLimit returns a Gin middleware enforcing a per-key token-bucket limit.
-// `keyFn` produces the bucket key (requests with the same key share a
-// bucket). `ratePerSec` is the steady-state refill rate, `burst` is the
-// bucket capacity. When the bucket is empty the request is rejected with
-// HTTP 429.
-//
-// In-memory and per-process — buckets reset on restart and are not shared
-// across instances. Swap for a shared store before scaling horizontally.
 func RateLimit(keyFn func(*gin.Context) string, ratePerSec float64, burst int) gin.HandlerFunc {
 	l := newLimiter(ratePerSec, float64(burst))
 	return func(c *gin.Context) {
@@ -33,8 +25,6 @@ func RateLimit(keyFn func(*gin.Context) string, ratePerSec float64, burst int) g
 	}
 }
 
-// UserKey buckets requests by authenticated user ID. Falls back to client IP
-// when no user is in context, so unauthenticated traffic isn't a free pass.
 func UserKey(c *gin.Context) string {
 	if id := GetUserID(c); id != 0 {
 		return "u:" + strconv.FormatUint(uint64(id), 10)

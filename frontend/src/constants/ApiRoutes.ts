@@ -1,18 +1,16 @@
 export const API = {
-  // Auth
+
   AUTH_LOGIN: '/auth/login',
   AUTH_REGISTER: '/auth/register',
   AUTH_PROFILE: '/auth/profile',
   AUTH_FORGOT_PASSWORD: '/auth/forgot-password',
   AUTH_RESET_PASSWORD: '/auth/reset-password',
 
-  // Properties (public)
   PROPERTIES: '/properties',
   PROPERTY_DETAIL: (id: number | string) => `/properties/${id}`,
   PROPERTY_REVIEWS: (id: number | string) => `/properties/${id}/reviews`,
   PROPERTY_LISTING_OWNER: (id: number | string) => `/properties/${id}/listing-owner`,
 
-  // User scoped
   BOOKINGS: '/user/bookings',
   BOOKING_DETAIL: (id: number | string) => `/user/bookings/${id}`,
   WISHLIST: '/user/wishlist',
@@ -21,13 +19,11 @@ export const API = {
   USER_HISTORY: '/user/history',
   USER_HISTORY_ITEM: (propertyId: number | string) => `/user/history/${propertyId}`,
 
-  // Reviews
   REVIEWS: '/reviews',
   REVIEW_BY_TOKEN: (token: string) => `/reviews/token/${token}`,
   REVIEW_REPLY: (id: number | string) => `/reviews/${id}/reply`,
   PROPERTY_CREATE_REVIEW: (propertyId: number | string) => `/properties/${propertyId}/reviews`,
 
-  // Agent
   AGENT_DASHBOARD: '/agent/dashboard',
   AGENT_PROPERTIES: '/agent/properties',
   AGENT_PROPERTY_DETAIL: (id: number | string) => `/agent/properties/${id}`,
@@ -39,7 +35,6 @@ export const API = {
   AGENT_INQUIRY_STATUS: (id: number | string) => `/agent/inquiries/${id}/status`,
   AGENT_REVIEW_LINK: (propertyId: number | string) => `/agent/review-link/${propertyId}`,
 
-  // Admin
   ADMIN_DASHBOARD: '/admin/dashboard',
   ADMIN_AGENTS: '/admin/agents',
   ADMIN_AGENT_DETAIL: (id: number | string) => `/admin/agents/${id}`,

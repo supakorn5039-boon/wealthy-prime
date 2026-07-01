@@ -6,9 +6,6 @@ import (
 	"github.com/wealthy-prime/backend/src/config"
 )
 
-// Sender abstracts how an outbound email is delivered.
-// The booking flow calls Send asynchronously in a goroutine, so implementations
-// must be safe to invoke concurrently and must never block on retries.
 type Sender interface {
 	Send(msg Message) error
 }
@@ -16,17 +13,12 @@ type Sender interface {
 type Message struct {
 	To       string
 	ToName   string
-	Bcc      string // optional — blind-carbon-copy a monitoring/test recipient
+	Bcc      string
 	Subject  string
 	HTMLBody string
 	TextBody string
 }
 
-// New picks an implementation based on config, in priority order:
-//   - RESEND_API_KEY set            → resendSender (HTTPS via Cloudflare; reliable from Render)
-//   - MAILJET_API_KEY + SECRET set  → mailjetSender (HTTPS via GCP; suffers TCP resets from Render)
-//   - SMTP host + password          → smtpSender (raw SMTP, may be blocked on PaaS)
-//   - Otherwise                     → logSender (prints to stdout, dev fallback)
 func New() Sender {
 	if config.App.Resend.Enabled() {
 		log.Println("[email] using Resend sender (HTTPS)")
