@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
@@ -10,12 +10,61 @@ interface PropertyGalleryProps {
   title?: string
 }
 
+function GalleryChevrons({
+  onPrev,
+  onNext,
+  hoverReveal,
+}: {
+  onPrev: () => void
+  onNext: () => void
+  hoverReveal?: boolean
+}) {
+  const base = 'absolute top-1/2 -translate-y-1/2 bg-black/40 text-white hover:bg-black/60'
+  const reveal = hoverReveal ? ' opacity-0 group-hover:opacity-100 transition-opacity' : ''
+  return (
+    <>
+      <Button variant="ghost" size="icon" className={`${base} left-2${reveal}`} onClick={onPrev}>
+        <ChevronLeft className="size-5" />
+      </Button>
+      <Button variant="ghost" size="icon" className={`${base} right-2${reveal}`} onClick={onNext}>
+        <ChevronRight className="size-5" />
+      </Button>
+    </>
+  )
+}
+
+function GalleryCounter({ current, total }: { current: number; total: number }) {
+  return (
+    <div className="absolute bottom-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded">
+      {current + 1} / {total}
+    </div>
+  )
+}
+
 export function PropertyGallery({ images: rawImages = [], title }: PropertyGalleryProps) {
   const [current, setCurrent] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const images = rawImages.map(resolveImageUrl)
+  const total = images.length
 
-  if (images.length === 0) {
+  useEffect(() => {
+    if (total <= 1) return
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault()
+        setCurrent((c) => (c === 0 ? total - 1 : c - 1))
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault()
+        setCurrent((c) => (c === total - 1 ? 0 : c + 1))
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [total])
+
+  if (total === 0) {
     return (
       <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
         <Maximize2 className="size-16 text-muted-foreground/60" />
@@ -23,32 +72,18 @@ export function PropertyGallery({ images: rawImages = [], title }: PropertyGalle
     )
   }
 
-  const prev = () => setCurrent((c) => (c === 0 ? images.length - 1 : c - 1))
-  const next = () => setCurrent((c) => (c === images.length - 1 ? 0 : c + 1))
+  const prev = () => setCurrent((c) => (c === 0 ? total - 1 : c - 1))
+  const next = () => setCurrent((c) => (c === total - 1 ? 0 : c + 1))
+  const hasMany = total > 1
 
   return (
     <>
       <div className="relative aspect-video bg-muted rounded-lg overflow-hidden group">
         <img src={images[current]} alt={`${title} - ${current + 1}`} className="w-full h-full object-cover" />
         <ImageWatermark />
-        {images.length > 1 && (
+        {hasMany && (
           <>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 text-white hover:bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={prev}
-            >
-              <ChevronLeft className="size-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 text-white hover:bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={next}
-            >
-              <ChevronRight className="size-5" />
-            </Button>
+            <GalleryChevrons onPrev={prev} onNext={next} hoverReveal />
             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
               {images.map((_, i) => (
                 <button
@@ -68,12 +103,10 @@ export function PropertyGallery({ images: rawImages = [], title }: PropertyGalle
         >
           <Maximize2 className="size-4" />
         </Button>
-        <div className="absolute bottom-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded">
-          {current + 1} / {images.length}
-        </div>
+        <GalleryCounter current={current} total={total} />
       </div>
 
-      {images.length > 1 && (
+      {hasMany && (
         <div className="flex gap-2 mt-2 overflow-x-auto pb-1">
           {images.map((img, i) => (
             <button
@@ -92,6 +125,12 @@ export function PropertyGallery({ images: rawImages = [], title }: PropertyGalle
           <div className="relative">
             <img src={images[current]} alt={title} className="w-full h-auto max-h-[80vh] object-contain" />
             <ImageWatermark />
+            {hasMany && (
+              <>
+                <GalleryChevrons onPrev={prev} onNext={next} />
+                <GalleryCounter current={current} total={total} />
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>
