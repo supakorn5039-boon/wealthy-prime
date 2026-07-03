@@ -123,16 +123,6 @@ const AUDIT_COLUMNS: ColumnDef<AuditLog>[] = [
       <span className="text-sm text-foreground">{row.original.summary || '-'}</span>
     ),
   },
-  {
-    id: 'ip',
-    accessorFn: (r) => r.ip,
-    header: 'IP',
-    cell: ({ row }) => (
-      <span className="text-xs font-mono text-muted-foreground">
-        {row.original.ip || '-'}
-      </span>
-    ),
-  },
 ]
 
 const ACTION_TONE: Record<AuditAction, string> = {
