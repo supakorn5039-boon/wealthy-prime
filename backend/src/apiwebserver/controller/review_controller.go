@@ -21,15 +21,13 @@ func NewReviewController() *ReviewController {
 }
 
 func (ctrl *ReviewController) RegisterRoutes(r *gin.RouterGroup) {
+	reviews := r.Group("/reviews")
+	reviews.GET("/token/:token", ctrl.resolveToken)
+	reviews.POST("", middleware.Protected(), ctrl.createReview)
+	reviews.PATCH("/:id/reply", middleware.Protected(), middleware.Rbac(model.RoleAgent), ctrl.replyReview)
 
-	r.GET("/reviews/token/:token", ctrl.resolveToken)
-
-	reviews := r.Group("/reviews", middleware.Protected())
-	reviews.POST("", ctrl.createReview)
-
-	reviews.PATCH("/:id/reply", middleware.Rbac(model.RoleAgent), ctrl.replyReview)
-
-	r.POST("/properties/:id/reviews", middleware.Protected(), ctrl.createDirectReview)
+	props := r.Group("/properties")
+	props.POST("/:id/reviews", middleware.Protected(), ctrl.createDirectReview)
 }
 
 func (ctrl *ReviewController) resolveToken(c *gin.Context) {
