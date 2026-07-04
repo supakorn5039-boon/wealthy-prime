@@ -1,10 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import {
   MapPin,
   Star,
@@ -36,46 +34,14 @@ import { formatPrice } from "@/utils/date";
 import { formatBtsMrt } from "@/utils/btsMrt";
 import { resolveImageUrl } from "@/utils/imageUrl";
 import { cn } from "@/lib/utils";
+import {
+  FlyTo,
+  MapStatusLegend,
+  buildStatusIconResolver,
+} from "@/components/property/propertyMap";
 import type { Property, PropertyListParams } from "@/types/Property";
 
-delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)
-  ._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-});
-
-const STATUS_COLOR: Record<string, string> = {
-  available: "#22c55e",
-  reserved: "#f59e0b",
-  sold: "#ef4444",
-  rented: "#64748b",
-};
-
-function makeIcon(color: string) {
-  return L.divIcon({
-    className: "",
-    html: `<div style="
-      background:${color};
-      width:28px;height:28px;
-      border-radius:50% 50% 50% 0;
-      transform:rotate(-45deg);
-      border:3px solid white;
-      box-shadow:0 2px 8px rgba(0,0,0,0.35);
-    "></div>`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 28],
-    popupAnchor: [0, -30],
-  });
-}
-
-function FlyTo({ position }: { position: [number, number] }) {
-  const map = useMap();
-  map.flyTo(position, 15, { duration: 1 });
-  return null;
-}
+const iconFor = buildStatusIconResolver(28);
 
 interface PropertyRowProps {
   property: Property;
@@ -103,12 +69,12 @@ function PropertyRow({ property, active, onHover }: PropertyRowProps) {
             <img
               src={resolveImageUrl(property.imageUrls[0])}
               alt={property.projectName}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="size-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
             <ImageWatermark compact />
           </>
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+          <div className="size-full flex items-center justify-center text-muted-foreground">
             <Maximize2 className="size-8" />
           </div>
         )}
@@ -197,8 +163,9 @@ export default function HomeIndex() {
 
   const filteredProperties = data?.data ?? [];
 
-  const mappable = filteredProperties.filter(
-    (p) => p.lat != null && p.lng != null,
+  const mappable = useMemo(
+    () => filteredProperties.filter((p) => p.lat != null && p.lng != null),
+    [filteredProperties],
   );
 
   const hasActiveFilters = Boolean(
@@ -293,7 +260,7 @@ export default function HomeIndex() {
                       <Marker
                         key={p.id}
                         position={[p.lat!, p.lng!]}
-                        icon={makeIcon(STATUS_COLOR[p.status] ?? "#6366f1")}
+                        icon={iconFor(p.status)}
                         eventHandlers={{ click: () => handleMarkerClick(p) }}
                       >
                         <Popup>
@@ -311,20 +278,7 @@ export default function HomeIndex() {
                     ))}
                   </MapContainer>
                 </div>
-                <div className="hidden lg:flex flex-wrap gap-3 mt-2 px-1">
-                  {Object.entries(STATUS_COLOR).map(([status, color]) => (
-                    <div
-                      key={status}
-                      className="flex items-center gap-1.5 text-xs text-muted-foreground"
-                    >
-                      <span
-                        className="inline-block size-3 rounded-full"
-                        style={{ background: color }}
-                      />
-                      {t(`property.status.${status}`)}
-                    </div>
-                  ))}
-                </div>
+                <MapStatusLegend className="hidden lg:flex" />
               </div>
             </div>
           </div>

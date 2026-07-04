@@ -5,8 +5,7 @@ import { MapPin, Maximize2, ShoppingCart, Pencil, Copy, Bed, Bath, Building, Tra
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { MapContainer, TileLayer, Marker } from 'react-leaflet'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
+import { defaultPinIcon } from '@/components/property/propertyMap'
 import { PropertyService } from '@/services/PropertyService'
 import { ReviewService } from '@/services/ReviewService'
 import { PropertyGallery } from '@/components/property/PropertyGallery'
@@ -31,20 +30,6 @@ import { canSeeOwnerInfo } from '@/utils/permissions'
 import type { Review } from '@/types/Review'
 
 const REVIEWS_ENABLED = false
-
-const pinIcon = L.divIcon({
-  className: '',
-  html: `<div style="
-    background:#6366f1;
-    width:28px;height:28px;
-    border-radius:50% 50% 50% 0;
-    transform:rotate(-45deg);
-    border:3px solid white;
-    box-shadow:0 2px 6px rgba(0,0,0,0.3);
-  "></div>`,
-  iconSize: [28, 28],
-  iconAnchor: [14, 28],
-})
 
 export default function PropertyDetailIndex() {
   const { t } = useTranslation()
@@ -235,10 +220,10 @@ export default function PropertyDetailIndex() {
                     attributionControl={false}
                   >
                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                    <Marker position={[property.lat, property.lng]} icon={pinIcon} />
+                    <Marker position={[property.lat, property.lng]} icon={defaultPinIcon} />
                   </MapContainer>
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground text-sm gap-2">
+                  <div className="size-full flex flex-col items-center justify-center text-muted-foreground text-sm gap-2">
                     <MapPin className="size-6" />
                     <span>{t('property.noCoordsAvailable')}</span>
                   </div>

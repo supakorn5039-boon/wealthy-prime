@@ -1,9 +1,7 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import { MapPin, Star, Maximize2, Home } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { PropertyService } from '@/services/PropertyService'
@@ -15,44 +13,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { formatPrice } from '@/utils/date'
+import { FlyTo, MapStatusLegend, buildStatusIconResolver } from '@/components/property/propertyMap'
 import type { Property } from '@/types/Property'
 
-delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-})
-
-function makeIcon(color: string) {
-  return L.divIcon({
-    className: '',
-    html: `<div style="
-      background:${color};
-      width:32px;height:32px;
-      border-radius:50% 50% 50% 0;
-      transform:rotate(-45deg);
-      border:3px solid white;
-      box-shadow:0 2px 8px rgba(0,0,0,0.35);
-    "></div>`,
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -34],
-  })
-}
-
-const STATUS_COLOR: Record<string, string> = {
-  available: '#22c55e',
-  reserved: '#f59e0b',
-  sold: '#ef4444',
-  rented: '#64748b',
-}
-
-function FlyTo({ position }: { position: [number, number] }) {
-  const map = useMap()
-  map.flyTo(position, 15, { duration: 1 })
-  return null
-}
+const iconFor = buildStatusIconResolver(32)
 
 export default function MapIndex() {
   const { t } = useTranslation()
@@ -65,7 +29,10 @@ export default function MapIndex() {
     queryFn: () => PropertyService.list({}),
   })
 
-  const properties = (data?.data ?? []).filter(p => p.lat != null && p.lng != null)
+  const properties = useMemo(
+    () => (data?.data ?? []).filter((p) => p.lat != null && p.lng != null),
+    [data],
+  )
 
   function handleMarkerClick(p: Property) {
     setSelected(p)
@@ -106,7 +73,7 @@ export default function MapIndex() {
                   <Marker
                     key={p.id}
                     position={[p.lat!, p.lng!]}
-                    icon={makeIcon(STATUS_COLOR[p.status] ?? '#6366f1')}
+                    icon={iconFor(p.status)}
                     eventHandlers={{ click: () => handleMarkerClick(p) }}
                   >
                     <Popup>
@@ -122,14 +89,7 @@ export default function MapIndex() {
             )}
           </div>
 
-          <div className="flex flex-wrap gap-3 mt-2 px-1">
-            {Object.entries(STATUS_COLOR).map(([status, color]) => (
-              <div key={status} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <span className="inline-block size-3 rounded-full" style={{ background: color }} />
-                {t(`property.status.${status}`)}
-              </div>
-            ))}
-          </div>
+          <MapStatusLegend className="flex" />
         </div>
 
         <div className="space-y-2 overflow-y-auto pr-1" style={{ maxHeight: 540 }}>
