@@ -39,12 +39,12 @@ export function PropertyCard({ property }: PropertyCardProps) {
               <img
                 src={resolveImageUrl(property.imageUrls[0])}
                 alt={property.projectName}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                className="size-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
               <ImageWatermark compact />
             </>
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+            <div className="size-full flex items-center justify-center text-muted-foreground">
               <Maximize2 className="size-10" />
             </div>
           )}

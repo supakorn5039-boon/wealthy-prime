@@ -14,10 +14,7 @@ import (
 func BuildAppointmentNotification(booking *model.Booking, agent *model.User) (Message, error) {
 	property := booking.Property
 
-	customerName := strings.TrimSpace(strings.Join([]string{booking.FirstName, booking.LastName}, " "))
-	if customerName == "" {
-		customerName = booking.User.Name
-	}
+	customerName := model.ComposeName(booking.FirstName, booking.LastName, booking.User.Name)
 
 	customerPhone := firstNonEmpty(booking.Phone, booking.User.Phone)
 	customerEmail := firstNonEmpty(booking.Email, booking.User.Email)
@@ -62,10 +59,7 @@ func BuildAppointmentNotification(booking *model.Booking, agent *model.User) (Me
 func BuildAppointmentConfirmation(booking *model.Booking, agent *model.User) (Message, error) {
 	property := booking.Property
 
-	customerName := strings.TrimSpace(strings.Join([]string{booking.FirstName, booking.LastName}, " "))
-	if customerName == "" {
-		customerName = booking.User.Name
-	}
+	customerName := model.ComposeName(booking.FirstName, booking.LastName, booking.User.Name)
 	toEmail := firstNonEmpty(booking.Email, booking.User.Email)
 	if toEmail == "" {
 		return Message{}, fmt.Errorf("no customer email available for booking %d", booking.ID)

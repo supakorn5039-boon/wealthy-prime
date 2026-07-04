@@ -11,10 +11,6 @@ import (
 
 var jwtKey []byte
 
-func init() {
-
-}
-
 func InitJWT() {
 	jwtKey = []byte(config.App.Server.JWTSecret)
 }

@@ -50,10 +50,10 @@ function NoteEditor({ contact, onDone }: { contact: Booking; onDone: () => void 
       <FormTextarea control={control} name="note" label="" rows={2} placeholder={t('agent.notePlaceholder')} />
       <div className="flex flex-col gap-1 pt-1">
         <button type="submit" className="text-green-600 hover:text-green-700">
-          <Check className="h-4 w-4" />
+          <Check className="size-4" />
         </button>
         <button type="button" onClick={onDone} className="text-red-500 hover:text-red-600">
-          <X className="h-4 w-4" />
+          <X className="size-4" />
         </button>
       </div>
     </form>
@@ -95,7 +95,7 @@ export default function ContactHistoryIndex() {
         <>
           <div className="flex flex-col sm:flex-row gap-2 mb-3">
             <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
                 type="search"
                 value={searchQuery}
@@ -128,30 +128,30 @@ export default function ContactHistoryIndex() {
                     <div className="flex flex-col sm:flex-row sm:items-start gap-3">
                       <div className="flex-1 min-w-0 space-y-1.5">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <User className="h-4 w-4 text-muted-foreground" />
+                          <User className="size-4 text-muted-foreground" />
                           <span className="font-medium">{contact.userName ?? '-'}</span>
                           <MissedContactBadge booking={contact} />
                         </div>
                         <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
                           {phone && (
                             <span className="inline-flex items-center gap-1">
-                              <Phone className="h-3.5 w-3.5" />
+                              <Phone className="size-3.5" />
                               {phone}
                             </span>
                           )}
                           {contact.lineId && (
                             <span className="inline-flex items-center gap-1">
-                              <MessageCircle className="h-3.5 w-3.5" />
+                              <MessageCircle className="size-3.5" />
                               {contact.lineId}
                             </span>
                           )}
                           <span className="inline-flex items-center gap-1">
-                            <Calendar className="h-3.5 w-3.5" />
+                            <Calendar className="size-3.5" />
                             {formatDateTime(contact.appointmentDate)}
                           </span>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-foreground flex-wrap">
-                          <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                          <MapPin className="size-3.5 text-muted-foreground" />
                           <span>{contact.propertyTitle ?? `#${contact.propertyId}`}</span>
                           {contact.propertyCode && (
                             <span className="ml-1 text-xs text-muted-foreground font-mono">{contact.propertyCode}</span>
@@ -181,11 +181,11 @@ export default function ContactHistoryIndex() {
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="h-8 w-8"
+                            className="size-8"
                             title={t('agent.noteLabel')}
                             onClick={() => setEditingId(contact.id)}
                           >
-                            <Pencil className="h-4 w-4" />
+                            <Pencil className="size-4" />
                           </Button>
                         )}
                       </div>

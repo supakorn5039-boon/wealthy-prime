@@ -10,6 +10,7 @@ import (
 
 	"github.com/wealthy-prime/backend/src/apiwebserver/middleware"
 	"github.com/wealthy-prime/backend/src/apiwebserver/service"
+	"github.com/wealthy-prime/backend/src/apperror"
 	"github.com/wealthy-prime/backend/src/database/model"
 )
 
@@ -139,7 +140,7 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 		return
 	}
 	if isDuplicate {
-		c.JSON(409, gin.H{"success": false, "error": "property with same project name and owner already exists"})
+		errorResponse(c, apperror.Conflict("property with same project name and owner already exists"))
 		return
 	}
 

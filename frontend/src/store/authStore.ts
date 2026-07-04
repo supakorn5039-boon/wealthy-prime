@@ -12,7 +12,6 @@ interface AuthState {
   setToken: (token: string) => void
   setHydrated: () => void
   requestAuthFromOtherTabs: () => void
-  rehydrateUser: () => Promise<void>
 }
 
 let broadcastChannel: BroadcastChannel | null = null
@@ -61,18 +60,6 @@ export const useAuthStore = create<AuthState>()(
           }
           channel.addEventListener('message', handler)
           setTimeout(() => channel.removeEventListener('message', handler), 2000)
-        },
-
-        rehydrateUser: async () => {
-          const { token } = get()
-          if (!token) return
-          try {
-            const { fetchClient } = await import('@/utils/axios')
-            const res = await fetchClient.get<{ data: AuthUser }>('/auth/profile')
-            set({ user: res.data.data })
-          } catch {
-            set({ token: null, user: null })
-          }
         },
       }),
       {

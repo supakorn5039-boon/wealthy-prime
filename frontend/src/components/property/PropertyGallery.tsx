@@ -79,7 +79,7 @@ export function PropertyGallery({ images: rawImages = [], title }: PropertyGalle
   return (
     <>
       <div className="relative aspect-video bg-muted rounded-lg overflow-hidden group">
-        <img src={images[current]} alt={`${title} - ${current + 1}`} className="w-full h-full object-cover" />
+        <img src={images[current]} alt={`${title} - ${current + 1}`} className="size-full object-cover" />
         <ImageWatermark />
         {hasMany && (
           <>
@@ -114,7 +114,7 @@ export function PropertyGallery({ images: rawImages = [], title }: PropertyGalle
               onClick={() => setCurrent(i)}
               className={`flex-shrink-0 w-20 h-14 rounded overflow-hidden border-2 transition-colors ${i === current ? 'border-primary' : 'border-transparent'}`}
             >
-              <img src={img} alt={`${i + 1}`} className="w-full h-full object-cover" />
+              <img src={img} alt={`${i + 1}`} className="size-full object-cover" />
             </button>
           ))}
         </div>

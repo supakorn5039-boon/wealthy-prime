@@ -40,7 +40,6 @@ export const PropertyService = {
   QUERY_KEYS: {
     LIST: 'properties',
     DETAIL: 'property-detail',
-    REVIEWS: 'property-reviews',
     AGENT_LIST: 'agent-properties',
   },
 
