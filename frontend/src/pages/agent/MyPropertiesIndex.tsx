@@ -7,6 +7,7 @@ import { Plus, Trash2, Pencil, Eye, UploadCloud, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { PropertyService } from "@/services/PropertyService";
+import { AdminService } from "@/services/AdminService";
 import { useAuthStore } from "@/store/authStore";
 import { Input } from "@/components/ui/input";
 import { PropertyStatusBadge } from "@/components/shared/StatusBadge";
@@ -88,6 +89,7 @@ function StatusModal({
       queryClient.invalidateQueries({
         queryKey: [PropertyService.QUERY_KEYS.DETAIL, property.id],
       });
+      queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.PROPERTIES] });
       onClose();
     },
     onError: () => toast.error(t("common.error")),
@@ -146,7 +148,7 @@ export default function MyPropertiesIndex() {
   const [kindFilters, setKindFilters] = useState<Exclude<PropertyKind, ''>[]>([]);
   const [projectFilter, setProjectFilter] = useState('');
 
-  const baseKey = isAdmin ? 'admin-properties' : PropertyService.QUERY_KEYS.AGENT_LIST;
+  const baseKey = isAdmin ? AdminService.QUERY_KEYS.PROPERTIES : PropertyService.QUERY_KEYS.AGENT_LIST;
 
   const { data: properties = [], isLoading } = useQuery({
     queryKey: [baseKey, { statusFilters, typeFilters, kindFilters, projectFilter }],
@@ -184,6 +186,7 @@ export default function MyPropertiesIndex() {
       queryClient.invalidateQueries({
         queryKey: [PropertyService.QUERY_KEYS.LIST],
       });
+      queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.PROPERTIES] });
       setDeleteTarget(null);
     },
     onError: () => toast.error(t("common.error")),

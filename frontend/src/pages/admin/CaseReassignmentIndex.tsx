@@ -61,6 +61,9 @@ export default function CaseReassignmentIndex() {
       queryClient.invalidateQueries({
         queryKey: [AdminService.QUERY_KEYS.BOOKINGS],
       });
+      queryClient.invalidateQueries({
+        queryKey: [AdminService.QUERY_KEYS.AUDIT_LOGS],
+      });
       setSelectedAgentId((prev) => {
         const next = { ...prev };
         delete next[vars.bookingId];

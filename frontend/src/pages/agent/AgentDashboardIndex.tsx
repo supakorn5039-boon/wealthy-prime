@@ -102,7 +102,7 @@ export default function AgentDashboardIndex() {
             {districtData.length === 0 ? (
               <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">{t('common.noData')}</div>
             ) : (
-              <ResponsiveContainer width="100%" height={200}>
+              <ResponsiveContainer width="100%" height={200} debounce={200}>
                 <BarChart data={districtData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                   <XAxis dataKey="name" tick={{ fontSize: 10 }} />
                   <YAxis tick={{ fontSize: 10 }} />
@@ -122,7 +122,7 @@ export default function AgentDashboardIndex() {
             {typeData.length === 0 ? (
               <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">{t('common.noData')}</div>
             ) : (
-              <ResponsiveContainer width="100%" height={200}>
+              <ResponsiveContainer width="100%" height={200} debounce={200}>
                 <PieChart>
                   <Pie data={typeData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={55} label>
                     {typeData.map((_, i) => (

@@ -43,6 +43,8 @@ function EditUserModal({ user, open, onClose }: { user: AuthUser; open: boolean;
     onSuccess: () => {
       toast.success(t('admin.updateSuccess'))
       queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.USERS] })
+      queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.BOOKINGS] })
+      queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.AUDIT_LOGS] })
       onClose()
     },
     onError: () => toast.error(t('common.error')),

@@ -27,6 +27,7 @@ export default function PendingUsersIndex() {
     queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.PENDING_USERS] })
     queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.USERS] })
     queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.AGENTS] })
+    queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.AUDIT_LOGS] })
   }
 
   const approveMutation = useMutation({

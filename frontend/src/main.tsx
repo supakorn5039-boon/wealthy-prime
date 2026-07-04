@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { QueryClient, QueryClientProvider, MutationCache } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from '@/components/ui/sonner'
 import App from '@/App'
 import '@/i18n'
@@ -13,11 +13,6 @@ const queryClient: QueryClient = new QueryClient({
       retry: 1,
     },
   },
-  mutationCache: new MutationCache({
-    onSuccess: () => {
-      queryClient.invalidateQueries()
-    },
-  }),
 })
 
 createRoot(document.getElementById('root')!).render(

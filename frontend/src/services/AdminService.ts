@@ -34,6 +34,7 @@ export const AdminService = {
     BOOKINGS: 'admin-bookings',
     FINANCIAL: 'admin-financial',
     AUDIT_LOGS: 'admin-audit-logs',
+    PROPERTIES: 'admin-properties',
   },
 
   getDashboard: async (): Promise<AdminDashboardData> => {

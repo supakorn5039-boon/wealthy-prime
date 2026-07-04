@@ -8,6 +8,7 @@ import axios from "axios";
 import { ImagePlus, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PropertyService } from "@/services/PropertyService";
+import { AdminService } from "@/services/AdminService";
 import { FormInput } from "@/components/form/FormInput";
 import { FormPhoneInput } from "@/components/form/FormPhoneInput";
 import { FormPriceInput } from "@/components/form/FormPriceInput";
@@ -149,6 +150,10 @@ export default function AddPropertyIndex() {
       queryClient.invalidateQueries({
         queryKey: [PropertyService.QUERY_KEYS.AGENT_LIST],
       });
+      queryClient.invalidateQueries({
+        queryKey: [PropertyService.QUERY_KEYS.LIST],
+      });
+      queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.PROPERTIES] });
       navigate(ROUTES.AGENT_PROPERTIES);
     },
     onError: (error) => {

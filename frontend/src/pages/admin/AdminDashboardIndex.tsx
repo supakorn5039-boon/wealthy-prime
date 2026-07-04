@@ -57,7 +57,7 @@ const PropertyPieChart = memo(function PropertyPieChart({
   showTooltip: boolean
 }) {
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height="100%" debounce={200}>
       <PieChart>
         <Pie
           data={data}
@@ -127,7 +127,7 @@ export default function AdminDashboardIndex() {
   const { t } = useTranslation()
 
   const { data: properties = [], isLoading: propsLoading } = useQuery({
-    queryKey: ['admin-properties', 'dashboard'],
+    queryKey: [AdminService.QUERY_KEYS.PROPERTIES, 'dashboard'],
     queryFn: () => PropertyService.getAdminProperties(),
   })
 

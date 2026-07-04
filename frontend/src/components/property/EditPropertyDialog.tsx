@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { ImagePlus, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PropertyService } from "@/services/PropertyService";
+import { AdminService } from "@/services/AdminService";
 import { FormInput } from "@/components/form/FormInput";
 import { FormPhoneInput } from "@/components/form/FormPhoneInput";
 import { FormPriceInput } from "@/components/form/FormPriceInput";
@@ -172,6 +173,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
       queryClient.invalidateQueries({
         queryKey: [PropertyService.QUERY_KEYS.DETAIL, property.id],
       });
+      queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.PROPERTIES] });
       setNewImages([]);
       setPreviews([]);
       setRemovedImageIds([]);
@@ -433,7 +435,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
                       <img
                         src={resolveImageUrl(img.url)}
                         alt={`existing-${img.id}`}
-                        className="w-full h-full object-cover"
+                        className="size-full object-cover"
                       />
                       <button
                         type="button"
@@ -471,7 +473,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
                   <img
                     src={src}
                     alt={`new-${i}`}
-                    className="w-full h-full object-cover"
+                    className="size-full object-cover"
                   />
                   <button
                     type="button"

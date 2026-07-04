@@ -51,6 +51,8 @@ function EditAgentModal({ agent, open, onClose }: { agent: AuthUser; open: boole
     onSuccess: () => {
       toast.success(t('admin.updateSuccess'))
       queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.AGENTS] })
+      queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.BOOKINGS] })
+      queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.AUDIT_LOGS] })
       onClose()
     },
     onError: () => toast.error(t('common.error')),
