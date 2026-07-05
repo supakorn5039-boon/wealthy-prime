@@ -37,3 +37,6 @@ coverage.out
 
 # Local API client collection (Bruno) — personal, not for repo
 bruno/
+
+# Local scratch screenshots — not for repo
+aws-spec/
