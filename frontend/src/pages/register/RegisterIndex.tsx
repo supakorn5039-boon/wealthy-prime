@@ -81,7 +81,7 @@ export default function RegisterIndex() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FormInput control={control} name="lineId" label={t('auth.lineId')} placeholder={t('auth.lineId')} />
-              <FormInput control={control} name="facebook" label={t('auth.facebook')} placeholder={t('auth.facebook')} />
+              <FormInput control={control} name="facebook" label={t('auth.facebook')} placeholder={t('auth.facebook')} required />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FormInput control={control} name="wechat" label={t('auth.wechat')} placeholder={t('auth.wechat')} />
