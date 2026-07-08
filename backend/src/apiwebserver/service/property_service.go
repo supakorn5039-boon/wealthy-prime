@@ -1,12 +1,17 @@
 package service
 
 import (
+	"archive/zip"
+	"bytes"
 	"context"
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"io"
 	"mime/multipart"
+	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -29,6 +34,10 @@ func NewPropertyService() *PropertyService {
 	return &PropertyService{db: database.DB}
 }
 
+func NewPropertyServiceWithDB(db *gorm.DB) *PropertyService {
+	return &PropertyService{db: db}
+}
+
 type PriceRange struct {
 	Min *float64
 	Max *float64
@@ -43,6 +52,7 @@ type PropertyFilter struct {
 	Districts   []string
 	PriceRanges []PriceRange
 	BtsMrtIDs   []int32
+	Pets        []string
 
 	AgentID     *uint
 	Statuses    []string
@@ -162,6 +172,9 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 	if len(filter.Kinds) > 0 {
 		query = query.Where("kind IN ?", filter.Kinds)
 	}
+	if len(filter.Pets) > 0 {
+		query = query.Where("pets IN ?", filter.Pets)
+	}
 	if len(filter.Provinces) > 0 {
 		query = query.Where("province IN ?", filter.Provinces)
 	}
@@ -245,6 +258,103 @@ func (s *PropertyService) DuplicateCheck(projectName, ownerInfo string) (bool, e
 		return false, apperror.Wrap(err, 500, "database error checking duplicate")
 	}
 	return count > 0, nil
+}
+
+func (s *PropertyService) SuggestProjectNames(q string, limit int) ([]string, error) {
+	names := []string{}
+	q = strings.TrimSpace(q)
+	if q == "" {
+		return names, nil
+	}
+	if limit <= 0 || limit > 20 {
+		limit = 10
+	}
+	err := s.db.Model(&model.Property{}).
+		Distinct("project_name").
+		Where("project_name ILIKE ?", "%"+q+"%").
+		Order("project_name").
+		Limit(limit).
+		Pluck("project_name", &names).Error
+	if err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to suggest project names")
+	}
+	return names, nil
+}
+
+type ImagesArchive struct {
+	Filename string
+	Data     []byte
+}
+
+func (s *PropertyService) BuildImagesArchive(propertyID uint) (*ImagesArchive, error) {
+	var p model.Property
+	err := s.db.Preload("Images").First(&p, propertyID).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, apperror.NotFound("property")
+	}
+	if err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to load property")
+	}
+	if len(p.Images) == 0 {
+		return nil, apperror.NotFound("property images")
+	}
+
+	var buf bytes.Buffer
+	zw := zip.NewWriter(&buf)
+	added := 0
+	for i, img := range p.Images {
+		data, err := readImageData(img.URL)
+		if err != nil {
+			continue
+		}
+		entry, err := zw.Create(fmt.Sprintf("%02d%s", i+1, imageExt(img.URL)))
+		if err != nil {
+			continue
+		}
+		if _, err := entry.Write(data); err != nil {
+			continue
+		}
+		added++
+	}
+	if err := zw.Close(); err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to build images archive")
+	}
+	if added == 0 {
+		return nil, apperror.NotFound("property images")
+	}
+
+	name := p.PropertyCode
+	if name == "" {
+		name = fmt.Sprintf("property-%d", p.ID)
+	}
+	return &ImagesArchive{Filename: name + "-images.zip", Data: buf.Bytes()}, nil
+}
+
+func readImageData(rawURL string) ([]byte, error) {
+	if strings.HasPrefix(rawURL, "http://") || strings.HasPrefix(rawURL, "https://") {
+		client := &http.Client{Timeout: 30 * time.Second}
+		resp, err := client.Get(rawURL)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			return nil, fmt.Errorf("unexpected status %d fetching image", resp.StatusCode)
+		}
+		return io.ReadAll(resp.Body)
+	}
+	filename := path.Base(rawURL)
+	if filename == "" || filename == "." || filename == "/" {
+		return nil, fmt.Errorf("invalid image path")
+	}
+	return os.ReadFile(filepath.Join(config.App.Server.UploadDir, filename))
+}
+
+func imageExt(rawURL string) string {
+	if ext := strings.ToLower(path.Ext(rawURL)); ext != "" {
+		return ext
+	}
+	return ".jpg"
 }
 
 func (s *PropertyService) CreateProperty(input CreatePropertyInput) (*model.PropertyDto, error) {

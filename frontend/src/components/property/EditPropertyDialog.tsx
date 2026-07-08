@@ -12,7 +12,8 @@ import { FormPhoneInput } from "@/components/form/FormPhoneInput";
 import { FormPriceInput } from "@/components/form/FormPriceInput";
 import { FormSelect } from "@/components/form/FormSelect";
 import { FormTextarea } from "@/components/form/FormTextarea";
-import { FormMultiChips } from "@/components/form/FormMultiChips";
+import { FormCombobox } from "@/components/form/FormCombobox";
+import { FormMultiSelect } from "@/components/form/FormMultiSelect";
 import { scrollToFirstError } from "@/lib/scrollToFirstError";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,7 +33,8 @@ import {
   BTS_MRT_OPTIONS,
 } from "@/constants/Locations";
 import { usePropertyOptions } from "@/hooks/usePropertyOptions";
-import { parseGoogleMapsUrl } from "@/utils/parseGoogleMapsUrl";
+import { useMapUrlCoords } from "@/hooks/useMapUrlCoords";
+import { MapUrlStatusHint } from "@/components/property/MapUrlStatusHint";
 
 interface Props {
   property: Property;
@@ -111,13 +113,10 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
   }, [districtOptions, getValues, setValue]);
 
   const googleMapUrl = useWatch({ control, name: "googleMapUrl" });
-  useEffect(() => {
-    const coords = parseGoogleMapsUrl(googleMapUrl ?? "");
-    if (coords) {
-      setValue("lat", String(coords.lat), { shouldValidate: true });
-      setValue("lng", String(coords.lng), { shouldValidate: true });
-    }
-  }, [googleMapUrl, setValue]);
+  const mapUrlStatus = useMapUrlCoords(googleMapUrl, (lat, lng) => {
+    setValue("lat", String(lat), { shouldValidate: true });
+    setValue("lng", String(lng), { shouldValidate: true });
+  });
 
   const mutation = useMutation({
     mutationFn: (values: PropertySchema) =>
@@ -125,10 +124,10 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
         property.id,
         {
           projectName: values.projectName,
-          location: values.location || values.district || "",
+          location: property.location || values.district || "",
           price: Number(values.price),
           sizeSqm: values.sizeSqm ? Number(values.sizeSqm) : undefined,
-          ownerInfo: values.ownerInfo,
+          ownerInfo: values.ownerInfo ?? "",
           lat: values.lat ? Number(values.lat) : undefined,
           lng: values.lng ? Number(values.lng) : undefined,
 
@@ -266,14 +265,14 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <FormSelect
+            <FormCombobox
               control={control}
               name="province"
               label={t("property.province")}
               options={provinceOptions}
               required
             />
-            <FormSelect
+            <FormCombobox
               control={control}
               name="district"
               label={t("property.district")}
@@ -289,16 +288,12 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
           </div>
           <FormInput
             control={control}
-            name="location"
-            label={t("property.location")}
-          />
-          <FormInput
-            control={control}
             name="googleMapUrl"
             label={t("property.googleMapUrl")}
             placeholder="https://maps.google.com/..."
           />
-          <FormMultiChips
+          <MapUrlStatusHint status={mapUrlStatus.status} source={mapUrlStatus.source} />
+          <FormMultiSelect
             control={control}
             name="btsMrt"
             label={t("property.btsMrt")}
@@ -364,58 +359,6 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
               name="furniture"
               label={t("property.furnitureLabel")}
               options={furnitureOptions}
-            />
-          </div>
-
-          <FormTextarea
-            control={control}
-            name="ownerInfo"
-            label={t("property.ownerInfo")}
-            required
-            rows={3}
-          />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <FormInput
-              control={control}
-              name="ownerName"
-              label={t("property.ownerName")}
-            />
-            <FormPhoneInput
-              control={control}
-              name="ownerPhone"
-              label={t("property.ownerPhone")}
-            />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <FormInput
-              control={control}
-              name="ownerLineId"
-              label={t("property.ownerLineId")}
-            />
-            <FormInput
-              control={control}
-              name="ownerEmail"
-              label={t("property.ownerEmail")}
-              type="email"
-            />
-          </div>
-          <FormInput
-            control={control}
-            name="ownerFacebook"
-            label={t("property.ownerFacebook")}
-            placeholder="https://facebook.com/..."
-            required
-          />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <FormInput
-              control={control}
-              name="ownerWechat"
-              label={t("property.ownerWechat")}
-            />
-            <FormInput
-              control={control}
-              name="ownerWhatsapp"
-              label={t("property.ownerWhatsapp")}
             />
           </div>
 
@@ -500,6 +443,59 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
               multiple
               className="hidden"
               onChange={handleImageChange}
+            />
+          </div>
+
+          <p className="text-sm font-medium text-foreground pt-2 border-t">
+            {t("property.ownerSection")}
+          </p>
+          <FormTextarea
+            control={control}
+            name="ownerInfo"
+            label={t("property.ownerInfo")}
+            rows={3}
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <FormInput
+              control={control}
+              name="ownerName"
+              label={t("property.ownerName")}
+            />
+            <FormPhoneInput
+              control={control}
+              name="ownerPhone"
+              label={t("property.ownerPhone")}
+            />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <FormInput
+              control={control}
+              name="ownerLineId"
+              label={t("property.ownerLineId")}
+            />
+            <FormInput
+              control={control}
+              name="ownerEmail"
+              label={t("property.ownerEmail")}
+              type="email"
+            />
+          </div>
+          <FormInput
+            control={control}
+            name="ownerFacebook"
+            label={t("property.ownerFacebook")}
+            placeholder="https://facebook.com/..."
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <FormInput
+              control={control}
+              name="ownerWechat"
+              label={t("property.ownerWechat")}
+            />
+            <FormInput
+              control={control}
+              name="ownerWhatsapp"
+              label={t("property.ownerWhatsapp")}
             />
           </div>
 

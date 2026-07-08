@@ -37,6 +37,7 @@ import { EditPropertyDialog } from "@/components/property/EditPropertyDialog";
 import { FormSelect } from "@/components/form/FormSelect";
 import { scrollToFirstError } from "@/lib/scrollToFirstError";
 import { MultiSelectFilter } from "@/components/shared/MultiSelectFilter";
+import { PROPERTY_KINDS } from "@/hooks/usePropertyOptions";
 import { formatPrice } from "@/utils/date";
 import {
   propertyStatusSchema,
@@ -47,7 +48,7 @@ import { ROUTES } from "@/constants/Routes";
 
 const STATUS_VALUES: PropertyStatus[] = ['available', 'reserved', 'sold', 'unavailable', 'owner_update']
 const TYPE_VALUES: ListingFilter[] = ['sell', 'rent', 'both']
-const KIND_VALUES: Exclude<PropertyKind, ''>[] = ['condo', 'house', 'townhouse']
+const KIND_VALUES: Exclude<PropertyKind, ''>[] = [...PROPERTY_KINDS]
 
 function StatusModal({
   property,

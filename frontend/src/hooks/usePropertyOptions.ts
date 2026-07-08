@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
-export const PROPERTY_KINDS = ['condo', 'house', 'townhouse'] as const
+export const PROPERTY_KINDS = ['condo', 'house', 'townhouse', 'land', 'commercial'] as const
 export const PROPERTY_LISTINGS = ['rent', 'sell', 'both'] as const
 export const PROPERTY_PETS = ['allowed', 'not_allowed'] as const
 export const PROPERTY_FURNITURE = ['full', 'partial', 'none'] as const

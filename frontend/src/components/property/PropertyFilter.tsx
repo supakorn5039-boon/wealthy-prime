@@ -11,7 +11,7 @@ import {
   type BtsMrtLine,
   type BtsMrtStation,
 } from '@/constants/Locations'
-import type { PropertyListParams, ListingFilter, PropertyKind } from '@/types/Property'
+import type { PropertyListParams, ListingFilter, PropertyKind, PetPolicy } from '@/types/Property'
 
 interface PropertyFilterProps {
   onFilter: (params: PropertyListParams) => void
@@ -245,6 +245,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
   const [provinces, setProvinces] = useState<string[]>(initialValues?.provinces ?? [])
   const [districts, setDistricts] = useState<string[]>(initialValues?.districts ?? [])
   const [stationIds, setStationIds] = useState<number[]>(initialValues?.btsMrtIds ?? [])
+  const [pets, setPets] = useState<PetPolicy[]>(initialValues?.pets ?? [])
 
   const districtOptions = useMemo(() => {
     if (provinces.length === 0) return [] as string[]
@@ -267,6 +268,15 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
       { value: 'condo', label: t('property.kind.condo') },
       { value: 'house', label: t('property.kind.house') },
       { value: 'townhouse', label: t('property.kind.townhouse') },
+      { value: 'land', label: t('property.kind.land') },
+      { value: 'commercial', label: t('property.kind.commercial') },
+    ],
+    [t],
+  )
+  const petsOptions = useMemo<MultiPickOption<PetPolicy>[]>(
+    () => [
+      { value: 'allowed', label: t('property.pets.allowed') },
+      { value: 'not_allowed', label: t('property.pets.not_allowed') },
     ],
     [t],
   )
@@ -312,6 +322,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
       provinces: provinces.length > 0 ? provinces : undefined,
       districts: districts.length > 0 ? districts : undefined,
       btsMrtIds: stationIds.length > 0 ? stationIds : undefined,
+      pets: pets.length > 0 ? pets : undefined,
     })
   }
 
@@ -323,6 +334,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     setProvinces([])
     setDistricts([])
     setStationIds([])
+    setPets([])
     onFilter({})
   }
 
@@ -333,7 +345,8 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
       priceIds.length ||
       provinces.length ||
       districts.length ||
-      stationIds.length,
+      stationIds.length ||
+      pets.length,
   )
 
   const countLabel = (n: number) => t('home.filterSelectedCount', { count: n })
@@ -343,7 +356,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
   return (
     <div className="bg-card/95 backdrop-blur border border-border rounded-2xl shadow-xl">
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 lg:divide-x lg:divide-border">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 lg:divide-x lg:divide-border">
         <MultiPick<PropertyKind>
           allLabel={allLabel}
           placeholder={t('home.filterLabel.kind')}
@@ -399,6 +412,16 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
           onToggle={(v) => setStationIds((p) => toggleArray(p, v))}
           onClear={() => setStationIds([])}
           minWidth={288}
+          align="right"
+        />
+        <MultiPick<PetPolicy>
+          allLabel={allLabel}
+          placeholder={t('home.filterLabel.pets')}
+          selectedLabel={countLabel(pets.length)}
+          options={petsOptions}
+          selected={pets}
+          onToggle={(v) => setPets((p) => toggleArray(p, v))}
+          onClear={() => setPets([])}
           align="right"
         />
       </div>

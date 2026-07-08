@@ -9,22 +9,21 @@ import { Logo } from '@/components/Logo'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { FormInput } from '@/components/form/FormInput'
 import { FormPhoneInput } from '@/components/form/FormPhoneInput'
-import { FormSelect } from '@/components/form/FormSelect'
 import { scrollToFirstError } from '@/lib/scrollToFirstError'
 import { AuthService } from '@/services/AuthService'
 import { registerSchema, type RegisterSchema } from '@/dto/AuthValidation'
 import { ROUTES } from '@/constants/Routes'
 
-export default function RegisterIndex() {
+interface RegisterIndexProps {
+  role?: 'user' | 'agent'
+}
+
+export default function RegisterIndex({ role = 'user' }: RegisterIndexProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const from = (location.state as { from?: { pathname: string } })?.from
-
-  const roleOptions = [
-    { value: 'user', label: t('auth.roleUser') },
-    { value: 'agent', label: t('auth.roleAgent') },
-  ]
+  const isAgent = role === 'agent'
 
   const { control, handleSubmit } = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
@@ -39,7 +38,7 @@ export default function RegisterIndex() {
       facebook: '',
       wechat: '',
       whatsapp: '',
-      role: 'user',
+      role,
     },
   })
 
@@ -64,8 +63,12 @@ export default function RegisterIndex() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-center">{t('auth.registerTitle')}</CardTitle>
-          <CardDescription className="text-center">{t('auth.registerSubtitle')}</CardDescription>
+          <CardTitle className="text-center">
+            {isAgent ? t('auth.registerAgentTitle') : t('auth.registerTitle')}
+          </CardTitle>
+          <CardDescription className="text-center">
+            {isAgent ? t('auth.registerAgentSubtitle') : t('auth.registerSubtitle')}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit((values) => mutation.mutate(values), scrollToFirstError)} className="space-y-4">
@@ -81,13 +84,12 @@ export default function RegisterIndex() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FormInput control={control} name="lineId" label={t('auth.lineId')} placeholder={t('auth.lineId')} />
-              <FormInput control={control} name="facebook" label={t('auth.facebook')} placeholder={t('auth.facebook')} required />
+              <FormInput control={control} name="facebook" label={t('auth.facebook')} placeholder={t('auth.facebook')} />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FormInput control={control} name="wechat" label={t('auth.wechat')} placeholder={t('auth.wechat')} />
               <FormInput control={control} name="whatsapp" label={t('auth.whatsapp')} placeholder={t('auth.whatsapp')} />
             </div>
-            <FormSelect control={control} name="role" label={t('auth.roleLabel')} options={roleOptions} required />
             <Button type="submit" className="w-full" disabled={mutation.isPending}>
               {mutation.isPending ? t('auth.registering') : t('auth.registerButton')}
             </Button>

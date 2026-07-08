@@ -1,7 +1,7 @@
 import { lazy } from 'react'
 
-export default function lazyWithReload<T extends React.ComponentType<unknown>>(
-  factory: () => Promise<{ default: T }>
+export default function lazyWithReload<P extends object>(
+  factory: () => Promise<{ default: React.ComponentType<P> }>
 ) {
   return lazy(() =>
     factory().catch((err: unknown) => {

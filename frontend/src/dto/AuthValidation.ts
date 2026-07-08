@@ -36,7 +36,7 @@ export const registerSchema = z.object({
   phone: phoneSchema,
   secondaryPhone: optionalPhoneSchema,
   lineId: z.string().optional(),
-  facebook: z.string().min(1, 'กรุณากรอก Facebook'),
+  facebook: z.string().optional(),
   wechat: z.string().optional(),
   whatsapp: z.string().optional(),
   role: z.enum(['user', 'agent']),
@@ -66,7 +66,7 @@ export const profileSchema = z.object({
   phone: phoneSchema,
   secondaryPhone: optionalPhoneSchema,
   lineId: z.string().optional(),
-  facebook: z.string().min(1, 'กรุณากรอก Facebook'),
+  facebook: z.string().optional(),
   wechat: z.string().optional(),
   whatsapp: z.string().optional(),
 })

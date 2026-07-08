@@ -41,6 +41,7 @@ export const PropertyService = {
     LIST: 'properties',
     DETAIL: 'property-detail',
     AGENT_LIST: 'agent-properties',
+    SUGGEST: 'property-name-suggest',
   },
 
   list: async (params?: PropertyListParams): Promise<ApiListResponse<Property>> => {
@@ -59,6 +60,7 @@ export const PropertyService = {
       districts: csv(p.districts),
       price_ranges: priceRangesCsv,
       bts_mrt_ids: csv(p.btsMrtIds),
+      pets: csv(p.pets),
       statuses: csv(p.statuses),
       project_name: p.projectName,
       agent_id: p.agentId,
@@ -72,6 +74,20 @@ export const PropertyService = {
   detail: async (id: number | string): Promise<Property> => {
     const res = await fetchClient.get<ApiResponse<Property>>(API.PROPERTY_DETAIL(id))
     return res.data.data
+  },
+
+  suggestProjectNames: async (q: string): Promise<string[]> => {
+    const res = await fetchClient.get<ApiResponse<string[]>>(API.PROPERTY_SUGGEST, {
+      params: { q },
+    })
+    return res.data.data ?? []
+  },
+
+  downloadImagesArchive: async (id: number | string): Promise<Blob> => {
+    const res = await fetchClient.get<Blob>(API.PROPERTY_IMAGES_ARCHIVE(id), {
+      responseType: 'blob',
+    })
+    return res.data
   },
 
   getListingOwner: async (id: number | string): Promise<ListingOwnerPreview | null> => {

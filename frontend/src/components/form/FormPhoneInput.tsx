@@ -13,6 +13,7 @@ import {
 import { getExampleNumber, type CountryCode } from 'libphonenumber-js'
 import examples from 'libphonenumber-js/examples.mobile.json'
 import { Label } from '@/components/ui/label'
+import { useClickOutside } from '@/hooks/useClickOutside'
 import { cn } from '@/lib/utils'
 
 const PARSED_COUNTRIES: ParsedCountry[] = defaultCountries.map((c) => parseCountry(c))
@@ -72,6 +73,22 @@ export function PhoneInput({
     handlePhoneValueChange(e)
   }
 
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pasted = e.clipboardData.getData('text')
+    if (!pasted) return
+    const input = inputRef.current
+    if (!input) return
+    e.preventDefault()
+    const cleaned = pasted.replace(/\D/g, '').replace(/^0+/, '')
+    if (!cleaned) return
+    const start = input.selectionStart ?? input.value.length
+    const end = input.selectionEnd ?? input.value.length
+    const nextValue = input.value.slice(0, start) + cleaned + input.value.slice(end)
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set
+    setter?.call(input, nextValue)
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+  }
+
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const triggerRef = useRef<HTMLButtonElement | null>(null)
@@ -91,17 +108,7 @@ export function PhoneInput({
     })
   }, [open])
 
-  useEffect(() => {
-    if (!open) return
-    const onClick = (e: MouseEvent) => {
-      const target = e.target as Node
-      if (triggerRef.current?.contains(target)) return
-      if (menuRef.current?.contains(target)) return
-      setOpen(false)
-    }
-    document.addEventListener('mousedown', onClick)
-    return () => document.removeEventListener('mousedown', onClick)
-  }, [open])
+  useClickOutside([triggerRef, menuRef], () => setOpen(false), open)
 
   useEffect(() => {
     if (!open) setQuery('')
@@ -143,6 +150,7 @@ export function PhoneInput({
           inputMode="numeric"
           value={inputValue}
           onChange={handleChange}
+          onPaste={handlePaste}
           onBlur={onBlur}
           name={name}
           placeholder={placeholder}

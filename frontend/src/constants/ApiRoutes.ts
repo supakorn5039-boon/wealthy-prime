@@ -6,8 +6,12 @@ export const API = {
   AUTH_FORGOT_PASSWORD: '/auth/forgot-password',
   AUTH_RESET_PASSWORD: '/auth/reset-password',
 
+  GEOCODE_RESOLVE: '/geocode/resolve',
+
   PROPERTIES: '/properties',
+  PROPERTY_SUGGEST: '/properties/suggest',
   PROPERTY_DETAIL: (id: number | string) => `/properties/${id}`,
+  PROPERTY_IMAGES_ARCHIVE: (id: number | string) => `/properties/${id}/images-archive`,
   PROPERTY_REVIEWS: (id: number | string) => `/properties/${id}/reviews`,
   PROPERTY_LISTING_OWNER: (id: number | string) => `/properties/${id}/listing-owner`,
 

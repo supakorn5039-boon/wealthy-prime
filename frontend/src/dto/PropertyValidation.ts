@@ -7,12 +7,12 @@ export const propertySchema = z
     location: z.string().optional(),
     price: z.string().min(1, 'กรุณากรอกราคา'),
     sizeSqm: z.string().optional(),
-    ownerInfo: z.string().min(1, 'กรุณากรอกข้อมูลเจ้าของทรัพย์'),
+    ownerInfo: z.string().optional(),
     ownerExtraDetail: z.string().optional(),
     lat: z.string().optional(),
     lng: z.string().optional(),
 
-    kind: z.enum(['condo', 'house', 'townhouse'] as const, {
+    kind: z.enum(['condo', 'house', 'townhouse', 'land', 'commercial'] as const, {
       required_error: 'กรุณาเลือกประเภททรัพย์',
     }),
     listing: z.enum(['rent', 'sell', 'both'] as const, {
@@ -37,7 +37,7 @@ export const propertySchema = z
       .string()
       .optional()
       .refine((v) => !v || /\S+@\S+\.\S+/.test(v), 'อีเมลไม่ถูกต้อง'),
-    ownerFacebook: z.string().min(1, 'กรุณากรอก Facebook เจ้าของ'),
+    ownerFacebook: z.string().optional(),
     ownerWechat: z.string().optional(),
     ownerWhatsapp: z.string().optional(),
   })

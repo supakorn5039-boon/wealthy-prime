@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"fmt"
+	"net/http"
 	"strconv"
 	"strings"
 
@@ -8,6 +10,7 @@ import (
 
 	"github.com/wealthy-prime/backend/src/apiwebserver/middleware"
 	"github.com/wealthy-prime/backend/src/apiwebserver/service"
+	"github.com/wealthy-prime/backend/src/apperror"
 	"github.com/wealthy-prime/backend/src/database/model"
 )
 
@@ -79,9 +82,11 @@ func NewPropertyController() *PropertyController {
 func (ctrl *PropertyController) RegisterRoutes(r *gin.RouterGroup) {
 	props := r.Group("/properties", middleware.OptionalAuth())
 	props.GET("", ctrl.listProperties)
+	props.GET("/suggest", ctrl.suggestProjectNames)
 	props.GET("/:id", ctrl.getProperty)
 	props.GET("/:id/reviews", ctrl.getPropertyReviews)
 	props.GET("/:id/listing-owner", ctrl.getListingOwner)
+	props.GET("/:id/images-archive", ctrl.downloadImagesArchive)
 }
 
 func canSeeOwnerInfo(role model.UserRole) bool {
@@ -98,6 +103,7 @@ func (ctrl *PropertyController) listProperties(c *gin.Context) {
 		Districts:   parseStringCSV(c.Query("districts")),
 		PriceRanges: parsePriceRanges(c.Query("price_ranges")),
 		BtsMrtIDs:   parseIntCSV(c.Query("bts_mrt_ids")),
+		Pets:        parseStringCSV(c.Query("pets")),
 	}
 
 	dtos, err := ctrl.svc.ListProperties(filter)
@@ -135,6 +141,34 @@ func (ctrl *PropertyController) getProperty(c *gin.Context) {
 	}
 
 	successResponse(c, dto)
+}
+
+func (ctrl *PropertyController) suggestProjectNames(c *gin.Context) {
+	names, err := ctrl.svc.SuggestProjectNames(c.Query("q"), 10)
+	if err != nil {
+		errorResponse(c, err)
+		return
+	}
+	successResponse(c, names)
+}
+
+func (ctrl *PropertyController) downloadImagesArchive(c *gin.Context) {
+	if !canSeeOwnerInfo(middleware.GetRole(c)) {
+		errorResponse(c, apperror.Forbidden("agent or admin role required"))
+		return
+	}
+	id, err := parseUintParam(c, "id")
+	if err != nil {
+		badRequest(c, "invalid property id")
+		return
+	}
+	archive, err := ctrl.svc.BuildImagesArchive(id)
+	if err != nil {
+		errorResponse(c, err)
+		return
+	}
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%q", archive.Filename))
+	c.Data(http.StatusOK, "application/zip", archive.Data)
 }
 
 func (ctrl *PropertyController) getListingOwner(c *gin.Context) {
