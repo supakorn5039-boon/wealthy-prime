@@ -6,7 +6,7 @@ export type PropertyStatus =
   | 'sold'
   | 'unavailable'
   | 'owner_update'
-export type PropertyKind = 'condo' | 'house' | 'townhouse' | ''
+export type PropertyKind = 'condo' | 'house' | 'townhouse' | 'land' | 'commercial' | ''
 export type ListingType = 'rent' | 'sell' | 'both' | ''
 export type PetPolicy = 'allowed' | 'not_allowed' | ''
 export type FurniturePolicy = 'full' | 'partial' | 'none' | ''
@@ -80,6 +80,7 @@ export interface PropertyListParams {
   priceRanges?: { min?: number; max?: number }[]
 
   btsMrtIds?: number[]
+  pets?: PetPolicy[]
   status?: PropertyStatus
   statuses?: PropertyStatus[]
   projectName?: string

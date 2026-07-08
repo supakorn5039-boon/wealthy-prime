@@ -19,12 +19,14 @@ import type { Property, PropertyKind } from '@/types/Property'
 
 type KindKey = Exclude<PropertyKind, '' | undefined>
 
-const KINDS: KindKey[] = ['condo', 'house', 'townhouse']
+const KINDS: KindKey[] = ['condo', 'house', 'townhouse', 'land', 'commercial']
 
 const KIND_COLORS: Record<KindKey, string> = {
   condo: '#3b82f6',
   house: '#10b981',
   townhouse: '#f59e0b',
+  land: '#8b5cf6',
+  commercial: '#f43f5e',
 }
 
 type PieSlice = { kind: string; value: number; color: string }
@@ -137,7 +139,7 @@ export default function AdminDashboardIndex() {
   })
 
   const kindBreakdown = useMemo(() => {
-    const counts: Record<KindKey, number> = { condo: 0, house: 0, townhouse: 0 }
+    const counts: Record<KindKey, number> = { condo: 0, house: 0, townhouse: 0, land: 0, commercial: 0 }
     for (const p of properties) {
       const k = p.kind as KindKey | undefined
       if (k && k in counts) counts[k]++

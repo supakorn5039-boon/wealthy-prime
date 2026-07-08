@@ -55,6 +55,7 @@ export const routes: AppRoute[] = [
   { path: ROUTES.MAP, element: wrap(<MapIndex />), layout: RouteLayout.PUBLIC },
   { path: ROUTES.LOGIN, element: wrap(<LoginIndex />), layout: RouteLayout.BLANK },
   { path: ROUTES.REGISTER, element: wrap(<RegisterIndex />), layout: RouteLayout.BLANK },
+  { path: ROUTES.REGISTER_AGENT, element: wrap(<RegisterIndex role="agent" />), layout: RouteLayout.BLANK },
   { path: ROUTES.FORGOT_PASSWORD, element: wrap(<ForgotPasswordIndex />), layout: RouteLayout.BLANK },
   { path: ROUTES.RESET_PASSWORD, element: wrap(<ResetPasswordIndex />), layout: RouteLayout.BLANK },
   { path: ROUTES.PROPERTY_DETAIL, element: wrap(<PropertyDetailIndex />), layout: RouteLayout.PUBLIC },

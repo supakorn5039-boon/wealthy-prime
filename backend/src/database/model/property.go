@@ -30,9 +30,11 @@ const (
 	TypeBuy  PropertyType = "buy"
 	TypeRent PropertyType = "rent"
 
-	KindCondo     PropertyKind = "condo"
-	KindHouse     PropertyKind = "house"
-	KindTownhouse PropertyKind = "townhouse"
+	KindCondo      PropertyKind = "condo"
+	KindHouse      PropertyKind = "house"
+	KindTownhouse  PropertyKind = "townhouse"
+	KindLand       PropertyKind = "land"
+	KindCommercial PropertyKind = "commercial"
 
 	ListingRent ListingType = "rent"
 	ListingSell ListingType = "sell"

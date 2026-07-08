@@ -61,7 +61,7 @@ export function Footer() {
           <h3 className="text-foreground font-semibold text-sm mb-3 tracking-luxury uppercase">{t('footer.forAgents')}</h3>
           <ul className="space-y-2 text-sm">
             <li><Link to={ROUTES.LOGIN} className="hover:text-primary transition-colors">{t('nav.login')}</Link></li>
-            <li><Link to={ROUTES.REGISTER} className="hover:text-primary transition-colors">{t('footer.registerAgent')}</Link></li>
+            <li><Link to={ROUTES.REGISTER_AGENT} className="hover:text-primary transition-colors">{t('footer.registerAgent')}</Link></li>
           </ul>
         </div>
       </div>

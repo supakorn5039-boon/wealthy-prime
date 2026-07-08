@@ -65,7 +65,7 @@ export default function MapIndex() {
                 scrollWheelZoom
                 attributionControl={false}
               >
-                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                <TileLayer detectRetina url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
                 {flyTarget && <FlyTo position={flyTarget} key={flyTarget.join(',')} />}
 

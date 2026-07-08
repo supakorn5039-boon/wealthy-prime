@@ -101,7 +101,7 @@ export default function ProfileIndex() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FormInput control={control} name="lineId" label={t('auth.lineId')} />
-              <FormInput control={control} name="facebook" label={t('auth.facebook')} required />
+              <FormInput control={control} name="facebook" label={t('auth.facebook')} />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FormInput control={control} name="wechat" label={t('auth.wechat')} />

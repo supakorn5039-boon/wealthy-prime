@@ -175,7 +175,8 @@ export default function HomeIndex() {
       filters.provinces?.length ||
       filters.districts?.length ||
       filters.priceRanges?.length ||
-      filters.btsMrtIds?.length,
+      filters.btsMrtIds?.length ||
+      filters.pets?.length,
   );
   const headingKey = hasActiveFilters
     ? "home.searchResultsTitle"
@@ -252,7 +253,7 @@ export default function HomeIndex() {
                     scrollWheelZoom
                     attributionControl={false}
                   >
-                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <TileLayer detectRetina url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                     {flyTarget && (
                       <FlyTo position={flyTarget} key={flyTarget.join(",")} />
                     )}

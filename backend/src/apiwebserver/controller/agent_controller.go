@@ -96,8 +96,8 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 
 	propType := formVal(form.Value, "type")
 
-	if projectName == "" || location == "" || ownerInfo == "" {
-		badRequest(c, "project_name, location, and owner_info are required")
+	if projectName == "" || location == "" {
+		badRequest(c, "project_name and location are required")
 		return
 	}
 
@@ -134,14 +134,16 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 		return
 	}
 
-	isDuplicate, err := ctrl.propertySvc.DuplicateCheck(projectName, ownerInfo)
-	if err != nil {
-		errorResponse(c, err)
-		return
-	}
-	if isDuplicate {
-		errorResponse(c, apperror.Conflict("property with same project name and owner already exists"))
-		return
+	if ownerInfo != "" {
+		isDuplicate, err := ctrl.propertySvc.DuplicateCheck(projectName, ownerInfo)
+		if err != nil {
+			errorResponse(c, err)
+			return
+		}
+		if isDuplicate {
+			errorResponse(c, apperror.Conflict("property with same project name and owner already exists"))
+			return
+		}
 	}
 
 	images := form.File["images"]
@@ -187,8 +189,8 @@ func (ctrl *AgentController) editProperty(c *gin.Context) {
 	ownerInfo := formVal(form.Value, "owner_info")
 
 	propType := formVal(form.Value, "type")
-	if projectName == "" || location == "" || ownerInfo == "" {
-		badRequest(c, "project_name, location, and owner_info are required")
+	if projectName == "" || location == "" {
+		badRequest(c, "project_name and location are required")
 		return
 	}
 

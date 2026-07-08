@@ -37,6 +37,7 @@ func MountAPIWebServer(r *gin.Engine) {
 	controller.NewUserController().RegisterRoutes(api)
 	controller.NewAgentController().RegisterRoutes(api)
 	controller.NewAdminController().RegisterRoutes(api)
+	controller.NewGeocodeController().RegisterRoutes(api)
 }
 
 func corsMiddleware() gin.HandlerFunc {

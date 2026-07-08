@@ -172,7 +172,9 @@
     "newPasswordPlaceholder": "新密码",
     "confirmPassword": "确认新密码",
     "confirmPasswordPlaceholder": "请再次输入新密码",
-    "backToLogin": "返回登录"
+    "backToLogin": "返回登录",
+    "registerAgentTitle": "代理注册",
+    "registerAgentSubtitle": "创建代理账户，团队审核通过后即可登录"
   },
   "profile": {
     "title": "个人信息",
@@ -217,7 +219,9 @@
     "kind": {
       "condo": "公寓",
       "house": "独栋",
-      "townhouse": "联排"
+      "townhouse": "联排",
+      "land": "土地",
+      "commercial": "商业楼"
     },
     "listingLabel": "上架类型",
     "listing": {
@@ -267,12 +271,15 @@
     "title": "房产名称",
     "location": "位置/区域",
     "size": "面积 (平方米)",
-    "ownerInfo": "业主信息",
+    "ownerInfo": "业主备注",
     "noOwnerInfoOnFile": "该房产暂未录入业主联系信息。",
     "ownerExtraDetail": "额外详情（重复时）",
     "lat": "纬度",
     "lng": "经度",
     "coordsHint": "填写坐标以在地图上显示此房产（可选）",
+    "resolvingMapUrl": "正在从地图链接读取位置…",
+    "mapUrlApprox": "已根据链接中的地址填入坐标——为近似值，请核对并微调标记点。",
+    "mapUrlNoCoords": "无法从此链接读取坐标，请手动输入纬度和经度。",
     "noCoordsAvailable": "此房产暂无坐标",
     "imagesMarkedForDeletion": "已标记删除 {{count}} 张图片 — 保存后将被移除",
     "newStatus": "新状态",
@@ -320,7 +327,10 @@
     "responsibleAgent": "负责代理",
     "addToCart": "加入购物车/预约",
     "listedAt": "发布时间:",
-    "propertyCode": "房产代码:"
+    "propertyCode": "房产代码:",
+    "downloadAllImages": "下载全部图片",
+    "downloadingImages": "下载中…",
+    "existingProjects": "系统中已有的项目"
   },
   "inquiries": {
     "title": "咨询",
@@ -497,7 +507,8 @@
       "price": "价格",
       "province": "省份",
       "district": "区域",
-      "btsMrt": "附近地铁"
+      "btsMrt": "附近地铁",
+      "pets": "宠物"
     },
     "minPrice": "最低价",
     "maxPrice": "最高价",

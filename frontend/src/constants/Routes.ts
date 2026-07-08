@@ -9,6 +9,7 @@ export const ROUTES = {
   MAP: '/map',
   LOGIN: '/login',
   REGISTER: '/register',
+  REGISTER_AGENT: '/register/agent',
   FORGOT_PASSWORD: '/forgot-password',
   RESET_PASSWORD: '/reset-password',
 

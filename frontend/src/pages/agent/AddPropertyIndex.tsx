@@ -14,7 +14,9 @@ import { FormPhoneInput } from "@/components/form/FormPhoneInput";
 import { FormPriceInput } from "@/components/form/FormPriceInput";
 import { FormSelect } from "@/components/form/FormSelect";
 import { FormTextarea } from "@/components/form/FormTextarea";
-import { FormMultiChips } from "@/components/form/FormMultiChips";
+import { FormCombobox } from "@/components/form/FormCombobox";
+import { FormMultiSelect } from "@/components/form/FormMultiSelect";
+import { FormSuggestInput } from "@/components/form/FormSuggestInput";
 import { scrollToFirstError } from "@/lib/scrollToFirstError";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,7 +30,8 @@ import {
   BTS_MRT_OPTIONS,
 } from "@/constants/Locations";
 import { usePropertyOptions } from "@/hooks/usePropertyOptions";
-import { parseGoogleMapsUrl } from "@/utils/parseGoogleMapsUrl";
+import { useMapUrlCoords } from "@/hooks/useMapUrlCoords";
+import { MapUrlStatusHint } from "@/components/property/MapUrlStatusHint";
 
 export default function AddPropertyIndex() {
   const { t } = useTranslation();
@@ -97,23 +100,20 @@ export default function AddPropertyIndex() {
   }, [selectedProvince, setValue]);
 
   const googleMapUrl = useWatch({ control, name: "googleMapUrl" });
-  useEffect(() => {
-    const coords = parseGoogleMapsUrl(googleMapUrl ?? "");
-    if (coords) {
-      setValue("lat", String(coords.lat), { shouldValidate: true });
-      setValue("lng", String(coords.lng), { shouldValidate: true });
-    }
-  }, [googleMapUrl, setValue]);
+  const mapUrlStatus = useMapUrlCoords(googleMapUrl, (lat, lng) => {
+    setValue("lat", String(lat), { shouldValidate: true });
+    setValue("lng", String(lng), { shouldValidate: true });
+  });
 
   const mutation = useMutation({
     mutationFn: (values: PropertySchema) =>
       PropertyService.createWithImages(
         {
           projectName: values.projectName,
-          location: values.location || values.district || "",
+          location: values.district || "",
           price: Number(values.price),
           sizeSqm: values.sizeSqm ? Number(values.sizeSqm) : undefined,
-          ownerInfo: values.ownerInfo,
+          ownerInfo: values.ownerInfo ?? "",
           ownerExtraDetail: values.ownerExtraDetail ?? "",
           lat: values.lat ? Number(values.lat) : undefined,
           lng: values.lng ? Number(values.lng) : undefined,
@@ -198,11 +198,14 @@ export default function AddPropertyIndex() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <FormInput
+            <FormSuggestInput
               control={control}
               name="projectName"
               label={t("property.projectName")}
               placeholder={t("property.projectName")}
+              queryKey={PropertyService.QUERY_KEYS.SUGGEST}
+              fetchSuggestions={PropertyService.suggestProjectNames}
+              suggestionsTitle={t("property.existingProjects")}
               required
             />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -268,14 +271,14 @@ export default function AddPropertyIndex() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <FormSelect
+              <FormCombobox
                 control={control}
                 name="province"
                 label={t("property.province")}
                 options={provinceOptions}
                 required
               />
-              <FormSelect
+              <FormCombobox
                 control={control}
                 name="district"
                 label={t("property.district")}
@@ -291,17 +294,12 @@ export default function AddPropertyIndex() {
             </div>
             <FormInput
               control={control}
-              name="location"
-              label={t("property.location")}
-              placeholder={t("property.location")}
-            />
-            <FormInput
-              control={control}
               name="googleMapUrl"
               label={t("property.googleMapUrl")}
               placeholder="https://maps.google.com/..."
             />
-            <FormMultiChips
+            <MapUrlStatusHint status={mapUrlStatus.status} source={mapUrlStatus.source} />
+            <FormMultiSelect
               control={control}
               name="btsMrt"
               label={t("property.btsMrt")}
@@ -387,83 +385,6 @@ export default function AddPropertyIndex() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
-              {t("property.ownerSection")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <FormTextarea
-              control={control}
-              name="ownerInfo"
-              label={t("property.ownerInfo")}
-              placeholder={t("property.ownerInfo")}
-              required
-              rows={3}
-            />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <FormInput
-                control={control}
-                name="ownerName"
-                label={t("property.ownerName")}
-              />
-              <FormPhoneInput
-                control={control}
-                name="ownerPhone"
-                label={t("property.ownerPhone")}
-              />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <FormInput
-                control={control}
-                name="ownerLineId"
-                label={t("property.ownerLineId")}
-              />
-              <FormInput
-                control={control}
-                name="ownerEmail"
-                label={t("property.ownerEmail")}
-                type="email"
-              />
-            </div>
-            <FormInput
-              control={control}
-              name="ownerFacebook"
-              label={t("property.ownerFacebook")}
-              placeholder="https://facebook.com/..."
-              required
-            />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <FormInput
-                control={control}
-                name="ownerWechat"
-                label={t("property.ownerWechat")}
-              />
-              <FormInput
-                control={control}
-                name="ownerWhatsapp"
-                label={t("property.ownerWhatsapp")}
-              />
-            </div>
-            {showExtraField && (
-              <div className="border-l-4 border-orange-400 pl-4 space-y-2">
-                <p className="text-sm font-medium text-orange-700">
-                  {t("property.duplicateWarning")}
-                </p>
-                <FormTextarea
-                  control={control}
-                  name="ownerExtraDetail"
-                  label={t("property.ownerExtraDetail")}
-                  placeholder={t("property.ownerExtraDetail")}
-                  required
-                  rows={3}
-                />
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
               {t("property.imagesSection")}
             </CardTitle>
           </CardHeader>
@@ -505,6 +426,81 @@ export default function AddPropertyIndex() {
               className="hidden"
               onChange={handleImageChange}
             />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">
+              {t("property.ownerSection")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormTextarea
+              control={control}
+              name="ownerInfo"
+              label={t("property.ownerInfo")}
+              placeholder={t("property.ownerInfo")}
+              rows={3}
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <FormInput
+                control={control}
+                name="ownerName"
+                label={t("property.ownerName")}
+              />
+              <FormPhoneInput
+                control={control}
+                name="ownerPhone"
+                label={t("property.ownerPhone")}
+              />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <FormInput
+                control={control}
+                name="ownerLineId"
+                label={t("property.ownerLineId")}
+              />
+              <FormInput
+                control={control}
+                name="ownerEmail"
+                label={t("property.ownerEmail")}
+                type="email"
+              />
+            </div>
+            <FormInput
+              control={control}
+              name="ownerFacebook"
+              label={t("property.ownerFacebook")}
+              placeholder="https://facebook.com/..."
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <FormInput
+                control={control}
+                name="ownerWechat"
+                label={t("property.ownerWechat")}
+              />
+              <FormInput
+                control={control}
+                name="ownerWhatsapp"
+                label={t("property.ownerWhatsapp")}
+              />
+            </div>
+            {showExtraField && (
+              <div className="border-l-4 border-orange-400 pl-4 space-y-2">
+                <p className="text-sm font-medium text-orange-700">
+                  {t("property.duplicateWarning")}
+                </p>
+                <FormTextarea
+                  control={control}
+                  name="ownerExtraDetail"
+                  label={t("property.ownerExtraDetail")}
+                  placeholder={t("property.ownerExtraDetail")}
+                  required
+                  rows={3}
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
 

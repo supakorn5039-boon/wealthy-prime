@@ -172,7 +172,9 @@
     "newPasswordPlaceholder": "New password",
     "confirmPassword": "Confirm password",
     "confirmPasswordPlaceholder": "Re-enter the new password",
-    "backToLogin": "Back to login"
+    "backToLogin": "Back to login",
+    "registerAgentTitle": "Agent Registration",
+    "registerAgentSubtitle": "Create an agent account — the team will review and approve it before you can log in"
   },
   "profile": {
     "title": "Personal Information",
@@ -217,7 +219,9 @@
     "kind": {
       "condo": "Condo",
       "house": "House",
-      "townhouse": "Townhouse"
+      "townhouse": "Townhouse",
+      "land": "Land",
+      "commercial": "Commercial Building"
     },
     "listingLabel": "Listing Type",
     "listing": {
@@ -267,12 +271,15 @@
     "title": "Property Name",
     "location": "Location / District",
     "size": "Size (sq.m.)",
-    "ownerInfo": "Owner Info",
+    "ownerInfo": "Owner Note",
     "noOwnerInfoOnFile": "No owner contact info has been recorded for this property yet.",
     "ownerExtraDetail": "Extra Detail (if duplicate)",
     "lat": "Latitude",
     "lng": "Longitude",
     "coordsHint": "Add coordinates to show this property on the map (optional).",
+    "resolvingMapUrl": "Reading location from the map link…",
+    "mapUrlApprox": "Coordinates filled from the link's address — approximate, please check and adjust the pin.",
+    "mapUrlNoCoords": "Couldn't read coordinates from this link. Please enter latitude and longitude manually.",
     "noCoordsAvailable": "No coordinates set for this property yet",
     "imagesMarkedForDeletion": "{{count}} image(s) marked for deletion — will be removed on save",
     "newStatus": "New Status",
@@ -320,7 +327,10 @@
     "responsibleAgent": "Responsible Agent",
     "addToCart": "Add to Cart / Schedule",
     "listedAt": "Listed:",
-    "propertyCode": "Property Code:"
+    "propertyCode": "Property Code:",
+    "downloadAllImages": "Download All Images",
+    "downloadingImages": "Downloading…",
+    "existingProjects": "Existing projects in the system"
   },
   "inquiries": {
     "title": "Inquiries",
@@ -497,7 +507,8 @@
       "price": "Price",
       "province": "Province",
       "district": "District",
-      "btsMrt": "Nearby BTS/MRT"
+      "btsMrt": "Nearby BTS/MRT",
+      "pets": "Pets"
     },
     "minPrice": "Min Price",
     "maxPrice": "Max Price",

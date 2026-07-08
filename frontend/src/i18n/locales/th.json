@@ -172,7 +172,9 @@
     "newPasswordPlaceholder": "รหัสผ่านใหม่",
     "confirmPassword": "ยืนยันรหัสผ่านใหม่",
     "confirmPasswordPlaceholder": "กรอกรหัสผ่านใหม่อีกครั้ง",
-    "backToLogin": "กลับไปหน้าเข้าสู่ระบบ"
+    "backToLogin": "กลับไปหน้าเข้าสู่ระบบ",
+    "registerAgentTitle": "สมัครสมาชิกเอเจนท์",
+    "registerAgentSubtitle": "สร้างบัญชีเอเจนท์ ทีมงานจะตรวจสอบและอนุมัติก่อนเข้าใช้งาน"
   },
   "profile": {
     "title": "ข้อมูลส่วนตัว",
@@ -217,7 +219,9 @@
     "kind": {
       "condo": "คอนโด",
       "house": "บ้าน",
-      "townhouse": "ทาวน์เฮาส์"
+      "townhouse": "ทาวน์เฮาส์",
+      "land": "ที่ดิน",
+      "commercial": "อาคารพาณิชย์"
     },
     "listingLabel": "ประเภทรายการ",
     "listing": {
@@ -267,12 +271,15 @@
     "title": "ชื่อทรัพย์",
     "location": "ทำเล / เขต",
     "size": "พื้นที่ (ตร.ม.)",
-    "ownerInfo": "ข้อมูลเจ้าของ",
+    "ownerInfo": "Note เจ้าของ",
     "noOwnerInfoOnFile": "ยังไม่มีข้อมูลติดต่อเจ้าของทรัพย์รายนี้",
     "ownerExtraDetail": "รายละเอียดเพิ่มเติม (กรณีซ้ำ)",
     "lat": "ละติจูด (Lat)",
     "lng": "ลองจิจูด (Lng)",
     "coordsHint": "ใส่พิกัดเพื่อแสดงทรัพย์บนแผนที่ (เว้นว่างได้)",
+    "resolvingMapUrl": "กำลังอ่านตำแหน่งจากลิงก์แผนที่…",
+    "mapUrlApprox": "กรอกพิกัดจากที่อยู่ในลิงก์แล้ว — เป็นค่าโดยประมาณ โปรดตรวจสอบและปรับหมุดให้ตรง",
+    "mapUrlNoCoords": "อ่านพิกัดจากลิงก์นี้ไม่ได้ กรุณากรอกละติจูดและลองจิจูดเอง",
     "noCoordsAvailable": "ยังไม่มีพิกัดของทรัพย์นี้",
     "imagesMarkedForDeletion": "เลือกลบรูปเดิม {{count}} รูป — จะถูกลบเมื่อกดบันทึก",
     "newStatus": "สถานะใหม่",
@@ -320,7 +327,10 @@
     "responsibleAgent": "เอเจนต์ผู้รับผิดชอบ",
     "addToCart": "ใส่ตะกร้า / นัดชม",
     "listedAt": "ลงประกาศ:",
-    "propertyCode": "รหัสทรัพย์:"
+    "propertyCode": "รหัสทรัพย์:",
+    "downloadAllImages": "ดาวน์โหลดรูปทั้งหมด",
+    "downloadingImages": "กำลังดาวน์โหลด…",
+    "existingProjects": "โครงการที่มีอยู่ในระบบ"
   },
   "inquiries": {
     "title": "การติดต่อสอบถาม",
@@ -497,7 +507,8 @@
       "price": "ราคา",
       "province": "จังหวัด",
       "district": "เขต/ทำเล",
-      "btsMrt": "รถไฟฟ้าใกล้เคียง"
+      "btsMrt": "รถไฟฟ้าใกล้เคียง",
+      "pets": "สัตว์เลี้ยง"
     },
     "minPrice": "ราคาต่ำสุด",
     "maxPrice": "ราคาสูงสุด",
