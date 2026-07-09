@@ -85,6 +85,16 @@ export const propertySchema = z
 
 export type PropertySchema = z.infer<typeof propertySchema>
 
+export const addPropertySchema = propertySchema.superRefine((data, ctx) => {
+  if (!data.ownerPhone?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'กรุณากรอกเบอร์โทรเจ้าของ',
+      path: ['ownerPhone'],
+    })
+  }
+})
+
 export const propertyStatusSchema = z.object({
   status: z.enum([
     'available',

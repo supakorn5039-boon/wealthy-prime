@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageTitle } from "@/components/shared/PageTitle";
 import { PageContainer } from "@/components/shared/PageContainer";
-import { propertySchema, type PropertySchema } from "@/dto/PropertyValidation";
+import { addPropertySchema, type PropertySchema } from "@/dto/PropertyValidation";
 import { ROUTES } from "@/constants/Routes";
 import {
   PROVINCES,
@@ -51,7 +51,7 @@ export default function AddPropertyIndex() {
   const provinceOptions = PROVINCES.map((p) => ({ value: p, label: p }));
 
   const { control, handleSubmit, setValue } = useForm<PropertySchema>({
-    resolver: zodResolver(propertySchema),
+    resolver: zodResolver(addPropertySchema),
     defaultValues: {
       projectName: "",
       location: "",
@@ -453,6 +453,7 @@ export default function AddPropertyIndex() {
                 control={control}
                 name="ownerPhone"
                 label={t("property.ownerPhone")}
+                required
               />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
