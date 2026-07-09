@@ -178,8 +178,14 @@ func geocodeCandidates(address string) []string {
 	if address == "" {
 		return nil
 	}
+	segments := strings.Split(address, ",")
 	candidates := []string{address}
-	if segments := strings.Split(address, ","); len(segments) >= 3 {
+	if len(segments) >= 2 {
+		if placeName := strings.TrimSpace(segments[0]); placeName != "" && placeName != address {
+			candidates = append(candidates, placeName)
+		}
+	}
+	if len(segments) >= 3 {
 		trimmed := strings.TrimSpace(strings.Join(segments[1:], ","))
 		if trimmed != "" && trimmed != address {
 			candidates = append(candidates, trimmed)

@@ -46,14 +46,24 @@ func TestIsGoogleHost(t *testing.T) {
 
 func TestGeocodeCandidates(t *testing.T) {
 	got := geocodeCandidates("Wat Arun Ratchawararam, 158 Thanon Wang Doem, Wat Arun, Bangkok 10600")
-	if len(got) != 2 {
-		t.Fatalf("want 2 candidates, got %d: %v", len(got), got)
+	if len(got) != 3 {
+		t.Fatalf("want 3 candidates, got %d: %v", len(got), got)
 	}
-	if got[0] == got[1] {
-		t.Errorf("candidates should differ: %v", got)
+	if got[0] != "Wat Arun Ratchawararam, 158 Thanon Wang Doem, Wat Arun, Bangkok 10600" {
+		t.Errorf("first candidate should be the full address, got %q", got[0])
+	}
+	if got[1] != "Wat Arun Ratchawararam" {
+		t.Errorf("second candidate should be the place name, got %q", got[1])
+	}
+	if got[2] != "158 Thanon Wang Doem, Wat Arun, Bangkok 10600" {
+		t.Errorf("third candidate should be the street-and-area fallback, got %q", got[2])
 	}
 	if single := geocodeCandidates("Bangkok"); len(single) != 1 {
 		t.Errorf("single-segment should yield 1 candidate, got %v", single)
+	}
+	twoSeg := geocodeCandidates("Hotel Picnic Bangkok, Bangkok")
+	if len(twoSeg) != 2 || twoSeg[1] != "Hotel Picnic Bangkok" {
+		t.Errorf("two-segment address should add the place name, got %v", twoSeg)
 	}
 }
 
