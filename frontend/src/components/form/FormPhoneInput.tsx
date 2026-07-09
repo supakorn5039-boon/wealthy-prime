@@ -167,7 +167,7 @@ export function PhoneInput({
             top: position.top,
             left: position.left,
             width: position.width,
-            zIndex: 1000,
+            zIndex: 1200,
           }}
           className="max-h-80 overflow-hidden rounded-md border border-border bg-popover shadow-lg flex flex-col"
         >
