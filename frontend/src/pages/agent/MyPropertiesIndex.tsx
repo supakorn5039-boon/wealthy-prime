@@ -198,14 +198,12 @@ export default function MyPropertiesIndex() {
       <PageTitle
         title={t("property.myPropertiesTitle")}
         actions={
-          !isAdmin && (
-            <Link to={ROUTES.AGENT_ADD_PROPERTY}>
-              <Button>
-                <Plus className="size-4 mr-2" />
-                {t("property.addProperty")}
-              </Button>
-            </Link>
-          )
+          <Link to={ROUTES.AGENT_ADD_PROPERTY}>
+            <Button>
+              <Plus className="size-4 mr-2" />
+              {t("property.addProperty")}
+            </Button>
+          </Link>
         }
       />
 
@@ -249,7 +247,7 @@ export default function MyPropertiesIndex() {
         <EmptyState
           title={t("property.noProperties")}
           actions={
-            !isAdmin && !hasFilters && (
+            !hasFilters && (
               <Link to={ROUTES.AGENT_ADD_PROPERTY}>
                 <Button>
                   <Plus className="size-4 mr-2" />

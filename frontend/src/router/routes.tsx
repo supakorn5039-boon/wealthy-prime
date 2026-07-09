@@ -49,6 +49,7 @@ export interface AppRoute {
 const USER_ONLY: UserRole[] = ['user']
 const AGENT_ONLY: UserRole[] = ['agent']
 const ADMIN_ONLY: UserRole[] = ['admin']
+const AGENT_ADMIN: UserRole[] = ['agent', 'admin']
 
 export const routes: AppRoute[] = [
   { path: ROUTES.HOME, element: wrap(<HomeIndex />), layout: RouteLayout.PUBLIC },
@@ -71,15 +72,15 @@ export const routes: AppRoute[] = [
     path: ROUTES.AGENT_DASHBOARD,
     element: wrap(<RoleSwitch admin={<AdminDashboardIndex />} agent={<AgentDashboardIndex />} />),
     layout: RouteLayout.PROTECTED,
-    allowedRoles: ['agent', 'admin'],
+    allowedRoles: AGENT_ADMIN,
   },
-  { path: ROUTES.AGENT_PROPERTIES, element: wrap(<MyPropertiesIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ['agent', 'admin'] },
-  { path: ROUTES.AGENT_ADD_PROPERTY, element: wrap(<AddPropertyIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
+  { path: ROUTES.AGENT_PROPERTIES, element: wrap(<MyPropertiesIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ADMIN },
+  { path: ROUTES.AGENT_ADD_PROPERTY, element: wrap(<AddPropertyIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ADMIN },
   {
     path: ROUTES.AGENT_CONTACT_HISTORY,
     element: wrap(<RoleSwitch admin={<AdminVisitRequestsIndex />} agent={<ContactHistoryIndex />} />),
     layout: RouteLayout.PROTECTED,
-    allowedRoles: ['agent', 'admin'],
+    allowedRoles: AGENT_ADMIN,
   },
   { path: ROUTES.AGENT_INQUIRIES, element: wrap(<InquiriesIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
   { path: ROUTES.AGENT_REVIEW_LINK, element: wrap(<ReviewLinkIndex />), layout: RouteLayout.PROTECTED, allowedRoles: AGENT_ONLY },
