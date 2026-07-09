@@ -259,6 +259,7 @@
     "ownerFacebook": "Owner Facebook",
     "ownerWechat": "Owner WeChat",
     "ownerWhatsapp": "Owner WhatsApp",
+    "ownerDocumentUrl": "Google Drive URL (documents)",
     "code": "Code",
     "project": "Project",
     "typeCol": "Type",

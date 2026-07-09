@@ -83,6 +83,7 @@ export default function AddPropertyIndex() {
       ownerFacebook: "",
       ownerWechat: "",
       ownerWhatsapp: "",
+      ownerDocumentUrl: "",
     },
   });
 
@@ -110,7 +111,7 @@ export default function AddPropertyIndex() {
       PropertyService.createWithImages(
         {
           projectName: values.projectName,
-          location: values.district || "",
+          location: values.location || values.district || "",
           price: Number(values.price),
           sizeSqm: values.sizeSqm ? Number(values.sizeSqm) : undefined,
           ownerInfo: values.ownerInfo ?? "",
@@ -142,6 +143,7 @@ export default function AddPropertyIndex() {
           ownerFacebook: values.ownerFacebook,
           ownerWechat: values.ownerWechat,
           ownerWhatsapp: values.ownerWhatsapp,
+          ownerDocumentUrl: values.ownerDocumentUrl,
         },
         images,
       ),
@@ -294,6 +296,12 @@ export default function AddPropertyIndex() {
             </div>
             <FormInput
               control={control}
+              name="location"
+              label={t("property.location")}
+              placeholder={t("property.location")}
+            />
+            <FormInput
+              control={control}
               name="googleMapUrl"
               label={t("property.googleMapUrl")}
               placeholder="https://maps.google.com/..."
@@ -436,13 +444,6 @@ export default function AddPropertyIndex() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <FormTextarea
-              control={control}
-              name="ownerInfo"
-              label={t("property.ownerInfo")}
-              placeholder={t("property.ownerInfo")}
-              rows={3}
-            />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FormInput
                 control={control}
@@ -487,6 +488,19 @@ export default function AddPropertyIndex() {
                 label={t("property.ownerWhatsapp")}
               />
             </div>
+            <FormTextarea
+              control={control}
+              name="ownerInfo"
+              label={t("property.ownerInfo")}
+              placeholder={t("property.ownerInfo")}
+              rows={3}
+            />
+            <FormInput
+              control={control}
+              name="ownerDocumentUrl"
+              label={t("property.ownerDocumentUrl")}
+              placeholder="https://drive.google.com/..."
+            />
             {showExtraField && (
               <div className="border-l-4 border-orange-400 pl-4 space-y-2">
                 <p className="text-sm font-medium text-orange-700">

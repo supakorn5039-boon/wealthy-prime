@@ -259,6 +259,7 @@
     "ownerFacebook": "业主 Facebook",
     "ownerWechat": "业主微信",
     "ownerWhatsapp": "业主 WhatsApp",
+    "ownerDocumentUrl": "Google Drive 链接（上传文件）",
     "code": "编号",
     "project": "项目",
     "typeCol": "类型",

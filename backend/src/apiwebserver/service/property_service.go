@@ -84,13 +84,14 @@ type PropertyFields struct {
 	Furniture    model.FurniturePolicy
 	AdCaption    string
 
-	OwnerName     string
-	OwnerPhone    string
-	OwnerLineID   string
-	OwnerEmail    string
-	OwnerFacebook string
-	OwnerWechat   string
-	OwnerWhatsapp string
+	OwnerName        string
+	OwnerPhone       string
+	OwnerLineID      string
+	OwnerEmail       string
+	OwnerFacebook    string
+	OwnerWechat      string
+	OwnerWhatsapp    string
+	OwnerDocumentURL string
 }
 
 type CreatePropertyInput struct {
@@ -396,13 +397,14 @@ func (s *PropertyService) CreateProperty(input CreatePropertyInput) (*model.Prop
 		Furniture:    input.Furniture,
 		AdCaption:    input.AdCaption,
 
-		OwnerName:     input.OwnerName,
-		OwnerPhone:    input.OwnerPhone,
-		OwnerLineID:   input.OwnerLineID,
-		OwnerEmail:    input.OwnerEmail,
-		OwnerFacebook: input.OwnerFacebook,
-		OwnerWechat:   input.OwnerWechat,
-		OwnerWhatsapp: input.OwnerWhatsapp,
+		OwnerName:        input.OwnerName,
+		OwnerPhone:       input.OwnerPhone,
+		OwnerLineID:      input.OwnerLineID,
+		OwnerEmail:       input.OwnerEmail,
+		OwnerFacebook:    input.OwnerFacebook,
+		OwnerWechat:      input.OwnerWechat,
+		OwnerWhatsapp:    input.OwnerWhatsapp,
+		OwnerDocumentURL: input.OwnerDocumentURL,
 	}
 
 	if err := s.db.Create(&p).Error; err != nil {
@@ -474,32 +476,33 @@ func (s *PropertyService) UpdateProperty(propertyID, callerID uint, role model.U
 	}
 
 	updates := map[string]interface{}{
-		"project_name":   input.ProjectName,
-		"location":       input.Location,
-		"price":          input.Price,
-		"type":           derivedType,
-		"size_sqm":       input.SizeSqm,
-		"owner_info":     input.OwnerInfo,
-		"kind":           input.Kind,
-		"listing":        input.Listing,
-		"province":       input.Province,
-		"district":       input.District,
-		"google_map_url": input.GoogleMapURL,
-		"bts_mrt":        input.BtsMrt,
-		"bedrooms":       input.Bedrooms,
-		"bathrooms":      input.Bathrooms,
-		"floor":          input.Floor,
-		"min_contract":   input.MinContract,
-		"pets":           input.Pets,
-		"furniture":      input.Furniture,
-		"ad_caption":     input.AdCaption,
-		"owner_name":     input.OwnerName,
-		"owner_phone":    input.OwnerPhone,
-		"owner_line_id":  input.OwnerLineID,
-		"owner_email":    input.OwnerEmail,
-		"owner_facebook": input.OwnerFacebook,
-		"owner_wechat":   input.OwnerWechat,
-		"owner_whatsapp": input.OwnerWhatsapp,
+		"project_name":       input.ProjectName,
+		"location":           input.Location,
+		"price":              input.Price,
+		"type":               derivedType,
+		"size_sqm":           input.SizeSqm,
+		"owner_info":         input.OwnerInfo,
+		"kind":               input.Kind,
+		"listing":            input.Listing,
+		"province":           input.Province,
+		"district":           input.District,
+		"google_map_url":     input.GoogleMapURL,
+		"bts_mrt":            input.BtsMrt,
+		"bedrooms":           input.Bedrooms,
+		"bathrooms":          input.Bathrooms,
+		"floor":              input.Floor,
+		"min_contract":       input.MinContract,
+		"pets":               input.Pets,
+		"furniture":          input.Furniture,
+		"ad_caption":         input.AdCaption,
+		"owner_name":         input.OwnerName,
+		"owner_phone":        input.OwnerPhone,
+		"owner_line_id":      input.OwnerLineID,
+		"owner_email":        input.OwnerEmail,
+		"owner_facebook":     input.OwnerFacebook,
+		"owner_wechat":       input.OwnerWechat,
+		"owner_whatsapp":     input.OwnerWhatsapp,
+		"owner_document_url": input.OwnerDocumentURL,
 	}
 	if input.RentalPeriodMonths != nil {
 		updates["rental_period_months"] = *input.RentalPeriodMonths

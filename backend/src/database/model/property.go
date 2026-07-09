@@ -81,13 +81,14 @@ type Property struct {
 	Furniture   FurniturePolicy `gorm:"type:varchar(20)"`
 	AdCaption   string          `gorm:"type:text"`
 
-	OwnerName     string
-	OwnerPhone    string
-	OwnerLineID   string
-	OwnerEmail    string
-	OwnerFacebook string
-	OwnerWechat   string
-	OwnerWhatsapp string
+	OwnerName        string
+	OwnerPhone       string
+	OwnerLineID      string
+	OwnerEmail       string
+	OwnerFacebook    string
+	OwnerWechat      string
+	OwnerWhatsapp    string
+	OwnerDocumentURL string
 }
 
 func (p *Property) BeforeCreate(tx *gorm.DB) error {
@@ -173,6 +174,7 @@ type PropertyDto struct {
 	OwnerFacebook      string             `json:"ownerFacebook"`
 	OwnerWechat        string             `json:"ownerWechat"`
 	OwnerWhatsapp      string             `json:"ownerWhatsapp"`
+	OwnerDocumentURL   string             `json:"ownerDocumentUrl"`
 	RentalPeriodMonths *int               `json:"rentalPeriodMonths"`
 	SlipURL            string             `json:"slipUrl"`
 	Lat                *float64           `json:"lat"`
@@ -215,6 +217,7 @@ func (p *Property) ToDto() *PropertyDto {
 		OwnerFacebook:      p.OwnerFacebook,
 		OwnerWechat:        p.OwnerWechat,
 		OwnerWhatsapp:      p.OwnerWhatsapp,
+		OwnerDocumentURL:   p.OwnerDocumentURL,
 		RentalPeriodMonths: p.RentalPeriodMonths,
 		SlipURL:            absoluteURL(p.SlipURL),
 		Lat:                p.Lat,
@@ -273,6 +276,7 @@ func (d *PropertyDto) StripOwnerInfo() {
 	d.OwnerFacebook = ""
 	d.OwnerWechat = ""
 	d.OwnerWhatsapp = ""
+	d.OwnerDocumentURL = ""
 	d.SlipURL = ""
 }
 

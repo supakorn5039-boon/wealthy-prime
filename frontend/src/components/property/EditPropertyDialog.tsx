@@ -93,6 +93,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
         ownerFacebook: property.ownerFacebook ?? "",
         ownerWechat: property.ownerWechat ?? "",
         ownerWhatsapp: property.ownerWhatsapp ?? "",
+        ownerDocumentUrl: property.ownerDocumentUrl ?? "",
       },
     });
 
@@ -124,7 +125,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
         property.id,
         {
           projectName: values.projectName,
-          location: property.location || values.district || "",
+          location: values.location || values.district || "",
           price: Number(values.price),
           sizeSqm: values.sizeSqm ? Number(values.sizeSqm) : undefined,
           ownerInfo: values.ownerInfo ?? "",
@@ -155,6 +156,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
           ownerFacebook: values.ownerFacebook,
           ownerWechat: values.ownerWechat,
           ownerWhatsapp: values.ownerWhatsapp,
+          ownerDocumentUrl: values.ownerDocumentUrl,
 
           deleteImageIds:
             removedImageIds.length > 0 ? removedImageIds : undefined,
@@ -286,6 +288,12 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
               required
             />
           </div>
+          <FormInput
+            control={control}
+            name="location"
+            label={t("property.location")}
+            placeholder={t("property.location")}
+          />
           <FormInput
             control={control}
             name="googleMapUrl"
@@ -449,12 +457,6 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
           <p className="text-sm font-medium text-foreground pt-2 border-t">
             {t("property.ownerSection")}
           </p>
-          <FormTextarea
-            control={control}
-            name="ownerInfo"
-            label={t("property.ownerInfo")}
-            rows={3}
-          />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormInput
               control={control}
@@ -498,6 +500,18 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
               label={t("property.ownerWhatsapp")}
             />
           </div>
+          <FormTextarea
+            control={control}
+            name="ownerInfo"
+            label={t("property.ownerInfo")}
+            rows={3}
+          />
+          <FormInput
+            control={control}
+            name="ownerDocumentUrl"
+            label={t("property.ownerDocumentUrl")}
+            placeholder="https://drive.google.com/..."
+          />
 
           {(property.status === "available" ||
             property.status === "reserved") && (

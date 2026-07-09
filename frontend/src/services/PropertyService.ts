@@ -34,6 +34,7 @@ function appendCommonFields(fd: FormData, payload: PropertyFormFields) {
   if (payload.ownerFacebook) fd.append('owner_facebook', payload.ownerFacebook)
   if (payload.ownerWechat) fd.append('owner_wechat', payload.ownerWechat)
   if (payload.ownerWhatsapp) fd.append('owner_whatsapp', payload.ownerWhatsapp)
+  if (payload.ownerDocumentUrl) fd.append('owner_document_url', payload.ownerDocumentUrl)
 }
 
 export const PropertyService = {

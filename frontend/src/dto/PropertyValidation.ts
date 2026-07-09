@@ -40,6 +40,7 @@ export const propertySchema = z
     ownerFacebook: z.string().optional(),
     ownerWechat: z.string().optional(),
     ownerWhatsapp: z.string().optional(),
+    ownerDocumentUrl: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     const price = Number(data.price)

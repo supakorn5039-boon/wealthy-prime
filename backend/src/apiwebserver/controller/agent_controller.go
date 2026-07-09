@@ -535,13 +535,14 @@ func buildPropertyFields(
 		Furniture:    model.FurniturePolicy(formVal(values, "furniture")),
 		AdCaption:    formVal(values, "ad_caption"),
 
-		OwnerName:     formVal(values, "owner_name"),
-		OwnerPhone:    formVal(values, "owner_phone"),
-		OwnerLineID:   formVal(values, "owner_line_id"),
-		OwnerEmail:    formVal(values, "owner_email"),
-		OwnerFacebook: formVal(values, "owner_facebook"),
-		OwnerWechat:   formVal(values, "owner_wechat"),
-		OwnerWhatsapp: formVal(values, "owner_whatsapp"),
+		OwnerName:        formVal(values, "owner_name"),
+		OwnerPhone:       formVal(values, "owner_phone"),
+		OwnerLineID:      formVal(values, "owner_line_id"),
+		OwnerEmail:       formVal(values, "owner_email"),
+		OwnerFacebook:    formVal(values, "owner_facebook"),
+		OwnerWechat:      formVal(values, "owner_wechat"),
+		OwnerWhatsapp:    formVal(values, "owner_whatsapp"),
+		OwnerDocumentURL: formVal(values, "owner_document_url"),
 	}
 }
 

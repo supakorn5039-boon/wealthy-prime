@@ -59,6 +59,7 @@ export interface Property {
   ownerFacebook?: string
   ownerWechat?: string
   ownerWhatsapp?: string
+  ownerDocumentUrl?: string
   rentalPeriodMonths?: number
   slipUrl?: string
   status: PropertyStatus
@@ -121,6 +122,7 @@ export interface PropertyFormFields {
   ownerFacebook?: string
   ownerWechat?: string
   ownerWhatsapp?: string
+  ownerDocumentUrl?: string
 }
 
 export type CreatePropertyPayload = PropertyFormFields
