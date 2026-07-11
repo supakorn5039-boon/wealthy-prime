@@ -29,6 +29,28 @@ func TestParseCoordsFromURL(t *testing.T) {
 	}
 }
 
+func TestFirstCoordsFromURLs(t *testing.T) {
+	chain := []string{
+		"https://www.google.com/maps/place/Somewhere/data=!1s0x30",
+		"https://www.google.com/maps/place/Somewhere/@13.7466,100.5396,17z/data=!3m1",
+		"https://www.google.com/maps?q=Somewhere",
+	}
+	lat, lng, matched, ok := firstCoordsFromURLs(chain)
+	if !ok || lat != 13.7466 || lng != 100.5396 {
+		t.Fatalf("got %v,%v ok=%v matched=%q", lat, lng, ok, matched)
+	}
+	if matched != chain[1] {
+		t.Errorf("expected match on the mid-chain hop, got %q", matched)
+	}
+
+	if _, _, _, ok := firstCoordsFromURLs([]string{
+		"https://maps.app.goo.gl/abc",
+		"https://www.google.com/maps/place/X",
+	}); ok {
+		t.Errorf("expected no coords when no hop carries them")
+	}
+}
+
 func TestIsGoogleHost(t *testing.T) {
 	allowed := []string{"maps.app.goo.gl", "goo.gl", "g.co", "google.com", "www.google.com", "maps.google.com", "google.co.th", "maps.google.co.uk"}
 	for _, h := range allowed {

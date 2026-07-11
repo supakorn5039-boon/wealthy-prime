@@ -41,9 +41,10 @@ type GeocodeResult struct {
 }
 
 type GeocodeService struct {
-	expandClient  *http.Client
-	geocodeClient *http.Client
-	nominatimURL  string
+	expandTransport *http.Transport
+	geocodeClient   *http.Client
+	nominatimURL    string
+	nominatimKey    string
 }
 
 func NewGeocodeService() *GeocodeService {
@@ -52,19 +53,6 @@ func NewGeocodeService() *GeocodeService {
 		TLSHandshakeTimeout:   5 * time.Second,
 		ResponseHeaderTimeout: 6 * time.Second,
 	}
-	expandClient := &http.Client{
-		Timeout:   10 * time.Second,
-		Transport: transport,
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			if len(via) >= geocodeMaxRedirects {
-				return fmt.Errorf("too many redirects")
-			}
-			if !isGoogleHost(req.URL.Host) {
-				return fmt.Errorf("redirect to disallowed host: %s", req.URL.Host)
-			}
-			return nil
-		},
-	}
 
 	nomURL := strings.TrimRight(strings.TrimSpace(os.Getenv("NOMINATIM_URL")), "/")
 	if nomURL == "" {
@@ -72,9 +60,10 @@ func NewGeocodeService() *GeocodeService {
 	}
 
 	return &GeocodeService{
-		expandClient:  expandClient,
-		geocodeClient: &http.Client{Timeout: 10 * time.Second},
-		nominatimURL:  nomURL,
+		expandTransport: transport,
+		geocodeClient:   &http.Client{Timeout: 10 * time.Second},
+		nominatimURL:    nomURL,
+		nominatimKey:    strings.TrimSpace(os.Getenv("NOMINATIM_KEY")),
 	}
 }
 
@@ -96,13 +85,13 @@ func (s *GeocodeService) ResolveMapURL(ctx context.Context, raw string) (*Geocod
 		return foundResult(lat, lng, raw, "url"), nil
 	}
 
-	finalURL, err := s.expand(ctx, raw)
+	finalURL, hops, err := s.expand(ctx, raw)
 	if err != nil {
 		return nil, err
 	}
 
-	if lat, lng, ok := parseCoordsFromURL(finalURL); ok {
-		return foundResult(lat, lng, finalURL, "url"), nil
+	if lat, lng, matched, ok := firstCoordsFromURLs(append([]string{finalURL}, hops...)); ok {
+		return foundResult(lat, lng, matched, "url"), nil
 	}
 
 	if address := addressFromMapURL(finalURL); address != "" {
@@ -114,22 +103,50 @@ func (s *GeocodeService) ResolveMapURL(ctx context.Context, raw string) (*Geocod
 	return &GeocodeResult{Found: false, ResolvedURL: finalURL, Source: "none"}, nil
 }
 
-func (s *GeocodeService) expand(ctx context.Context, raw string) (string, error) {
+func (s *GeocodeService) expand(ctx context.Context, raw string) (string, []string, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, raw, nil)
 	if err != nil {
-		return "", apperror.BadRequest("invalid url")
+		return "", nil, apperror.BadRequest("invalid url")
 	}
 	req.Header.Set("User-Agent", geocodeBrowserUA)
 	req.Header.Set("Accept-Language", "en")
 
-	resp, err := s.expandClient.Do(req)
+	hops := make([]string, 0, geocodeMaxRedirects)
+	client := &http.Client{
+		Timeout:   10 * time.Second,
+		Transport: s.expandTransport,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			if len(via) >= geocodeMaxRedirects {
+				return fmt.Errorf("too many redirects")
+			}
+			if !isGoogleHost(req.URL.Host) {
+				return fmt.Errorf("redirect to disallowed host: %s", req.URL.Host)
+			}
+			hops = append(hops, req.URL.String())
+			return nil
+		},
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
-		return "", apperror.Wrap(err, http.StatusBadGateway, "could not resolve map link")
+		if resp != nil {
+			resp.Body.Close()
+		}
+		return "", nil, apperror.Wrap(err, http.StatusBadGateway, "could not resolve map link")
 	}
 	defer resp.Body.Close()
 	io.Copy(io.Discard, io.LimitReader(resp.Body, geocodeBodyLimit))
 
-	return resp.Request.URL.String(), nil
+	return resp.Request.URL.String(), hops, nil
+}
+
+func firstCoordsFromURLs(urls []string) (float64, float64, string, bool) {
+	for _, candidate := range urls {
+		if lat, lng, ok := parseCoordsFromURL(candidate); ok {
+			return lat, lng, candidate, true
+		}
+	}
+	return 0, 0, "", false
 }
 
 func (s *GeocodeService) geocode(ctx context.Context, address string) (float64, float64, bool) {
@@ -150,6 +167,9 @@ func (s *GeocodeService) geocodeOne(ctx context.Context, query string) (float64,
 	params.Set("format", "jsonv2")
 	params.Set("limit", "1")
 	params.Set("q", query)
+	if s.nominatimKey != "" {
+		params.Set("key", s.nominatimKey)
+	}
 	req.URL.RawQuery = params.Encode()
 	req.Header.Set("User-Agent", geocodeNominatimUA)
 	req.Header.Set("Accept-Language", "th,en")
