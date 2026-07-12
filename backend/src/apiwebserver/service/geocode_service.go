@@ -164,7 +164,7 @@ func (s *GeocodeService) geocodeOne(ctx context.Context, query string) (float64,
 		return 0, 0, false
 	}
 	params := url.Values{}
-	params.Set("format", "jsonv2")
+	params.Set("format", "json")
 	params.Set("limit", "1")
 	params.Set("q", query)
 	if s.nominatimKey != "" {
