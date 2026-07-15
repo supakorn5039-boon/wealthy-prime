@@ -1,4 +1,4 @@
-import { useLocation, useNavigate, Link } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
@@ -20,6 +20,8 @@ export default function LoginIndex() {
   const { login } = useAuthStore()
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams] = useSearchParams()
+  const isAgent = searchParams.get('role') === 'agent'
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? ROUTES.HOME
 
   const { control, handleSubmit } = useForm<LoginSchema>({
@@ -71,7 +73,7 @@ export default function LoginIndex() {
 
           <p className="mt-4 text-center text-sm text-muted-foreground">
             {t('auth.noAccount')}{' '}
-            <Link to={ROUTES.REGISTER} className="text-primary hover:underline font-medium">
+            <Link to={isAgent ? ROUTES.REGISTER_AGENT : ROUTES.REGISTER} className="text-primary hover:underline font-medium">
               {t('auth.registerLink')}
             </Link>
           </p>

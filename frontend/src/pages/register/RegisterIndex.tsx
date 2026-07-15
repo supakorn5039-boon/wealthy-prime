@@ -47,7 +47,7 @@ export default function RegisterIndex({ role = 'user' }: RegisterIndexProps) {
     onSuccess: (_, vars) => {
       const msgKey = vars.role === 'agent' ? 'auth.registerPendingApproval' : 'auth.registerSuccess'
       toast.success(t(msgKey))
-      navigate(ROUTES.LOGIN, { replace: true, state: from ? { from } : undefined })
+      navigate(isAgent ? ROUTES.LOGIN_AGENT : ROUTES.LOGIN, { replace: true, state: from ? { from } : undefined })
     },
     onError: () => toast.error(t('auth.registerError')),
   })
@@ -97,7 +97,7 @@ export default function RegisterIndex({ role = 'user' }: RegisterIndexProps) {
 
           <p className="mt-4 text-center text-sm text-muted-foreground">
             {t('auth.alreadyHaveAccount')}{' '}
-            <Link to={ROUTES.LOGIN} className="text-primary hover:underline font-medium">
+            <Link to={isAgent ? ROUTES.LOGIN_AGENT : ROUTES.LOGIN} className="text-primary hover:underline font-medium">
               {t('auth.loginLink')}
             </Link>
           </p>

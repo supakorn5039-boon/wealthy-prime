@@ -8,6 +8,7 @@ export const ROUTES = {
   HOME: '/',
   MAP: '/map',
   LOGIN: '/login',
+  LOGIN_AGENT: '/login?role=agent',
   REGISTER: '/register',
   REGISTER_AGENT: '/register/agent',
   FORGOT_PASSWORD: '/forgot-password',
