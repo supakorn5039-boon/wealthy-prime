@@ -58,7 +58,7 @@ export function PhoneInput({
     value: value ?? '',
     countries: defaultCountries,
     disableDialCodeAndPrefix: true,
-    onChange: ({ phone }) => onChange(phone),
+    onChange: ({ phone, inputValue: nationalNumber }) => onChange(nationalNumber ? phone : ''),
   })
 
   const maxDigits = useMemo(() => getNationalLength(country.iso2), [country.iso2])
