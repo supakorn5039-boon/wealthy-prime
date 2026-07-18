@@ -488,7 +488,11 @@
     "resetPassword": "重置密码",
     "resetPasswordHint": "向用户发送设置新密码的邮件链接",
     "resetPasswordButton": "发送重置链接",
-    "resetPasswordSent": "已发送密码重置邮件"
+    "resetPasswordSent": "已发送密码重置邮件",
+    "deleteUser": "删除用户",
+    "deleteUserConfirmTitle": "删除用户？",
+    "deleteUserConfirmDesc": "删除 {{name}} 后无法恢复。是否继续？",
+    "deleteUserSuccess": "已删除用户"
   },
   "home": {
     "title": "搜索房产",

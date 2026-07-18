@@ -390,6 +390,21 @@ func (s *AdminService) RejectUser(userID uint) error {
 	return nil
 }
 
+func (s *AdminService) DeleteUser(userID uint) error {
+	var user model.User
+	err := s.db.First(&user, userID).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return apperror.NotFound("user")
+	}
+	if err != nil {
+		return apperror.Wrap(err, 500, "database error")
+	}
+	if err := s.db.Delete(&user).Error; err != nil {
+		return apperror.Wrap(err, 500, "failed to delete user")
+	}
+	return nil
+}
+
 func (s *AdminService) UpdateUser(userID uint, updates map[string]interface{}) (*model.UserDto, error) {
 	var user model.User
 	err := s.db.First(&user, userID).Error

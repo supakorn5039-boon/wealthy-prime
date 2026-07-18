@@ -488,7 +488,11 @@
     "resetPassword": "Reset password",
     "resetPasswordHint": "Email the user a link to set a new password",
     "resetPasswordButton": "Send reset link",
-    "resetPasswordSent": "Password reset email sent"
+    "resetPasswordSent": "Password reset email sent",
+    "deleteUser": "Delete user",
+    "deleteUserConfirmTitle": "Delete user?",
+    "deleteUserConfirmDesc": "Deleting {{name}} cannot be undone. Continue?",
+    "deleteUserSuccess": "User deleted"
   },
   "home": {
     "title": "Property Search",

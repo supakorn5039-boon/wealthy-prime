@@ -3,22 +3,23 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
-import { KeyRound } from 'lucide-react'
+import { KeyRound, Trash2 } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { FormInput } from '@/components/form/FormInput'
 import { FormPhoneInput } from '@/components/form/FormPhoneInput'
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { profileSchema, type ProfileSchema } from '@/dto/AuthValidation'
 import { scrollToFirstError } from '@/lib/scrollToFirstError'
 import { formatDate } from '@/utils/date'
 import { AdminService } from '@/services/AdminService'
+import { useAuthStore } from '@/store/authStore'
 import type { AuthUser } from '@/types/Auth'
 
 interface EditProfileDialogProps {
@@ -32,6 +33,8 @@ interface EditProfileDialogProps {
 export function EditProfileDialog({ user, open, onClose, updateFn, queryKey }: EditProfileDialogProps) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const authUser = useAuthStore((s) => s.user)
+  const isSelf = authUser?.id === user.id
 
   const { control, handleSubmit } = useForm<ProfileSchema>({
     resolver: zodResolver(profileSchema),
@@ -63,6 +66,18 @@ export function EditProfileDialog({ user, open, onClose, updateFn, queryKey }: E
   const resetMutation = useMutation({
     mutationFn: () => AdminService.resetPassword(user.id),
     onSuccess: () => toast.success(t('admin.resetPasswordSent')),
+    onError: () => toast.error(t('common.error')),
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: () => AdminService.deleteUser(user.id),
+    onSuccess: () => {
+      toast.success(t('admin.deleteUserSuccess'))
+      queryClient.invalidateQueries({ queryKey: [queryKey] })
+      queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.BOOKINGS] })
+      queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.AUDIT_LOGS] })
+      onClose()
+    },
     onError: () => toast.error(t('common.error')),
   })
 
@@ -126,14 +141,37 @@ export function EditProfileDialog({ user, open, onClose, updateFn, queryKey }: E
             </Button>
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
-              {t('common.cancel')}
-            </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? t('common.saving') : t('common.save')}
-            </Button>
-          </DialogFooter>
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
+            {isSelf ? (
+              <span />
+            ) : (
+              <ConfirmDialog
+                trigger={
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
+                  >
+                    <Trash2 className="size-3.5 mr-1" />
+                    {t('admin.deleteUser')}
+                  </Button>
+                }
+                title={t('admin.deleteUserConfirmTitle')}
+                description={t('admin.deleteUserConfirmDesc', { name: user.name })}
+                confirmLabel={t('common.delete')}
+                destructive
+                onConfirm={() => deleteMutation.mutate()}
+              />
+            )}
+            <div className="flex gap-2 sm:justify-end">
+              <Button type="button" variant="outline" onClick={onClose}>
+                {t('common.cancel')}
+              </Button>
+              <Button type="submit" disabled={mutation.isPending}>
+                {mutation.isPending ? t('common.saving') : t('common.save')}
+              </Button>
+            </div>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

@@ -79,6 +79,10 @@ export const AdminService = {
     await fetchClient.post(API.ADMIN_USER_RESET_PASSWORD(id))
   },
 
+  deleteUser: async (id: number | string): Promise<void> => {
+    await fetchClient.delete(API.ADMIN_USER_DETAIL(id))
+  },
+
   listBookings: async (): Promise<Booking[]> => {
     const res = await fetchClient.get<ApiResponse<Booking[]>>(API.ADMIN_BOOKINGS)
     return res.data.data

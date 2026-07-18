@@ -43,6 +43,7 @@ func (ctrl *AdminController) RegisterRoutes(r *gin.RouterGroup) {
 	admin.GET("/users/:id", ctrl.getUser)
 	admin.PUT("/users/:id", ctrl.updateUser)
 	admin.POST("/users/:id/reset-password", ctrl.resetUserPassword)
+	admin.DELETE("/users/:id", ctrl.deleteUser)
 
 	admin.GET("/bookings", ctrl.listBookings)
 	admin.POST("/bookings/:id/reassign", ctrl.reassignBooking)
@@ -377,6 +378,29 @@ func (ctrl *AdminController) resetUserPassword(c *gin.Context) {
 		Summary:    "Sent password reset email",
 	})
 	successResponse(c, gin.H{"sent": true})
+}
+
+func (ctrl *AdminController) deleteUser(c *gin.Context) {
+	id, err := parseUintParam(c, "id")
+	if err != nil {
+		badRequest(c, "invalid user id")
+		return
+	}
+	if id == middleware.GetUserID(c) {
+		badRequest(c, "you cannot delete your own account")
+		return
+	}
+	if err := ctrl.svc.DeleteUser(id); err != nil {
+		errorResponse(c, err)
+		return
+	}
+	ctrl.auditSvc.Log(c, service.AuditEntry{
+		Action:     model.AuditDelete,
+		EntityType: model.EntityUser,
+		EntityID:   &id,
+		Summary:    "Deleted user",
+	})
+	successResponse(c, gin.H{"deleted": true})
 }
 
 type profileUpdateBody struct {

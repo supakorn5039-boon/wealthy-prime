@@ -488,7 +488,11 @@
     "resetPassword": "รีเซ็ตรหัสผ่าน",
     "resetPasswordHint": "ส่งอีเมลให้ผู้ใช้ตั้งรหัสผ่านใหม่",
     "resetPasswordButton": "ส่งลิงก์รีเซ็ต",
-    "resetPasswordSent": "ส่งอีเมลรีเซ็ตรหัสผ่านแล้ว"
+    "resetPasswordSent": "ส่งอีเมลรีเซ็ตรหัสผ่านแล้ว",
+    "deleteUser": "ลบข้อมูลผู้ใช้",
+    "deleteUserConfirmTitle": "ลบข้อมูลผู้ใช้?",
+    "deleteUserConfirmDesc": "การลบ {{name}} ไม่สามารถกู้คืนได้ ต้องการดำเนินการต่อหรือไม่?",
+    "deleteUserSuccess": "ลบผู้ใช้แล้ว"
   },
   "home": {
     "title": "ค้นหาทรัพย์สิน",
