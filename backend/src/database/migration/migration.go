@@ -23,6 +23,9 @@ func Run(db *gorm.DB) {
 	if err := dropPropertyTitle(db); err != nil {
 		log.Fatalf("[migration] drop properties.title: %v", err)
 	}
+	if err := splitPropertyPrice(db); err != nil {
+		log.Fatalf("[migration] split properties.price → rent_price/sale_price: %v", err)
+	}
 	if err := migrateBookings(db); err != nil {
 		log.Fatalf("[migration] bookings: %v", err)
 	}

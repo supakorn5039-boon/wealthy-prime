@@ -38,7 +38,7 @@ import { FormSelect } from "@/components/form/FormSelect";
 import { scrollToFirstError } from "@/lib/scrollToFirstError";
 import { MultiSelectFilter } from "@/components/shared/MultiSelectFilter";
 import { PROPERTY_KINDS } from "@/hooks/usePropertyOptions";
-import { formatPrice } from "@/utils/date";
+import { PropertyPrices } from "@/components/property/PropertyPrices";
 import {
   propertyStatusSchema,
   type PropertyStatusSchema,
@@ -288,12 +288,7 @@ export default function MyPropertiesIndex() {
                       {p.district || "-"}
                     </TableCell>
                     <TableCell>
-                      {formatPrice(p.price)}
-                      {p.type === "rent" && (
-                        <span className="ml-1 text-xs text-muted-foreground">
-                          / {t("property.perMonth")}
-                        </span>
-                      )}
+                      <PropertyPrices property={p} size="sm" />
                     </TableCell>
                     <TableCell>
                       <PropertyStatusBadge status={p.status} />

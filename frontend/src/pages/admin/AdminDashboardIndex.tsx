@@ -14,7 +14,9 @@ import { PageContainer } from '@/components/shared/PageContainer'
 import { DataTable } from '@/components/shared/DataTable'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatPrice, formatDateTime } from '@/utils/date'
+import { formatDateTime } from '@/utils/date'
+import { primaryPrice } from '@/utils/price'
+import { PropertyPrices } from '@/components/property/PropertyPrices'
 import type { Property, PropertyKind } from '@/types/Property'
 
 type KindKey = Exclude<PropertyKind, '' | undefined>
@@ -117,11 +119,9 @@ const DASHBOARD_COLUMNS: ColumnDef<Property>[] = [
   },
   {
     id: 'price',
-    accessorFn: (row) => row.price,
+    accessorFn: (row) => primaryPrice(row),
     header: () => <HeaderT k="property.price" />,
-    cell: ({ row }) => (
-      <span className="font-medium tabular-nums">{formatPrice(row.original.price)}</span>
-    ),
+    cell: ({ row }) => <PropertyPrices property={row.original} size="sm" />,
   },
 ]
 

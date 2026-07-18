@@ -263,7 +263,7 @@
     "code": "编号",
     "project": "项目",
     "typeCol": "类型",
-    "price": "价格/租金",
+    "price": "价格",
     "statusCol": "状态",
     "management": "操作",
     "updateStatus": "更新状态",
@@ -307,7 +307,10 @@
     "addSubtitle": "填写您要注册的房产详情",
     "basicInfo": "基本信息",
     "projectName": "项目名称",
-    "priceLabel": "价格（泰铢）",
+    "rentPrice": "租金",
+    "salePrice": "售价",
+    "rentPriceLabel": "租金（泰铢）",
+    "salePriceLabel": "售价（泰铢）",
     "ownerSection": "业主信息",
     "duplicateWarning": "发现重复房产，请提供更多详情以区分。",
     "imagesSection": "房产图片",
@@ -509,7 +512,12 @@
       "province": "省份",
       "district": "区域",
       "btsMrt": "附近地铁",
-      "pets": "宠物"
+      "pets": "宠物",
+      "bed": "卧室",
+      "bath": "浴室",
+      "size": "面积(平方米)",
+      "floor": "楼层",
+      "status": "状态"
     },
     "minPrice": "最低价",
     "maxPrice": "最高价",
@@ -529,7 +537,11 @@
     },
     "noResults": "未找到房产",
     "tryAdjust": "请调整搜索条件",
-    "mapHint": "悬停标记预览房产 — 点击查看详情"
+    "mapHint": "悬停标记预览房产 — 点击查看详情",
+    "filterMore": "更多筛选",
+    "filterLess": "收起",
+    "rangeMin": "最低",
+    "rangeMax": "最高"
   },
   "footer": {
     "tagline": "覆盖曼谷及周边的优质房源，由专业代理用心服务。",

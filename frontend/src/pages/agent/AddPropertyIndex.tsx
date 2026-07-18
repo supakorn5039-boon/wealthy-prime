@@ -51,7 +51,8 @@ export default function AddPropertyIndex() {
     defaultValues: {
       projectName: "",
       location: "",
-      price: "",
+      rentPrice: "",
+      salePrice: "",
       sizeSqm: "",
       ownerInfo: "",
       ownerExtraDetail: "",
@@ -97,7 +98,8 @@ export default function AddPropertyIndex() {
         {
           projectName: values.projectName,
           location: values.location || values.district || values.province || "",
-          price: Number(values.price),
+          rentPrice: values.rentPrice ? Number(values.rentPrice) : undefined,
+          salePrice: values.salePrice ? Number(values.salePrice) : undefined,
           sizeSqm: values.sizeSqm ? Number(values.sizeSqm) : undefined,
           ownerInfo: values.ownerInfo ?? "",
           ownerExtraDetail: values.ownerExtraDetail ?? "",
@@ -211,13 +213,18 @@ export default function AddPropertyIndex() {
                 required
               />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <FormPriceInput
                 control={control}
-                name="price"
-                label={t("property.priceLabel")}
+                name="rentPrice"
+                label={t("property.rentPriceLabel")}
                 placeholder="0"
-                required
+              />
+              <FormPriceInput
+                control={control}
+                name="salePrice"
+                label={t("property.salePriceLabel")}
+                placeholder="0"
               />
               <FormInput
                 control={control}

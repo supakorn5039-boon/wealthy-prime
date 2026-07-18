@@ -58,7 +58,7 @@ export interface CreateBookingPayload {
 export interface CartItem {
   propertyId: number
   propertyTitle: string
-  propertyPrice: number
+  propertyPrice: number | null
   propertyType: 'buy' | 'rent'
   appointmentDate: Date | null
 }

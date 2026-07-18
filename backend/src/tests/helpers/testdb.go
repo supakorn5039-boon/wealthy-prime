@@ -87,13 +87,25 @@ func seedUser(t *testing.T, db *gorm.DB, email string, role model.UserRole) uint
 }
 
 func NewProperty(agentID uint, name string, listing model.ListingType, status model.PropertyStatus) model.Property {
-	return model.Property{
+	rentPrice := 25_000.0
+	salePrice := 1_000_000.0
+
+	p := model.Property{
 		ProjectName: name,
 		Location:    "Test Location",
-		Price:       1_000_000,
 		OwnerInfo:   "owner",
 		AgentID:     &agentID,
 		Listing:     listing,
 		Status:      status,
 	}
+	switch listing {
+	case model.ListingRent:
+		p.RentPrice = &rentPrice
+	case model.ListingSell:
+		p.SalePrice = &salePrice
+	case model.ListingBoth:
+		p.RentPrice = &rentPrice
+		p.SalePrice = &salePrice
+	}
+	return p
 }

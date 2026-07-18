@@ -263,7 +263,7 @@
     "code": "Code",
     "project": "Project",
     "typeCol": "Type",
-    "price": "Price/Rent",
+    "price": "Price",
     "statusCol": "Status",
     "management": "Management",
     "updateStatus": "Update Status",
@@ -307,7 +307,10 @@
     "addSubtitle": "Fill in the details for the property you want to list",
     "basicInfo": "Basic Info",
     "projectName": "Project Name",
-    "priceLabel": "Price (THB)",
+    "rentPrice": "Rent price",
+    "salePrice": "Sale price",
+    "rentPriceLabel": "Rent price (THB)",
+    "salePriceLabel": "Sale price (THB)",
     "ownerSection": "Owner Information",
     "duplicateWarning": "Duplicate property found. Please provide additional details to differentiate.",
     "imagesSection": "Property Images",
@@ -509,7 +512,12 @@
       "province": "Province",
       "district": "District",
       "btsMrt": "Nearby BTS/MRT",
-      "pets": "Pets"
+      "pets": "Pets",
+      "bed": "Beds",
+      "bath": "Baths",
+      "size": "Size (sqm)",
+      "floor": "Floor",
+      "status": "Status"
     },
     "minPrice": "Min Price",
     "maxPrice": "Max Price",
@@ -529,7 +537,11 @@
     },
     "noResults": "No properties found",
     "tryAdjust": "Try adjusting your search",
-    "mapHint": "Hover a marker to preview a property — click to open it."
+    "mapHint": "Hover a marker to preview a property — click to open it.",
+    "filterMore": "More filters",
+    "filterLess": "Less",
+    "rangeMin": "Min",
+    "rangeMax": "Max"
   },
   "footer": {
     "tagline": "Curated properties across Bangkok and beyond, supported by professional agents who care.",

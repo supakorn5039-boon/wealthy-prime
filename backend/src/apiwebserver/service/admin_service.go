@@ -66,7 +66,7 @@ func (s *AdminService) GetDashboard() (*AdminDashboard, error) {
 	var totalRevenue float64
 	if err := s.db.Model(&model.Property{}).
 		Where("status = ?", model.StatusSold).
-		Select("COALESCE(SUM(price), 0)").
+		Select("COALESCE(SUM(COALESCE(sale_price, rent_price)), 0)").
 		Scan(&totalRevenue).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "failed to sum revenue")
 	}
@@ -180,12 +180,19 @@ func (s *AdminService) GetFinancialReport() ([]FinancialRecord, error) {
 			PropertyID:    p.ID,
 			PropertyTitle: p.ProjectName,
 			AgentName:     agentName,
-			Amount:        p.Price,
+			Amount:        p.ClosedAmount(),
 			Type:          string(p.Type),
 			ClosedAt:      p.UpdatedAt.Format("2006-01-02"),
 		}
 	}
 	return records, nil
+}
+
+func priceCell(v *float64) interface{} {
+	if v == nil {
+		return ""
+	}
+	return *v
 }
 
 func (s *AdminService) ExportFinancial(w http.ResponseWriter) error {
@@ -201,7 +208,7 @@ func (s *AdminService) ExportFinancial(w http.ResponseWriter) error {
 	f.NewSheet(sheet)
 	f.DeleteSheet("Sheet1")
 
-	headers := []string{"ID", "Project Name", "Location", "Price", "Type", "Size (sqm)", "Agent", "Owner Info", "Created At"}
+	headers := []string{"ID", "Project Name", "Location", "Rent Price", "Sale Price", "Type", "Size (sqm)", "Agent", "Owner Info", "Created At"}
 	for i, h := range headers {
 		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
 		f.SetCellValue(sheet, cell, h)
@@ -217,7 +224,8 @@ func (s *AdminService) ExportFinancial(w http.ResponseWriter) error {
 			p.ID,
 			p.ProjectName,
 			p.Location,
-			p.Price,
+			priceCell(p.RentPrice),
+			priceCell(p.SalePrice),
 			string(p.Type),
 			p.SizeSqm,
 			agentName,

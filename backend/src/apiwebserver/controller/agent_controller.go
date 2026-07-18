@@ -101,10 +101,9 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 		return
 	}
 
-	priceStr := formVal(form.Value, "price")
-	price, err := strconv.ParseFloat(priceStr, 64)
-	if err != nil || price <= 0 {
-		badRequest(c, "valid price is required")
+	rentPrice, salePrice, err := parsePrices(form.Value)
+	if err != nil {
+		badRequest(c, err.Error())
 		return
 	}
 
@@ -148,7 +147,7 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 
 	images := form.File["images"]
 
-	fields := buildPropertyFields(form.Value, projectName, location, ownerInfo, price, sizeSqm, model.PropertyType(propType), rentalPeriodMonths, lat, lng)
+	fields := buildPropertyFields(form.Value, projectName, location, ownerInfo, rentPrice, salePrice, sizeSqm, model.PropertyType(propType), rentalPeriodMonths, lat, lng)
 
 	dto, err := ctrl.propertySvc.CreateProperty(service.CreatePropertyInput{
 		PropertyFields: fields,
@@ -194,9 +193,9 @@ func (ctrl *AgentController) editProperty(c *gin.Context) {
 		return
 	}
 
-	price, err := strconv.ParseFloat(formVal(form.Value, "price"), 64)
-	if err != nil || price <= 0 {
-		badRequest(c, "valid price is required")
+	rentPrice, salePrice, err := parsePrices(form.Value)
+	if err != nil {
+		badRequest(c, err.Error())
 		return
 	}
 
@@ -232,7 +231,7 @@ func (ctrl *AgentController) editProperty(c *gin.Context) {
 		return
 	}
 
-	fields := buildPropertyFields(form.Value, projectName, location, ownerInfo, price, sizeSqm, model.PropertyType(propType), rentalPeriodMonths, lat, lng)
+	fields := buildPropertyFields(form.Value, projectName, location, ownerInfo, rentPrice, salePrice, sizeSqm, model.PropertyType(propType), rentalPeriodMonths, lat, lng)
 
 	dto, err := ctrl.propertySvc.UpdateProperty(propertyID, agentID, role, service.UpdatePropertyInput{
 		PropertyFields: fields,
@@ -498,10 +497,36 @@ func parseImageIDs(raw []string) ([]uint, error) {
 	return out, nil
 }
 
+func parsePrices(values map[string][]string) (rentPrice, salePrice *float64, err error) {
+	parse := func(field string) (*float64, error) {
+		s := formVal(values, field)
+		if s == "" {
+			return nil, nil
+		}
+		v, parseErr := strconv.ParseFloat(s, 64)
+		if parseErr != nil || v <= 0 {
+			return nil, fmt.Errorf("%s must be a positive number", field)
+		}
+		return &v, nil
+	}
+
+	if rentPrice, err = parse("rent_price"); err != nil {
+		return nil, nil, err
+	}
+	if salePrice, err = parse("sale_price"); err != nil {
+		return nil, nil, err
+	}
+	if rentPrice == nil && salePrice == nil {
+		return nil, nil, fmt.Errorf("rent_price or sale_price is required")
+	}
+	return rentPrice, salePrice, nil
+}
+
 func buildPropertyFields(
 	values map[string][]string,
 	projectName, location, ownerInfo string,
-	price, sizeSqm float64,
+	rentPrice, salePrice *float64,
+	sizeSqm float64,
 	propType model.PropertyType,
 	rentalPeriodMonths *int,
 	lat, lng *float64,
@@ -513,7 +538,8 @@ func buildPropertyFields(
 	return service.PropertyFields{
 		ProjectName:        projectName,
 		Location:           location,
-		Price:              price,
+		RentPrice:          rentPrice,
+		SalePrice:          salePrice,
 		Type:               propType,
 		SizeSqm:            sizeSqm,
 		OwnerInfo:          ownerInfo,

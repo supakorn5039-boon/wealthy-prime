@@ -44,6 +44,28 @@ func parseStringCSV(s string) []string {
 	return out
 }
 
+func parseIntPtr(s string) *int {
+	if s = strings.TrimSpace(s); s == "" {
+		return nil
+	}
+	n, err := strconv.Atoi(s)
+	if err != nil {
+		return nil
+	}
+	return &n
+}
+
+func parseFloatPtr(s string) *float64 {
+	if s = strings.TrimSpace(s); s == "" {
+		return nil
+	}
+	v, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return nil
+	}
+	return &v
+}
+
 func parsePriceRanges(s string) []service.PriceRange {
 	if s == "" {
 		return nil
@@ -95,15 +117,23 @@ func canSeeOwnerInfo(role model.UserRole) bool {
 
 func (ctrl *PropertyController) listProperties(c *gin.Context) {
 	filter := service.PropertyFilter{
-		Location:    c.Query("location"),
-		Search:      c.Query("search"),
-		Types:       parseStringCSV(c.Query("types")),
-		Kinds:       parseStringCSV(c.Query("kinds")),
-		Provinces:   parseStringCSV(c.Query("provinces")),
-		Districts:   parseStringCSV(c.Query("districts")),
-		PriceRanges: parsePriceRanges(c.Query("price_ranges")),
-		BtsMrtIDs:   parseIntCSV(c.Query("bts_mrt_ids")),
-		Pets:        parseStringCSV(c.Query("pets")),
+		Location:         c.Query("location"),
+		Search:           c.Query("search"),
+		SearchStationIDs: parseIntCSV(c.Query("search_station_ids")),
+		Types:            parseStringCSV(c.Query("types")),
+		Kinds:            parseStringCSV(c.Query("kinds")),
+		Provinces:        parseStringCSV(c.Query("provinces")),
+		Districts:        parseStringCSV(c.Query("districts")),
+		PriceRanges:      parsePriceRanges(c.Query("price_ranges")),
+		BtsMrtIDs:        parseIntCSV(c.Query("bts_mrt_ids")),
+		Pets:             parseStringCSV(c.Query("pets")),
+		Statuses:         parseStringCSV(c.Query("statuses")),
+		MinBedrooms:      parseIntPtr(c.Query("min_bedrooms")),
+		Bathrooms:        parseIntPtr(c.Query("bathrooms")),
+		SizeMin:          parseFloatPtr(c.Query("size_min")),
+		SizeMax:          parseFloatPtr(c.Query("size_max")),
+		FloorMin:         parseIntPtr(c.Query("floor_min")),
+		FloorMax:         parseIntPtr(c.Query("floor_max")),
 	}
 
 	dtos, err := ctrl.svc.ListProperties(filter)

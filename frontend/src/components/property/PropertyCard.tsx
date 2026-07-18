@@ -6,7 +6,7 @@ import { PropertyStatusBadge } from "@/components/shared/StatusBadge";
 import { WishlistButton } from "@/components/WishlistButton";
 import { EditPropertyDialog } from "@/components/property/EditPropertyDialog";
 import { useAuthStore } from "@/store/authStore";
-import { formatPrice } from "@/utils/date";
+import { PropertyPrices } from "@/components/property/PropertyPrices";
 import { formatBtsMrt } from "@/utils/btsMrt";
 import { resolveImageUrl } from "@/utils/imageUrl";
 import { ImageWatermark } from "@/components/property/ImageWatermark";
@@ -26,7 +26,6 @@ export function PropertyCard({ property }: PropertyCardProps) {
     (user.role === "admin" ||
       (user.role === "agent" && property.agentId === user.id));
 
-  const isRent = property.type === "rent";
   const petAllowed = property.pets === "allowed";
   const btsMrtText = formatBtsMrt(property.btsMrt);
 
@@ -87,14 +86,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
           <h3 className="font-semibold text-foreground text-base line-clamp-1 hover:text-primary transition-colors">
             {property.projectName}
           </h3>
-          <p className="text-xl font-bold text-primary break-words leading-tight tracking-tight mt-1">
-            ฿{formatPrice(property.price).replace(/^฿/, "")}
-            {isRent && (
-              <span className="ml-1 text-xs font-medium text-muted-foreground">
-                /{t("property.perMonth")}
-              </span>
-            )}
-          </p>
+          <PropertyPrices property={property} size="md" className="mt-1" />
         </Link>
 
         <div className="flex items-center gap-1 mt-2 text-muted-foreground text-xs">

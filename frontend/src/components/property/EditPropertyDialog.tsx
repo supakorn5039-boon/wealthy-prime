@@ -64,7 +64,8 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
       defaultValues: {
         projectName: property.projectName,
         location: property.location,
-        price: String(property.price),
+        rentPrice: property.rentPrice != null ? String(property.rentPrice) : "",
+        salePrice: property.salePrice != null ? String(property.salePrice) : "",
         sizeSqm: property.sizeSqm ? String(property.sizeSqm) : "",
         ownerInfo: property.ownerInfo,
         ownerExtraDetail: "",
@@ -126,7 +127,8 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
         {
           projectName: values.projectName,
           location: values.location || values.district || "",
-          price: Number(values.price),
+          rentPrice: values.rentPrice ? Number(values.rentPrice) : undefined,
+          salePrice: values.salePrice ? Number(values.salePrice) : undefined,
           sizeSqm: values.sizeSqm ? Number(values.sizeSqm) : undefined,
           ownerInfo: values.ownerInfo ?? "",
           lat: values.lat ? Number(values.lat) : undefined,
@@ -233,12 +235,16 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
               required
             />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <FormPriceInput
               control={control}
-              name="price"
-              label={t("property.priceLabel")}
-              required
+              name="rentPrice"
+              label={t("property.rentPriceLabel")}
+            />
+            <FormPriceInput
+              control={control}
+              name="salePrice"
+              label={t("property.salePriceLabel")}
             />
             <FormInput
               control={control}

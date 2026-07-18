@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { formatPrice } from "@/utils/date";
+import { PropertyPrices } from "@/components/property/PropertyPrices";
 import { formatBtsMrt } from "@/utils/btsMrt";
 import { resolveImageUrl } from "@/utils/imageUrl";
 import { cn } from "@/lib/utils";
@@ -51,7 +51,6 @@ interface PropertyRowProps {
 
 function PropertyRow({ property, active, onHover }: PropertyRowProps) {
   const { t } = useTranslation();
-  const isRent = property.type === "rent";
   const petAllowed = property.pets === "allowed";
 
   return (
@@ -89,14 +88,11 @@ function PropertyRow({ property, active, onHover }: PropertyRowProps) {
             <h3 className="font-semibold text-foreground text-base line-clamp-1 group-hover:text-primary transition-colors">
               {property.projectName}
             </h3>
-            <p className="text-lg font-bold text-primary leading-tight mt-0.5">
-              ฿{formatPrice(property.price).replace(/^฿/, "")}
-              {isRent && (
-                <span className="ml-1 text-xs font-medium text-muted-foreground">
-                  /{t("property.perMonth")}
-                </span>
-              )}
-            </p>
+            <PropertyPrices
+              property={property}
+              size="sm"
+              className="mt-0.5"
+            />
           </div>
           <div className="flex items-center gap-1 shrink-0">
             {petAllowed && (
@@ -176,7 +172,14 @@ export default function HomeIndex() {
       filters.districts?.length ||
       filters.priceRanges?.length ||
       filters.btsMrtIds?.length ||
-      filters.pets?.length,
+      filters.pets?.length ||
+      filters.minBedrooms != null ||
+      filters.bathrooms != null ||
+      filters.sizeMin != null ||
+      filters.sizeMax != null ||
+      filters.floorMin != null ||
+      filters.floorMax != null ||
+      filters.statuses?.length,
   );
   const headingKey = hasActiveFilters
     ? "home.searchResultsTitle"
@@ -267,12 +270,7 @@ export default function HomeIndex() {
                         <Popup>
                           <div className="text-sm font-medium">{p.projectName}</div>
                           <div className="text-xs text-muted-foreground mt-0.5">
-                            {formatPrice(p.price)}
-                            {p.type === "rent" && (
-                              <span className="ml-1">
-                                / {t("property.perMonth")}
-                              </span>
-                            )}
+                            <PropertyPrices property={p} size="sm" />
                           </div>
                         </Popup>
                       </Marker>
@@ -302,14 +300,7 @@ export default function HomeIndex() {
                     {t(`property.${selected.type}`)}
                   </Badge>
                 </div>
-                <div className="text-2xl font-bold text-primary">
-                  {formatPrice(selected.price)}
-                  {selected.type === "rent" && (
-                    <span className="text-sm font-normal text-muted-foreground ml-1">
-                      /{t("property.perMonth")}
-                    </span>
-                  )}
-                </div>
+                <PropertyPrices property={selected} size="md" />
                 <div className="grid grid-cols-2 gap-y-2 text-sm">
                   <div className="flex items-center gap-1.5 text-muted-foreground">
                     <MapPin className="size-3.5 shrink-0" />

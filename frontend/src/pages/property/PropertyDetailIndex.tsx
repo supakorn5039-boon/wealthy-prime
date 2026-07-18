@@ -24,7 +24,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useCartStore } from '@/hooks/useCartStore'
 import { useAuthStore } from '@/store/authStore'
-import { formatPrice, formatDate } from '@/utils/date'
+import { formatDate } from '@/utils/date'
+import { primaryPrice } from '@/utils/price'
+import { PropertyPrices } from '@/components/property/PropertyPrices'
 import { formatBtsMrt } from '@/utils/btsMrt'
 import { canSeeOwnerInfo } from '@/utils/permissions'
 import type { Review } from '@/types/Review'
@@ -59,7 +61,7 @@ export default function PropertyDetailIndex() {
     addItem({
       propertyId: property.id,
       propertyTitle: property.projectName,
-      propertyPrice: property.price,
+      propertyPrice: primaryPrice(property),
       propertyType: property.type,
       appointmentDate: null,
     })
@@ -287,10 +289,7 @@ export default function PropertyDetailIndex() {
         <div className="space-y-4">
           <Card className="sticky top-24">
             <CardContent className="pt-6 space-y-4">
-              <div>
-                <p className="text-3xl font-bold text-primary">{formatPrice(property.price)}</p>
-                {property.type === 'rent' && <p className="text-sm text-muted-foreground mt-0.5">{t('property.perMonth')}</p>}
-              </div>
+              <PropertyPrices property={property} size="lg" className="space-y-1" />
 
               {property.agentName && (
                 <div className="text-sm text-muted-foreground">

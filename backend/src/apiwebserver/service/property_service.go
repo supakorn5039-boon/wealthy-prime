@@ -43,16 +43,47 @@ type PriceRange struct {
 	Max *float64
 }
 
+var (
+	rentPriceListings = []string{string(model.ListingRent), string(model.ListingBoth)}
+	salePriceListings = []string{string(model.ListingSell), string(model.ListingBoth)}
+)
+
+func priceRangeCond(column string, listings []string, r PriceRange) (string, []any) {
+	cond := "listing IN ? AND " + column
+	args := []any{listings}
+	switch {
+	case r.Min != nil && r.Max != nil:
+		cond += " >= ? AND " + column + " <= ?"
+		args = append(args, *r.Min, *r.Max)
+	case r.Min != nil:
+		cond += " >= ?"
+		args = append(args, *r.Min)
+	case r.Max != nil:
+		cond += " <= ?"
+		args = append(args, *r.Max)
+	default:
+		return "", nil
+	}
+	return "(" + cond + ")", args
+}
+
 type PropertyFilter struct {
-	Location    string
-	Search      string
-	Types       []string
-	Kinds       []string
-	Provinces   []string
-	Districts   []string
-	PriceRanges []PriceRange
-	BtsMrtIDs   []int32
-	Pets        []string
+	Location         string
+	Search           string
+	SearchStationIDs []int32
+	Types            []string
+	Kinds            []string
+	Provinces        []string
+	Districts        []string
+	PriceRanges      []PriceRange
+	BtsMrtIDs        []int32
+	Pets             []string
+	MinBedrooms      *int
+	Bathrooms        *int
+	SizeMin          *float64
+	SizeMax          *float64
+	FloorMin         *int
+	FloorMax         *int
 
 	AgentID     *uint
 	Statuses    []string
@@ -62,7 +93,8 @@ type PropertyFilter struct {
 type PropertyFields struct {
 	ProjectName        string
 	Location           string
-	Price              float64
+	RentPrice          *float64
+	SalePrice          *float64
 	Type               model.PropertyType
 	SizeSqm            float64
 	OwnerInfo          string
@@ -117,18 +149,18 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 		Preload("Images").
 		Preload("Agent")
 
-	if len(filter.Types) > 0 {
-		var hasSell, hasRent, hasBoth bool
-		for _, ty := range filter.Types {
-			switch ty {
-			case "sell":
-				hasSell = true
-			case "rent":
-				hasRent = true
-			case "both":
-				hasBoth = true
-			}
+	var hasSell, hasRent, hasBoth bool
+	for _, ty := range filter.Types {
+		switch ty {
+		case "sell":
+			hasSell = true
+		case "rent":
+			hasRent = true
+		case "both":
+			hasBoth = true
 		}
+	}
+	if len(filter.Types) > 0 {
 		listings := make([]string, 0, 3)
 		if hasSell {
 			listings = append(listings, string(model.ListingSell))
@@ -146,24 +178,43 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 	if filter.Location != "" {
 		query = query.Where("location ILIKE ?", "%"+filter.Location+"%")
 	}
-	if filter.Search != "" {
-		s := "%" + filter.Search + "%"
-		query = query.Where("project_name ILIKE ? OR location ILIKE ?", s, s)
+	if filter.Search != "" || len(filter.SearchStationIDs) > 0 {
+		var parts []string
+		var args []any
+		if filter.Search != "" {
+			s := "%" + filter.Search + "%"
+			parts = append(parts, "project_name ILIKE ?", "location ILIKE ?")
+			args = append(args, s, s)
+		}
+		if len(filter.SearchStationIDs) > 0 {
+			parts = append(parts, "bts_mrt && ?")
+			args = append(args, pq.Int32Array(filter.SearchStationIDs))
+		}
+		query = query.Where("("+strings.Join(parts, " OR ")+")", args...)
 	}
 	if len(filter.PriceRanges) > 0 {
+		anyType := len(filter.Types) == 0
+		considerRent := anyType || hasRent || hasBoth
+		considerSale := anyType || hasSell || hasBoth
+
 		var conds []string
 		var args []any
 		for _, r := range filter.PriceRanges {
-			switch {
-			case r.Min != nil && r.Max != nil:
-				conds = append(conds, "(price >= ? AND price <= ?)")
-				args = append(args, *r.Min, *r.Max)
-			case r.Min != nil:
-				conds = append(conds, "price >= ?")
-				args = append(args, *r.Min)
-			case r.Max != nil:
-				conds = append(conds, "price <= ?")
-				args = append(args, *r.Max)
+			var parts []string
+			if considerRent {
+				if cond, a := priceRangeCond("rent_price", rentPriceListings, r); cond != "" {
+					parts = append(parts, cond)
+					args = append(args, a...)
+				}
+			}
+			if considerSale {
+				if cond, a := priceRangeCond("sale_price", salePriceListings, r); cond != "" {
+					parts = append(parts, cond)
+					args = append(args, a...)
+				}
+			}
+			if len(parts) > 0 {
+				conds = append(conds, "("+strings.Join(parts, " OR ")+")")
 			}
 		}
 		if len(conds) > 0 {
@@ -175,6 +226,24 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 	}
 	if len(filter.Pets) > 0 {
 		query = query.Where("pets IN ?", filter.Pets)
+	}
+	if filter.MinBedrooms != nil {
+		query = query.Where("bedrooms >= ?", *filter.MinBedrooms)
+	}
+	if filter.Bathrooms != nil {
+		query = query.Where("bathrooms = ?", *filter.Bathrooms)
+	}
+	if filter.SizeMin != nil {
+		query = query.Where("size_sqm >= ?", *filter.SizeMin)
+	}
+	if filter.SizeMax != nil {
+		query = query.Where("size_sqm <= ?", *filter.SizeMax)
+	}
+	if filter.FloorMin != nil {
+		query = query.Where("floor >= ?", *filter.FloorMin)
+	}
+	if filter.FloorMax != nil {
+		query = query.Where("floor <= ?", *filter.FloorMax)
 	}
 	if len(filter.Provinces) > 0 {
 		query = query.Where("province IN ?", filter.Provinces)
@@ -372,7 +441,8 @@ func (s *PropertyService) CreateProperty(input CreatePropertyInput) (*model.Prop
 	p := model.Property{
 		ProjectName:        input.ProjectName,
 		Location:           input.Location,
-		Price:              input.Price,
+		RentPrice:          input.RentPrice,
+		SalePrice:          input.SalePrice,
 		Type:               input.Type,
 		SizeSqm:            input.SizeSqm,
 		AgentID:            input.AgentID,
@@ -478,7 +548,8 @@ func (s *PropertyService) UpdateProperty(propertyID, callerID uint, role model.U
 	updates := map[string]interface{}{
 		"project_name":       input.ProjectName,
 		"location":           input.Location,
-		"price":              input.Price,
+		"rent_price":         input.RentPrice,
+		"sale_price":         input.SalePrice,
 		"type":               derivedType,
 		"size_sqm":           input.SizeSqm,
 		"owner_info":         input.OwnerInfo,

@@ -7,7 +7,8 @@ import type { ApiResponse, ApiListResponse } from '@/types/Commons'
 function appendCommonFields(fd: FormData, payload: PropertyFormFields) {
   fd.append('project_name', payload.projectName)
   fd.append('location', payload.location ?? '')
-  fd.append('price', String(payload.price))
+  if (payload.rentPrice != null) fd.append('rent_price', String(payload.rentPrice))
+  if (payload.salePrice != null) fd.append('sale_price', String(payload.salePrice))
   fd.append('owner_info', payload.ownerInfo)
   if (payload.sizeSqm != null) fd.append('size_sqm', String(payload.sizeSqm))
   if (payload.lat != null) fd.append('lat', String(payload.lat))
@@ -55,6 +56,7 @@ export const PropertyService = {
       : undefined
     const queryParams = {
       search: p.search,
+      search_station_ids: csv(p.searchStationIds),
       types: csv(p.types),
       kinds: csv(p.kinds),
       provinces: csv(p.provinces),
@@ -63,6 +65,12 @@ export const PropertyService = {
       bts_mrt_ids: csv(p.btsMrtIds),
       pets: csv(p.pets),
       statuses: csv(p.statuses),
+      min_bedrooms: p.minBedrooms,
+      bathrooms: p.bathrooms,
+      size_min: p.sizeMin,
+      size_max: p.sizeMax,
+      floor_min: p.floorMin,
+      floor_max: p.floorMax,
       project_name: p.projectName,
       agent_id: p.agentId,
     }

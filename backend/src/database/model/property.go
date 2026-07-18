@@ -50,9 +50,10 @@ const (
 
 type Property struct {
 	gorm.Model
-	ProjectName        string       `gorm:"not null"`
-	Location           string       `gorm:"not null"`
-	Price              float64      `gorm:"not null"`
+	ProjectName        string `gorm:"not null"`
+	Location           string `gorm:"not null"`
+	RentPrice          *float64
+	SalePrice          *float64
 	Type               PropertyType `gorm:"type:varchar(10);not null"`
 	SizeSqm            float64
 	AgentID            *uint  `gorm:"index"`
@@ -89,6 +90,16 @@ type Property struct {
 	OwnerWechat      string
 	OwnerWhatsapp    string
 	OwnerDocumentURL string
+}
+
+func (p *Property) ClosedAmount() float64 {
+	if p.SalePrice != nil {
+		return *p.SalePrice
+	}
+	if p.RentPrice != nil {
+		return *p.RentPrice
+	}
+	return 0
 }
 
 func (p *Property) BeforeCreate(tx *gorm.DB) error {
@@ -147,7 +158,8 @@ type PropertyDto struct {
 	PropertyCode       string             `json:"propertyCode"`
 	ProjectName        string             `json:"projectName"`
 	Location           string             `json:"location"`
-	Price              float64            `json:"price"`
+	RentPrice          *float64           `json:"rentPrice"`
+	SalePrice          *float64           `json:"salePrice"`
 	Type               PropertyType       `json:"type"`
 	Kind               PropertyKind       `json:"kind"`
 	Listing            ListingType        `json:"listing"`
@@ -192,7 +204,8 @@ func (p *Property) ToDto() *PropertyDto {
 		PropertyCode:       p.PropertyCode,
 		ProjectName:        p.ProjectName,
 		Location:           p.Location,
-		Price:              p.Price,
+		RentPrice:          p.RentPrice,
+		SalePrice:          p.SalePrice,
 		Type:               p.Type,
 		Kind:               p.Kind,
 		Listing:            p.Listing,

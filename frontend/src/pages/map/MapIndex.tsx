@@ -12,7 +12,7 @@ import { PageContainer } from '@/components/shared/PageContainer'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { formatPrice } from '@/utils/date'
+import { PropertyPrices } from '@/components/property/PropertyPrices'
 import { FlyTo, MapStatusLegend, buildStatusIconResolver } from '@/components/property/propertyMap'
 import type { Property } from '@/types/Property'
 
@@ -79,8 +79,7 @@ export default function MapIndex() {
                     <Popup>
                       <div className="text-sm font-medium">{p.projectName}</div>
                       <div className="text-xs text-muted-foreground mt-0.5">
-                        {formatPrice(p.price)}
-                        {p.type === 'rent' && <span className="ml-1">/ {t('property.perMonth')}</span>}
+                        <PropertyPrices property={p} size="sm" />
                       </div>
                     </Popup>
                   </Marker>
@@ -113,10 +112,7 @@ export default function MapIndex() {
                       <MapPin className="size-3 flex-shrink-0" />
                       <span className="line-clamp-1">{p.location}</span>
                     </div>
-                    <p className="text-primary font-semibold text-sm mt-1">
-                      {formatPrice(p.price)}
-                      {p.type === 'rent' && <span className="ml-1 text-xs font-normal text-muted-foreground">/ {t('property.perMonth')}</span>}
-                    </p>
+                    <PropertyPrices property={p} size="sm" className="mt-1" />
                   </div>
                   <div className="flex flex-col items-end gap-1.5 shrink-0">
                     <PropertyStatusBadge status={p.status} />
@@ -152,12 +148,7 @@ export default function MapIndex() {
                   </Badge>
                 </div>
 
-                <div className="text-2xl font-bold text-primary">
-                  {formatPrice(selected.price)}
-                  {selected.type === 'rent' && (
-                    <span className="text-sm font-normal text-muted-foreground ml-1">/{t('property.perMonth')}</span>
-                  )}
-                </div>
+                <PropertyPrices property={selected} size="md" />
 
                 <div className="grid grid-cols-2 gap-y-2 text-sm">
                   <div className="flex items-center gap-1.5 text-muted-foreground">

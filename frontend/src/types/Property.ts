@@ -32,7 +32,8 @@ export interface Property {
   propertyCode?: string
   projectName: string
   location: string
-  price: number
+  rentPrice?: number | null
+  salePrice?: number | null
   type: PropertyType
   kind?: PropertyKind
   listing?: ListingType
@@ -74,6 +75,7 @@ export interface Property {
 
 export interface PropertyListParams {
   search?: string
+  searchStationIds?: number[]
   types?: ListingFilter[]
   kinds?: PropertyKind[]
   provinces?: string[]
@@ -82,6 +84,12 @@ export interface PropertyListParams {
 
   btsMrtIds?: number[]
   pets?: PetPolicy[]
+  minBedrooms?: number
+  bathrooms?: number
+  sizeMin?: number
+  sizeMax?: number
+  floorMin?: number
+  floorMax?: number
   status?: PropertyStatus
   statuses?: PropertyStatus[]
   projectName?: string
@@ -93,7 +101,8 @@ export interface PropertyListParams {
 export interface PropertyFormFields {
   projectName: string
   location: string
-  price: number
+  rentPrice?: number
+  salePrice?: number
   sizeSqm?: number
   ownerInfo: string
   ownerExtraDetail?: string

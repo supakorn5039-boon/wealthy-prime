@@ -4,7 +4,8 @@ import { optionalPhoneSchema } from '@/dto/AuthValidation'
 const propertyObject = z.object({
   projectName: z.string().min(1, 'กรุณากรอกชื่อโครงการ'),
   location: z.string().optional(),
-  price: z.string().min(1, 'กรุณากรอกราคา'),
+  rentPrice: z.string().optional(),
+  salePrice: z.string().optional(),
   sizeSqm: z.string().optional(),
   ownerInfo: z.string().optional(),
   ownerExtraDetail: z.string().optional(),
@@ -43,9 +44,22 @@ const propertyObject = z.object({
 })
 
 const propertyRefine = (data: z.infer<typeof propertyObject>, ctx: z.RefinementCtx) => {
-  const price = Number(data.price)
-  if (isNaN(price) || price <= 0) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'ราคาต้องมากกว่า 0', path: ['price'] })
+  const validatePrice = (name: 'rentPrice' | 'salePrice', label: string) => {
+    const v = data[name]
+    if (!v) return
+    const n = Number(v)
+    if (isNaN(n) || n <= 0) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: `${label}ต้องมากกว่า 0`, path: [name] })
+    }
+  }
+  validatePrice('rentPrice', 'ราคาเช่า')
+  validatePrice('salePrice', 'ราคาซื้อ')
+  if (!data.rentPrice && !data.salePrice) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'กรุณากรอกราคาเช่าหรือราคาซื้ออย่างน้อยหนึ่งช่อง',
+      path: ['rentPrice'],
+    })
   }
   if (data.sizeSqm) {
     const size = Number(data.sizeSqm)

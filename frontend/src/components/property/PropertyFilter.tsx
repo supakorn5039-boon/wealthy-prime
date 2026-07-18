@@ -11,7 +11,7 @@ import {
   type BtsMrtLine,
   type BtsMrtStation,
 } from '@/constants/Locations'
-import type { PropertyListParams, ListingFilter, PropertyKind, PetPolicy } from '@/types/Property'
+import type { PropertyListParams, ListingFilter, PropertyKind, PetPolicy, PropertyStatus } from '@/types/Property'
 
 interface PropertyFilterProps {
   onFilter: (params: PropertyListParams) => void
@@ -31,19 +31,27 @@ const STATIONS_BY_LINE: readonly { line: BtsMrtLine; stations: readonly BtsMrtSt
   return order.map((line) => ({ line, stations: grouped.get(line)! }))
 })()
 
-const PRICE_PRESETS: readonly { id: string; label: string; min?: number; max?: number }[] = [
-  { id: 'lt10k', label: 'น้อยกว่า 10,000', max: 10000 },
-  { id: '10k-50k', label: '10,000 - 50,000', min: 10000, max: 50000 },
-  { id: '50k-100k', label: '50,000 - 100,000', min: 50000, max: 100000 },
-  { id: '100k-300k', label: '100,000 - 300,000', min: 100000, max: 300000 },
-  { id: 'gt300k', label: 'มากกว่า 300,000', min: 300000 },
-]
+type Availability = 'available' | 'not_available'
 
-function presetIdsFromRanges(ranges?: { min?: number; max?: number }[]): string[] {
-  if (!ranges) return []
-  return ranges
-    .map((r) => PRICE_PRESETS.find((p) => p.min === r.min && p.max === r.max)?.id)
-    .filter((id): id is string => !!id)
+const NOT_AVAILABLE_STATUSES: PropertyStatus[] = ['reserved', 'sold', 'unavailable', 'owner_update']
+
+function parseNum(s: string): number | undefined {
+  const trimmed = s.replace(/,/g, '').trim()
+  if (trimmed === '') return undefined
+  const v = Number(trimmed)
+  return Number.isFinite(v) && v >= 0 ? v : undefined
+}
+
+function availabilityFromStatuses(statuses?: PropertyStatus[]): Availability | undefined {
+  if (!statuses || statuses.length === 0) return undefined
+  if (statuses.length === 1 && statuses[0] === 'available') return 'available'
+  return 'not_available'
+}
+
+function stationIdsMatching(query: string): number[] {
+  const q = query.trim().toLowerCase()
+  if (!q) return []
+  return BTS_MRT_STATIONS.filter((s) => s.name.toLowerCase().includes(q)).map((s) => s.id)
 }
 
 interface MultiPickOption<T> {
@@ -236,16 +244,124 @@ function toggleArray<T>(prev: T[], value: T): T[] {
   return prev.includes(value) ? prev.filter((x) => x !== value) : [...prev, value]
 }
 
+interface StepFilterProps {
+  label: string
+  value?: number
+  onChange: (value?: number) => void
+  max?: number
+  suffix?: string
+}
+
+function StepFilter({ label, value, onChange, max = 4, suffix = '+' }: StepFilterProps) {
+  return (
+    <div className="flex h-14 w-full items-center gap-2 px-4">
+      <span className="text-sm font-medium text-muted-foreground shrink-0">{label}</span>
+      <div className="flex gap-1 ml-auto overflow-x-auto">
+        {Array.from({ length: max }, (_, i) => i + 1).map((n) => (
+          <button
+            key={n}
+            type="button"
+            onClick={() => onChange(value === n ? undefined : n)}
+            className={cn(
+              'size-8 rounded-md border text-sm font-medium transition-colors shrink-0',
+              value === n
+                ? 'bg-primary border-primary text-primary-foreground'
+                : 'border-input text-foreground hover:bg-muted',
+            )}
+          >
+            {n}{suffix}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+interface RangeFilterProps {
+  label: string
+  min: string
+  max: string
+  onMin: (value: string) => void
+  onMax: (value: string) => void
+}
+
+function RangeFilter({ label, min, max, onMin, onMax }: RangeFilterProps) {
+  const { t } = useTranslation()
+  return (
+    <div className="flex h-14 w-full items-center gap-1.5 px-3">
+      <span className="text-sm font-medium text-muted-foreground shrink-0 mr-1">{label}</span>
+      <input
+        inputMode="numeric"
+        value={min}
+        onChange={(e) => onMin(e.target.value)}
+        placeholder={t('home.rangeMin')}
+        className="h-9 w-full min-w-0 rounded-md border border-input bg-background px-2 text-sm outline-none focus:ring-1 focus:ring-ring"
+      />
+      <span className="text-muted-foreground shrink-0">–</span>
+      <input
+        inputMode="numeric"
+        value={max}
+        onChange={(e) => onMax(e.target.value)}
+        placeholder={t('home.rangeMax')}
+        className="h-9 w-full min-w-0 rounded-md border border-input bg-background px-2 text-sm outline-none focus:ring-1 focus:ring-ring"
+      />
+    </div>
+  )
+}
+
+interface AvailabilityFilterProps {
+  label: string
+  value?: Availability
+  onChange: (value?: Availability) => void
+  options: { value: Availability; label: string }[]
+}
+
+function AvailabilityFilter({ label, value, onChange, options }: AvailabilityFilterProps) {
+  return (
+    <div className="flex h-14 w-full items-center gap-2 px-4">
+      <span className="text-sm font-medium text-muted-foreground shrink-0">{label}</span>
+      <div className="flex gap-1 ml-auto">
+        {options.map((o) => (
+          <button
+            key={o.value}
+            type="button"
+            onClick={() => onChange(value === o.value ? undefined : o.value)}
+            className={cn(
+              'h-8 px-3 rounded-md border text-sm font-medium transition-colors',
+              value === o.value
+                ? 'bg-primary border-primary text-primary-foreground'
+                : 'border-input text-foreground hover:bg-muted',
+            )}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps) {
   const { t } = useTranslation()
   const [search, setSearch] = useState(initialValues?.search ?? '')
   const [types, setTypes] = useState<ListingFilter[]>(initialValues?.types ?? [])
   const [kinds, setKinds] = useState<PropertyKind[]>(initialValues?.kinds ?? [])
-  const [priceIds, setPriceIds] = useState<string[]>(presetIdsFromRanges(initialValues?.priceRanges))
+  const [minBedrooms, setMinBedrooms] = useState<number | undefined>(initialValues?.minBedrooms)
+  const [priceMin, setPriceMin] = useState(initialValues?.priceRanges?.[0]?.min?.toString() ?? '')
+  const [priceMax, setPriceMax] = useState(initialValues?.priceRanges?.[0]?.max?.toString() ?? '')
+  const [bathrooms, setBathrooms] = useState<number | undefined>(initialValues?.bathrooms)
+  const [sizeMin, setSizeMin] = useState(initialValues?.sizeMin?.toString() ?? '')
+  const [sizeMax, setSizeMax] = useState(initialValues?.sizeMax?.toString() ?? '')
+  const [floorMin, setFloorMin] = useState(initialValues?.floorMin?.toString() ?? '')
+  const [floorMax, setFloorMax] = useState(initialValues?.floorMax?.toString() ?? '')
+  const [availability, setAvailability] = useState<Availability | undefined>(
+    availabilityFromStatuses(initialValues?.statuses),
+  )
   const [provinces, setProvinces] = useState<string[]>(initialValues?.provinces ?? [])
   const [districts, setDistricts] = useState<string[]>(initialValues?.districts ?? [])
   const [stationIds, setStationIds] = useState<number[]>(initialValues?.btsMrtIds ?? [])
   const [pets, setPets] = useState<PetPolicy[]>(initialValues?.pets ?? [])
+  const [moreOpen, setMoreOpen] = useState(false)
 
   const districtOptions = useMemo(() => {
     if (provinces.length === 0) return [] as string[]
@@ -288,9 +404,12 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     ],
     [t],
   )
-  const priceOptions = useMemo<MultiPickOption<string>[]>(
-    () => PRICE_PRESETS.map((p) => ({ value: p.id, label: p.label })),
-    [],
+  const availabilityOptions = useMemo<{ value: Availability; label: string }[]>(
+    () => [
+      { value: 'available', label: t('property.status.available') },
+      { value: 'not_available', label: t('property.status.unavailable') },
+    ],
+    [t],
   )
   const provinceOptions = useMemo<MultiPickOption<string>[]>(
     () => PROVINCES.map((p) => ({ value: p, label: p })),
@@ -310,15 +429,34 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
   )
 
   const applyFilters = () => {
-    const priceRanges = priceIds
-      .map((id) => PRICE_PRESETS.find((p) => p.id === id))
-      .filter((p): p is (typeof PRICE_PRESETS)[number] => !!p)
-      .map((p) => ({ min: p.min, max: p.max }))
+    const query = search.trim()
+    const stationIdMatches = stationIdsMatching(query)
+    const priceMinValue = parseNum(priceMin)
+    const priceMaxValue = parseNum(priceMax)
+    const priceRanges =
+      priceMinValue != null || priceMaxValue != null
+        ? [{ min: priceMinValue, max: priceMaxValue }]
+        : undefined
+    const statuses =
+      availability === 'available'
+        ? (['available'] as PropertyStatus[])
+        : availability === 'not_available'
+          ? NOT_AVAILABLE_STATUSES
+          : undefined
+
     onFilter({
-      search: search || undefined,
+      search: query || undefined,
+      searchStationIds: stationIdMatches.length > 0 ? stationIdMatches : undefined,
       types: types.length > 0 ? types : undefined,
       kinds: kinds.length > 0 ? kinds : undefined,
-      priceRanges: priceRanges.length > 0 ? priceRanges : undefined,
+      minBedrooms,
+      priceRanges,
+      bathrooms,
+      sizeMin: parseNum(sizeMin),
+      sizeMax: parseNum(sizeMax),
+      floorMin: parseNum(floorMin),
+      floorMax: parseNum(floorMax),
+      statuses,
       provinces: provinces.length > 0 ? provinces : undefined,
       districts: districts.length > 0 ? districts : undefined,
       btsMrtIds: stationIds.length > 0 ? stationIds : undefined,
@@ -330,7 +468,15 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     setSearch('')
     setTypes([])
     setKinds([])
-    setPriceIds([])
+    setMinBedrooms(undefined)
+    setPriceMin('')
+    setPriceMax('')
+    setBathrooms(undefined)
+    setSizeMin('')
+    setSizeMax('')
+    setFloorMin('')
+    setFloorMax('')
+    setAvailability(undefined)
     setProvinces([])
     setDistricts([])
     setStationIds([])
@@ -342,7 +488,15 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     search ||
       types.length ||
       kinds.length ||
-      priceIds.length ||
+      minBedrooms != null ||
+      priceMin ||
+      priceMax ||
+      bathrooms != null ||
+      sizeMin ||
+      sizeMax ||
+      floorMin ||
+      floorMax ||
+      availability ||
       provinces.length ||
       districts.length ||
       stationIds.length ||
@@ -354,79 +508,8 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
   const allLabel = t('home.filterAll')
 
   return (
-    <div className="bg-card/95 backdrop-blur border border-border rounded-2xl shadow-xl">
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 lg:divide-x lg:divide-border">
-        <MultiPick<PropertyKind>
-          allLabel={allLabel}
-          placeholder={t('home.filterLabel.kind')}
-          selectedLabel={countLabel(kinds.length)}
-          options={kindOptions}
-          selected={kinds}
-          onToggle={(v) => setKinds((p) => toggleArray(p, v))}
-          onClear={() => setKinds([])}
-        />
-        <MultiPick<ListingFilter>
-          allLabel={allLabel}
-          placeholder={t('home.filterLabel.type')}
-          selectedLabel={countLabel(types.length)}
-          options={typeOptions}
-          selected={types}
-          onToggle={(v) => setTypes((p) => toggleArray(p, v))}
-          onClear={() => setTypes([])}
-        />
-        <MultiPick<string>
-          allLabel={allLabel}
-          placeholder={t('home.filterLabel.price')}
-          selectedLabel={countLabel(priceIds.length)}
-          options={priceOptions}
-          selected={priceIds}
-          onToggle={(v) => setPriceIds((p) => toggleArray(p, v))}
-          onClear={() => setPriceIds([])}
-        />
-        <MultiPick<string>
-          allLabel={allLabel}
-          placeholder={t('home.filterLabel.province')}
-          selectedLabel={countLabel(provinces.length)}
-          options={provinceOptions}
-          selected={provinces}
-          onToggle={(v) => setProvinces((p) => toggleArray(p, v))}
-          onClear={() => setProvinces([])}
-        />
-        <MultiPick<string>
-          allLabel={allLabel}
-          placeholder={t('home.filterLabel.district')}
-          selectedLabel={countLabel(districts.length)}
-          options={districtOptionItems}
-          selected={districts}
-          onToggle={(v) => setDistricts((p) => toggleArray(p, v))}
-          onClear={() => setDistricts([])}
-          disabled={provinces.length === 0}
-        />
-        <MultiPick<number>
-          allLabel={allLabel}
-          placeholder={t('home.filterLabel.btsMrt')}
-          selectedLabel={stationCountLabel}
-          groups={stationGroups}
-          selected={stationIds}
-          onToggle={(v) => setStationIds((p) => toggleArray(p, v))}
-          onClear={() => setStationIds([])}
-          minWidth={288}
-          align="right"
-        />
-        <MultiPick<PetPolicy>
-          allLabel={allLabel}
-          placeholder={t('home.filterLabel.pets')}
-          selectedLabel={countLabel(pets.length)}
-          options={petsOptions}
-          selected={pets}
-          onToggle={(v) => setPets((p) => toggleArray(p, v))}
-          onClear={() => setPets([])}
-          align="right"
-        />
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2 p-2 border-t border-border">
+    <div className="bg-card/95 backdrop-blur border border-border rounded-2xl shadow-xl overflow-hidden">
+      <div className="flex flex-wrap items-center gap-2 p-2 border-b border-border">
         <Search className="size-4 ml-3 text-muted-foreground shrink-0" />
         <input
           type="text"
@@ -456,6 +539,124 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
           {t('common.search')}
         </Button>
       </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y divide-border">
+        <MultiPick<ListingFilter>
+          allLabel={allLabel}
+          placeholder={t('home.filterLabel.type')}
+          selectedLabel={countLabel(types.length)}
+          options={typeOptions}
+          selected={types}
+          onToggle={(v) => setTypes((p) => toggleArray(p, v))}
+          onClear={() => setTypes([])}
+        />
+        <MultiPick<PropertyKind>
+          allLabel={allLabel}
+          placeholder={t('home.filterLabel.kind')}
+          selectedLabel={countLabel(kinds.length)}
+          options={kindOptions}
+          selected={kinds}
+          onToggle={(v) => setKinds((p) => toggleArray(p, v))}
+          onClear={() => setKinds([])}
+        />
+        <RangeFilter
+          label={t('home.filterLabel.price')}
+          min={priceMin}
+          max={priceMax}
+          onMin={setPriceMin}
+          onMax={setPriceMax}
+        />
+        <StepFilter
+          label={t('home.filterLabel.bed')}
+          value={minBedrooms}
+          onChange={setMinBedrooms}
+        />
+        <MultiPick<string>
+          allLabel={allLabel}
+          placeholder={t('home.filterLabel.province')}
+          selectedLabel={countLabel(provinces.length)}
+          options={provinceOptions}
+          selected={provinces}
+          onToggle={(v) => setProvinces((p) => toggleArray(p, v))}
+          onClear={() => setProvinces([])}
+        />
+        <MultiPick<string>
+          allLabel={allLabel}
+          placeholder={t('home.filterLabel.district')}
+          selectedLabel={countLabel(districts.length)}
+          options={districtOptionItems}
+          selected={districts}
+          onToggle={(v) => setDistricts((p) => toggleArray(p, v))}
+          onClear={() => setDistricts([])}
+          disabled={provinces.length === 0}
+        />
+        <MultiPick<number>
+          allLabel={allLabel}
+          placeholder={t('home.filterLabel.btsMrt')}
+          selectedLabel={stationCountLabel}
+          groups={stationGroups}
+          selected={stationIds}
+          onToggle={(v) => setStationIds((p) => toggleArray(p, v))}
+          onClear={() => setStationIds([])}
+          minWidth={288}
+        />
+        <button
+          type="button"
+          onClick={() => setMoreOpen((v) => !v)}
+          className={cn(
+            'flex h-14 w-full items-center justify-between px-4 text-sm font-medium hover:bg-muted/40',
+            moreOpen ? 'text-primary' : 'text-foreground',
+          )}
+        >
+          <span className="truncate">
+            {moreOpen ? t('home.filterLess') : t('home.filterMore')}
+          </span>
+          <ChevronDown
+            className={cn('size-4 opacity-70 shrink-0 ml-2 transition-transform', moreOpen && 'rotate-180')}
+          />
+        </button>
+      </div>
+
+      {moreOpen && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y divide-border border-t border-border">
+          <StepFilter
+            label={t('home.filterLabel.bath')}
+            value={bathrooms}
+            onChange={setBathrooms}
+            max={6}
+            suffix=""
+          />
+          <MultiPick<PetPolicy>
+            allLabel={allLabel}
+            placeholder={t('home.filterLabel.pets')}
+            selectedLabel={countLabel(pets.length)}
+            options={petsOptions}
+            selected={pets}
+            onToggle={(v) => setPets((p) => toggleArray(p, v))}
+            onClear={() => setPets([])}
+          />
+          <RangeFilter
+            label={t('home.filterLabel.size')}
+            min={sizeMin}
+            max={sizeMax}
+            onMin={setSizeMin}
+            onMax={setSizeMax}
+          />
+          <RangeFilter
+            label={t('home.filterLabel.floor')}
+            min={floorMin}
+            max={floorMax}
+            onMin={setFloorMin}
+            onMax={setFloorMax}
+          />
+          <AvailabilityFilter
+            label={t('home.filterLabel.status')}
+            value={availability}
+            onChange={setAvailability}
+            options={availabilityOptions}
+          />
+        </div>
+      )}
     </div>
   )
 }
