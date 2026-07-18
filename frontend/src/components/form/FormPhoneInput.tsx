@@ -3,36 +3,13 @@ import { createPortal } from 'react-dom'
 import { ChevronDown, Search } from 'lucide-react'
 import { useController, type Control, type FieldValues, type Path } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import {
-  usePhoneInput,
-  FlagImage,
-  defaultCountries,
-  parseCountry,
-  type ParsedCountry,
-} from 'react-international-phone'
-import { getExampleNumber, type CountryCode } from 'libphonenumber-js'
-import examples from 'libphonenumber-js/examples.mobile.json'
+import { FlagImage, defaultCountries, parseCountry, type ParsedCountry } from 'react-international-phone'
 import { Label } from '@/components/ui/label'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import { cn } from '@/lib/utils'
 
 const PARSED_COUNTRIES: ParsedCountry[] = defaultCountries.map((c) => parseCountry(c))
-
-const NATIONAL_LENGTH_CACHE = new Map<string, number>()
-function getNationalLength(iso2: string): number {
-  const key = iso2.toLowerCase()
-  const cached = NATIONAL_LENGTH_CACHE.get(key)
-  if (cached !== undefined) return cached
-  let length = 15
-  try {
-    const example = getExampleNumber(iso2.toUpperCase() as CountryCode, examples)
-    if (example) length = example.nationalNumber.length
-  } catch {
-
-  }
-  NATIONAL_LENGTH_CACHE.set(key, length)
-  return length
-}
+const DEFAULT_COUNTRY = PARSED_COUNTRIES.find((c) => c.iso2 === 'th') ?? PARSED_COUNTRIES[0]
 
 interface PhoneInputProps {
   value: string
@@ -52,41 +29,10 @@ export function PhoneInput({
   error,
 }: PhoneInputProps) {
   const { t } = useTranslation()
-
-  const { inputValue, country, setCountry, handlePhoneValueChange, inputRef } = usePhoneInput({
-    defaultCountry: 'th',
-    value: value ?? '',
-    countries: defaultCountries,
-    disableDialCodeAndPrefix: true,
-    onChange: ({ phone, inputValue: nationalNumber }) => onChange(nationalNumber ? phone : ''),
-  })
-
-  const maxDigits = useMemo(() => getNationalLength(country.iso2), [country.iso2])
+  const [country, setCountry] = useState<ParsedCountry>(DEFAULT_COUNTRY)
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const sanitized = e.target.value.replace(/[^\d\s()\-]/g, '')
-    const digitCount = sanitized.replace(/\D/g, '').length
-    if (digitCount > maxDigits) return
-    if (sanitized !== e.target.value) {
-      e.target.value = sanitized
-    }
-    handlePhoneValueChange(e)
-  }
-
-  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    const pasted = e.clipboardData.getData('text')
-    if (!pasted) return
-    const input = inputRef.current
-    if (!input) return
-    e.preventDefault()
-    const cleaned = pasted.replace(/\D/g, '').replace(/^0+/, '')
-    if (!cleaned) return
-    const start = input.selectionStart ?? input.value.length
-    const end = input.selectionEnd ?? input.value.length
-    const nextValue = input.value.slice(0, start) + cleaned + input.value.slice(end)
-    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set
-    setter?.call(input, nextValue)
-    input.dispatchEvent(new Event('input', { bubbles: true }))
+    onChange(e.target.value.replace(/[^\d\s()+-]/g, ''))
   }
 
   const [open, setOpen] = useState(false)
@@ -145,12 +91,10 @@ export function PhoneInput({
           <ChevronDown className="size-3.5 opacity-60" />
         </button>
         <input
-          ref={inputRef}
           type="tel"
-          inputMode="numeric"
-          value={inputValue}
+          inputMode="tel"
+          value={value ?? ''}
           onChange={handleChange}
-          onPaste={handlePaste}
           onBlur={onBlur}
           name={name}
           placeholder={placeholder}
@@ -193,7 +137,7 @@ export function PhoneInput({
                   type="button"
                   key={c.iso2}
                   onClick={() => {
-                    setCountry(c.iso2)
+                    setCountry(c)
                     setOpen(false)
                   }}
                   className={cn(

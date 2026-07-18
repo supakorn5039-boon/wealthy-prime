@@ -2,7 +2,6 @@ package controller
 
 import (
 	"fmt"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -16,10 +15,11 @@ import (
 type AdminController struct {
 	svc      *service.AdminService
 	auditSvc *service.AuditService
+	authSvc  *service.AuthService
 }
 
 func NewAdminController() *AdminController {
-	return &AdminController{svc: service.NewAdminService(), auditSvc: service.NewAuditService()}
+	return &AdminController{svc: service.NewAdminService(), auditSvc: service.NewAuditService(), authSvc: service.NewAuthService()}
 }
 
 func (ctrl *AdminController) RegisterRoutes(r *gin.RouterGroup) {
@@ -42,6 +42,7 @@ func (ctrl *AdminController) RegisterRoutes(r *gin.RouterGroup) {
 	admin.GET("/users", ctrl.listUsers)
 	admin.GET("/users/:id", ctrl.getUser)
 	admin.PUT("/users/:id", ctrl.updateUser)
+	admin.POST("/users/:id/reset-password", ctrl.resetUserPassword)
 
 	admin.GET("/bookings", ctrl.listBookings)
 	admin.POST("/bookings/:id/reassign", ctrl.reassignBooking)
@@ -359,6 +360,25 @@ func (ctrl *AdminController) exportFinancial(c *gin.Context) {
 	}
 }
 
+func (ctrl *AdminController) resetUserPassword(c *gin.Context) {
+	id, err := parseUintParam(c, "id")
+	if err != nil {
+		badRequest(c, "invalid user id")
+		return
+	}
+	if err := ctrl.authSvc.RequestPasswordResetByUserID(id); err != nil {
+		errorResponse(c, err)
+		return
+	}
+	ctrl.auditSvc.Log(c, service.AuditEntry{
+		Action:     model.AuditUpdate,
+		EntityType: model.EntityUser,
+		EntityID:   &id,
+		Summary:    "Sent password reset email",
+	})
+	successResponse(c, gin.H{"sent": true})
+}
+
 type profileUpdateBody struct {
 	Name           string `json:"name"`
 	FirstName      string `json:"firstName"`
@@ -404,8 +424,6 @@ func (b profileUpdateBody) toUpdates() map[string]any {
 	return updates
 }
 
-var phoneFormat = regexp.MustCompile(`^\+?[1-9]\d{6,14}$|^0\d{8,9}$`)
-
 func (b profileUpdateBody) validate() error {
 	if b.Phone != "" {
 		if err := validatePhone("phone", b.Phone); err != nil {
@@ -421,19 +439,8 @@ func (b profileUpdateBody) validate() error {
 }
 
 func validatePhone(field, raw string) error {
-	cleaned := strings.NewReplacer("-", "", " ", "").Replace(raw)
-	if !phoneFormat.MatchString(cleaned) {
-		return fmt.Errorf("%s must be a valid phone number in E.164 (e.g., +66812345678) or local Thai (e.g., 0812345678) format", field)
-	}
-	allZeros := true
-	for _, c := range cleaned {
-		if c != '0' {
-			allZeros = false
-			break
-		}
-	}
-	if allZeros {
-		return fmt.Errorf("%s cannot be all zeros", field)
+	if strings.TrimSpace(raw) == "" {
+		return fmt.Errorf("%s is required", field)
 	}
 	return nil
 }

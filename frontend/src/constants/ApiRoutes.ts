@@ -45,6 +45,7 @@ export const API = {
   ADMIN_AGENT_ROLE: (id: number | string) => `/admin/agents/${id}/role`,
   ADMIN_USERS: '/admin/users',
   ADMIN_USER_DETAIL: (id: number | string) => `/admin/users/${id}`,
+  ADMIN_USER_RESET_PASSWORD: (id: number | string) => `/admin/users/${id}/reset-password`,
   ADMIN_PENDING_USERS: '/admin/users/pending',
   ADMIN_USER_APPROVE: (id: number | string) => `/admin/users/${id}/approve`,
   ADMIN_USER_REJECT: (id: number | string) => `/admin/users/${id}/reject`,

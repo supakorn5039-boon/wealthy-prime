@@ -169,7 +169,6 @@ export default function HomeIndex() {
       filters.kinds?.length ||
       filters.types?.length ||
       filters.provinces?.length ||
-      filters.districts?.length ||
       filters.priceRanges?.length ||
       filters.btsMrtIds?.length ||
       filters.pets?.length ||

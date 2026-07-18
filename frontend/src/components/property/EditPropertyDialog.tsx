@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -27,11 +27,7 @@ import {
 import { propertySchema, type PropertySchema } from "@/dto/PropertyValidation";
 import { resolveImageUrl } from "@/utils/imageUrl";
 import type { Property } from "@/types/Property";
-import {
-  PROVINCES,
-  DISTRICTS_BY_PROVINCE,
-  BTS_MRT_OPTIONS,
-} from "@/constants/Locations";
+import { PROVINCES, BTS_MRT_OPTIONS } from "@/constants/Locations";
 import { usePropertyOptions } from "@/hooks/usePropertyOptions";
 import { useMapUrlCoords } from "@/hooks/useMapUrlCoords";
 import { MapUrlStatusHint } from "@/components/property/MapUrlStatusHint";
@@ -58,7 +54,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
   } = usePropertyOptions();
   const provinceOptions = PROVINCES.map((p) => ({ value: p, label: p }));
 
-  const { control, handleSubmit, setValue, getValues } =
+  const { control, handleSubmit, setValue } =
     useForm<PropertySchema>({
       resolver: zodResolver(propertySchema),
       defaultValues: {
@@ -75,7 +71,6 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
         kind: (property.kind || "condo") as PropertySchema["kind"],
         listing: (property.listing || "rent") as PropertySchema["listing"],
         province: property.province ?? "",
-        district: property.district ?? "",
         googleMapUrl: property.googleMapUrl ?? "",
         btsMrt: (property.btsMrt ?? []).join(", "),
         bedrooms: property.bedrooms != null ? String(property.bedrooms) : "",
@@ -99,20 +94,6 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
     });
 
   const listingType = useWatch({ control, name: "listing" });
-  const selectedProvince = useWatch({ control, name: "province" });
-  const districtOptions = useMemo(() => {
-    const list = selectedProvince
-      ? (DISTRICTS_BY_PROVINCE[selectedProvince] ?? [])
-      : [];
-    return list.map((d) => ({ value: d, label: d }));
-  }, [selectedProvince]);
-
-  useEffect(() => {
-    const current = getValues("district");
-    if (current && !districtOptions.find((o) => o.value === current)) {
-      setValue("district", "");
-    }
-  }, [districtOptions, getValues, setValue]);
 
   const googleMapUrl = useWatch({ control, name: "googleMapUrl" });
   const mapUrlStatus = useMapUrlCoords(googleMapUrl, (lat, lng) => {
@@ -126,7 +107,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
         property.id,
         {
           projectName: values.projectName,
-          location: values.location || values.district || "",
+          location: values.location || "",
           rentPrice: values.rentPrice ? Number(values.rentPrice) : undefined,
           salePrice: values.salePrice ? Number(values.salePrice) : undefined,
           sizeSqm: values.sizeSqm ? Number(values.sizeSqm) : undefined,
@@ -137,7 +118,6 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
           kind: values.kind,
           listing: values.listing,
           province: values.province,
-          district: values.district,
           googleMapUrl: values.googleMapUrl,
           btsMrt: values.btsMrt,
           bedrooms: values.bedrooms ? Number(values.bedrooms) : undefined,
@@ -272,28 +252,13 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
             rows={2}
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <FormCombobox
-              control={control}
-              name="province"
-              label={t("property.province")}
-              options={provinceOptions}
-              required
-            />
-            <FormCombobox
-              control={control}
-              name="district"
-              label={t("property.district")}
-              options={districtOptions}
-              placeholder={
-                districtOptions.length === 0
-                  ? t("property.selectProvinceFirst")
-                  : undefined
-              }
-              disabled={districtOptions.length === 0}
-              required
-            />
-          </div>
+          <FormCombobox
+            control={control}
+            name="province"
+            label={t("property.province")}
+            options={provinceOptions}
+            required
+          />
           <FormInput
             control={control}
             name="location"

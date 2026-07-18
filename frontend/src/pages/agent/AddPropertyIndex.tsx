@@ -62,7 +62,6 @@ export default function AddPropertyIndex() {
       kind: "condo" as const,
       listing: "rent" as const,
       province: "",
-      district: "",
       googleMapUrl: "",
       btsMrt: "",
       bedrooms: "",
@@ -97,7 +96,7 @@ export default function AddPropertyIndex() {
       PropertyService.createWithImages(
         {
           projectName: values.projectName,
-          location: values.location || values.district || values.province || "",
+          location: values.location || values.province || "",
           rentPrice: values.rentPrice ? Number(values.rentPrice) : undefined,
           salePrice: values.salePrice ? Number(values.salePrice) : undefined,
           sizeSqm: values.sizeSqm ? Number(values.sizeSqm) : undefined,
@@ -109,7 +108,6 @@ export default function AddPropertyIndex() {
           kind: values.kind,
           listing: values.listing,
           province: values.province,
-          district: values.district,
           googleMapUrl: values.googleMapUrl,
           btsMrt: values.btsMrt,
           bedrooms: values.bedrooms ? Number(values.bedrooms) : undefined,

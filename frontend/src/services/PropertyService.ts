@@ -17,7 +17,6 @@ function appendCommonFields(fd: FormData, payload: PropertyFormFields) {
   if (payload.kind) fd.append('kind', payload.kind)
   if (payload.listing) fd.append('listing', payload.listing)
   if (payload.province) fd.append('province', payload.province)
-  if (payload.district) fd.append('district', payload.district)
   if (payload.googleMapUrl) fd.append('google_map_url', payload.googleMapUrl)
   if (payload.btsMrt) fd.append('bts_mrt', payload.btsMrt)
   if (payload.bedrooms != null) fd.append('bedrooms', String(payload.bedrooms))
@@ -60,7 +59,6 @@ export const PropertyService = {
       types: csv(p.types),
       kinds: csv(p.kinds),
       provinces: csv(p.provinces),
-      districts: csv(p.districts),
       price_ranges: priceRangesCsv,
       bts_mrt_ids: csv(p.btsMrtIds),
       pets: csv(p.pets),
@@ -168,7 +166,6 @@ export const PropertyService = {
       types: csv(p.types),
       kinds: csv(p.kinds),
       provinces: csv(p.provinces),
-      districts: csv(p.districts),
       bts_mrt_ids: csv(p.btsMrtIds),
       statuses: csv(p.statuses),
       project_name: p.projectName,

@@ -183,6 +183,17 @@ func (s *AuthService) RequestPasswordReset(emailAddr string) error {
 	return nil
 }
 
+func (s *AuthService) RequestPasswordResetByUserID(userID uint) error {
+	var user model.User
+	if err := s.db.First(&user, userID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperror.NotFound("user")
+		}
+		return apperror.Wrap(err, 500, "database error fetching user")
+	}
+	return s.RequestPasswordReset(user.Email)
+}
+
 func (s *AuthService) dispatchPasswordReset(emailAddr string) {
 	var user model.User
 	err := s.db.Where("email = ?", emailAddr).First(&user).Error

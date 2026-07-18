@@ -19,7 +19,6 @@ const propertyObject = z.object({
     required_error: 'กรุณาเลือกประเภทรายการ',
   }),
   province: z.string().min(1, 'กรุณาเลือกจังหวัด'),
-  district: z.string().min(1, 'กรุณาเลือกเขต'),
   googleMapUrl: z.string().optional(),
   btsMrt: z.string().optional(),
   bedrooms: z.string().optional(),
@@ -102,9 +101,7 @@ export const propertySchema = propertyObject.superRefine(propertyRefine)
 
 export type PropertySchema = z.infer<typeof propertySchema>
 
-export const addPropertySchema = propertyObject
-  .extend({ district: z.string() })
-  .superRefine(propertyRefine)
+export const addPropertySchema = propertyObject.superRefine(propertyRefine)
 
 export const propertyStatusSchema = z.object({
   status: z.enum([

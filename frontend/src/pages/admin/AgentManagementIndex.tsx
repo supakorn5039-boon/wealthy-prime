@@ -1,12 +1,10 @@
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { Pencil, UserCheck } from 'lucide-react'
-import { z } from 'zod'
+import { Pencil, UserCheck, Copy } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { AdminService } from '@/services/AdminService'
+import { ROUTES } from '@/constants/Routes'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { PageTitle } from '@/components/shared/PageTitle'
@@ -14,69 +12,40 @@ import { PageContainer } from '@/components/shared/PageContainer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
-import { FormInput } from '@/components/form/FormInput'
-import { FormPhoneInput } from '@/components/form/FormPhoneInput'
-import { FormSelect } from '@/components/form/FormSelect'
-import { requiredLoosePhoneSchema } from '@/dto/AuthValidation'
-import { scrollToFirstError } from '@/lib/scrollToFirstError'
+import { EditProfileDialog } from '@/components/admin/EditProfileDialog'
 import { formatDate } from '@/utils/date'
 import type { AuthUser } from '@/types/Auth'
 
-const editAgentSchema = z.object({
-  name: z.string().min(1),
-  phone: requiredLoosePhoneSchema,
-  role: z.enum(['user', 'agent', 'admin']),
-})
-type EditAgentSchema = z.infer<typeof editAgentSchema>
-
-function EditAgentModal({ agent, open, onClose }: { agent: AuthUser; open: boolean; onClose: () => void }) {
+function AgentSignupLink() {
   const { t } = useTranslation()
-  const queryClient = useQueryClient()
-
-  const roleOptions = [
-    { value: 'user', label: t('role.user') },
-    { value: 'agent', label: t('role.agent') },
-    { value: 'admin', label: t('role.admin') },
-  ]
-
-  const { control, handleSubmit } = useForm<EditAgentSchema>({
-    resolver: zodResolver(editAgentSchema),
-    defaultValues: { name: agent.name, phone: agent.phone, role: agent.role as EditAgentSchema['role'] },
-  })
-
-  const mutation = useMutation({
-    mutationFn: (values: EditAgentSchema) => AdminService.updateAgent(agent.id, values),
-    onSuccess: () => {
-      toast.success(t('admin.updateSuccess'))
-      queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.AGENTS] })
-      queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.BOOKINGS] })
-      queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.AUDIT_LOGS] })
-      onClose()
-    },
-    onError: () => toast.error(t('common.error')),
-  })
-
+  const url = `${window.location.origin}${ROUTES.REGISTER_AGENT}`
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(url)
+      toast.success(t('common.copied'))
+    } catch {
+      toast.error(t('common.error'))
+    }
+  }
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{t('admin.editTitle')} {agent.name}</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit((values) => mutation.mutate(values), scrollToFirstError)} className="space-y-4">
-          <FormInput control={control} name="name" label={t('admin.nameLabel')} required />
-          <FormPhoneInput control={control} name="phone" label={t('admin.phoneLabel')} required />
-          <FormSelect control={control} name="role" label={t('admin.roleLabel')} options={roleOptions} required />
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>{t('common.cancel')}</Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? t('common.saving') : t('common.save')}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+    <div className="flex flex-col gap-1.5 rounded-lg border border-border bg-muted/30 p-3 sm:min-w-[22rem]">
+      <span className="text-xs font-medium text-muted-foreground">{t('admin.agentSignupUrl')}</span>
+      <div className="flex items-center gap-2">
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 truncate text-sm font-medium text-primary hover:underline"
+        >
+          {url}
+        </a>
+        <Button type="button" variant="outline" size="sm" onClick={copy} className="shrink-0">
+          <Copy className="size-3.5 mr-1" />
+          {t('common.copy')}
+        </Button>
+      </div>
+    </div>
   )
 }
 
@@ -91,7 +60,11 @@ export default function AgentManagementIndex() {
 
   return (
     <PageContainer size="7xl">
-      <PageTitle title={t('admin.agentsTitle')} subtitle={`${agents.length} ${t('admin.people')}`} />
+      <PageTitle
+        title={t('admin.agentsTitle')}
+        subtitle={`${agents.length} ${t('admin.people')}`}
+        actions={<AgentSignupLink />}
+      />
 
       {isLoading ? (
         <LoadingSpinner text={t('common.loading')} />
@@ -138,7 +111,13 @@ export default function AgentManagementIndex() {
       )}
 
       {editingAgent && (
-        <EditAgentModal agent={editingAgent} open={!!editingAgent} onClose={() => setEditingAgent(null)} />
+        <EditProfileDialog
+          user={editingAgent}
+          open={!!editingAgent}
+          onClose={() => setEditingAgent(null)}
+          updateFn={AdminService.updateAgent}
+          queryKey={AdminService.QUERY_KEYS.AGENTS}
+        />
       )}
     </PageContainer>
   )

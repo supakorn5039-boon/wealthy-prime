@@ -266,7 +266,6 @@ export default function MyPropertiesIndex() {
                   <TableHead>{t("property.code")}</TableHead>
                   <TableHead>{t("property.project")}</TableHead>
                   <TableHead>{t("property.typeCol")}</TableHead>
-                  <TableHead>{t("property.district")}</TableHead>
                   <TableHead>{t("property.price")}</TableHead>
                   <TableHead>{t("property.statusCol")}</TableHead>
                   <TableHead className="text-right">
@@ -284,9 +283,6 @@ export default function MyPropertiesIndex() {
                       <p className="font-medium">{p.projectName}</p>
                     </TableCell>
                     <TableCell>{t(`property.${p.type}`)}</TableCell>
-                    <TableCell className="text-sm">
-                      {p.district || "-"}
-                    </TableCell>
                     <TableCell>
                       <PropertyPrices property={p} size="sm" />
                     </TableCell>

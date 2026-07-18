@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import {
   PROVINCES,
-  DISTRICTS_BY_PROVINCE,
   BTS_MRT_STATIONS,
   type BtsMrtLine,
   type BtsMrtStation,
@@ -358,26 +357,9 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     availabilityFromStatuses(initialValues?.statuses),
   )
   const [provinces, setProvinces] = useState<string[]>(initialValues?.provinces ?? [])
-  const [districts, setDistricts] = useState<string[]>(initialValues?.districts ?? [])
   const [stationIds, setStationIds] = useState<number[]>(initialValues?.btsMrtIds ?? [])
   const [pets, setPets] = useState<PetPolicy[]>(initialValues?.pets ?? [])
   const [moreOpen, setMoreOpen] = useState(false)
-
-  const districtOptions = useMemo(() => {
-    if (provinces.length === 0) return [] as string[]
-    const set = new Set<string>()
-    for (const p of provinces) {
-      for (const d of DISTRICTS_BY_PROVINCE[p] ?? []) set.add(d)
-    }
-    return Array.from(set)
-  }, [provinces])
-
-  useEffect(() => {
-    setDistricts((prev) => {
-      const next = prev.filter((d) => districtOptions.includes(d))
-      return next.length === prev.length ? prev : next
-    })
-  }, [districtOptions])
 
   const kindOptions = useMemo<MultiPickOption<PropertyKind>[]>(
     () => [
@@ -414,10 +396,6 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
   const provinceOptions = useMemo<MultiPickOption<string>[]>(
     () => PROVINCES.map((p) => ({ value: p, label: p })),
     [],
-  )
-  const districtOptionItems = useMemo<MultiPickOption<string>[]>(
-    () => districtOptions.map((d) => ({ value: d, label: d })),
-    [districtOptions],
   )
   const stationGroups = useMemo<MultiPickGroup<number>[]>(
     () =>
@@ -458,7 +436,6 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
       floorMax: parseNum(floorMax),
       statuses,
       provinces: provinces.length > 0 ? provinces : undefined,
-      districts: districts.length > 0 ? districts : undefined,
       btsMrtIds: stationIds.length > 0 ? stationIds : undefined,
       pets: pets.length > 0 ? pets : undefined,
     })
@@ -478,7 +455,6 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     setFloorMax('')
     setAvailability(undefined)
     setProvinces([])
-    setDistricts([])
     setStationIds([])
     setPets([])
     onFilter({})
@@ -498,7 +474,6 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
       floorMax ||
       availability ||
       provinces.length ||
-      districts.length ||
       stationIds.length ||
       pets.length,
   )
@@ -579,16 +554,6 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
           selected={provinces}
           onToggle={(v) => setProvinces((p) => toggleArray(p, v))}
           onClear={() => setProvinces([])}
-        />
-        <MultiPick<string>
-          allLabel={allLabel}
-          placeholder={t('home.filterLabel.district')}
-          selectedLabel={countLabel(districts.length)}
-          options={districtOptionItems}
-          selected={districts}
-          onToggle={(v) => setDistricts((p) => toggleArray(p, v))}
-          onClear={() => setDistricts([])}
-          disabled={provinces.length === 0}
         />
         <MultiPick<number>
           allLabel={allLabel}

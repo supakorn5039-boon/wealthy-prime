@@ -206,9 +206,6 @@ export default function PropertyDetailIndex() {
                 {property.province && (
                   <DetailItem icon={<MapPin className="size-4" />} label={t('property.province')} value={property.province} />
                 )}
-                {property.district && (
-                  <DetailItem icon={<MapPin className="size-4" />} label={t('property.district')} value={property.district} />
-                )}
               </div>
             </CardContent>
           </Card>

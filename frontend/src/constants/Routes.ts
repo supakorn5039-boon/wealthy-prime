@@ -10,7 +10,7 @@ export const ROUTES = {
   LOGIN: '/login',
   LOGIN_AGENT: '/login?role=agent',
   REGISTER: '/register',
-  REGISTER_AGENT: '/register/agent',
+  REGISTER_AGENT: '/register-agent',
   FORGOT_PASSWORD: '/forgot-password',
   RESET_PASSWORD: '/reset-password',
 

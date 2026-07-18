@@ -1,26 +1,10 @@
 import { z } from 'zod'
-import { isValidPhoneNumber } from 'libphonenumber-js'
 
-export const phoneSchema = z
-  .string()
-  .min(1, 'กรุณากรอกเบอร์โทร')
-  .refine((v) => isValidPhoneNumber(v), 'รูปแบบเบอร์โทรไม่ถูกต้อง')
+export const phoneSchema = z.string().min(1, 'กรุณากรอกเบอร์โทร')
 
-const stripPhone = (v: string) => v.replace(/[\s-]/g, '')
-const isLooseValidPhone = (v: string) => {
-  const cleaned = stripPhone(v)
-  if (/^0\d{8,9}$/.test(cleaned)) return true
-  return isValidPhoneNumber(cleaned)
-}
-export const optionalPhoneSchema = z
-  .string()
-  .optional()
-  .refine((v) => !v || isLooseValidPhone(v), 'รูปแบบเบอร์โทรไม่ถูกต้อง')
+export const optionalPhoneSchema = z.string().optional()
 
-export const requiredLoosePhoneSchema = z
-  .string()
-  .min(1, 'กรุณากรอกเบอร์โทร')
-  .refine(isLooseValidPhone, 'รูปแบบเบอร์โทรไม่ถูกต้อง')
+export const requiredLoosePhoneSchema = z.string().min(1, 'กรุณากรอกเบอร์โทร')
 
 export const loginSchema = z.object({
   email: z.string().email('อีเมลไม่ถูกต้อง'),
