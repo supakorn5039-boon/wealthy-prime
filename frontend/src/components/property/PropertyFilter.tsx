@@ -569,7 +569,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
           type="button"
           onClick={() => setMoreOpen((v) => !v)}
           className={cn(
-            'flex h-14 w-full items-center justify-between px-4 text-sm font-medium hover:bg-muted/40',
+            'col-span-2 flex h-14 w-full items-center justify-between px-4 text-sm font-medium hover:bg-muted/40',
             moreOpen ? 'text-primary' : 'text-foreground',
           )}
         >
