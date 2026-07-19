@@ -41,8 +41,8 @@ type RegisterInput struct {
 	LastName       string         `json:"lastName"`
 	Email          string         `json:"email"    binding:"required,email"`
 	Password       string         `json:"password" binding:"required,min=6"`
-	Phone          string         `json:"phone"    binding:"required"`
-	SecondaryPhone string         `json:"secondaryPhone"`
+	Phone          string         `json:"phone"    binding:"required,max=15"`
+	SecondaryPhone string         `json:"secondaryPhone" binding:"max=15"`
 	LineID         string         `json:"lineId"`
 	Facebook       string         `json:"facebook"`
 	Wechat         string         `json:"wechat"`

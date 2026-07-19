@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils'
 
 const PARSED_COUNTRIES: ParsedCountry[] = defaultCountries.map((c) => parseCountry(c))
 const DEFAULT_COUNTRY = PARSED_COUNTRIES.find((c) => c.iso2 === 'th') ?? PARSED_COUNTRIES[0]
+const PHONE_MAX_LENGTH = 15
 
 interface PhoneInputProps {
   value: string
@@ -32,7 +33,7 @@ export function PhoneInput({
   const [country, setCountry] = useState<ParsedCountry>(DEFAULT_COUNTRY)
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.value.replace(/[^\d\s()+-]/g, ''))
+    onChange(e.target.value.replace(/[^\d\s()+-]/g, '').slice(0, PHONE_MAX_LENGTH))
   }
 
   const [open, setOpen] = useState(false)
@@ -97,6 +98,7 @@ export function PhoneInput({
           onChange={handleChange}
           onBlur={onBlur}
           name={name}
+          maxLength={PHONE_MAX_LENGTH}
           placeholder={placeholder}
           aria-invalid={error}
           className="flex-1 min-w-0 bg-input px-3 text-sm text-foreground placeholder:text-muted-foreground outline-none"

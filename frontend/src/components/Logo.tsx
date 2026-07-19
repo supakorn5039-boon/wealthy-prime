@@ -7,7 +7,7 @@ type LogoProps = {
   alt?: string
 }
 
-export function Logo({ size = 40, className, alt = 'Wealthy Prime Estate' }: LogoProps) {
+export function Logo({ size = 56, className, alt = 'Wealthy Prime Estate' }: LogoProps) {
   return (
     <img
       src={logoUrl}

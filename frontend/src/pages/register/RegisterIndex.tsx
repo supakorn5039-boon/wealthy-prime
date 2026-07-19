@@ -56,7 +56,7 @@ export default function RegisterIndex({ role = 'user' }: RegisterIndexProps) {
     <div className="w-full max-w-xl px-4 py-8">
       <div className="flex justify-center mb-6">
         <div className="flex items-center gap-3">
-          <Logo size={40} />
+          <Logo size={56} />
           <span className="text-2xl font-bold tracking-luxury text-primary">WEALTHY PRIME ESTATE</span>
         </div>
       </div>

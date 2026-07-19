@@ -85,10 +85,10 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           'w-64',
           open ? 'translate-x-0' : '-translate-x-full',
           'lg:sticky lg:top-0 lg:translate-x-0 lg:z-auto',
-          open ? 'lg:w-64' : 'lg:w-16'
+          open ? 'lg:w-64' : 'lg:w-20'
         )}
       >
-        <div className="flex items-center justify-between h-16 px-3 border-b border-border shrink-0">
+        <div className="flex items-center justify-between h-20 px-3 border-b border-border shrink-0">
           <Link
             to={ROUTES.HOME}
             className={cn(
@@ -96,7 +96,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
               !open && 'lg:justify-center lg:w-full'
             )}
           >
-            <Logo size={44} />
+            <Logo size={62} />
             <div className={cn('leading-tight min-w-0', !open && 'lg:hidden')}>
               <p className="text-sm font-bold tracking-luxury text-primary whitespace-nowrap">WEALTHY PRIME</p>
               <p className="text-[10px] text-muted-foreground tracking-luxury whitespace-nowrap">ESTATE CO., LTD.</p>

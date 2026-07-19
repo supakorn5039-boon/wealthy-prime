@@ -13,7 +13,7 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
         <div>
           <div className="flex items-center gap-2 font-bold text-lg">
-            <Logo size={32} />
+            <Logo size={45} />
             <div className="leading-tight">
               <p className="text-sm font-bold tracking-luxury text-primary">WEALTHY PRIME</p>
               <p className="text-[10px] tracking-luxury text-muted-foreground">ESTATE CO., LTD.</p>

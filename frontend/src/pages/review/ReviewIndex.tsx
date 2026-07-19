@@ -88,7 +88,7 @@ export default function ReviewIndex() {
       <div className="w-full max-w-md px-4">
         <div className="flex justify-center mb-6">
           <div className="flex items-center gap-3">
-            <Logo size={32} />
+            <Logo size={45} />
             <span className="text-xl font-bold tracking-luxury text-primary">WEALTHY PRIME ESTATE</span>
           </div>
         </div>
@@ -125,7 +125,7 @@ export default function ReviewIndex() {
     <div className="w-full max-w-md px-4">
       <div className="flex justify-center mb-6">
         <div className="flex items-center gap-3">
-          <Logo size={32} />
+          <Logo size={45} />
           <span className="text-xl font-bold tracking-luxury text-primary">WEALTHY PRIME ESTATE</span>
         </div>
       </div>

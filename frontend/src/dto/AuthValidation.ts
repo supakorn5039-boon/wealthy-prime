@@ -1,10 +1,19 @@
 import { z } from 'zod'
 
-export const phoneSchema = z.string().min(1, 'กรุณากรอกเบอร์โทร')
+const PHONE_MAX_LENGTH = 15
+const PHONE_MAX_MESSAGE = 'เบอร์โทรไม่เกิน 15 ตัวอักษร'
 
-export const optionalPhoneSchema = z.string().optional()
+export const phoneSchema = z
+  .string()
+  .min(1, 'กรุณากรอกเบอร์โทร')
+  .max(PHONE_MAX_LENGTH, PHONE_MAX_MESSAGE)
 
-export const requiredLoosePhoneSchema = z.string().min(1, 'กรุณากรอกเบอร์โทร')
+export const optionalPhoneSchema = z.string().max(PHONE_MAX_LENGTH, PHONE_MAX_MESSAGE).optional()
+
+export const requiredLoosePhoneSchema = z
+  .string()
+  .min(1, 'กรุณากรอกเบอร์โทร')
+  .max(PHONE_MAX_LENGTH, PHONE_MAX_MESSAGE)
 
 export const loginSchema = z.object({
   email: z.string().email('อีเมลไม่ถูกต้อง'),

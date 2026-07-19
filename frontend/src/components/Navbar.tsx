@@ -37,7 +37,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
   ]
 
   return (
-    <header className="h-16 sticky top-0 z-[1100] bg-background/80 backdrop-blur-md border-b border-border text-foreground flex items-center px-4 gap-3">
+    <header className="h-20 sticky top-0 z-[1100] bg-background/80 backdrop-blur-md border-b border-border text-foreground flex items-center px-4 gap-3">
       {user && (
         <Button
           variant="ghost"
@@ -50,7 +50,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
       )}
 
       <Link to={ROUTES.HOME} className="flex items-center gap-3 shrink-0">
-        <Logo size={52} />
+        <Logo size={73} />
         {!user && (
           <div className="leading-tight">
             <p className="hidden sm:block text-sm font-bold tracking-luxury text-primary">WEALTHY PRIME</p>

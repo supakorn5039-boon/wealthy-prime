@@ -462,9 +462,14 @@ func (b profileUpdateBody) validate() error {
 	return nil
 }
 
+const phoneMaxLength = 15
+
 func validatePhone(field, raw string) error {
 	if strings.TrimSpace(raw) == "" {
 		return fmt.Errorf("%s is required", field)
+	}
+	if len([]rune(raw)) > phoneMaxLength {
+		return fmt.Errorf("%s must be at most %d characters", field, phoneMaxLength)
 	}
 	return nil
 }
