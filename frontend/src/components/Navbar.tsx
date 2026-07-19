@@ -50,7 +50,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
       )}
 
       <Link to={ROUTES.HOME} className="flex items-center gap-3 shrink-0">
-        <Logo size={73} />
+        <Logo size={73} className="size-[52px] sm:size-[73px]" />
         {!user && (
           <div className="leading-tight">
             <p className="hidden sm:block text-sm font-bold tracking-luxury text-primary">WEALTHY PRIME</p>
