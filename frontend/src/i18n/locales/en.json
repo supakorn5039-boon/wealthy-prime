@@ -511,7 +511,7 @@
       "premium": "Premium"
     },
     "foundCount": "Found {{count}} listings",
-    "searchPlaceholder": "Search project...",
+    "searchPlaceholder": "Search Location, Transport Station, Building",
     "filterType": "Type",
     "filterAll": "All",
     "filterLabel": {

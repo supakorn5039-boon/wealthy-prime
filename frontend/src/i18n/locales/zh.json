@@ -511,7 +511,7 @@
       "premium": "高端"
     },
     "foundCount": "找到 {{count}} 条",
-    "searchPlaceholder": "搜索项目...",
+    "searchPlaceholder": "搜索地点、BTS/MRT、楼盘",
     "filterType": "类型",
     "filterAll": "全部",
     "filterLabel": {

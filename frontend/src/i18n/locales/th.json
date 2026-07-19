@@ -511,7 +511,7 @@
       "premium": "พรีเมียม"
     },
     "foundCount": "พบ {{count}} รายการ",
-    "searchPlaceholder": "ค้นหาโครงการ...",
+    "searchPlaceholder": "ค้นหาจาก สถานที่, BTS/MRT, อาคาร",
     "filterType": "ประเภท",
     "filterAll": "ทั้งหมด",
     "filterLabel": {
