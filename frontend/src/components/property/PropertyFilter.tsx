@@ -157,7 +157,7 @@ function FilterDropdown({
         onClick={() => setOpen((v) => !v)}
         className={cn(
           'h-10 items-center gap-1.5 rounded-full border px-4 text-sm font-medium whitespace-nowrap transition-colors',
-          fullWidth ? 'flex w-full justify-between' : 'inline-flex shrink-0',
+          fullWidth ? 'flex w-full justify-center' : 'inline-flex shrink-0',
           active
             ? 'border-primary bg-primary/10 text-primary'
             : 'border-input text-foreground hover:bg-muted',
@@ -633,7 +633,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
             onClick={applyFilters}
             className="rounded-full px-5 sm:px-7 h-11 bg-primary hover:bg-accent text-primary-foreground tracking-luxury uppercase font-semibold shrink-0"
           >
-            {t('common.search')}
+            {t('home.heroSearchCta')}
           </Button>
         </div>
       </div>

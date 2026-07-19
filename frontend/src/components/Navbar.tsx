@@ -37,7 +37,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
   ]
 
   return (
-    <header className="h-20 sticky top-0 z-[1100] bg-background/80 backdrop-blur-md border-b border-border text-foreground flex items-center px-4 gap-3">
+    <header className="h-20 sticky top-0 z-[1100] bg-background/80 backdrop-blur-md border-b border-border text-foreground flex items-center px-3 sm:px-4 gap-2 sm:gap-3">
       {user && (
         <Button
           variant="ghost"
@@ -49,7 +49,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
         </Button>
       )}
 
-      <Link to={ROUTES.HOME} className="flex items-center gap-3 shrink-0">
+      <Link to={ROUTES.HOME} className="flex items-center gap-2 sm:gap-3 shrink-0">
         <Logo size={73} className="size-[52px] sm:size-[73px]" />
         {!user && (
           <div className="leading-tight">
@@ -136,7 +136,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
             </button>
           </Link>
           <Link to={ROUTES.LOGIN}>
-            <button className="rounded-md bg-primary hover:bg-accent text-primary-foreground text-sm font-semibold px-5 py-1.5 tracking-luxury uppercase transition-colors">
+            <button className="rounded-md bg-primary hover:bg-accent text-primary-foreground text-sm font-semibold px-3 sm:px-5 py-1.5 tracking-luxury uppercase transition-colors">
               {t('nav.login')}
             </button>
           </Link>
