@@ -37,7 +37,17 @@ const DEFAULT_LISTING_CHOICE: ListingChoice = 'sell_and_rent'
 const NOT_AVAILABLE_STATUSES: PropertyStatus[] = ['reserved', 'sold', 'unavailable', 'owner_update']
 const BEDROOM_CHOICES = [1, 2, 3, 4, 5] as const
 const BATHROOM_CHOICES = Array.from({ length: 10 }, (_, i) => i + 1)
-const SHEET_BREAKPOINT = 640
+const PANEL_VIEWPORT_MARGIN = 8
+const PANEL_GAP = 6
+const PANEL_MIN_HEIGHT = 240
+
+interface PanelPosition {
+  top: number
+  left: number
+  width: number
+  maxHeight: number
+  dropUp: boolean
+}
 
 function parseNum(s: string): number | undefined {
   const trimmed = s.replace(/,/g, '').trim()
@@ -89,7 +99,6 @@ interface FilterDropdownProps {
   active?: boolean
   minWidth?: number
   align?: 'left' | 'right'
-  sheetTitle?: string
   fullWidth?: boolean
   triggerClassName?: string
   children: (close: () => void) => ReactNode
@@ -100,33 +109,32 @@ function FilterDropdown({
   active,
   minWidth = 240,
   align = 'left',
-  sheetTitle,
   fullWidth,
   triggerClassName,
   children,
 }: FilterDropdownProps) {
   const [open, setOpen] = useState(false)
-  const [sheet, setSheet] = useState(false)
   const triggerRef = useRef<HTMLButtonElement | null>(null)
   const panelRef = useRef<HTMLDivElement | null>(null)
-  const [position, setPosition] = useState<{ top: number; left: number; width: number } | null>(null)
+  const [position, setPosition] = useState<PanelPosition | null>(null)
 
   useLayoutEffect(() => {
     if (!open || !triggerRef.current) return
-    const asSheet = window.innerWidth < SHEET_BREAKPOINT
-    setSheet(asSheet)
-    if (asSheet) {
-      setPosition(null)
-      return
-    }
     const rect = triggerRef.current.getBoundingClientRect()
-    const width = Math.max(rect.width, minWidth)
+    const available = window.innerWidth - PANEL_VIEWPORT_MARGIN * 2
+    const width = Math.min(Math.max(rect.width, minWidth), available)
     const desired = align === 'right' ? rect.right - width : rect.left
-    const maxLeft = Math.max(8, window.innerWidth - width - 8)
+    const maxLeft = Math.max(PANEL_VIEWPORT_MARGIN, window.innerWidth - width - PANEL_VIEWPORT_MARGIN)
+    const left = Math.min(Math.max(desired, PANEL_VIEWPORT_MARGIN), maxLeft) + window.scrollX
+    const spaceBelow = window.innerHeight - rect.bottom - PANEL_GAP - PANEL_VIEWPORT_MARGIN
+    const spaceAbove = rect.top - PANEL_GAP - PANEL_VIEWPORT_MARGIN
+    const dropUp = spaceBelow < PANEL_MIN_HEIGHT && spaceAbove > spaceBelow
     setPosition({
-      top: rect.bottom + window.scrollY + 6,
-      left: Math.min(Math.max(desired, 8), maxLeft) + window.scrollX,
+      top: dropUp ? rect.top + window.scrollY - PANEL_GAP : rect.bottom + window.scrollY + PANEL_GAP,
+      left,
       width,
+      maxHeight: Math.max(dropUp ? spaceAbove : spaceBelow, PANEL_MIN_HEIGHT),
+      dropUp,
     })
   }, [open, align, minWidth])
 
@@ -170,25 +178,7 @@ function FilterDropdown({
         <ChevronDown className={cn('size-4 shrink-0 opacity-60 transition-transform', open && 'rotate-180')} />
       </button>
 
-      {open && sheet && createPortal(
-        <div className="fixed inset-0 z-[1200] flex items-end bg-black/40">
-          <div
-            ref={panelRef}
-            className="w-full max-h-[85vh] flex flex-col rounded-t-2xl border-t border-border bg-popover shadow-2xl"
-          >
-            <div className="flex items-center justify-between border-b border-border px-4 py-3">
-              <span className="text-sm font-semibold">{sheetTitle ?? label}</span>
-              <button type="button" onClick={close} aria-label="close" className="rounded-full p-1 hover:bg-muted">
-                <X className="size-4" />
-              </button>
-            </div>
-            <div className="overflow-y-auto">{children(close)}</div>
-          </div>
-        </div>,
-        document.body,
-      )}
-
-      {open && !sheet && position && createPortal(
+      {open && position && createPortal(
         <div
           ref={panelRef}
           style={{
@@ -196,9 +186,11 @@ function FilterDropdown({
             top: position.top,
             left: position.left,
             width: position.width,
+            maxHeight: position.maxHeight,
+            transform: position.dropUp ? 'translateY(-100%)' : undefined,
             zIndex: 1200,
           }}
-          className="max-h-[70vh] flex flex-col overflow-hidden rounded-xl border border-border bg-popover shadow-xl"
+          className="flex flex-col overflow-hidden rounded-xl border border-border bg-popover shadow-xl"
         >
           <div className="overflow-y-auto">{children(close)}</div>
         </div>,
@@ -617,7 +609,6 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
             active={listingChoice !== DEFAULT_LISTING_CHOICE}
             align="right"
             minWidth={180}
-            sheetTitle={t('home.filterLabel.type')}
             triggerClassName="h-11 flex-1 justify-center sm:flex-none sm:justify-start"
           >
             {(close) => (
@@ -707,7 +698,6 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
           fullWidth
           minWidth={360}
           align="right"
-          sheetTitle={t('home.filterMore')}
         >
           {(close) => (
             <div className="flex flex-col">
