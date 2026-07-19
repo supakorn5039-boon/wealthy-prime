@@ -90,6 +90,7 @@ interface FilterDropdownProps {
   minWidth?: number
   align?: 'left' | 'right'
   sheetTitle?: string
+  fullWidth?: boolean
   children: (close: () => void) => ReactNode
 }
 
@@ -99,6 +100,7 @@ function FilterDropdown({
   minWidth = 240,
   align = 'left',
   sheetTitle,
+  fullWidth,
   children,
 }: FilterDropdownProps) {
   const [open, setOpen] = useState(false)
@@ -154,13 +156,14 @@ function FilterDropdown({
         type="button"
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          'inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-4 text-sm font-medium whitespace-nowrap transition-colors',
+          'h-10 items-center gap-1.5 rounded-full border px-4 text-sm font-medium whitespace-nowrap transition-colors',
+          fullWidth ? 'flex w-full justify-between' : 'inline-flex shrink-0',
           active
             ? 'border-primary bg-primary/10 text-primary'
             : 'border-input text-foreground hover:bg-muted',
         )}
       >
-        <span>{label}</span>
+        <span className="truncate">{label}</span>
         <ChevronDown className={cn('size-4 shrink-0 opacity-60 transition-transform', open && 'rotate-180')} />
       </button>
 
@@ -398,7 +401,7 @@ function ChoiceRow<T extends string | number>({ options, isSelected, onToggle, w
 }
 
 export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [search, setSearch] = useState(initialValues?.search ?? '')
   const [listingChoice, setListingChoice] = useState<ListingChoice>(
     listingChoiceFromTypes(initialValues?.types),
@@ -553,9 +556,12 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
 
   const priceLabel = (() => {
     if (!priceMin && !priceMax) return t('home.filterLabel.price')
-    const min = priceMin ? Number(priceMin).toLocaleString() : t('home.rangeMin')
-    const max = priceMax ? Number(priceMax).toLocaleString() : t('home.rangeMax')
-    return `${min} – ${max}`
+    const compact = (raw: string, fallback: string) => {
+      const n = parseNum(raw)
+      if (n == null) return fallback
+      return new Intl.NumberFormat(i18n.language, { notation: 'compact', maximumFractionDigits: 1 }).format(n)
+    }
+    return `${compact(priceMin, t('home.rangeMin'))} – ${compact(priceMax, t('home.rangeMax'))}`
   })()
   const bedLabel = minBedrooms != null ? `${t('home.filterLabel.bed')} ${minBedrooms}+` : t('home.filterLabel.bed')
   const provinceLabel =
@@ -632,8 +638,8 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 mt-2">
-        <FilterDropdown label={priceLabel} active={Boolean(priceMin || priceMax)} minWidth={300}>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mt-2">
+        <FilterDropdown label={priceLabel} active={Boolean(priceMin || priceMax)} minWidth={300} fullWidth>
           {() => (
             <PanelSection title={t('home.filterLabel.price')}>
               <RangeInputs min={priceMin} max={priceMax} onMin={setPriceMin} onMax={setPriceMax} />
@@ -641,7 +647,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
           )}
         </FilterDropdown>
 
-        <FilterDropdown label={bedLabel} active={minBedrooms != null} minWidth={180}>
+        <FilterDropdown label={bedLabel} active={minBedrooms != null} minWidth={180} fullWidth>
           {(close) => (
             <SinglePickPanel
               options={bedroomOptions}
@@ -654,7 +660,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
           )}
         </FilterDropdown>
 
-        <FilterDropdown label={provinceLabel} active={provinces.length > 0} minWidth={260}>
+        <FilterDropdown label={provinceLabel} active={provinces.length > 0} minWidth={260} fullWidth>
           {() => (
             <MultiPickPanel
               allLabel={allLabel}
@@ -666,7 +672,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
           )}
         </FilterDropdown>
 
-        <FilterDropdown label={kindLabel} active={kinds.length > 0} minWidth={240}>
+        <FilterDropdown label={kindLabel} active={kinds.length > 0} minWidth={240} fullWidth>
           {() => (
             <MultiPickPanel
               allLabel={allLabel}
@@ -679,7 +685,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
           )}
         </FilterDropdown>
 
-        <FilterDropdown label={stationLabel} active={stationIds.length > 0} minWidth={300}>
+        <FilterDropdown label={stationLabel} active={stationIds.length > 0} minWidth={300} fullWidth>
           {() => (
             <MultiPickPanel
               allLabel={allLabel}
@@ -694,6 +700,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
         <FilterDropdown
           label={moreLabel}
           active={moreCount > 0}
+          fullWidth
           minWidth={360}
           align="right"
           sheetTitle={t('home.filterMore')}
