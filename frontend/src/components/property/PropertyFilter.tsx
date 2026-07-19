@@ -91,6 +91,7 @@ interface FilterDropdownProps {
   align?: 'left' | 'right'
   sheetTitle?: string
   fullWidth?: boolean
+  triggerClassName?: string
   children: (close: () => void) => ReactNode
 }
 
@@ -101,6 +102,7 @@ function FilterDropdown({
   align = 'left',
   sheetTitle,
   fullWidth,
+  triggerClassName,
   children,
 }: FilterDropdownProps) {
   const [open, setOpen] = useState(false)
@@ -161,6 +163,7 @@ function FilterDropdown({
           active
             ? 'border-primary bg-primary/10 text-primary'
             : 'border-input text-foreground hover:bg-muted',
+          triggerClassName,
         )}
       >
         <span className="truncate">{label}</span>
@@ -608,13 +611,14 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
           )}
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex w-full sm:w-auto items-center gap-2 shrink-0">
           <FilterDropdown
             label={listingOptions.find((o) => o.value === listingChoice)?.label ?? ''}
             active={listingChoice !== DEFAULT_LISTING_CHOICE}
             align="right"
             minWidth={180}
             sheetTitle={t('home.filterLabel.type')}
+            triggerClassName="h-11 flex-1 justify-center sm:flex-none sm:justify-start"
           >
             {(close) => (
               <SinglePickPanel
@@ -631,7 +635,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
           <Button
             type="button"
             onClick={applyFilters}
-            className="rounded-full px-5 sm:px-7 h-11 bg-primary hover:bg-accent text-primary-foreground tracking-luxury uppercase font-semibold shrink-0"
+            className="rounded-full px-5 sm:px-7 h-11 flex-1 sm:flex-none bg-primary hover:bg-accent text-primary-foreground tracking-luxury uppercase font-semibold shrink-0"
           >
             {t('home.heroSearchCta')}
           </Button>
