@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -11,10 +12,19 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { FormInput } from '@/components/form/FormInput'
 import { FormPhoneInput } from '@/components/form/FormPhoneInput'
-import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { profileSchema, type ProfileSchema } from '@/dto/AuthValidation'
 import { scrollToFirstError } from '@/lib/scrollToFirstError'
 import { formatDate } from '@/utils/date'
@@ -35,6 +45,7 @@ export function EditProfileDialog({ user, open, onClose, updateFn, queryKey }: E
   const queryClient = useQueryClient()
   const authUser = useAuthStore((s) => s.user)
   const isSelf = authUser?.id === user.id
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
   const { control, handleSubmit } = useForm<ProfileSchema>({
     resolver: zodResolver(profileSchema),
@@ -76,13 +87,18 @@ export function EditProfileDialog({ user, open, onClose, updateFn, queryKey }: E
       queryClient.invalidateQueries({ queryKey: [queryKey] })
       queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.BOOKINGS] })
       queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.AUDIT_LOGS] })
+      setConfirmOpen(false)
       onClose()
     },
-    onError: () => toast.error(t('common.error')),
+    onError: () => {
+      toast.error(t('common.error'))
+      setConfirmOpen(false)
+    },
   })
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <>
+    <Dialog open={open && !confirmOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
@@ -145,23 +161,15 @@ export function EditProfileDialog({ user, open, onClose, updateFn, queryKey }: E
             {isSelf ? (
               <span />
             ) : (
-              <ConfirmDialog
-                trigger={
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
-                  >
-                    <Trash2 className="size-3.5 mr-1" />
-                    {t('admin.deleteUser')}
-                  </Button>
-                }
-                title={t('admin.deleteUserConfirmTitle')}
-                description={t('admin.deleteUserConfirmDesc', { name: user.name })}
-                confirmLabel={t('common.delete')}
-                destructive
-                onConfirm={() => deleteMutation.mutate()}
-              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setConfirmOpen(true)}
+                className="text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
+              >
+                <Trash2 className="size-3.5 mr-1" />
+                {t('admin.deleteUser')}
+              </Button>
             )}
             <div className="flex gap-2 sm:justify-end">
               <Button type="button" variant="outline" onClick={onClose}>
@@ -175,5 +183,32 @@ export function EditProfileDialog({ user, open, onClose, updateFn, queryKey }: E
         </form>
       </DialogContent>
     </Dialog>
+
+    <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t('admin.deleteUserConfirmTitle')}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {t('admin.deleteUserConfirmDesc', { name: user.name })}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={deleteMutation.isPending}>
+            {t('common.cancel')}
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={(e) => {
+              e.preventDefault()
+              deleteMutation.mutate()
+            }}
+            disabled={deleteMutation.isPending}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {deleteMutation.isPending ? t('common.saving') : t('common.delete')}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   )
 }
