@@ -110,7 +110,9 @@ func (s *AdminService) ListBookings() ([]model.BookingDto, error) {
 	}
 	dtos := make([]model.BookingDto, len(bookings))
 	for i, b := range bookings {
-		dtos[i] = *b.ToDto()
+		dto := *b.ToDto()
+		dto.PropertyDocumentURL = b.Property.OwnerDocumentURL
+		dtos[i] = dto
 	}
 	return dtos, nil
 }

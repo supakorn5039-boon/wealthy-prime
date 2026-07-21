@@ -50,32 +50,33 @@ type Booking struct {
 }
 
 type BookingDto struct {
-	ID              uint                  `json:"id"`
-	UserID          uint                  `json:"userId"`
-	UserName        string                `json:"userName"`
-	UserEmail       string                `json:"userEmail"`
-	UserPhone       string                `json:"userPhone"`
-	PropertyID      uint                  `json:"propertyId"`
-	PropertyTitle   string                `json:"propertyTitle"`
-	PropertyCode    string                `json:"propertyCode"`
-	AppointmentDate string                `json:"appointmentDate"`
-	Note            string                `json:"note"`
-	Status          BookingStatus         `json:"status"`
-	WorkStatus      AppointmentWorkStatus `json:"workStatus"`
-	AssignedAgentID *uint                 `json:"assignedAgentId"`
-	AgentName       string                `json:"agentName"`
-	FirstName       string                `json:"firstName"`
-	LastName        string                `json:"lastName"`
-	Phone           string                `json:"phone"`
-	SecondaryPhone  string                `json:"secondaryPhone"`
-	LatestContact   string                `json:"latestContact"`
-	LineID          string                `json:"lineId"`
-	Email           string                `json:"email"`
-	Facebook        string                `json:"facebook"`
-	Wechat          string                `json:"wechat"`
-	Whatsapp        string                `json:"whatsapp"`
-	CreatedAt       string                `json:"createdAt"`
-	ListingOwner    *ListingOwnerPreview  `json:"listingOwner,omitempty"`
+	ID                  uint                  `json:"id"`
+	UserID              uint                  `json:"userId"`
+	UserName            string                `json:"userName"`
+	UserEmail           string                `json:"userEmail"`
+	UserPhone           string                `json:"userPhone"`
+	PropertyID          uint                  `json:"propertyId"`
+	PropertyTitle       string                `json:"propertyTitle"`
+	PropertyCode        string                `json:"propertyCode"`
+	AppointmentDate     string                `json:"appointmentDate"`
+	Note                string                `json:"note"`
+	Status              BookingStatus         `json:"status"`
+	WorkStatus          AppointmentWorkStatus `json:"workStatus"`
+	AssignedAgentID     *uint                 `json:"assignedAgentId"`
+	AgentName           string                `json:"agentName"`
+	FirstName           string                `json:"firstName"`
+	LastName            string                `json:"lastName"`
+	Phone               string                `json:"phone"`
+	SecondaryPhone      string                `json:"secondaryPhone"`
+	LatestContact       string                `json:"latestContact"`
+	LineID              string                `json:"lineId"`
+	Email               string                `json:"email"`
+	Facebook            string                `json:"facebook"`
+	Wechat              string                `json:"wechat"`
+	Whatsapp            string                `json:"whatsapp"`
+	CreatedAt           string                `json:"createdAt"`
+	ListingOwner        *ListingOwnerPreview  `json:"listingOwner,omitempty"`
+	PropertyDocumentURL string                `json:"propertyDocumentUrl"`
 }
 
 func (b *Booking) ToDto() *BookingDto {

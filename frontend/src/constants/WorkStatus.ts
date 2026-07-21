@@ -11,3 +11,16 @@ export const WORK_STATUS_LABEL_KEYS: Record<Exclude<AppointmentWorkStatus, ''>, 
 export const WORK_STATUS_OPTIONS = (Object.keys(WORK_STATUS_LABEL_KEYS) as Exclude<AppointmentWorkStatus, ''>[]).map(
   (value) => ({ value, labelKey: WORK_STATUS_LABEL_KEYS[value] }),
 )
+
+export const WORK_STATUS_NOT_SET = 'not_set'
+
+export type WorkStatusFilterValue = Exclude<AppointmentWorkStatus, ''> | typeof WORK_STATUS_NOT_SET
+
+export const WORK_STATUS_FILTER_OPTIONS: { value: WorkStatusFilterValue; labelKey: string }[] = [
+  { value: WORK_STATUS_NOT_SET, labelKey: 'workStatus.notSet' },
+  ...WORK_STATUS_OPTIONS,
+]
+
+export function workStatusFilterValue(workStatus: AppointmentWorkStatus | undefined): WorkStatusFilterValue {
+  return workStatus ? workStatus : WORK_STATUS_NOT_SET
+}

@@ -267,6 +267,8 @@
     "ownerWechat": "业主微信",
     "ownerWhatsapp": "业主 WhatsApp",
     "ownerDocumentUrl": "Google Drive 链接（上传文件）",
+    "noDocumentUrl": "无 Google Drive 链接",
+    "openDocumentUrl": "Google Drive",
     "code": "编号",
     "project": "项目",
     "typeCol": "类型",
@@ -651,5 +653,12 @@
     "agentReply": "代理回复",
     "adminReply": "管理员回复",
     "replyFailed": "回复发送失败。"
+  },
+  "filters": {
+    "dateFrom": "起始日期",
+    "dateTo": "结束日期",
+    "clearDate": "清除日期",
+    "workStatus": "跟进状态",
+    "appointmentDate": "预约日期"
   }
 }

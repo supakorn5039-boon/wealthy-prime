@@ -12,15 +12,20 @@ import { MissedContactBadge } from '@/components/shared/MissedContactBadge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { MultiSelectFilter } from '@/components/shared/MultiSelectFilter'
+import { DateRangeFilter, EMPTY_DATE_RANGE, matchesDateRange, type DateRangeValue } from '@/components/shared/DateRangeFilter'
+import { PropertyDocumentLink } from '@/components/property/PropertyDocumentLink'
+import {
+  WORK_STATUS_FILTER_OPTIONS,
+  workStatusFilterValue,
+  type WorkStatusFilterValue,
+} from '@/constants/WorkStatus'
 import { formatDateTime } from '@/utils/date'
-import type { BookingStatus } from '@/types/Booking'
-
-const STATUS_VALUES: BookingStatus[] = ['pending', 'assigned']
 
 export default function VisitRequestsIndex() {
   const { t } = useTranslation()
   const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilters, setStatusFilters] = useState<BookingStatus[]>([])
+  const [statusFilters, setStatusFilters] = useState<WorkStatusFilterValue[]>([])
+  const [dateRange, setDateRange] = useState<DateRangeValue>(EMPTY_DATE_RANGE)
   const [agentFilters, setAgentFilters] = useState<string[]>([])
   const [projectFilters, setProjectFilters] = useState<string[]>([])
 
@@ -44,16 +49,17 @@ export default function VisitRequestsIndex() {
   const filtered = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
     return bookings.filter((b) => {
-      if (statusFilters.length && !statusFilters.includes(b.status)) return false
+      if (statusFilters.length && !statusFilters.includes(workStatusFilterValue(b.workStatus))) return false
+      if (!matchesDateRange(b.appointmentDate, dateRange)) return false
       if (agentFilters.length && !(b.agentName && agentFilters.includes(b.agentName))) return false
       if (projectFilters.length && !(b.propertyTitle && projectFilters.includes(b.propertyTitle))) return false
       if (!q) return true
       const hay = `${b.userName ?? ''} ${b.propertyTitle ?? ''} ${b.agentName ?? ''}`.toLowerCase()
       return hay.includes(q)
     })
-  }, [bookings, searchQuery, statusFilters, agentFilters, projectFilters])
+  }, [bookings, searchQuery, statusFilters, dateRange, agentFilters, projectFilters])
 
-  const statusOptions = STATUS_VALUES.map((s) => ({ value: s, label: t(`booking.${s}`) }))
+  const statusOptions = WORK_STATUS_FILTER_OPTIONS.map((o) => ({ value: o.value, label: t(o.labelKey) }))
 
   const header = (
     <PageTitle
@@ -86,7 +92,7 @@ export default function VisitRequestsIndex() {
   return (
     <PageContainer size="7xl">
       {header}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-3">
+      <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-2 mb-3">
         <div className="relative md:col-span-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
           <Input
@@ -97,11 +103,12 @@ export default function VisitRequestsIndex() {
             className="pl-9"
           />
         </div>
+        <DateRangeFilter value={dateRange} onChange={setDateRange} />
         <MultiSelectFilter
-          placeholder={t('property.statusCol')}
+          placeholder={t('filters.workStatus')}
           selected={statusFilters}
           options={statusOptions}
-          onChange={(next) => setStatusFilters(next as BookingStatus[])}
+          onChange={(next) => setStatusFilters(next as WorkStatusFilterValue[])}
         />
         <MultiSelectFilter
           placeholder={t('admin.agentLabel')}
@@ -183,6 +190,7 @@ export default function VisitRequestsIndex() {
                     </div>
                     <div className="flex sm:flex-col items-center sm:items-end gap-2 shrink-0">
                       <WorkStatusBadge workStatus={booking.workStatus} />
+                      <PropertyDocumentLink url={booking.propertyDocumentUrl} />
                     </div>
                   </div>
                 </CardContent>

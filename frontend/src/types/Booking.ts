@@ -37,6 +37,7 @@ export interface Booking {
   createdAt: string
 
   listingOwner?: ListingOwnerPreview
+  propertyDocumentUrl?: string
 }
 
 export interface CreateBookingPayload {

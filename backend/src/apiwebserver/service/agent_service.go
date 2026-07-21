@@ -73,6 +73,7 @@ func (s *AgentService) GetContacts(agentID uint) ([]model.BookingDto, error) {
 	for i, b := range bookings {
 		dto := *b.ToDto()
 		dto.ListingOwner = model.NewListingOwnerPreview(&b.Property)
+		dto.PropertyDocumentURL = b.Property.OwnerDocumentURL
 		dtos[i] = dto
 	}
 	return dtos, nil

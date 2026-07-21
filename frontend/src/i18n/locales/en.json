@@ -267,6 +267,8 @@
     "ownerWechat": "Owner WeChat",
     "ownerWhatsapp": "Owner WhatsApp",
     "ownerDocumentUrl": "Google Drive URL (documents)",
+    "noDocumentUrl": "No Google Drive URL",
+    "openDocumentUrl": "Google Drive",
     "code": "Code",
     "project": "Project",
     "typeCol": "Type",
@@ -651,5 +653,12 @@
     "agentReply": "Agent reply",
     "adminReply": "Admin reply",
     "replyFailed": "Failed to send reply."
+  },
+  "filters": {
+    "dateFrom": "From date",
+    "dateTo": "To date",
+    "clearDate": "Clear dates",
+    "workStatus": "Work status",
+    "appointmentDate": "Appointment date"
   }
 }

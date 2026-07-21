@@ -267,6 +267,8 @@
     "ownerWechat": "WeChat เจ้าของ",
     "ownerWhatsapp": "WhatsApp เจ้าของ",
     "ownerDocumentUrl": "URL Google Drive อัพโหลดเอกสาร",
+    "noDocumentUrl": "ไม่มี URL Google Drive",
+    "openDocumentUrl": "Google Drive",
     "code": "รหัส",
     "project": "โครงการ",
     "typeCol": "ประเภท",
@@ -651,5 +653,12 @@
     "agentReply": "คำตอบจากเอเจนต์",
     "adminReply": "คำตอบจากแอดมิน",
     "replyFailed": "ส่งคำตอบไม่สำเร็จ"
+  },
+  "filters": {
+    "dateFrom": "ตั้งแต่วันที่",
+    "dateTo": "ถึงวันที่",
+    "clearDate": "ล้างวันที่",
+    "workStatus": "สถานะการติดต่อ",
+    "appointmentDate": "วันที่นัดหมาย"
   }
 }

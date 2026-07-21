@@ -15,15 +15,20 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { MultiSelectFilter } from '@/components/shared/MultiSelectFilter'
+import { DateRangeFilter, EMPTY_DATE_RANGE, matchesDateRange, type DateRangeValue } from '@/components/shared/DateRangeFilter'
+import { PropertyDocumentLink } from '@/components/property/PropertyDocumentLink'
+import {
+  WORK_STATUS_FILTER_OPTIONS,
+  workStatusFilterValue,
+  type WorkStatusFilterValue,
+} from '@/constants/WorkStatus'
 import { FormTextarea } from '@/components/form/FormTextarea'
 import { scrollToFirstError } from '@/lib/scrollToFirstError'
 import { WorkStatusSelect } from '@/components/agent/WorkStatusSelect'
 import { ListingOwnerPreviewDialog } from '@/components/property/ListingOwnerPreviewDialog'
 import { agentNoteSchema, type AgentNoteSchema } from '@/dto/ReviewValidation'
 import { formatDateTime } from '@/utils/date'
-import type { Booking, BookingStatus } from '@/types/Booking'
-
-const STATUS_VALUES: BookingStatus[] = ['pending', 'assigned', 'completed', 'cancelled']
+import type { Booking } from '@/types/Booking'
 
 function NoteEditor({ contact, onDone }: { contact: Booking; onDone: () => void }) {
   const { t } = useTranslation()
@@ -64,7 +69,8 @@ export default function ContactHistoryIndex() {
   const { t } = useTranslation()
   const [editingId, setEditingId] = useState<number | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilters, setStatusFilters] = useState<BookingStatus[]>([])
+  const [statusFilters, setStatusFilters] = useState<WorkStatusFilterValue[]>([])
+  const [dateRange, setDateRange] = useState<DateRangeValue>(EMPTY_DATE_RANGE)
 
   const { data: contacts = [], isLoading } = useQuery({
     queryKey: [AgentService.QUERY_KEYS.CONTACTS],
@@ -74,14 +80,15 @@ export default function ContactHistoryIndex() {
   const filteredContacts = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
     return contacts.filter((c) => {
-      if (statusFilters.length && !statusFilters.includes(c.status)) return false
+      if (statusFilters.length && !statusFilters.includes(workStatusFilterValue(c.workStatus))) return false
+      if (!matchesDateRange(c.appointmentDate, dateRange)) return false
       if (!q) return true
       const hay = `${c.userName ?? ''} ${c.propertyTitle ?? ''}`.toLowerCase()
       return hay.includes(q)
     })
-  }, [contacts, searchQuery, statusFilters])
+  }, [contacts, searchQuery, statusFilters, dateRange])
 
-  const statusOptions = STATUS_VALUES.map((s) => ({ value: s, label: t(`booking.${s}`) }))
+  const statusOptions = WORK_STATUS_FILTER_OPTIONS.map((o) => ({ value: o.value, label: t(o.labelKey) }))
 
   return (
     <PageContainer size="7xl">
@@ -104,11 +111,16 @@ export default function ContactHistoryIndex() {
                 className="pl-9"
               />
             </div>
+            <DateRangeFilter
+              value={dateRange}
+              onChange={setDateRange}
+              className="sm:w-72"
+            />
             <MultiSelectFilter
-              placeholder={t('property.statusCol')}
+              placeholder={t('filters.workStatus')}
               selected={statusFilters}
               options={statusOptions}
-              onChange={(next) => setStatusFilters(next as BookingStatus[])}
+              onChange={(next) => setStatusFilters(next as WorkStatusFilterValue[])}
               className="sm:w-44"
             />
           </div>
@@ -159,6 +171,7 @@ export default function ContactHistoryIndex() {
                           {contact.listingOwner && (
                             <ListingOwnerPreviewDialog preview={contact.listingOwner} />
                           )}
+                          <PropertyDocumentLink url={contact.propertyDocumentUrl} />
                         </div>
                         {!isEditing && contact.note && (
                           <div className="flex items-start gap-2 pt-2 mt-2 border-t border-border text-sm">
