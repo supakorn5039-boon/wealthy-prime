@@ -218,10 +218,17 @@
     "kindLabel": "Property Type",
     "kind": {
       "condo": "Condo",
-      "house": "House",
-      "townhouse": "Townhouse",
+      "house": "Detached House",
+      "semi_detached_house": "Semi-Detached House",
+      "townhouse": "Townhome / Townhouse",
+      "home_office": "Home Office",
+      "commercial": "Commercial Building",
+      "office": "Office",
+      "shop": "Shop",
+      "warehouse": "Warehouse / Factory",
       "land": "Land",
-      "commercial": "Commercial Building"
+      "hotel": "Hotel / Resort",
+      "apartment": "Apartment / Serviced Apartment"
     },
     "listingLabel": "Listing Type",
     "listing": {

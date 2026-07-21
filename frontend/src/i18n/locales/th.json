@@ -218,10 +218,17 @@
     "kindLabel": "ประเภททรัพย์",
     "kind": {
       "condo": "คอนโด",
-      "house": "บ้าน",
-      "townhouse": "ทาวน์เฮาส์",
+      "house": "บ้านเดี่ยว",
+      "semi_detached_house": "บ้านแฝด",
+      "townhouse": "ทาวน์โฮม / ทาวน์เฮาส์",
+      "home_office": "โฮมออฟฟิศ",
+      "commercial": "อาคารพาณิชย์",
+      "office": "สำนักงาน",
+      "shop": "ร้านค้า",
+      "warehouse": "โกดัง / โรงงาน",
       "land": "ที่ดิน",
-      "commercial": "อาคารพาณิชย์"
+      "hotel": "โรงแรม / รีสอร์ต",
+      "apartment": "อพาร์ตเมนต์ / เซอร์วิสอพาร์ตเมนต์"
     },
     "listingLabel": "ประเภทรายการ",
     "listing": {

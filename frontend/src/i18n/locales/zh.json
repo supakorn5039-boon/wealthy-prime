@@ -218,10 +218,17 @@
     "kindLabel": "房产类型",
     "kind": {
       "condo": "公寓",
-      "house": "独栋",
-      "townhouse": "联排",
+      "house": "独栋别墅",
+      "semi_detached_house": "双拼别墅",
+      "townhouse": "联排别墅",
+      "home_office": "商住两用房",
+      "commercial": "商业楼",
+      "office": "办公室",
+      "shop": "店铺",
+      "warehouse": "仓库 / 厂房",
       "land": "土地",
-      "commercial": "商业楼"
+      "hotel": "酒店 / 度假村",
+      "apartment": "公寓式住宅 / 服务式公寓"
     },
     "listingLabel": "上架类型",
     "listing": {

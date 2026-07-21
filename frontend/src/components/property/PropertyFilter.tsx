@@ -10,6 +10,7 @@ import {
   type BtsMrtLine,
   type BtsMrtStation,
 } from '@/constants/Locations'
+import { PROPERTY_KINDS } from '@/hooks/usePropertyOptions'
 import type { PropertyListParams, ListingFilter, PropertyKind, PetPolicy, PropertyStatus } from '@/types/Property'
 
 interface PropertyFilterProps {
@@ -426,13 +427,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     [t],
   )
   const kindOptions = useMemo<FilterOption<PropertyKind>[]>(
-    () => [
-      { value: 'condo', label: t('property.kind.condo') },
-      { value: 'house', label: t('property.kind.house') },
-      { value: 'townhouse', label: t('property.kind.townhouse') },
-      { value: 'land', label: t('property.kind.land') },
-      { value: 'commercial', label: t('property.kind.commercial') },
-    ],
+    () => PROPERTY_KINDS.map((v) => ({ value: v, label: t(`property.kind.${v}`) })),
     [t],
   )
   const bedroomOptions = useMemo<FilterOption<number>[]>(

@@ -18,17 +18,25 @@ import { formatDateTime } from '@/utils/date'
 import { primaryPrice } from '@/utils/price'
 import { PropertyPrices } from '@/components/property/PropertyPrices'
 import type { Property, PropertyKind } from '@/types/Property'
+import { PROPERTY_KINDS } from '@/hooks/usePropertyOptions'
 
 type KindKey = Exclude<PropertyKind, '' | undefined>
 
-const KINDS: KindKey[] = ['condo', 'house', 'townhouse', 'land', 'commercial']
+const KINDS: KindKey[] = [...PROPERTY_KINDS]
 
 const KIND_COLORS: Record<KindKey, string> = {
   condo: '#3b82f6',
   house: '#10b981',
+  semi_detached_house: '#14b8a6',
   townhouse: '#f59e0b',
-  land: '#8b5cf6',
+  home_office: '#eab308',
   commercial: '#f43f5e',
+  office: '#ec4899',
+  shop: '#fb923c',
+  warehouse: '#78716c',
+  land: '#8b5cf6',
+  hotel: '#06b6d4',
+  apartment: '#6366f1',
 }
 
 type PieSlice = { kind: string; value: number; color: string }
@@ -139,7 +147,7 @@ export default function AdminDashboardIndex() {
   })
 
   const kindBreakdown = useMemo(() => {
-    const counts: Record<KindKey, number> = { condo: 0, house: 0, townhouse: 0, land: 0, commercial: 0 }
+    const counts = Object.fromEntries(KINDS.map((k) => [k, 0])) as Record<KindKey, number>
     for (const p of properties) {
       const k = p.kind as KindKey | undefined
       if (k && k in counts) counts[k]++

@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { optionalPhoneSchema } from '@/dto/AuthValidation'
+import { PROPERTY_KINDS } from '@/hooks/usePropertyOptions'
 
 const propertyObject = z.object({
   projectName: z.string().min(1, 'กรุณากรอกชื่อโครงการ'),
@@ -12,7 +13,7 @@ const propertyObject = z.object({
   lat: z.string().optional(),
   lng: z.string().optional(),
 
-  kind: z.enum(['condo', 'house', 'townhouse', 'land', 'commercial'] as const, {
+  kind: z.enum(PROPERTY_KINDS, {
     required_error: 'กรุณาเลือกประเภททรัพย์',
   }),
   listing: z.enum(['rent', 'sell', 'both'] as const, {

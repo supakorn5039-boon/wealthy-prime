@@ -30,11 +30,18 @@ const (
 	TypeBuy  PropertyType = "buy"
 	TypeRent PropertyType = "rent"
 
-	KindCondo      PropertyKind = "condo"
-	KindHouse      PropertyKind = "house"
-	KindTownhouse  PropertyKind = "townhouse"
-	KindLand       PropertyKind = "land"
-	KindCommercial PropertyKind = "commercial"
+	KindCondo             PropertyKind = "condo"
+	KindHouse             PropertyKind = "house"
+	KindSemiDetachedHouse PropertyKind = "semi_detached_house"
+	KindTownhouse         PropertyKind = "townhouse"
+	KindHomeOffice        PropertyKind = "home_office"
+	KindCommercial        PropertyKind = "commercial"
+	KindOffice            PropertyKind = "office"
+	KindShop              PropertyKind = "shop"
+	KindWarehouse         PropertyKind = "warehouse"
+	KindLand              PropertyKind = "land"
+	KindHotel             PropertyKind = "hotel"
+	KindApartment         PropertyKind = "apartment"
 
 	ListingRent ListingType = "rent"
 	ListingSell ListingType = "sell"
@@ -67,7 +74,7 @@ type Property struct {
 	Images             []PropertyImage `gorm:"foreignKey:PropertyID"`
 
 	PropertyCode string       `gorm:"uniqueIndex;type:varchar(10)"`
-	Kind         PropertyKind `gorm:"type:varchar(20)"`
+	Kind         PropertyKind `gorm:"type:varchar(30)"`
 	Listing      ListingType  `gorm:"type:varchar(10)"`
 	Province     string       `gorm:"index:idx_properties_province_district,priority:1"`
 	District     string       `gorm:"index;index:idx_properties_province_district,priority:2"`
