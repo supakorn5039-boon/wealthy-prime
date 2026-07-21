@@ -237,6 +237,7 @@
       "both": "出售和出租"
     },
     "province": "省份",
+    "district": "区 / 县",
     "selectProvinceFirst": "请先选择省份",
     "googleMapUrl": "Google 地图链接",
     "btsMrt": "附近 BTS / MRT",

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -27,7 +27,7 @@ import {
 import { propertySchema, type PropertySchema } from "@/dto/PropertyValidation";
 import { resolveImageUrl } from "@/utils/imageUrl";
 import type { Property } from "@/types/Property";
-import { PROVINCES, BTS_MRT_OPTIONS } from "@/constants/Locations";
+import { PROVINCES, DISTRICTS_BY_PROVINCE, BTS_MRT_OPTIONS } from "@/constants/Locations";
 import { usePropertyOptions } from "@/hooks/usePropertyOptions";
 import { useMapUrlCoords } from "@/hooks/useMapUrlCoords";
 import { MapUrlStatusHint } from "@/components/property/MapUrlStatusHint";
@@ -71,6 +71,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
         kind: (property.kind || "condo") as PropertySchema["kind"],
         listing: (property.listing || "rent") as PropertySchema["listing"],
         province: property.province ?? "",
+        district: property.district ?? "",
         googleMapUrl: property.googleMapUrl ?? "",
         btsMrt: (property.btsMrt ?? []).join(", "),
         bedrooms: property.bedrooms != null ? String(property.bedrooms) : "",
@@ -95,6 +96,18 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
 
   const listingType = useWatch({ control, name: "listing" });
 
+  const selectedProvince = useWatch({ control, name: "province" });
+  const districtOptions = useMemo(
+    () => (DISTRICTS_BY_PROVINCE[selectedProvince] ?? []).map((d) => ({ value: d, label: d })),
+    [selectedProvince],
+  );
+  const lastProvinceRef = useRef(selectedProvince);
+  useEffect(() => {
+    if (lastProvinceRef.current === selectedProvince) return;
+    lastProvinceRef.current = selectedProvince;
+    setValue("district", "");
+  }, [selectedProvince, setValue]);
+
   const googleMapUrl = useWatch({ control, name: "googleMapUrl" });
   const mapUrlStatus = useMapUrlCoords(googleMapUrl, (lat, lng) => {
     setValue("lat", String(lat), { shouldValidate: true });
@@ -118,6 +131,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
           kind: values.kind,
           listing: values.listing,
           province: values.province,
+          district: values.district,
           googleMapUrl: values.googleMapUrl,
           btsMrt: values.btsMrt,
           bedrooms: values.bedrooms ? Number(values.bedrooms) : undefined,
@@ -252,13 +266,23 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
             rows={2}
           />
 
-          <FormCombobox
-            control={control}
-            name="province"
-            label={t("property.province")}
-            options={provinceOptions}
-            required
-          />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormCombobox
+              control={control}
+              name="province"
+              label={t("property.province")}
+              options={provinceOptions}
+              required
+            />
+            <FormCombobox
+              control={control}
+              name="district"
+              label={t("property.district")}
+              options={districtOptions}
+              placeholder={t("property.selectProvinceFirst")}
+              disabled={districtOptions.length === 0}
+            />
+          </div>
           <FormInput
             control={control}
             name="location"

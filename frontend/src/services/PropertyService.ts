@@ -17,6 +17,7 @@ function appendCommonFields(fd: FormData, payload: PropertyFormFields) {
   if (payload.kind) fd.append('kind', payload.kind)
   if (payload.listing) fd.append('listing', payload.listing)
   if (payload.province) fd.append('province', payload.province)
+  if (payload.district) fd.append('district', payload.district)
   if (payload.googleMapUrl) fd.append('google_map_url', payload.googleMapUrl)
   if (payload.btsMrt) fd.append('bts_mrt', payload.btsMrt)
   if (payload.bedrooms != null) fd.append('bedrooms', String(payload.bedrooms))

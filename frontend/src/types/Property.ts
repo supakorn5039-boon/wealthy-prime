@@ -51,6 +51,7 @@ export interface Property {
   kind?: PropertyKind
   listing?: ListingType
   province?: string
+  district?: string
   googleMapUrl?: string
   btsMrt?: number[]
   bedrooms?: number
@@ -123,6 +124,7 @@ export interface PropertyFormFields {
   kind?: PropertyKind
   listing?: ListingType
   province?: string
+  district?: string
   googleMapUrl?: string
 
   btsMrt?: string

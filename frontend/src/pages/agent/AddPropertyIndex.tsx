@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,7 +24,7 @@ import { PageTitle } from "@/components/shared/PageTitle";
 import { PageContainer } from "@/components/shared/PageContainer";
 import { addPropertySchema, type PropertySchema } from "@/dto/PropertyValidation";
 import { ROUTES } from "@/constants/Routes";
-import { PROVINCES, BTS_MRT_OPTIONS } from "@/constants/Locations";
+import { PROVINCES, DISTRICTS_BY_PROVINCE, BTS_MRT_OPTIONS } from "@/constants/Locations";
 import { usePropertyOptions } from "@/hooks/usePropertyOptions";
 import { useMapUrlCoords } from "@/hooks/useMapUrlCoords";
 import { MapUrlStatusHint } from "@/components/property/MapUrlStatusHint";
@@ -62,6 +62,7 @@ export default function AddPropertyIndex() {
       kind: "condo" as const,
       listing: "rent" as const,
       province: "",
+      district: "",
       googleMapUrl: "",
       btsMrt: "",
       bedrooms: "",
@@ -84,6 +85,16 @@ export default function AddPropertyIndex() {
   });
 
   const listingType = useWatch({ control, name: "listing" });
+
+  const selectedProvince = useWatch({ control, name: "province" });
+  const districtOptions = useMemo(
+    () => (DISTRICTS_BY_PROVINCE[selectedProvince] ?? []).map((d) => ({ value: d, label: d })),
+    [selectedProvince],
+  );
+
+  useEffect(() => {
+    setValue("district", "");
+  }, [selectedProvince, setValue]);
 
   const googleMapUrl = useWatch({ control, name: "googleMapUrl" });
   const mapUrlStatus = useMapUrlCoords(googleMapUrl, (lat, lng) => {
@@ -108,6 +119,7 @@ export default function AddPropertyIndex() {
           kind: values.kind,
           listing: values.listing,
           province: values.province,
+          district: values.district,
           googleMapUrl: values.googleMapUrl,
           btsMrt: values.btsMrt,
           bedrooms: values.bedrooms ? Number(values.bedrooms) : undefined,
@@ -262,13 +274,23 @@ export default function AddPropertyIndex() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <FormCombobox
-              control={control}
-              name="province"
-              label={t("property.province")}
-              options={provinceOptions}
-              required
-            />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormCombobox
+                control={control}
+                name="province"
+                label={t("property.province")}
+                options={provinceOptions}
+                required
+              />
+              <FormCombobox
+                control={control}
+                name="district"
+                label={t("property.district")}
+                options={districtOptions}
+                placeholder={t("property.selectProvinceFirst")}
+                disabled={districtOptions.length === 0}
+              />
+            </div>
             <FormInput
               control={control}
               name="googleMapUrl"

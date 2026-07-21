@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { MapPin, Maximize2, ShoppingCart, Pencil, Copy, Bed, Bath, Building, Train, PawPrint, Sofa, FileText, MessageSquare, Star, Download } from 'lucide-react'
+import { formatPropertyArea } from '@/utils/propertyArea'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { MapContainer, TileLayer, Marker } from 'react-leaflet'
@@ -139,7 +140,7 @@ export default function PropertyDetailIndex() {
 
               <div className="flex items-center gap-1.5 text-muted-foreground">
                 <MapPin className="size-4 flex-shrink-0 text-primary" />
-                <span>{property.location}</span>
+                <span>{formatPropertyArea(property)}</span>
               </div>
 
               <div className="flex flex-wrap gap-4">
@@ -205,6 +206,9 @@ export default function PropertyDetailIndex() {
                 )}
                 {property.province && (
                   <DetailItem icon={<MapPin className="size-4" />} label={t('property.province')} value={property.province} />
+                )}
+                {property.district && (
+                  <DetailItem icon={<MapPin className="size-4" />} label={t('property.district')} value={property.district} />
                 )}
               </div>
             </CardContent>

@@ -20,6 +20,7 @@ const propertyObject = z.object({
     required_error: 'กรุณาเลือกประเภทรายการ',
   }),
   province: z.string().min(1, 'กรุณาเลือกจังหวัด'),
+  district: z.string().optional(),
   googleMapUrl: z.string().optional(),
   btsMrt: z.string().optional(),
   bedrooms: z.string().optional(),
@@ -53,11 +54,11 @@ const propertyRefine = (data: z.infer<typeof propertyObject>, ctx: z.RefinementC
     }
   }
   validatePrice('rentPrice', 'ราคาเช่า')
-  validatePrice('salePrice', 'ราคาซื้อ')
+  validatePrice('salePrice', 'ราคาขาย')
   if (!data.rentPrice && !data.salePrice) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      message: 'กรุณากรอกราคาเช่าหรือราคาซื้ออย่างน้อยหนึ่งช่อง',
+      message: 'กรุณากรอกราคาเช่าหรือราคาขายอย่างน้อยหนึ่งช่อง',
       path: ['rentPrice'],
     })
   }

@@ -237,6 +237,7 @@
       "both": "For Sale & Rent"
     },
     "province": "Province",
+    "district": "District",
     "selectProvinceFirst": "Select province first",
     "googleMapUrl": "Google Map URL",
     "btsMrt": "Nearby BTS / MRT",

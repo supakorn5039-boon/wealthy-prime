@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { MapPin, Maximize2, Bed, Bath, Train, Pencil, PawPrint } from "lucide-react";
+import { formatPropertyArea } from "@/utils/propertyArea";
 import { useTranslation } from "react-i18next";
 import { PropertyStatusBadge } from "@/components/shared/StatusBadge";
 import { WishlistButton } from "@/components/WishlistButton";
@@ -91,7 +92,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
 
         <div className="flex items-center gap-1 mt-2 text-muted-foreground text-xs">
           <MapPin className="size-3.5 flex-shrink-0" />
-          <span className="line-clamp-1">{property.location}</span>
+          <span className="line-clamp-1">{formatPropertyArea(property)}</span>
         </div>
 
         {btsMrtText && (
