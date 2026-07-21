@@ -230,7 +230,7 @@ export default function MyPropertiesIndex() {
           <Input
             value={projectFilter}
             onChange={(e) => setProjectFilter(e.target.value)}
-            placeholder={t('property.projectName')}
+            placeholder={t('property.projectSearchPlaceholder')}
             className="h-9"
           />
           {hasFilters && (

@@ -92,11 +92,13 @@ export interface PropertyListParams {
   types?: ListingFilter[]
   kinds?: PropertyKind[]
   provinces?: string[]
+  districts?: string[]
   priceRanges?: { min?: number; max?: number }[]
 
   btsMrtIds?: number[]
   pets?: PetPolicy[]
   minBedrooms?: number
+  maxBedrooms?: number
   bathrooms?: number
   sizeMin?: number
   sizeMax?: number

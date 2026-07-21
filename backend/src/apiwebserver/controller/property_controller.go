@@ -129,6 +129,7 @@ func (ctrl *PropertyController) listProperties(c *gin.Context) {
 		Pets:             parseStringCSV(c.Query("pets")),
 		Statuses:         parseStringCSV(c.Query("statuses")),
 		MinBedrooms:      parseIntPtr(c.Query("min_bedrooms")),
+		MaxBedrooms:      parseIntPtr(c.Query("max_bedrooms")),
 		Bathrooms:        parseIntPtr(c.Query("bathrooms")),
 		SizeMin:          parseFloatPtr(c.Query("size_min")),
 		SizeMax:          parseFloatPtr(c.Query("size_max")),

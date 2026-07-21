@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import {
   PROVINCES,
+  DISTRICTS_BY_PROVINCE,
   BTS_MRT_STATIONS,
   type BtsMrtLine,
   type BtsMrtStation,
@@ -36,7 +37,6 @@ type ListingChoice = 'sell' | 'rent' | 'sell_and_rent'
 
 const DEFAULT_LISTING_CHOICE: ListingChoice = 'sell_and_rent'
 const NOT_AVAILABLE_STATUSES: PropertyStatus[] = ['reserved', 'sold', 'unavailable', 'owner_update']
-const BEDROOM_CHOICES = [1, 2, 3, 4, 5] as const
 const BATHROOM_CHOICES = Array.from({ length: 10 }, (_, i) => i + 1)
 const PANEL_VIEWPORT_MARGIN = 8
 const PANEL_GAP = 6
@@ -403,7 +403,8 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     listingChoiceFromTypes(initialValues?.types),
   )
   const [kinds, setKinds] = useState<PropertyKind[]>(initialValues?.kinds ?? [])
-  const [minBedrooms, setMinBedrooms] = useState<number | undefined>(initialValues?.minBedrooms)
+  const [bedroomsMin, setBedroomsMin] = useState(initialValues?.minBedrooms?.toString() ?? '')
+  const [bedroomsMax, setBedroomsMax] = useState(initialValues?.maxBedrooms?.toString() ?? '')
   const [priceMin, setPriceMin] = useState(initialValues?.priceRanges?.[0]?.min?.toString() ?? '')
   const [priceMax, setPriceMax] = useState(initialValues?.priceRanges?.[0]?.max?.toString() ?? '')
   const [bathrooms, setBathrooms] = useState<number | undefined>(initialValues?.bathrooms)
@@ -415,6 +416,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     availabilityFromStatuses(initialValues?.statuses),
   )
   const [provinces, setProvinces] = useState<string[]>(initialValues?.provinces ?? [])
+  const [districts, setDistricts] = useState<string[]>(initialValues?.districts ?? [])
   const [stationIds, setStationIds] = useState<number[]>(initialValues?.btsMrtIds ?? [])
   const [pets, setPets] = useState<PetPolicy[]>(initialValues?.pets ?? [])
 
@@ -428,13 +430,6 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
   )
   const kindOptions = useMemo<FilterOption<PropertyKind>[]>(
     () => PROPERTY_KINDS.map((v) => ({ value: v, label: t(`property.kind.${v}`) })),
-    [t],
-  )
-  const bedroomOptions = useMemo<FilterOption<number>[]>(
-    () => [
-      { value: 0, label: t('home.filterAll') },
-      ...BEDROOM_CHOICES.map((n) => ({ value: n, label: `${n}+` })),
-    ],
     [t],
   )
   const petsOptions = useMemo<FilterOption<PetPolicy>[]>(
@@ -459,6 +454,25 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     () => PROVINCES.map((p) => ({ value: p, label: p })),
     [],
   )
+  const districtOptions = useMemo<FilterOption<string>[]>(() => {
+    const source = provinces.length > 0 ? provinces : PROVINCES
+    const seen = new Set<string>()
+    const options: FilterOption<string>[] = []
+    for (const province of source) {
+      for (const district of DISTRICTS_BY_PROVINCE[province] ?? []) {
+        if (seen.has(district)) continue
+        seen.add(district)
+        options.push({ value: district, label: district })
+      }
+    }
+    return options
+  }, [provinces])
+
+  useEffect(() => {
+    if (provinces.length === 0) return
+    const allowed = new Set(districtOptions.map((o) => o.value))
+    setDistricts((prev) => (prev.every((d) => allowed.has(d)) ? prev : prev.filter((d) => allowed.has(d))))
+  }, [provinces, districtOptions])
   const stationGroups = useMemo<FilterGroup<number>[]>(
     () =>
       STATIONS_BY_LINE.map(({ line, stations }) => ({
@@ -489,7 +503,8 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
       searchStationIds: stationIdMatches.length > 0 ? stationIdMatches : undefined,
       types: listingChoiceToTypes(listingChoice),
       kinds: kinds.length > 0 ? kinds : undefined,
-      minBedrooms,
+      minBedrooms: parseNum(bedroomsMin),
+      maxBedrooms: parseNum(bedroomsMax),
       priceRanges,
       bathrooms,
       sizeMin: parseNum(sizeMin),
@@ -498,6 +513,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
       floorMax: parseNum(floorMax),
       statuses,
       provinces: provinces.length > 0 ? provinces : undefined,
+      districts: districts.length > 0 ? districts : undefined,
       btsMrtIds: stationIds.length > 0 ? stationIds : undefined,
       pets: pets.length > 0 ? pets : undefined,
     })
@@ -507,7 +523,8 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     setSearch('')
     setListingChoice(DEFAULT_LISTING_CHOICE)
     setKinds([])
-    setMinBedrooms(undefined)
+    setBedroomsMin('')
+    setBedroomsMax('')
     setPriceMin('')
     setPriceMax('')
     setBathrooms(undefined)
@@ -517,6 +534,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     setFloorMax('')
     setAvailability(undefined)
     setProvinces([])
+    setDistricts([])
     setStationIds([])
     setPets([])
     onFilter({})
@@ -533,10 +551,12 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     search ||
       listingChoice !== DEFAULT_LISTING_CHOICE ||
       kinds.length ||
-      minBedrooms != null ||
+      bedroomsMin ||
+      bedroomsMax ||
       priceMin ||
       priceMax ||
       provinces.length ||
+      districts.length ||
       stationIds.length ||
       moreCount > 0,
   )
@@ -553,13 +573,22 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     }
     return `${compact(priceMin, t('home.rangeMin'))} – ${compact(priceMax, t('home.rangeMax'))}`
   })()
-  const bedLabel = minBedrooms != null ? `${t('home.filterLabel.bed')} ${minBedrooms}+` : t('home.filterLabel.bed')
+  const bedLabel =
+    bedroomsMin || bedroomsMax
+      ? `${bedroomsMin || t('home.rangeMin')} – ${bedroomsMax || t('home.rangeMax')}`
+      : t('home.filterLabel.bed')
   const provinceLabel =
     provinces.length === 0
       ? t('home.filterLabel.province')
       : provinces.length === 1
         ? provinces[0]
         : countLabel(provinces.length)
+  const districtLabel =
+    districts.length === 0
+      ? t('home.filterLabel.district')
+      : districts.length === 1
+        ? districts[0]
+        : countLabel(districts.length)
   const kindLabel =
     kinds.length === 0
       ? t('home.filterLabel.kind')
@@ -628,7 +657,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mt-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 mt-2">
         <FilterDropdown label={priceLabel} active={Boolean(priceMin || priceMax)} minWidth={300} fullWidth>
           {() => (
             <PanelSection title={t('home.filterLabel.price')}>
@@ -637,16 +666,16 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
           )}
         </FilterDropdown>
 
-        <FilterDropdown label={bedLabel} active={minBedrooms != null} minWidth={180} fullWidth>
-          {(close) => (
-            <SinglePickPanel
-              options={bedroomOptions}
-              value={minBedrooms ?? 0}
-              onSelect={(v) => {
-                setMinBedrooms(v === 0 ? undefined : v)
-                close()
-              }}
-            />
+        <FilterDropdown label={bedLabel} active={Boolean(bedroomsMin || bedroomsMax)} minWidth={300} fullWidth>
+          {() => (
+            <PanelSection title={t('home.filterLabel.bed')}>
+              <RangeInputs
+                min={bedroomsMin}
+                max={bedroomsMax}
+                onMin={setBedroomsMin}
+                onMax={setBedroomsMax}
+              />
+            </PanelSection>
           )}
         </FilterDropdown>
 
@@ -658,6 +687,18 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
               selected={provinces}
               onToggle={(v) => setProvinces((p) => toggleArray(p, v))}
               onClear={() => setProvinces([])}
+            />
+          )}
+        </FilterDropdown>
+
+        <FilterDropdown label={districtLabel} active={districts.length > 0} minWidth={260} fullWidth>
+          {() => (
+            <MultiPickPanel
+              allLabel={allLabel}
+              options={districtOptions}
+              selected={districts}
+              onToggle={(v) => setDistricts((p) => toggleArray(p, v))}
+              onClear={() => setDistricts([])}
             />
           )}
         </FilterDropdown>
@@ -693,6 +734,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
           fullWidth
           minWidth={360}
           align="right"
+          triggerClassName="col-span-2 sm:col-span-4 lg:col-span-1"
         >
           {(close) => (
             <div className="flex flex-col">

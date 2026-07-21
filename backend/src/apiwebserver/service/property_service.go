@@ -79,6 +79,7 @@ type PropertyFilter struct {
 	BtsMrtIDs        []int32
 	Pets             []string
 	MinBedrooms      *int
+	MaxBedrooms      *int
 	Bathrooms        *int
 	SizeMin          *float64
 	SizeMax          *float64
@@ -183,8 +184,14 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 		var args []any
 		if filter.Search != "" {
 			s := "%" + filter.Search + "%"
-			parts = append(parts, "project_name ILIKE ?", "location ILIKE ?")
-			args = append(args, s, s)
+			parts = append(parts,
+				"project_name ILIKE ?",
+				"location ILIKE ?",
+				"property_code ILIKE ?",
+				"district ILIKE ?",
+				"province ILIKE ?",
+			)
+			args = append(args, s, s, s, s, s)
 		}
 		if len(filter.SearchStationIDs) > 0 {
 			parts = append(parts, "bts_mrt && ?")
@@ -230,6 +237,9 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 	if filter.MinBedrooms != nil {
 		query = query.Where("bedrooms >= ?", *filter.MinBedrooms)
 	}
+	if filter.MaxBedrooms != nil {
+		query = query.Where("bedrooms <= ?", *filter.MaxBedrooms)
+	}
 	if filter.Bathrooms != nil {
 		query = query.Where("bathrooms = ?", *filter.Bathrooms)
 	}
@@ -262,7 +272,8 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 		query = query.Where("status IN ?", filter.Statuses)
 	}
 	if filter.ProjectName != "" {
-		query = query.Where("project_name ILIKE ?", "%"+filter.ProjectName+"%")
+		s := "%" + filter.ProjectName + "%"
+		query = query.Where("(project_name ILIKE ? OR property_code ILIKE ?)", s, s)
 	}
 
 	var properties []model.Property
