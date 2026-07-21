@@ -253,7 +253,8 @@ func (ctrl *AgentController) editProperty(c *gin.Context) {
 }
 
 func (ctrl *AgentController) updateStatus(c *gin.Context) {
-	agentID := middleware.GetUserID(c)
+	callerID := middleware.GetUserID(c)
+	role := middleware.GetRole(c)
 	propertyID, err := parseUintParam(c, "id")
 	if err != nil {
 		badRequest(c, "invalid property id")
@@ -289,7 +290,7 @@ func (ctrl *AgentController) updateStatus(c *gin.Context) {
 		input.RentalPeriodMonths = &n
 	}
 
-	dto, err := ctrl.propertySvc.UpdateStatus(propertyID, agentID, input)
+	dto, err := ctrl.propertySvc.UpdateStatus(propertyID, callerID, role, input)
 	if err != nil {
 		errorResponse(c, err)
 		return

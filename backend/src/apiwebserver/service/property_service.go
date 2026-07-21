@@ -484,7 +484,7 @@ func (s *PropertyService) CreateProperty(input CreatePropertyInput) (*model.Prop
 	return s.GetProperty(p.ID)
 }
 
-func (s *PropertyService) UpdateStatus(propertyID, agentID uint, input UpdateStatusInput) (*model.PropertyDto, error) {
+func (s *PropertyService) UpdateStatus(propertyID, callerID uint, role model.UserRole, input UpdateStatusInput) (*model.PropertyDto, error) {
 	var p model.Property
 	err := s.db.First(&p, propertyID).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -494,8 +494,10 @@ func (s *PropertyService) UpdateStatus(propertyID, agentID uint, input UpdateSta
 		return nil, apperror.Wrap(err, 500, "database error")
 	}
 
-	if p.AgentID == nil || *p.AgentID != agentID {
-		return nil, apperror.Forbidden("you do not own this property")
+	if role != model.RoleAdmin {
+		if p.AgentID == nil || *p.AgentID != callerID {
+			return nil, apperror.Forbidden("you do not own this property")
+		}
 	}
 
 	updates := map[string]interface{}{"status": input.Status}
