@@ -15,7 +15,7 @@ import { MultiSelectFilter } from '@/components/shared/MultiSelectFilter'
 import { DateRangeFilter, EMPTY_DATE_RANGE, matchesDateRange, type DateRangeValue } from '@/components/shared/DateRangeFilter'
 import { PropertyDocumentLink } from '@/components/property/PropertyDocumentLink'
 import {
-  WORK_STATUS_FILTER_OPTIONS,
+  ADMIN_WORK_STATUS_FILTER_OPTIONS,
   workStatusFilterValue,
   type WorkStatusFilterValue,
 } from '@/constants/WorkStatus'
@@ -59,7 +59,7 @@ export default function VisitRequestsIndex() {
     })
   }, [bookings, searchQuery, statusFilters, dateRange, agentFilters, projectFilters])
 
-  const statusOptions = WORK_STATUS_FILTER_OPTIONS.map((o) => ({ value: o.value, label: t(o.labelKey) }))
+  const statusOptions = ADMIN_WORK_STATUS_FILTER_OPTIONS.map((o) => ({ value: o.value, label: t(o.labelKey) }))
 
   const header = (
     <PageTitle

@@ -24,3 +24,9 @@ export const WORK_STATUS_FILTER_OPTIONS: { value: WorkStatusFilterValue; labelKe
 export function workStatusFilterValue(workStatus: AppointmentWorkStatus | undefined): WorkStatusFilterValue {
   return workStatus ? workStatus : WORK_STATUS_NOT_SET
 }
+
+export const ADMIN_VISIBLE_WORK_STATUSES: WorkStatusFilterValue[] = [WORK_STATUS_NOT_SET, 'contacted']
+
+export const ADMIN_WORK_STATUS_FILTER_OPTIONS = WORK_STATUS_FILTER_OPTIONS.filter((o) =>
+  ADMIN_VISIBLE_WORK_STATUSES.includes(o.value),
+)
