@@ -120,6 +120,8 @@
     "emailPlaceholder": "example@email.com",
     "password": "密码",
     "passwordPlaceholder": "密码",
+    "showPassword": "显示密码",
+    "hidePassword": "隐藏密码",
     "name": "全名",
     "namePlaceholder": "姓 名",
     "firstName": "名",

@@ -120,6 +120,8 @@
     "emailPlaceholder": "example@email.com",
     "password": "Password",
     "passwordPlaceholder": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "name": "Full Name",
     "namePlaceholder": "First Last",
     "firstName": "First Name",

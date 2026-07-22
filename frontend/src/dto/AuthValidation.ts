@@ -21,19 +21,25 @@ export const loginSchema = z.object({
 })
 export type LoginSchema = z.infer<typeof loginSchema>
 
-export const registerSchema = z.object({
-  firstName: z.string().min(1, 'กรุณากรอกชื่อ'),
-  lastName: z.string().min(1, 'กรุณากรอกนามสกุล'),
-  email: z.string().email('อีเมลไม่ถูกต้อง'),
-  password: z.string().min(6, 'รหัสผ่านอย่างน้อย 6 ตัวอักษร'),
-  phone: phoneSchema,
-  secondaryPhone: optionalPhoneSchema,
-  lineId: z.string().optional(),
-  facebook: z.string().optional(),
-  wechat: z.string().optional(),
-  whatsapp: z.string().optional(),
-  role: z.enum(['user', 'agent']),
-})
+export const registerSchema = z
+  .object({
+    firstName: z.string().min(1, 'กรุณากรอกชื่อ'),
+    lastName: z.string().min(1, 'กรุณากรอกนามสกุล'),
+    email: z.string().email('อีเมลไม่ถูกต้อง'),
+    password: z.string().min(6, 'รหัสผ่านอย่างน้อย 6 ตัวอักษร'),
+    confirmPassword: z.string().min(6, 'รหัสผ่านอย่างน้อย 6 ตัวอักษร'),
+    phone: phoneSchema,
+    secondaryPhone: optionalPhoneSchema,
+    lineId: z.string().optional(),
+    facebook: z.string().optional(),
+    wechat: z.string().optional(),
+    whatsapp: z.string().optional(),
+    role: z.enum(['user', 'agent']),
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: 'รหัสผ่านไม่ตรงกัน',
+    path: ['confirmPassword'],
+  })
 export type RegisterSchema = z.infer<typeof registerSchema>
 
 export const forgotPasswordSchema = z.object({

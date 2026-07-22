@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/Logo'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { FormInput } from '@/components/form/FormInput'
+import { FormPasswordInput } from '@/components/form/FormPasswordInput'
 import { FormPhoneInput } from '@/components/form/FormPhoneInput'
 import { scrollToFirstError } from '@/lib/scrollToFirstError'
 import { AuthService } from '@/services/AuthService'
@@ -32,6 +33,7 @@ export default function RegisterIndex({ role = 'user' }: RegisterIndexProps) {
       lastName: '',
       email: '',
       password: '',
+      confirmPassword: '',
       phone: '',
       secondaryPhone: '',
       lineId: '',
@@ -43,7 +45,7 @@ export default function RegisterIndex({ role = 'user' }: RegisterIndexProps) {
   })
 
   const mutation = useMutation({
-    mutationFn: AuthService.register,
+    mutationFn: ({ confirmPassword: _confirmPassword, ...payload }: RegisterSchema) => AuthService.register(payload),
     onSuccess: (_, vars) => {
       const msgKey = vars.role === 'agent' ? 'auth.registerPendingApproval' : 'auth.registerSuccess'
       toast.success(t(msgKey))
@@ -77,7 +79,10 @@ export default function RegisterIndex({ role = 'user' }: RegisterIndexProps) {
               <FormInput control={control} name="lastName" label={t('auth.lastName')} placeholder={t('auth.lastNamePlaceholder')} required />
             </div>
             <FormInput control={control} name="email" label={t('auth.email')} type="email" placeholder={t('auth.emailPlaceholder')} required />
-            <FormInput control={control} name="password" label={t('auth.password')} type="password" placeholder={t('auth.passwordPlaceholder')} required />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <FormPasswordInput control={control} name="password" label={t('auth.password')} placeholder={t('auth.passwordPlaceholder')} autoComplete="new-password" required />
+              <FormPasswordInput control={control} name="confirmPassword" label={t('auth.confirmPassword')} placeholder={t('auth.confirmPasswordPlaceholder')} autoComplete="new-password" required />
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FormPhoneInput control={control} name="phone" label={t('auth.phone')} required />
               <FormPhoneInput control={control} name="secondaryPhone" label={t('auth.secondaryPhone')} />

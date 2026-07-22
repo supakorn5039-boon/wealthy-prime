@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Phone, Mail, MessageCircle } from 'lucide-react'
+import { Phone, Mail } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ROUTES } from '@/constants/Routes'
 import { Logo } from '@/components/Logo'
@@ -36,12 +36,6 @@ export function Footer() {
         <div>
           <h3 className="text-foreground font-semibold text-sm mb-3 tracking-luxury uppercase">{t('footer.contact')}</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li className="flex items-center gap-2">
-              <MessageCircle className="size-4 shrink-0" />
-              <a href="https://line.me/ti/p/~wealthyveganshop" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
-                LINE: wealthyveganshop
-              </a>
-            </li>
             <li className="flex items-center gap-2">
               <Phone className="size-4 shrink-0" />
               <a href="tel:+66643519828" className="hover:text-primary transition-colors">

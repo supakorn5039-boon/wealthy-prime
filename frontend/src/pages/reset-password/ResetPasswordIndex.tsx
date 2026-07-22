@@ -8,7 +8,7 @@ import axios from 'axios'
 import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/Logo'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { FormInput } from '@/components/form/FormInput'
+import { FormPasswordInput } from '@/components/form/FormPasswordInput'
 import { scrollToFirstError } from '@/lib/scrollToFirstError'
 import { AuthService } from '@/services/AuthService'
 import { resetPasswordSchema, type ResetPasswordSchema } from '@/dto/AuthValidation'
@@ -65,20 +65,20 @@ export default function ResetPasswordIndex() {
             </p>
           ) : (
             <form onSubmit={handleSubmit((values) => mutation.mutate(values), scrollToFirstError)} className="space-y-4">
-              <FormInput
+              <FormPasswordInput
                 control={control}
                 name="newPassword"
                 label={t('auth.newPassword')}
-                type="password"
                 placeholder={t('auth.newPasswordPlaceholder')}
+                autoComplete="new-password"
                 required
               />
-              <FormInput
+              <FormPasswordInput
                 control={control}
                 name="confirmPassword"
                 label={t('auth.confirmPassword')}
-                type="password"
                 placeholder={t('auth.confirmPasswordPlaceholder')}
+                autoComplete="new-password"
                 required
               />
               <Button type="submit" className="w-full" disabled={mutation.isPending}>
