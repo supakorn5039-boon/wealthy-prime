@@ -18,7 +18,7 @@ interface PropertyCardProps {
 }
 
 export function PropertyCard({ property }: PropertyCardProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuthStore();
   const [editOpen, setEditOpen] = useState(false);
 
@@ -28,7 +28,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
       (user.role === "agent" && property.agentId === user.id));
 
   const petAllowed = property.pets === "allowed";
-  const btsMrtText = formatBtsMrt(property.btsMrt);
+  const btsMrtText = formatBtsMrt(property.btsMrt, i18n.language);
 
   return (
     <div className="group bg-card rounded-md overflow-hidden border border-border hover:border-primary/60 transition-colors">
@@ -92,7 +92,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
 
         <div className="flex items-center gap-1 mt-2 text-muted-foreground text-xs">
           <MapPin className="size-3.5 flex-shrink-0" />
-          <span className="line-clamp-1">{formatPropertyArea(property)}</span>
+          <span className="line-clamp-1">{formatPropertyArea(property, i18n.language)}</span>
         </div>
 
         {btsMrtText && (

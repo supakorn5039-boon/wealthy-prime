@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { MapPin, Maximize2, ShoppingCart, Pencil, Copy, Bed, Bath, Building, Train, PawPrint, Sofa, FileText, MessageSquare, Star, Download } from 'lucide-react'
 import { formatPropertyArea } from '@/utils/propertyArea'
+import { localizedProvince, localizedDistrict } from '@/constants/Locations'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { MapContainer, TileLayer, Marker } from 'react-leaflet'
@@ -35,7 +36,7 @@ import type { Review } from '@/types/Review'
 const REVIEWS_ENABLED = false
 
 export default function PropertyDetailIndex() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const { addItem, openCart } = useCartStore()
   const { user } = useAuthStore()
@@ -140,7 +141,7 @@ export default function PropertyDetailIndex() {
 
               <div className="flex items-center gap-1.5 text-muted-foreground">
                 <MapPin className="size-4 flex-shrink-0 text-primary" />
-                <span>{formatPropertyArea(property)}</span>
+                <span>{formatPropertyArea(property, i18n.language)}</span>
               </div>
 
               <div className="flex flex-wrap gap-4">
@@ -201,14 +202,14 @@ export default function PropertyDetailIndex() {
                 {property.furniture && (
                   <DetailItem icon={<Sofa className="size-4" />} label={t('property.furnitureLabel')} value={t(`property.furniture.${property.furniture}`, { defaultValue: property.furniture })} />
                 )}
-                {formatBtsMrt(property.btsMrt) && (
-                  <DetailItem icon={<Train className="size-4" />} label={t('property.btsMrt')} value={formatBtsMrt(property.btsMrt)} />
+                {formatBtsMrt(property.btsMrt, i18n.language) && (
+                  <DetailItem icon={<Train className="size-4" />} label={t('property.btsMrt')} value={formatBtsMrt(property.btsMrt, i18n.language)} />
                 )}
                 {property.province && (
-                  <DetailItem icon={<MapPin className="size-4" />} label={t('property.province')} value={property.province} />
+                  <DetailItem icon={<MapPin className="size-4" />} label={t('property.province')} value={localizedProvince(property.province, i18n.language)} />
                 )}
                 {property.district && (
-                  <DetailItem icon={<MapPin className="size-4" />} label={t('property.district')} value={property.district} />
+                  <DetailItem icon={<MapPin className="size-4" />} label={t('property.district')} value={localizedDistrict(property.district, i18n.language)} />
                 )}
               </div>
             </CardContent>

@@ -8,6 +8,10 @@ import {
   PROVINCES,
   DISTRICTS_BY_PROVINCE,
   BTS_MRT_STATIONS,
+  localizedProvince,
+  localizedDistrict,
+  localizedStationName,
+  stationSearchText,
   type BtsMrtLine,
   type BtsMrtStation,
 } from '@/constants/Locations'
@@ -79,7 +83,7 @@ function listingChoiceFromTypes(types?: ListingFilter[]): ListingChoice {
 function stationIdsMatching(query: string): number[] {
   const q = query.trim().toLowerCase()
   if (!q) return []
-  return BTS_MRT_STATIONS.filter((s) => s.name.toLowerCase().includes(q)).map((s) => s.id)
+  return BTS_MRT_STATIONS.filter((s) => stationSearchText(s).includes(q)).map((s) => s.id)
 }
 
 function toggleArray<T>(prev: T[], value: T): T[] {
@@ -451,8 +455,8 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     [],
   )
   const provinceOptions = useMemo<FilterOption<string>[]>(
-    () => PROVINCES.map((p) => ({ value: p, label: p })),
-    [],
+    () => PROVINCES.map((p) => ({ value: p, label: localizedProvince(p, i18n.language) })),
+    [i18n.language],
   )
   const districtOptions = useMemo<FilterOption<string>[]>(() => {
     const source = provinces.length > 0 ? provinces : PROVINCES
@@ -462,11 +466,11 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
       for (const district of DISTRICTS_BY_PROVINCE[province] ?? []) {
         if (seen.has(district)) continue
         seen.add(district)
-        options.push({ value: district, label: district })
+        options.push({ value: district, label: localizedDistrict(district, i18n.language) })
       }
     }
     return options
-  }, [provinces])
+  }, [provinces, i18n.language])
 
   useEffect(() => {
     if (provinces.length === 0) return
@@ -477,9 +481,9 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     () =>
       STATIONS_BY_LINE.map(({ line, stations }) => ({
         header: t(`home.btsMrtLine.${line}`),
-        options: stations.map((s) => ({ value: s.id, label: s.name })),
+        options: stations.map((s) => ({ value: s.id, label: localizedStationName(s, i18n.language) })),
       })),
-    [t],
+    [t, i18n.language],
   )
 
   const applyFilters = () => {

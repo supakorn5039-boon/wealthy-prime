@@ -1,7 +1,8 @@
-import { BTS_MRT_STATION_BY_ID } from '@/constants/Locations'
+import { stationDisplayName } from '@/constants/Locations'
 
 export function formatBtsMrt(
   value: readonly number[] | number[] | string | null | undefined,
+  lang: string = 'th',
 ): string {
   if (value == null || value === '') return ''
   const tokens = Array.isArray(value)
@@ -14,7 +15,7 @@ export function formatBtsMrt(
     .map((token) => {
       const id = Number(token)
       if (Number.isFinite(id)) {
-        return BTS_MRT_STATION_BY_ID.get(id)?.name ?? token
+        return stationDisplayName(id, lang)
       }
       return token
     })

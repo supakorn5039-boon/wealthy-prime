@@ -30,8 +30,8 @@ export default function VisitRequestsIndex() {
   const [projectFilters, setProjectFilters] = useState<string[]>([])
 
   const { data: bookings = [], isLoading } = useQuery({
-    queryKey: [AdminService.QUERY_KEYS.BOOKINGS],
-    queryFn: AdminService.listBookings,
+    queryKey: [AdminService.QUERY_KEYS.VISIT_REQUESTS],
+    queryFn: AdminService.listAllBookings,
   })
 
   const agentOptions = useMemo(() => {
@@ -178,6 +178,9 @@ export default function VisitRequestsIndex() {
                         <span>{t('admin.agentLabel')}:</span>
                         <span className="text-foreground">{booking.agentName ?? '-'}</span>
                       </div>
+                      <div className="pt-1">
+                        <PropertyDocumentLink url={booking.propertyDocumentUrl} />
+                      </div>
                       {booking.note && (
                         <div className="flex items-start gap-2 pt-2 mt-2 border-t border-border text-sm">
                           <StickyNote className="size-3.5 text-muted-foreground mt-0.5 shrink-0" />
@@ -190,7 +193,6 @@ export default function VisitRequestsIndex() {
                     </div>
                     <div className="flex sm:flex-col items-center sm:items-end gap-2 shrink-0">
                       <WorkStatusBadge workStatus={booking.workStatus} />
-                      <PropertyDocumentLink url={booking.propertyDocumentUrl} />
                     </div>
                   </div>
                 </CardContent>

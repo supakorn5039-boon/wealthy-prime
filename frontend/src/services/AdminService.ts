@@ -32,6 +32,7 @@ export const AdminService = {
     AGENTS: 'admin-agents',
     USERS: 'admin-users',
     BOOKINGS: 'admin-bookings',
+    VISIT_REQUESTS: 'admin-visit-requests',
     FINANCIAL: 'admin-financial',
     AUDIT_LOGS: 'admin-audit-logs',
     PROPERTIES: 'admin-properties',
@@ -85,6 +86,11 @@ export const AdminService = {
 
   listBookings: async (): Promise<Booking[]> => {
     const res = await fetchClient.get<ApiResponse<Booking[]>>(API.ADMIN_BOOKINGS)
+    return res.data.data
+  },
+
+  listAllBookings: async (): Promise<Booking[]> => {
+    const res = await fetchClient.get<ApiResponse<Booking[]>>(API.ADMIN_VISIT_REQUESTS)
     return res.data.data
   },
 

@@ -50,7 +50,7 @@ interface PropertyRowProps {
 }
 
 function PropertyRow({ property, active, onHover }: PropertyRowProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const petAllowed = property.pets === "allowed";
 
   return (
@@ -113,10 +113,10 @@ function PropertyRow({ property, active, onHover }: PropertyRowProps) {
             <MapPin className="size-3 shrink-0" />
             <span className="line-clamp-1">{property.location}</span>
           </div>
-          {formatBtsMrt(property.btsMrt) && (
+          {formatBtsMrt(property.btsMrt, i18n.language) && (
             <div className="flex items-center gap-1">
               <Train className="size-3 shrink-0" />
-              <span className="line-clamp-1">{formatBtsMrt(property.btsMrt)}</span>
+              <span className="line-clamp-1">{formatBtsMrt(property.btsMrt, i18n.language)}</span>
             </div>
           )}
         </div>

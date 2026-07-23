@@ -50,6 +50,7 @@ export const API = {
   ADMIN_USER_APPROVE: (id: number | string) => `/admin/users/${id}/approve`,
   ADMIN_USER_REJECT: (id: number | string) => `/admin/users/${id}/reject`,
   ADMIN_BOOKINGS: '/admin/bookings',
+  ADMIN_VISIT_REQUESTS: '/admin/visit-requests',
   ADMIN_REASSIGN: (bookingId: number | string) => `/admin/bookings/${bookingId}/reassign`,
   ADMIN_PROPERTIES: '/admin/properties',
   ADMIN_FINANCIAL: '/admin/financial',

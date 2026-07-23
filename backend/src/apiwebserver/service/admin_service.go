@@ -108,13 +108,26 @@ func (s *AdminService) ListBookings() ([]model.BookingDto, error) {
 		Order("created_at DESC").Find(&bookings).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "failed to list bookings")
 	}
+	return bookingDtosWithDocuments(bookings), nil
+}
+
+func (s *AdminService) ListAllBookings() ([]model.BookingDto, error) {
+	var bookings []model.Booking
+	if err := s.db.Preload("User").Preload("Property").Preload("AssignedAgent").
+		Order("created_at DESC").Find(&bookings).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to list bookings")
+	}
+	return bookingDtosWithDocuments(bookings), nil
+}
+
+func bookingDtosWithDocuments(bookings []model.Booking) []model.BookingDto {
 	dtos := make([]model.BookingDto, len(bookings))
 	for i, b := range bookings {
 		dto := *b.ToDto()
 		dto.PropertyDocumentURL = b.Property.OwnerDocumentURL
 		dtos[i] = dto
 	}
-	return dtos, nil
+	return dtos
 }
 
 func (s *AdminService) ReassignBooking(bookingID, agentID uint) (*model.BookingDto, error) {

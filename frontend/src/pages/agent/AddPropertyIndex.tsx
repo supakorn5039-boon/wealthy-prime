@@ -24,13 +24,13 @@ import { PageTitle } from "@/components/shared/PageTitle";
 import { PageContainer } from "@/components/shared/PageContainer";
 import { addPropertySchema, type PropertySchema } from "@/dto/PropertyValidation";
 import { ROUTES } from "@/constants/Routes";
-import { PROVINCES, DISTRICTS_BY_PROVINCE, BTS_MRT_OPTIONS } from "@/constants/Locations";
+import { PROVINCES, DISTRICTS_BY_PROVINCE, getBtsMrtOptions, localizedProvince, localizedDistrict } from "@/constants/Locations";
 import { usePropertyOptions } from "@/hooks/usePropertyOptions";
 import { useMapUrlCoords } from "@/hooks/useMapUrlCoords";
 import { MapUrlStatusHint } from "@/components/property/MapUrlStatusHint";
 
 export default function AddPropertyIndex() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [images, setImages] = useState<File[]>([]);
@@ -44,7 +44,7 @@ export default function AddPropertyIndex() {
     petsOptions,
     furnitureOptions,
   } = usePropertyOptions();
-  const provinceOptions = PROVINCES.map((p) => ({ value: p, label: p }));
+  const provinceOptions = PROVINCES.map((p) => ({ value: p, label: localizedProvince(p, i18n.language) }));
 
   const { control, handleSubmit, setValue } = useForm<PropertySchema>({
     resolver: zodResolver(addPropertySchema),
@@ -88,9 +88,10 @@ export default function AddPropertyIndex() {
 
   const selectedProvince = useWatch({ control, name: "province" });
   const districtOptions = useMemo(
-    () => (DISTRICTS_BY_PROVINCE[selectedProvince] ?? []).map((d) => ({ value: d, label: d })),
-    [selectedProvince],
+    () => (DISTRICTS_BY_PROVINCE[selectedProvince] ?? []).map((d) => ({ value: d, label: localizedDistrict(d, i18n.language) })),
+    [selectedProvince, i18n.language],
   );
+  const btsMrtOptions = useMemo(() => getBtsMrtOptions(i18n.language), [i18n.language]);
 
   useEffect(() => {
     setValue("district", "");
@@ -302,7 +303,7 @@ export default function AddPropertyIndex() {
               control={control}
               name="btsMrt"
               label={t("property.btsMrt")}
-              options={BTS_MRT_OPTIONS}
+              options={btsMrtOptions}
             />
             <div className="grid grid-cols-2 gap-4">
               <FormInput

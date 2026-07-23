@@ -79,7 +79,7 @@ export default function RegisterIndex({ role = 'user' }: RegisterIndexProps) {
               <FormInput control={control} name="lastName" label={t('auth.lastName')} placeholder={t('auth.lastNamePlaceholder')} required />
             </div>
             <FormInput control={control} name="email" label={t('auth.email')} type="email" placeholder={t('auth.emailPlaceholder')} required />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3">
               <FormPasswordInput control={control} name="password" label={t('auth.password')} placeholder={t('auth.passwordPlaceholder')} autoComplete="new-password" required />
               <FormPasswordInput control={control} name="confirmPassword" label={t('auth.confirmPassword')} placeholder={t('auth.confirmPasswordPlaceholder')} autoComplete="new-password" required />
             </div>

@@ -18,7 +18,7 @@ export function ImageWatermark({ compact = false }: ImageWatermarkProps) {
 
   return (
     <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
-      <div className="flex flex-col items-center gap-3 text-primary opacity-45 drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]">
+      <div className="flex flex-col items-center gap-3 text-primary opacity-75 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
         <Logo size={112} className="w-[22vw] max-w-[160px] min-w-[64px] h-auto" />
         <span className="text-[clamp(1.1rem,4.5vw,2.75rem)] font-bold tracking-luxury leading-none text-center">
           WEALTHY PRIME

@@ -302,7 +302,7 @@
     "reserved": "จอง",
     "unavailable": "ไม่ว่าง",
     "ownerUpdate": "เจ้าของอัปเดต",
-    "requestSent": "ส่งคำขออัปเดตสถานะแล้ว รอแอดมินอนุมัติ",
+    "statusUpdated": "อัปเดตสถานะเรียบร้อยแล้ว",
     "noData": "ไม่พบข้อมูลทรัพย์",
     "updateStatusTitle": "อัปเดตสถานะ",
     "updateStatusDesc": "เลือกสถานะใหม่ของทรัพย์นี้",
@@ -660,6 +660,7 @@
     "replyFailed": "ส่งคำตอบไม่สำเร็จ"
   },
   "filters": {
+    "date": "วันที่",
     "dateFrom": "ตั้งแต่วันที่",
     "dateTo": "ถึงวันที่",
     "clearDate": "ล้างวันที่",

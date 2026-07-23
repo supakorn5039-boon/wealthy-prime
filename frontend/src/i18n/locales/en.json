@@ -302,7 +302,7 @@
     "reserved": "Reserved",
     "unavailable": "Unavailable",
     "ownerUpdate": "Owner Update",
-    "requestSent": "Status update request sent. Awaiting admin approval.",
+    "statusUpdated": "Status updated successfully.",
     "noData": "No properties found",
     "updateStatusTitle": "Update Status",
     "updateStatusDesc": "Choose a new status for this property.",
@@ -660,6 +660,7 @@
     "replyFailed": "Failed to send reply."
   },
   "filters": {
+    "date": "Date",
     "dateFrom": "From date",
     "dateTo": "To date",
     "clearDate": "Clear dates",

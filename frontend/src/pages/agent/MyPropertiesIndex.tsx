@@ -80,7 +80,7 @@ function StatusModal({
     mutationFn: (values: PropertyStatusSchema) =>
       PropertyService.updateStatus(property.id, { status: values.status }),
     onSuccess: () => {
-      toast.success(t("property.requestSent"));
+      toast.success(t("property.statusUpdated"));
       queryClient.invalidateQueries({
         queryKey: [PropertyService.QUERY_KEYS.AGENT_LIST],
       });
