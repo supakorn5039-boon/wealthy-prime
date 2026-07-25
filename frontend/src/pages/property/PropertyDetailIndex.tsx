@@ -7,7 +7,7 @@ import { localizedProvince, localizedDistrict } from '@/constants/Locations'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { MapContainer, TileLayer, Marker } from 'react-leaflet'
-import { defaultPinIcon } from '@/components/property/propertyMap'
+import { defaultPinIcon, I18nTileLayer } from '@/components/property/propertyMap'
 import { PropertyService } from '@/services/PropertyService'
 import { ReviewService } from '@/services/ReviewService'
 import { PropertyGallery } from '@/components/property/PropertyGallery'
@@ -244,7 +244,7 @@ export default function PropertyDetailIndex() {
                     style={{ width: '100%', height: '100%' }}
                     attributionControl={false}
                   >
-                    <TileLayer detectRetina url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <I18nTileLayer />
                     <Marker position={[property.lat, property.lng]} icon={defaultPinIcon} />
                   </MapContainer>
                 ) : (

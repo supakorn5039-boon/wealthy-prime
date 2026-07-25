@@ -37,6 +37,7 @@ import { cn } from "@/lib/utils";
 import {
   FlyTo,
   MapStatusLegend,
+  I18nTileLayer,
   buildStatusIconResolver,
 } from "@/components/property/propertyMap";
 import type { Property, PropertyListParams } from "@/types/Property";
@@ -257,7 +258,7 @@ export default function HomeIndex() {
                     scrollWheelZoom
                     attributionControl={false}
                   >
-                    <TileLayer detectRetina url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <I18nTileLayer />
                     {flyTarget && (
                       <FlyTo position={flyTarget} key={flyTarget.join(",")} />
                     )}

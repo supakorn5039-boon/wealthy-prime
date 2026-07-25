@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { PropertyPrices } from '@/components/property/PropertyPrices'
-import { FlyTo, MapStatusLegend, buildStatusIconResolver } from '@/components/property/propertyMap'
+import { FlyTo, MapStatusLegend, I18nTileLayer, buildStatusIconResolver } from '@/components/property/propertyMap'
 import type { Property } from '@/types/Property'
 
 const iconFor = buildStatusIconResolver(32)
@@ -65,7 +65,7 @@ export default function MapIndex() {
                 scrollWheelZoom
                 attributionControl={false}
               >
-                <TileLayer detectRetina url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                <I18nTileLayer />
 
                 {flyTarget && <FlyTo position={flyTarget} key={flyTarget.join(',')} />}
 

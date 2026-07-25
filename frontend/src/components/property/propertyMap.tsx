@@ -1,7 +1,9 @@
-import { useEffect } from 'react'
-import { useMap } from 'react-leaflet'
+import { useEffect, useRef } from 'react'
+import { useMap, TileLayer } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { Language, MapStyle, maptilerLayer } from '@maptiler/leaflet-maptilersdk'
+import '@maptiler/sdk/dist/maptiler-sdk.css'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 
@@ -69,3 +71,84 @@ export function MapStatusLegend({ className }: { className?: string }) {
     </div>
   )
 }
+
+const MAPTILER_LANG_MAP: Record<string, unknown> = {
+  th: Language.THAI,
+  en: Language.ENGLISH,
+  zh: Language.CHINESE,
+  ja: Language.JAPANESE,
+  de: Language.GERMAN,
+  fr: Language.FRENCH,
+  es: Language.SPANISH,
+  ru: Language.RUSSIAN,
+  ko: Language.KOREAN,
+}
+
+export function I18nTileLayer({ apiKey }: { apiKey?: string }) {
+  const map = useMap()
+  const { i18n } = useTranslation()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const layerRef = useRef<any>(null)
+  const key = apiKey || (import.meta.env.VITE_MAPTILER_API_KEY as string | undefined)
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const targetLang = (MAPTILER_LANG_MAP[i18n.language] || i18n.language || Language.ENGLISH) as any
+
+  useEffect(() => {
+    if (!key || !map) return
+
+    try {
+      if (!map.attributionControl) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(map as any).attributionControl = L.control.attribution({ prefix: false })
+      }
+
+      const layer = maptilerLayer({
+        apiKey: key,
+        style: MapStyle.STREETS,
+        language: targetLang,
+      })
+      layer.addTo(map)
+      layerRef.current = layer
+
+      return () => {
+        if (layerRef.current) {
+          try {
+            map.removeLayer(layerRef.current)
+          } catch {
+            // ignore
+          }
+          layerRef.current = null
+        }
+      }
+    } catch (e) {
+      console.error('Failed to initialize MaptilerLayer:', e)
+    }
+  }, [map, key])
+
+  useEffect(() => {
+    if (layerRef.current && targetLang) {
+      try {
+        layerRef.current.setLanguage(targetLang)
+      } catch (e) {
+        console.error('Failed to set Maptiler language:', e)
+      }
+    }
+  }, [targetLang])
+
+  if (!key) {
+    return (
+      <TileLayer
+        key="osm-fallback"
+        detectRetina
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>'
+      />
+    )
+  }
+
+  return null
+}
+
+
+
