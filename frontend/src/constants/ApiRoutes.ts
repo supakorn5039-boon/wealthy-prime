@@ -13,6 +13,7 @@ export const API = {
   PROPERTY_DETAIL: (id: number | string) => `/properties/${id}`,
   PROPERTY_IMAGES_ARCHIVE: (id: number | string) => `/properties/${id}/images-archive`,
   PROPERTY_REVIEWS: (id: number | string) => `/properties/${id}/reviews`,
+  PROPERTY_BOOKED_SLOTS: (id: number | string) => `/properties/${id}/booked-slots`,
   PROPERTY_LISTING_OWNER: (id: number | string) => `/properties/${id}/listing-owner`,
 
   BOOKINGS: '/user/bookings',

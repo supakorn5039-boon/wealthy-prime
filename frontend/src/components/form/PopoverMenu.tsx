@@ -9,21 +9,26 @@ interface PopoverMenuProps {
   position: PopoverPosition | null
   query: string
   onQueryChange: (q: string) => void
+  container?: HTMLElement | null
   children: ReactNode
 }
 
-export function PopoverMenu({ menuRef, position, query, onQueryChange, children }: PopoverMenuProps) {
+export function PopoverMenu({ menuRef, position, query, onQueryChange, container, children }: PopoverMenuProps) {
   const { t } = useTranslation()
   if (!position) return null
+  const targetContainer = container || document.body
   return createPortal(
     <div
       ref={menuRef}
+      onPointerDown={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
       style={{
-        position: 'absolute',
+        position: 'fixed',
         top: position.top,
         left: position.left,
         width: position.width,
         zIndex: 1200,
+        pointerEvents: 'auto',
       }}
       className="max-h-80 overflow-hidden rounded-md border border-border bg-popover shadow-lg flex flex-col"
     >
@@ -42,6 +47,6 @@ export function PopoverMenu({ menuRef, position, query, onQueryChange, children 
       </div>
       <div className="overflow-y-auto p-1">{children}</div>
     </div>,
-    document.body,
+    targetContainer,
   )
 }

@@ -93,6 +93,27 @@ func (s *AgentService) UpdateWorkStatus(agentID, bookingID uint, ws model.Appoin
 		return nil, apperror.Forbidden("this booking is not assigned to you")
 	}
 
+	if ws == model.WorkBooked || ws == model.WorkClosedDeal {
+		var property model.Property
+		if err := s.db.Select("id", "status").First(&property, booking.PropertyID).Error; err != nil {
+			return nil, apperror.Wrap(err, 500, "database error fetching property")
+		}
+		if property.Status == model.StatusReserved || property.Status == model.StatusUnavailable || property.Status == model.StatusSold {
+			return nil, apperror.Conflict("property is reserved or unavailable; cannot set work status to booked or closed deal")
+		}
+
+		var count int64
+		if err := s.db.Model(&model.Booking{}).
+			Where("property_id = ? AND id <> ? AND (work_status = ? OR work_status = ?)",
+				booking.PropertyID, bookingID, model.WorkBooked, model.WorkClosedDeal).
+			Count(&count).Error; err != nil {
+			return nil, apperror.Wrap(err, 500, "database error checking existing bookings")
+		}
+		if count > 0 {
+			return nil, apperror.Conflict("another booking for this property is already booked or closed deal")
+		}
+	}
+
 	updates := map[string]interface{}{"work_status": ws}
 	switch ws {
 	case model.WorkClosedDeal:

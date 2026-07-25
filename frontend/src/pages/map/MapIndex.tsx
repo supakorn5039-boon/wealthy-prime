@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { MapContainer, Marker, Popup } from 'react-leaflet'
 import { MapPin, Star, Maximize2, Home } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { PropertyService } from '@/services/PropertyService'
@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { PropertyPrices } from '@/components/property/PropertyPrices'
 import { FlyTo, MapStatusLegend, buildStatusIconResolver } from '@/components/property/propertyMap'
+import { LocalizedTileLayer } from '@/components/property/LocalizedTileLayer'
 import type { Property } from '@/types/Property'
 
 const iconFor = buildStatusIconResolver(32)
@@ -65,7 +66,7 @@ export default function MapIndex() {
                 scrollWheelZoom
                 attributionControl={false}
               >
-                <TileLayer detectRetina url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                <LocalizedTileLayer />
 
                 {flyTarget && <FlyTo position={flyTarget} key={flyTarget.join(',')} />}
 

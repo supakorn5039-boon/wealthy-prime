@@ -66,7 +66,13 @@ export function FormCombobox<T extends FieldValues>({
         <ChevronDown className="size-4 opacity-50 shrink-0 ml-2" />
       </button>
       {open && !disabled && (
-        <PopoverMenu menuRef={menuRef} position={position} query={query} onQueryChange={setQuery}>
+        <PopoverMenu
+          menuRef={menuRef}
+          position={position}
+          query={query}
+          onQueryChange={setQuery}
+          container={triggerRef.current?.closest<HTMLElement>('[role="dialog"]') || document.body}
+        >
           {filtered.length === 0 ? (
             <p className="px-3 py-2 text-sm text-muted-foreground">{t('common.noResults')}</p>
           ) : (

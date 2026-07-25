@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, Marker, Popup } from "react-leaflet";
 import {
   MapPin,
   Star,
@@ -39,6 +39,7 @@ import {
   MapStatusLegend,
   buildStatusIconResolver,
 } from "@/components/property/propertyMap";
+import { LocalizedTileLayer } from "@/components/property/LocalizedTileLayer";
 import type { Property, PropertyListParams } from "@/types/Property";
 
 const iconFor = buildStatusIconResolver(28);
@@ -257,7 +258,7 @@ export default function HomeIndex() {
                     scrollWheelZoom
                     attributionControl={false}
                   >
-                    <TileLayer detectRetina url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <LocalizedTileLayer />
                     {flyTarget && (
                       <FlyTo position={flyTarget} key={flyTarget.join(",")} />
                     )}

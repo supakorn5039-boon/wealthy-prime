@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { X, Trash2, ShoppingCart, CalendarDays, ChevronDown } from 'lucide-react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import axios from 'axios'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { useTranslation } from 'react-i18next'
@@ -16,6 +17,13 @@ import { useAuthStore } from '@/store/authStore'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { ROUTES } from '@/constants/Routes'
 import { cn } from '@/lib/utils'
+import type { CartItem } from '@/types/Booking'
+
+function slotKey(d: Date): number {
+  const normalized = new Date(d)
+  normalized.setSeconds(0, 0)
+  return normalized.getTime()
+}
 
 interface ContactForm {
   firstName: string
@@ -45,7 +53,7 @@ const emptyContact: ContactForm = {
 
 export function CartDrawer() {
   const { t } = useTranslation()
-  const { items, isOpen, closeCart, removeItem, updateDate, clearCart } = useCartStore()
+  const { items, isOpen, closeCart, clearCart } = useCartStore()
   const { user } = useAuthStore()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -95,6 +103,11 @@ export function CartDrawer() {
       navigate(ROUTES.HISTORY)
     },
     onError: (err: Error) => {
+      if (axios.isAxiosError(err) && err.response?.status === 409) {
+        queryClient.invalidateQueries({ queryKey: [BookingService.QUERY_KEYS.BOOKED_SLOTS] })
+        toast.error(t('cart.slotTaken'))
+        return
+      }
       toast.error(err.message || t('cart.error'))
     },
   })
@@ -145,42 +158,7 @@ export function CartDrawer() {
           ) : (
             <>
               {items.map((item) => (
-                <div key={item.propertyId} className="border rounded-lg p-3 space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm line-clamp-2">{item.propertyTitle}</p>
-                      <p className="text-primary font-semibold text-sm mt-0.5">{formatPrice(item.propertyPrice)}</p>
-                      <span className="text-xs text-muted-foreground">{t(`property.${item.propertyType}`)}</span>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="flex-shrink-0 text-red-500 hover:text-red-600 hover:bg-red-50 size-8"
-                      onClick={() => removeItem(item.propertyId)}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <CalendarDays className="size-3.5" />
-                      <span>{t('cart.appointmentDate')}</span>
-                      <span className="text-red-500">*</span>
-                    </div>
-                    <DatePicker
-                      selected={item.appointmentDate}
-                      onChange={(date) => updateDate(item.propertyId, date)}
-                      minDate={new Date()}
-                      showTimeSelect
-                      timeFormat="HH:mm"
-                      timeIntervals={30}
-                      filterTime={(time) => time.getTime() > Date.now()}
-                      dateFormat="dd/MM/yyyy HH:mm"
-                      placeholderText={t('cart.selectDateTime')}
-                      className="w-full text-sm"
-                    />
-                  </div>
-                </div>
+                <CartItemRow key={item.propertyId} item={item} />
               ))}
 
               <div className="border rounded-lg">
@@ -281,5 +259,66 @@ export function CartDrawer() {
         )}
       </div>
     </>
+  )
+}
+
+function CartItemRow({ item }: { item: CartItem }) {
+  const { t } = useTranslation()
+  const { removeItem, updateDate } = useCartStore()
+
+  const { data: bookedSlots = [] } = useQuery({
+    queryKey: [BookingService.QUERY_KEYS.BOOKED_SLOTS, item.propertyId],
+    queryFn: () => BookingService.bookedSlots(item.propertyId),
+    staleTime: 30_000,
+  })
+
+  const bookedKeys = useMemo(() => {
+    const keys = new Set<number>()
+    for (const iso of bookedSlots) keys.add(slotKey(new Date(iso)))
+    return keys
+  }, [bookedSlots])
+
+  const isFree = (time: Date) => time.getTime() > Date.now() && !bookedKeys.has(slotKey(time))
+
+  return (
+    <div className="border rounded-lg p-3 space-y-3">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <p className="font-medium text-sm line-clamp-2">{item.propertyTitle}</p>
+          <p className="text-primary font-semibold text-sm mt-0.5">{formatPrice(item.propertyPrice)}</p>
+          <span className="text-xs text-muted-foreground">{t(`property.${item.propertyType}`)}</span>
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="flex-shrink-0 text-red-500 hover:text-red-600 hover:bg-red-50 size-8"
+          onClick={() => removeItem(item.propertyId)}
+        >
+          <Trash2 className="size-4" />
+        </Button>
+      </div>
+      <div className="space-y-1">
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <CalendarDays className="size-3.5" />
+          <span>{t('cart.appointmentDate')}</span>
+          <span className="text-red-500">*</span>
+        </div>
+        <DatePicker
+          selected={item.appointmentDate}
+          onChange={(date) => updateDate(item.propertyId, date)}
+          minDate={new Date()}
+          showTimeSelect
+          timeFormat="HH:mm"
+          timeIntervals={30}
+          filterTime={isFree}
+          dateFormat="dd/MM/yyyy HH:mm"
+          placeholderText={t('cart.selectDateTime')}
+          className="w-full text-sm"
+        />
+        {bookedSlots.length > 0 && (
+          <p className="text-[10px] text-muted-foreground">{t('cart.bookedSlotsHint')}</p>
+        )}
+      </div>
+    </div>
   )
 }

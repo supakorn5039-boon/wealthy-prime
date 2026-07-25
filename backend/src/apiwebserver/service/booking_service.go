@@ -101,6 +101,16 @@ func (s *BookingService) CreateBookings(userID uint, input CreateBookingsInput) 
 				status = model.BookingAssigned
 			}
 
+			var slotTaken int64
+			if err := tx.Model(&model.Booking{}).
+				Where("property_id = ? AND appointment_date = ? AND status IN ?", propertyID, input.AppointmentDate, ActiveBookingStatuses).
+				Count(&slotTaken).Error; err != nil {
+				return apperror.Wrap(err, 500, "database error checking slot availability")
+			}
+			if slotTaken > 0 {
+				return apperror.Conflict("appointment slot already taken for property " + uintToStr(propertyID))
+			}
+
 			booking := model.Booking{
 				UserID:          userID,
 				PropertyID:      propertyID,
@@ -244,6 +254,21 @@ func (s *BookingService) GetUserBookings(userID uint) ([]model.BookingDto, error
 		dtos[i] = *b.ToDto()
 	}
 	return dtos, nil
+}
+
+func (s *BookingService) GetBookedSlotsForProperty(propertyID uint) ([]string, error) {
+	var bookings []model.Booking
+	if err := s.db.
+		Where("property_id = ? AND status IN ? AND appointment_date >= ?", propertyID, ActiveBookingStatuses, time.Now()).
+		Order("appointment_date asc").
+		Find(&bookings).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to fetch booked slots")
+	}
+	slots := make([]string, len(bookings))
+	for i, b := range bookings {
+		slots[i] = b.AppointmentDate.Format(time.RFC3339)
+	}
+	return slots, nil
 }
 
 func (s *BookingService) GetUserBooking(userID, bookingID uint) (*model.BookingDto, error) {

@@ -93,12 +93,17 @@ func parsePriceRanges(s string) []service.PriceRange {
 }
 
 type PropertyController struct {
-	svc      *service.PropertyService
-	auditSvc *service.AuditService
+	svc        *service.PropertyService
+	bookingSvc *service.BookingService
+	auditSvc   *service.AuditService
 }
 
 func NewPropertyController() *PropertyController {
-	return &PropertyController{svc: service.NewPropertyService(), auditSvc: service.NewAuditService()}
+	return &PropertyController{
+		svc:        service.NewPropertyService(),
+		bookingSvc: service.NewBookingService(),
+		auditSvc:   service.NewAuditService(),
+	}
 }
 
 func (ctrl *PropertyController) RegisterRoutes(r *gin.RouterGroup) {
@@ -107,6 +112,7 @@ func (ctrl *PropertyController) RegisterRoutes(r *gin.RouterGroup) {
 	props.GET("/suggest", ctrl.suggestProjectNames)
 	props.GET("/:id", ctrl.getProperty)
 	props.GET("/:id/reviews", ctrl.getPropertyReviews)
+	props.GET("/:id/booked-slots", ctrl.getBookedSlots)
 	props.GET("/:id/listing-owner", ctrl.getListingOwner)
 	props.GET("/:id/images-archive", ctrl.downloadImagesArchive)
 }
@@ -218,6 +224,22 @@ func (ctrl *PropertyController) getListingOwner(c *gin.Context) {
 		return
 	}
 	successResponse(c, preview)
+}
+
+func (ctrl *PropertyController) getBookedSlots(c *gin.Context) {
+	id, err := parseUintParam(c, "id")
+	if err != nil {
+		badRequest(c, "invalid property id")
+		return
+	}
+
+	slots, err := ctrl.bookingSvc.GetBookedSlotsForProperty(id)
+	if err != nil {
+		errorResponse(c, err)
+		return
+	}
+
+	successResponse(c, slots)
 }
 
 func (ctrl *PropertyController) getPropertyReviews(c *gin.Context) {

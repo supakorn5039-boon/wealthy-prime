@@ -14,21 +14,35 @@ export function usePopover(minWidth = 220) {
   const menuRef = useRef<HTMLDivElement | null>(null)
   const [position, setPosition] = useState<PopoverPosition | null>(null)
 
-  useLayoutEffect(() => {
-    if (!open || !triggerRef.current) return
+  const updatePosition = () => {
+    if (!triggerRef.current) return
     const rect = triggerRef.current.getBoundingClientRect()
     setPosition({
-      top: rect.bottom + window.scrollY + 4,
-      left: rect.left + window.scrollX,
+      top: rect.bottom + 4,
+      left: rect.left,
       width: Math.max(rect.width, minWidth),
     })
+  }
+
+  useLayoutEffect(() => {
+    if (!open) return
+    updatePosition()
   }, [open, minWidth])
 
-  useClickOutside([triggerRef, menuRef], () => setOpen(false), open)
-
   useEffect(() => {
-    if (!open) setQuery('')
+    if (!open) {
+      setQuery('')
+      return
+    }
+    window.addEventListener('resize', updatePosition)
+    window.addEventListener('scroll', updatePosition, true)
+    return () => {
+      window.removeEventListener('resize', updatePosition)
+      window.removeEventListener('scroll', updatePosition, true)
+    }
   }, [open])
+
+  useClickOutside([triggerRef, menuRef], () => setOpen(false), open)
 
   return { open, setOpen, query, setQuery, triggerRef, menuRef, position }
 }

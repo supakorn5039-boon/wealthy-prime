@@ -58,6 +58,7 @@ type BookingDto struct {
 	PropertyID          uint                  `json:"propertyId"`
 	PropertyTitle       string                `json:"propertyTitle"`
 	PropertyCode        string                `json:"propertyCode"`
+	PropertyStatus      PropertyStatus        `json:"propertyStatus"`
 	AppointmentDate     string                `json:"appointmentDate"`
 	Note                string                `json:"note"`
 	Status              BookingStatus         `json:"status"`
@@ -89,6 +90,7 @@ func (b *Booking) ToDto() *BookingDto {
 		PropertyID:      b.PropertyID,
 		PropertyTitle:   b.Property.ProjectName,
 		PropertyCode:    b.Property.PropertyCode,
+		PropertyStatus:  b.Property.Status,
 		AppointmentDate: b.AppointmentDate.Format(time.RFC3339),
 		Note:            b.Note,
 		Status:          b.Status,

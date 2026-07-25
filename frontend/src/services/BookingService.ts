@@ -7,6 +7,12 @@ export const BookingService = {
   QUERY_KEYS: {
     LIST: 'bookings',
     DETAIL: 'booking-detail',
+    BOOKED_SLOTS: 'property-booked-slots',
+  },
+
+  bookedSlots: async (propertyId: number | string): Promise<string[]> => {
+    const res = await fetchClient.get<ApiResponse<string[]>>(API.PROPERTY_BOOKED_SLOTS(propertyId))
+    return res.data.data ?? []
   },
 
   create: async (payload: CreateBookingPayload): Promise<Booking> => {

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import axios from 'axios'
 import { useTranslation } from 'react-i18next'
 import { AgentService } from '@/services/AgentService'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -28,9 +29,22 @@ export function WorkStatusSelect({ contact, className }: { contact: Booking; cla
       toast.success(t('agent.workStatusSaved'))
       queryClient.invalidateQueries({ queryKey: [AgentService.QUERY_KEYS.CONTACTS] })
     },
-    onError: () => toast.error(t('common.error')),
+    onError: (err: Error) => {
+      if (axios.isAxiosError(err) && err.response?.status === 409) {
+        toast.error(t('agent.workStatusBlocked'))
+        return
+      }
+      toast.error(t('common.error'))
+    },
     onSettled: () => setPending(null),
   })
+
+  const propertyUnavailable =
+    contact.propertyStatus === 'reserved' ||
+    contact.propertyStatus === 'unavailable' ||
+    contact.propertyStatus === 'sold'
+  const isBlockedTransition = (ws: AppointmentWorkStatus) =>
+    propertyUnavailable && (ws === 'booked' || ws === 'closed_deal')
 
   const pendingLabel = pending ? t(WORK_STATUS_LABEL_KEYS[pending]) : ''
 
@@ -40,7 +54,12 @@ export function WorkStatusSelect({ contact, className }: { contact: Booking; cla
         value={contact.workStatus ?? ''}
         onValueChange={(v) => {
           const next = v as AppointmentWorkStatus
-          if (next !== contact.workStatus) setPending(next)
+          if (next === contact.workStatus) return
+          if (isBlockedTransition(next)) {
+            toast.error(t('agent.workStatusBlocked'))
+            return
+          }
+          setPending(next)
         }}
         disabled={mutation.isPending}
       >

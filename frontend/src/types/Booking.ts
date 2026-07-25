@@ -1,4 +1,4 @@
-import type { ListingOwnerPreview } from '@/types/Property'
+import type { ListingOwnerPreview, PropertyStatus } from '@/types/Property'
 
 export type BookingStatus = 'pending' | 'assigned' | 'completed' | 'cancelled'
 
@@ -18,6 +18,7 @@ export interface Booking {
   propertyId: number
   propertyTitle?: string
   propertyCode?: string
+  propertyStatus?: PropertyStatus
   appointmentDate: string
   note?: string
   status: BookingStatus
