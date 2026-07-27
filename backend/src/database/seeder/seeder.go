@@ -9,6 +9,5 @@ import (
 func Run(db *gorm.DB) {
 	log.Println("[seeder] running seeders...")
 	seedAdmin(db)
-	seedDemoAgent(db)
 	log.Println("[seeder] all seeders completed")
 }

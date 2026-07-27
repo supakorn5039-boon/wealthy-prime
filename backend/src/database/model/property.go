@@ -61,7 +61,7 @@ type Property struct {
 	Location           string `gorm:"not null"`
 	RentPrice          *float64
 	SalePrice          *float64
-	Type               PropertyType `gorm:"type:varchar(10);not null"`
+	Type               PropertyType `gorm:"type:varchar(10);not null;index"`
 	SizeSqm            float64
 	AgentID            *uint  `gorm:"index"`
 	Agent              *User  `gorm:"foreignKey:AgentID"`
@@ -70,12 +70,12 @@ type Property struct {
 	SlipURL            string
 	Lat                *float64
 	Lng                *float64
-	Status             PropertyStatus  `gorm:"type:varchar(20);not null;default:'available'"`
+	Status             PropertyStatus  `gorm:"type:varchar(20);not null;default:'available';index"`
 	Images             []PropertyImage `gorm:"foreignKey:PropertyID"`
 
 	PropertyCode string       `gorm:"uniqueIndex;type:varchar(10)"`
-	Kind         PropertyKind `gorm:"type:varchar(30)"`
-	Listing      ListingType  `gorm:"type:varchar(10)"`
+	Kind         PropertyKind `gorm:"type:varchar(30);index"`
+	Listing      ListingType  `gorm:"type:varchar(10);index"`
 	Province     string       `gorm:"index:idx_properties_province_district,priority:1"`
 	District     string       `gorm:"index;index:idx_properties_province_district,priority:2"`
 	GoogleMapURL string
@@ -151,7 +151,7 @@ func generatePropertyCode() (string, error) {
 
 type PropertyImage struct {
 	gorm.Model
-	PropertyID uint   `gorm:"not null"`
+	PropertyID uint   `gorm:"not null;index"`
 	URL        string `gorm:"not null"`
 }
 
