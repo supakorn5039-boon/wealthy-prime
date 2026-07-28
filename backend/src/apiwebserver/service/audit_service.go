@@ -84,7 +84,7 @@ func (s *AuditService) Log(c *gin.Context, entry AuditEntry) {
 		actorIDPtr = &actorID
 	}
 
-	metaJSON := ""
+	metaJSON := "{}"
 	if entry.Metadata != nil {
 		if b, err := json.Marshal(entry.Metadata); err == nil {
 			metaJSON = string(b)
