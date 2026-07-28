@@ -4,8 +4,11 @@ import (
 	"testing"
 	"time"
 
+	"gorm.io/gorm"
+
 	"github.com/wealthy-prime/backend/src/apiwebserver/service"
 	"github.com/wealthy-prime/backend/src/database/model"
+	"github.com/wealthy-prime/backend/src/pkg/timezone"
 	"github.com/wealthy-prime/backend/src/tests/helpers"
 )
 
@@ -158,6 +161,88 @@ func TestAgent_UpdateWorkStatus_BlockedWhenPropertyReserved(t *testing.T) {
 	}
 	if _, err := agentSvc.UpdateWorkStatus(agentID, bookingID, model.WorkVisited); err != nil {
 		t.Fatalf("work status 'visited' should be allowed on a reserved property: %v", err)
+	}
+}
+
+func seedBookingsAtCap(t *testing.T, db *gorm.DB, propertyID, ownerID, userID uint, firstSlot time.Time) {
+	t.Helper()
+	for i := range service.MaxBookingsPerAgentPerDay {
+		b := model.Booking{
+			UserID:          userID,
+			PropertyID:      propertyID,
+			AppointmentDate: firstSlot.Add(time.Duration(i) * time.Hour),
+			Status:          model.BookingAssigned,
+			AssignedAgentID: &ownerID,
+			FirstName:       "Load", LastName: "Seed", Phone: "0810000011",
+		}
+		if err := db.Create(&b).Error; err != nil {
+			t.Fatalf("seed booking %d: %v", i, err)
+		}
+	}
+}
+
+func capTestSlot() time.Time {
+	day := time.Now().In(timezone.ICT).AddDate(0, 0, 3)
+	return time.Date(day.Year(), day.Month(), day.Day(), 9, 0, 0, 0, timezone.ICT)
+}
+
+func TestBooking_AdminOwnedPropertyExemptFromDailyCap(t *testing.T) {
+	db, cleanup := helpers.TestDB(t)
+	defer cleanup()
+
+	adminID := helpers.SeedAdmin(t, db, "cap.admin@test.local")
+	helpers.SeedAgent(t, db, "cap.spare@test.local")
+	userID := helpers.SeedUser(t, db, "cap.user@test.local")
+
+	prop := helpers.NewProperty(adminID, "AdminCap", model.ListingSell, model.StatusAvailable)
+	if err := db.Create(&prop).Error; err != nil {
+		t.Fatalf("seed property: %v", err)
+	}
+
+	slot := capTestSlot()
+	seedBookingsAtCap(t, db, prop.ID, adminID, userID, slot)
+
+	svc := service.NewBookingServiceWithDeps(db, &helpers.CaptureSender{})
+	dtos, err := svc.CreateBookings(userID, service.CreateBookingsInput{
+		PropertyIDs:     []uint{prop.ID},
+		AppointmentDate: slot.Add(service.MaxBookingsPerAgentPerDay * time.Hour),
+		FirstName:       "Cap", LastName: "User", Phone: "0810000012",
+	})
+	if err != nil {
+		t.Fatalf("CreateBookings: %v", err)
+	}
+	if dtos[0].AssignedAgentID == nil || *dtos[0].AssignedAgentID != adminID {
+		t.Fatalf("admin-owned booking was reassigned away: got %v, want %d", dtos[0].AssignedAgentID, adminID)
+	}
+}
+
+func TestBooking_AgentAtDailyCapIsReassigned(t *testing.T) {
+	db, cleanup := helpers.TestDB(t)
+	defer cleanup()
+
+	ownerID := helpers.SeedAgent(t, db, "cap.owner@test.local")
+	spareID := helpers.SeedAgent(t, db, "cap.backup@test.local")
+	userID := helpers.SeedUser(t, db, "cap.booker@test.local")
+
+	prop := helpers.NewProperty(ownerID, "AgentCap", model.ListingSell, model.StatusAvailable)
+	if err := db.Create(&prop).Error; err != nil {
+		t.Fatalf("seed property: %v", err)
+	}
+
+	slot := capTestSlot()
+	seedBookingsAtCap(t, db, prop.ID, ownerID, userID, slot)
+
+	svc := service.NewBookingServiceWithDeps(db, &helpers.CaptureSender{})
+	dtos, err := svc.CreateBookings(userID, service.CreateBookingsInput{
+		PropertyIDs:     []uint{prop.ID},
+		AppointmentDate: slot.Add(service.MaxBookingsPerAgentPerDay * time.Hour),
+		FirstName:       "Cap", LastName: "Booker", Phone: "0810000013",
+	})
+	if err != nil {
+		t.Fatalf("CreateBookings: %v", err)
+	}
+	if dtos[0].AssignedAgentID == nil || *dtos[0].AssignedAgentID != spareID {
+		t.Fatalf("agent at cap should hand off to the spare agent %d, got %v", spareID, dtos[0].AssignedAgentID)
 	}
 }
 

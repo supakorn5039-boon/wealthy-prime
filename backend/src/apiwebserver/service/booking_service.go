@@ -20,7 +20,7 @@ var ActiveBookingStatuses = []model.BookingStatus{model.BookingPending, model.Bo
 
 var AdminVisibleWorkStatuses = []model.AppointmentWorkStatus{model.WorkNotSet, model.WorkContacted}
 
-const maxBookingsPerAgentPerDay = 3
+const MaxBookingsPerAgentPerDay = 3
 
 const (
 	maxPropertiesPerRequest  = 5
@@ -194,6 +194,15 @@ func (s *BookingService) sendAgentNotification(b model.Booking) {
 }
 
 func (s *BookingService) maybeReassignForLoadTx(tx *gorm.DB, preferredAgentID uint, appointmentDate time.Time) (*uint, error) {
+	var owner model.User
+	err := tx.Select("id", "role").First(&owner, preferredAgentID).Error
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, apperror.Wrap(err, 500, "database error fetching property owner")
+	}
+	if owner.Role == model.RoleAdmin {
+		return nil, nil
+	}
+
 	local := appointmentDate.In(timezone.ICT)
 	dayStart := time.Date(local.Year(), local.Month(), local.Day(), 0, 0, 0, 0, timezone.ICT)
 	dayEnd := dayStart.Add(24 * time.Hour)
@@ -210,7 +219,7 @@ func (s *BookingService) maybeReassignForLoadTx(tx *gorm.DB, preferredAgentID ui
 		Count(&count).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "database error counting agent bookings")
 	}
-	if count < maxBookingsPerAgentPerDay {
+	if count < MaxBookingsPerAgentPerDay {
 		return nil, nil
 	}
 

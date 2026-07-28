@@ -70,6 +70,10 @@ func SeedUser(t *testing.T, db *gorm.DB, email string) uint {
 	return seedUser(t, db, email, model.RoleUser)
 }
 
+func SeedAdmin(t *testing.T, db *gorm.DB, email string) uint {
+	return seedUser(t, db, email, model.RoleAdmin)
+}
+
 func seedUser(t *testing.T, db *gorm.DB, email string, role model.UserRole) uint {
 	t.Helper()
 	u := model.User{
