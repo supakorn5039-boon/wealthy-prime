@@ -11,7 +11,7 @@ import (
 )
 
 func seedAdmin(db *gorm.DB) {
-	adminEmail := "admin@wealthyprimeestate.com"
+	adminEmail := "admin@example.com"
 
 	var existing model.User
 	result := db.Where("email = ?", adminEmail).First(&existing)
