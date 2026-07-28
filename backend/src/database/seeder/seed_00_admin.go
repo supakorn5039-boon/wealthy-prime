@@ -6,40 +6,24 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/wealthy-prime/backend/src/config"
 	"github.com/wealthy-prime/backend/src/database/model"
 	"github.com/wealthy-prime/backend/src/security"
 )
 
-const (
-	defaultAdminEmail        = "admin@wealthyprimeestate.com"
-	developmentAdminPassword = "admin123"
-)
-
 func seedAdmin(db *gorm.DB) {
-	var adminCount int64
-	if err := db.Model(&model.User{}).Where("role = ?", model.RoleAdmin).Count(&adminCount).Error; err != nil {
-		log.Printf("[seeder] failed to count admin users: %v", err)
-		return
-	}
-	if adminCount > 0 {
+	adminEmail := "admin@wealthyprimeestate.com"
+
+	var existing model.User
+	result := db.Where("email = ?", adminEmail).First(&existing)
+	if result.Error == nil {
 		log.Println("[seeder] admin user already exists, skipping")
 		return
 	}
 
-	adminEmail := os.Getenv("ADMIN_EMAIL")
-	if adminEmail == "" {
-		adminEmail = defaultAdminEmail
-	}
-
 	password := os.Getenv("ADMIN_PASSWORD")
 	if password == "" {
-		if config.App.Server.Production {
-			log.Printf("[seeder] refusing to create admin %s without ADMIN_PASSWORD set", adminEmail)
-			return
-		}
-		password = developmentAdminPassword
-		log.Println("[seeder] WARNING: using development admin password. Set ADMIN_PASSWORD to override.")
+		password = "admin123"
+		log.Println("[seeder] WARNING: using default admin password 'admin123'. Set ADMIN_PASSWORD env var in production.")
 	}
 
 	hash, err := security.HashPassword(password)
