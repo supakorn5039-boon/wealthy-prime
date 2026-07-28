@@ -20,6 +20,8 @@ var ActiveBookingStatuses = []model.BookingStatus{model.BookingPending, model.Bo
 
 var AdminVisibleWorkStatuses = []model.AppointmentWorkStatus{model.WorkNotSet, model.WorkContacted}
 
+var ReassignmentPoolRoles = []model.UserRole{model.RoleAgent, model.RoleAdmin}
+
 const MaxBookingsPerAgentPerDay = 3
 
 const (
@@ -225,7 +227,7 @@ func (s *BookingService) maybeReassignForLoadTx(tx *gorm.DB, preferredAgentID ui
 
 	var pool []model.User
 	if err := tx.Select("id").
-		Where("role = ? AND is_approved = ? AND id <> ?", model.RoleAgent, true, preferredAgentID).
+		Where("role IN ? AND is_approved = ? AND id <> ?", ReassignmentPoolRoles, true, preferredAgentID).
 		Find(&pool).Error; err != nil {
 		return nil, apperror.Wrap(err, 500, "database error fetching agent pool")
 	}

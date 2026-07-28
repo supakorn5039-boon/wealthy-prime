@@ -246,6 +246,36 @@ func TestBooking_AgentAtDailyCapIsReassigned(t *testing.T) {
 	}
 }
 
+func TestBooking_AgentAtDailyCapCanHandOffToAdmin(t *testing.T) {
+	db, cleanup := helpers.TestDB(t)
+	defer cleanup()
+
+	ownerID := helpers.SeedAgent(t, db, "pool.owner@test.local")
+	adminID := helpers.SeedAdmin(t, db, "pool.admin@test.local")
+	userID := helpers.SeedUser(t, db, "pool.booker@test.local")
+
+	prop := helpers.NewProperty(ownerID, "PoolAdmin", model.ListingSell, model.StatusAvailable)
+	if err := db.Create(&prop).Error; err != nil {
+		t.Fatalf("seed property: %v", err)
+	}
+
+	slot := capTestSlot()
+	seedBookingsAtCap(t, db, prop.ID, ownerID, userID, slot)
+
+	svc := service.NewBookingServiceWithDeps(db, &helpers.CaptureSender{})
+	dtos, err := svc.CreateBookings(userID, service.CreateBookingsInput{
+		PropertyIDs:     []uint{prop.ID},
+		AppointmentDate: slot.Add(service.MaxBookingsPerAgentPerDay * time.Hour),
+		FirstName:       "Pool", LastName: "Admin", Phone: "0810000014",
+	})
+	if err != nil {
+		t.Fatalf("CreateBookings: %v", err)
+	}
+	if dtos[0].AssignedAgentID == nil || *dtos[0].AssignedAgentID != adminID {
+		t.Fatalf("admin should be eligible to absorb overflow, got %v want %d", dtos[0].AssignedAgentID, adminID)
+	}
+}
+
 func TestBooking_GetUserBookings_ScopesToCaller(t *testing.T) {
 	db, cleanup := helpers.TestDB(t)
 	defer cleanup()
