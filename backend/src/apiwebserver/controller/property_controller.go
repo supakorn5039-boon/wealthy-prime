@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/wealthy-prime/backend/src/apiwebserver/service"
 	"github.com/wealthy-prime/backend/src/apperror"
 	"github.com/wealthy-prime/backend/src/database/model"
+	"github.com/wealthy-prime/backend/src/pkg/timezone"
 )
 
 func parseIntCSV(s string) []int32 {
@@ -66,6 +68,26 @@ func parseFloatPtr(s string) *float64 {
 	return &v
 }
 
+func parseICTDate(s string) *time.Time {
+	if s == "" {
+		return nil
+	}
+	t, err := time.ParseInLocation("2006-01-02", s, timezone.ICT)
+	if err != nil {
+		return nil
+	}
+	return &t
+}
+
+func parseICTDateEnd(s string) *time.Time {
+	t := parseICTDate(s)
+	if t == nil {
+		return nil
+	}
+	end := t.AddDate(0, 0, 1)
+	return &end
+}
+
 func parsePriceRanges(s string) []service.PriceRange {
 	if s == "" {
 		return nil
@@ -95,14 +117,12 @@ func parsePriceRanges(s string) []service.PriceRange {
 type PropertyController struct {
 	svc        *service.PropertyService
 	bookingSvc *service.BookingService
-	auditSvc   *service.AuditService
 }
 
 func NewPropertyController() *PropertyController {
 	return &PropertyController{
 		svc:        service.NewPropertyService(),
 		bookingSvc: service.NewBookingService(),
-		auditSvc:   service.NewAuditService(),
 	}
 }
 
@@ -173,8 +193,6 @@ func (ctrl *PropertyController) getProperty(c *gin.Context) {
 
 	if !canSeeOwnerInfo(middleware.GetRole(c)) {
 		dto.StripOwnerInfo()
-	} else {
-		ctrl.auditSvc.LogViewOwner(c, id, "Viewed owner info for "+dto.ProjectName)
 	}
 
 	successResponse(c, dto)

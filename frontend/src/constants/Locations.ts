@@ -371,6 +371,8 @@ export const BTS_MRT_STATIONS: readonly BtsMrtStation[] = [
   { id: 168, name: 'บ้านทับช้าง (Airport Link)', nameEn: 'Ban Thap Chang (Airport Link)', nameZh: '班塔昌 (机场铁路)', line: 'ARL' },
   { id: 169, name: 'ลาดกระบัง (Airport Link)', nameEn: 'Lat Krabang (Airport Link)', nameZh: '莱卡邦 (机场铁路)', line: 'ARL' },
   { id: 170, name: 'สุวรรณภูมิ (Airport Link)', nameEn: 'Suvarnabhumi (Airport Link)', nameZh: '素万那普 (机场铁路)', line: 'ARL' },
+
+  { id: 171, name: 'สามย่าน (MRT)', nameEn: 'Sam Yan (MRT)', nameZh: '三养 (MRT)', line: 'MRT_BLUE' },
 ]
 
 export const BTS_MRT_STATION_BY_ID: ReadonlyMap<number, BtsMrtStation> = new Map(

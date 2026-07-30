@@ -8,6 +8,7 @@ export type PropertyStatus =
   | 'owner_update'
 export type PropertyKind =
   | 'condo'
+  | 'studio'
   | 'house'
   | 'semi_detached_house'
   | 'townhouse'
@@ -108,6 +109,8 @@ export interface PropertyListParams {
   statuses?: PropertyStatus[]
   projectName?: string
   agentId?: number
+  createdFrom?: string
+  createdTo?: string
   page?: number
   limit?: number
 }

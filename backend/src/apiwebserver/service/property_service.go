@@ -89,6 +89,8 @@ type PropertyFilter struct {
 	AgentID     *uint
 	Statuses    []string
 	ProjectName string
+	CreatedFrom *time.Time
+	CreatedTo   *time.Time
 }
 
 type PropertyFields struct {
@@ -274,6 +276,12 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 	if filter.ProjectName != "" {
 		s := "%" + filter.ProjectName + "%"
 		query = query.Where("(project_name ILIKE ? OR property_code ILIKE ?)", s, s)
+	}
+	if filter.CreatedFrom != nil {
+		query = query.Where("created_at >= ?", *filter.CreatedFrom)
+	}
+	if filter.CreatedTo != nil {
+		query = query.Where("created_at < ?", *filter.CreatedTo)
 	}
 
 	var properties []model.Property

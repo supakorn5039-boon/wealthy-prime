@@ -2,10 +2,8 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"sync"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -20,8 +18,6 @@ const auditQueueSize = 1024
 type AuditService struct {
 	db    *gorm.DB
 	queue chan model.AuditLog
-
-	viewOwnerSeen sync.Map
 }
 
 var (
@@ -110,25 +106,6 @@ func (s *AuditService) Log(c *gin.Context, entry AuditEntry) {
 	default:
 		log.Printf("[audit] queue full (>%d pending), dropping action=%s entity=%s", auditQueueSize, row.Action, row.EntityType)
 	}
-}
-
-func (s *AuditService) LogViewOwner(c *gin.Context, propertyID uint, summary string) {
-	actorID := middleware.GetUserID(c)
-	if actorID == 0 {
-		return
-	}
-
-	key := fmt.Sprintf("%s:%d:%d", time.Now().UTC().Format("2006-01-02"), actorID, propertyID)
-	if _, seen := s.viewOwnerSeen.LoadOrStore(key, struct{}{}); seen {
-		return
-	}
-
-	s.Log(c, AuditEntry{
-		Action:     model.AuditViewOwner,
-		EntityType: model.EntityProperty,
-		EntityID:   &propertyID,
-		Summary:    summary,
-	})
 }
 
 func (s *AuditService) List(f AuditFilter) ([]model.AuditLogDto, error) {

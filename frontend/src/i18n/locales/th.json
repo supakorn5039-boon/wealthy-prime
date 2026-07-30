@@ -220,6 +220,7 @@
     "kindLabel": "ประเภททรัพย์",
     "kind": {
       "condo": "คอนโด",
+      "studio": "สตูดิโอ",
       "house": "บ้านเดี่ยว",
       "semi_detached_house": "บ้านแฝด",
       "townhouse": "ทาวน์โฮม / ทาวน์เฮาส์",
@@ -319,6 +320,8 @@
     "basicInfo": "ข้อมูลพื้นฐาน",
     "projectName": "ชื่อโครงการ",
     "projectSearchPlaceholder": "ค้นหาจากชื่อโครงการ, รหัสทรัพย์",
+    "createdFrom": "วันที่ลงประกาศ ตั้งแต่",
+    "createdTo": "วันที่ลงประกาศ ถึง",
     "rentPrice": "ราคาเช่า",
     "salePrice": "ราคาขาย",
     "rentPriceLabel": "ราคาเช่า (บาท)",

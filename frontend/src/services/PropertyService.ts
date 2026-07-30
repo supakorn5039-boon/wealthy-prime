@@ -153,6 +153,8 @@ export const PropertyService = {
       kinds: csv(p.kinds),
       statuses: csv(p.statuses),
       project_name: p.projectName,
+      created_from: p.createdFrom,
+      created_to: p.createdTo,
     }
     const res = await fetchClient.get<ApiResponse<Property[]>>(API.AGENT_PROPERTIES, {
       params: cleanParams(queryParams as Record<string, unknown>),
@@ -174,6 +176,8 @@ export const PropertyService = {
       statuses: csv(p.statuses),
       project_name: p.projectName,
       agent_id: p.agentId,
+      created_from: p.createdFrom,
+      created_to: p.createdTo,
     }
     const res = await fetchClient.get<ApiResponse<Property[]>>(API.ADMIN_PROPERTIES, {
       params: cleanParams(queryParams as Record<string, unknown>),

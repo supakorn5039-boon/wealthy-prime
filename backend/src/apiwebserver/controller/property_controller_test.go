@@ -3,8 +3,10 @@ package controller
 import (
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/wealthy-prime/backend/src/apiwebserver/service"
+	"github.com/wealthy-prime/backend/src/pkg/timezone"
 )
 
 func TestParseIntCSV(t *testing.T) {
@@ -64,5 +66,46 @@ func TestParsePriceRanges(t *testing.T) {
 		if got := parsePriceRanges(tc.in); !reflect.DeepEqual(got, tc.want) {
 			t.Errorf("parsePriceRanges(%q) = %v, want %v", tc.in, got, tc.want)
 		}
+	}
+}
+
+func TestParseICTDate(t *testing.T) {
+	if got := parseICTDate(""); got != nil {
+		t.Errorf("empty string should yield nil, got %v", got)
+	}
+	if got := parseICTDate("not-a-date"); got != nil {
+		t.Errorf("garbage should yield nil, got %v", got)
+	}
+
+	got := parseICTDate("2026-07-30")
+	if got == nil {
+		t.Fatal("valid date parsed to nil")
+	}
+	want := time.Date(2026, 7, 30, 0, 0, 0, 0, timezone.ICT)
+	if !got.Equal(want) {
+		t.Errorf("parseICTDate = %v, want %v", got, want)
+	}
+	if _, offset := got.Zone(); offset != 7*3600 {
+		t.Errorf("expected ICT (+7h) offset, got %d seconds", offset)
+	}
+}
+
+func TestParseICTDateEndIsExclusiveNextMidnight(t *testing.T) {
+	if got := parseICTDateEnd(""); got != nil {
+		t.Errorf("empty string should yield nil, got %v", got)
+	}
+
+	got := parseICTDateEnd("2026-07-30")
+	if got == nil {
+		t.Fatal("valid date parsed to nil")
+	}
+	want := time.Date(2026, 7, 31, 0, 0, 0, 0, timezone.ICT)
+	if !got.Equal(want) {
+		t.Errorf("parseICTDateEnd = %v, want %v", got, want)
+	}
+
+	lastMoment := time.Date(2026, 7, 30, 23, 59, 59, 0, timezone.ICT)
+	if !lastMoment.Before(*got) {
+		t.Error("23:59:59 on the selected day must fall inside the range")
 	}
 }

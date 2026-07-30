@@ -220,6 +220,7 @@
     "kindLabel": "Property Type",
     "kind": {
       "condo": "Condo",
+      "studio": "Studio",
       "house": "Detached House",
       "semi_detached_house": "Semi-Detached House",
       "townhouse": "Townhome / Townhouse",
@@ -319,6 +320,8 @@
     "basicInfo": "Basic Info",
     "projectName": "Project Name",
     "projectSearchPlaceholder": "Search by project name or property code",
+    "createdFrom": "Created from",
+    "createdTo": "Created to",
     "rentPrice": "Rent price",
     "salePrice": "Sale price",
     "rentPriceLabel": "Rent price (THB)",

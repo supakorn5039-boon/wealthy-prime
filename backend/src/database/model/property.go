@@ -31,6 +31,7 @@ const (
 	TypeRent PropertyType = "rent"
 
 	KindCondo             PropertyKind = "condo"
+	KindStudio            PropertyKind = "studio"
 	KindHouse             PropertyKind = "house"
 	KindSemiDetachedHouse PropertyKind = "semi_detached_house"
 	KindTownhouse         PropertyKind = "townhouse"

@@ -148,29 +148,35 @@ export default function MyPropertiesIndex() {
   const [typeFilters, setTypeFilters] = useState<ListingFilter[]>([]);
   const [kindFilters, setKindFilters] = useState<Exclude<PropertyKind, ''>[]>([]);
   const [projectFilter, setProjectFilter] = useState('');
+  const [createdFrom, setCreatedFrom] = useState('');
+  const [createdTo, setCreatedTo] = useState('');
 
   const baseKey = isAdmin ? AdminService.QUERY_KEYS.PROPERTIES : PropertyService.QUERY_KEYS.AGENT_LIST;
 
   const { data: properties = [], isLoading } = useQuery({
-    queryKey: [baseKey, { statusFilters, typeFilters, kindFilters, projectFilter }],
+    queryKey: [baseKey, { statusFilters, typeFilters, kindFilters, projectFilter, createdFrom, createdTo }],
     queryFn: () => {
       const params = {
         statuses: statusFilters.length ? statusFilters : undefined,
         types: typeFilters.length ? typeFilters : undefined,
         kinds: kindFilters.length ? kindFilters : undefined,
         projectName: projectFilter || undefined,
+        createdFrom: createdFrom || undefined,
+        createdTo: createdTo || undefined,
       };
       return isAdmin
         ? PropertyService.getAdminProperties(params)
         : PropertyService.getAgentProperties(params);
     },
   });
-  const hasFilters = !!(statusFilters.length || typeFilters.length || kindFilters.length || projectFilter);
+  const hasFilters = !!(statusFilters.length || typeFilters.length || kindFilters.length || projectFilter || createdFrom || createdTo);
   const clearFilters = () => {
     setStatusFilters([]);
     setTypeFilters([]);
     setKindFilters([]);
     setProjectFilter('');
+    setCreatedFrom('');
+    setCreatedTo('');
   };
 
   const statusOptions = useMemo(() => STATUS_VALUES.map((s) => ({ value: s, label: t(`property.status.${s}`) })), [t]);
@@ -207,7 +213,7 @@ export default function MyPropertiesIndex() {
         }
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
         <MultiSelectFilter
           placeholder={t('property.statusCol')}
           selected={statusFilters}
@@ -225,6 +231,24 @@ export default function MyPropertiesIndex() {
           selected={kindFilters}
           options={kindOptions}
           onChange={(next) => setKindFilters(next as Exclude<PropertyKind, ''>[])}
+        />
+        <Input
+          type="date"
+          value={createdFrom}
+          max={createdTo || undefined}
+          onChange={(e) => setCreatedFrom(e.target.value)}
+          title={t('property.createdFrom')}
+          aria-label={t('property.createdFrom')}
+          className="h-9"
+        />
+        <Input
+          type="date"
+          value={createdTo}
+          min={createdFrom || undefined}
+          onChange={(e) => setCreatedTo(e.target.value)}
+          title={t('property.createdTo')}
+          aria-label={t('property.createdTo')}
+          className="h-9"
         />
         <div className="flex items-center gap-1">
           <Input

@@ -72,6 +72,8 @@ func (ctrl *AgentController) listProperties(c *gin.Context) {
 		Kinds:       parseStringCSV(c.Query("kinds")),
 		Statuses:    parseStringCSV(c.Query("statuses")),
 		ProjectName: c.Query("project_name"),
+		CreatedFrom: parseICTDate(c.Query("created_from")),
+		CreatedTo:   parseICTDateEnd(c.Query("created_to")),
 	}
 	dtos, err := ctrl.propertySvc.GetAgentProperties(agentID, filter)
 	if err != nil {

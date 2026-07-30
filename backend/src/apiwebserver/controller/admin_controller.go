@@ -90,6 +90,8 @@ func (ctrl *AdminController) listProperties(c *gin.Context) {
 		BtsMrtIDs:   parseIntCSV(c.Query("bts_mrt_ids")),
 		Statuses:    parseStringCSV(c.Query("statuses")),
 		ProjectName: c.Query("project_name"),
+		CreatedFrom: parseICTDate(c.Query("created_from")),
+		CreatedTo:   parseICTDateEnd(c.Query("created_to")),
 	}
 	if id := c.Query("agent_id"); id != "" {
 		n, err := strconv.ParseUint(id, 10, 64)

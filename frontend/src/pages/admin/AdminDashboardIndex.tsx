@@ -26,6 +26,7 @@ const KINDS: KindKey[] = [...PROPERTY_KINDS]
 
 const KIND_COLORS: Record<KindKey, string> = {
   condo: '#3b82f6',
+  studio: '#0ea5e9',
   house: '#10b981',
   semi_detached_house: '#14b8a6',
   townhouse: '#f59e0b',
