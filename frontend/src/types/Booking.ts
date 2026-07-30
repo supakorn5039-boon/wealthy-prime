@@ -1,4 +1,4 @@
-import type { ListingOwnerPreview, PropertyStatus } from '@/types/Property'
+import type { ListingOwnerPreview, ListingType, PropertyStatus } from '@/types/Property'
 
 export type BookingStatus = 'pending' | 'assigned' | 'completed' | 'cancelled'
 
@@ -62,5 +62,6 @@ export interface CartItem {
   propertyTitle: string
   propertyPrice: number | null
   propertyType: 'buy' | 'rent'
+  propertyListing?: ListingType
   appointmentDate: Date | null
 }

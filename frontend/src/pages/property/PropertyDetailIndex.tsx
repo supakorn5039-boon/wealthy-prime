@@ -65,6 +65,7 @@ export default function PropertyDetailIndex() {
       propertyTitle: property.projectName,
       propertyPrice: primaryPrice(property),
       propertyType: property.type,
+      propertyListing: property.listing,
       appointmentDate: null,
     })
     openCart()
@@ -152,7 +153,7 @@ export default function PropertyDetailIndex() {
                   </div>
                 )}
                 <Badge variant="outline">
-                  {t(`property.${property.type}`)}
+                  {property.listing ? t(`property.listing.${property.listing}`) : t(`property.${property.type}`)}
                 </Badge>
                 {property.type === 'rent' && property.rentalPeriodMonths && (
                   <Badge variant="outline">{property.rentalPeriodMonths} {t('property.months')}</Badge>

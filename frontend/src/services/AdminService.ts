@@ -5,6 +5,7 @@ import type { AuthUser } from '@/types/Auth'
 import type { Booking } from '@/types/Booking'
 import type { ApiResponse } from '@/types/Commons'
 import type { AuditLog, AuditLogFilters } from '@/types/AuditLog'
+import type { ListingType } from '@/types/Property'
 
 export interface AdminDashboardData {
   totalProperties: number
@@ -22,6 +23,7 @@ export interface FinancialRecord {
   agentName: string
   amount: number
   type: 'buy' | 'rent'
+  listing?: ListingType
   closedAt: string
 }
 

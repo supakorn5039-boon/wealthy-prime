@@ -288,12 +288,12 @@ export default function MyPropertiesIndex() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="whitespace-nowrap">{t("property.createdCol")}</TableHead>
                   <TableHead>{t("property.code")}</TableHead>
                   <TableHead>{t("property.project")}</TableHead>
                   <TableHead>{t("property.typeCol")}</TableHead>
                   <TableHead>{t("property.price")}</TableHead>
                   <TableHead>{t("property.statusCol")}</TableHead>
-                  <TableHead className="whitespace-nowrap">{t("property.createdCol")}</TableHead>
                   <TableHead className="text-right">
                     {t("property.management")}
                   </TableHead>
@@ -302,21 +302,23 @@ export default function MyPropertiesIndex() {
               <TableBody>
                 {properties.map((p) => (
                   <TableRow key={p.id}>
+                    <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
+                      {formatDate(p.createdAt)}
+                    </TableCell>
                     <TableCell className="font-mono text-sm text-muted-foreground">
                       {p.propertyCode ?? "-"}
                     </TableCell>
                     <TableCell>
                       <p className="font-medium">{p.projectName}</p>
                     </TableCell>
-                    <TableCell>{t(`property.${p.type}`)}</TableCell>
+                    <TableCell>
+                      {p.listing ? t(`property.listing.${p.listing}`) : "-"}
+                    </TableCell>
                     <TableCell>
                       <PropertyPrices property={p} size="sm" />
                     </TableCell>
                     <TableCell>
                       <PropertyStatusBadge status={p.status} />
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
-                      {formatDate(p.createdAt)}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">

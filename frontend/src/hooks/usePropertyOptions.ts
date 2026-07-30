@@ -16,7 +16,7 @@ export const PROPERTY_KINDS = [
   'hotel',
   'apartment',
 ] as const
-export const PROPERTY_LISTINGS = ['rent', 'sell', 'both'] as const
+export const PROPERTY_LISTINGS = ['sell', 'rent', 'both'] as const
 export const PROPERTY_PETS = ['allowed', 'not_allowed'] as const
 export const PROPERTY_FURNITURE = ['full', 'partial', 'none'] as const
 

@@ -60,7 +60,7 @@ export default function AddPropertyIndex() {
       lng: "",
 
       kind: "condo" as const,
-      listing: "rent" as const,
+      listing: "both" as const,
       province: "",
       district: "",
       googleMapUrl: "",

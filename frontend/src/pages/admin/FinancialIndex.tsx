@@ -74,7 +74,7 @@ export default function FinancialIndex() {
                     <TableCell>{record.agentName}</TableCell>
                     <TableCell>
                       <Badge variant={record.type === 'buy' ? 'info' : 'success'}>
-                        {t(`property.${record.type}`)}
+                        {record.listing ? t(`property.listing.${record.listing}`) : t(`property.${record.type}`)}
                       </Badge>
                     </TableCell>
                     <TableCell className="font-semibold text-primary">{formatPrice(record.amount)}</TableCell>

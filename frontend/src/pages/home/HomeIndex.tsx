@@ -299,7 +299,7 @@ export default function HomeIndex() {
                 <div className="flex items-center gap-2">
                   <PropertyStatusBadge status={selected.status} />
                   <Badge variant="outline" className="text-xs capitalize">
-                    {t(`property.${selected.type}`)}
+                    {selected.listing ? t(`property.listing.${selected.listing}`) : t(`property.${selected.type}`)}
                   </Badge>
                 </div>
                 <PropertyPrices property={selected} size="md" />

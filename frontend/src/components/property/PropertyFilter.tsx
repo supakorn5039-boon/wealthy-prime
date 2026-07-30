@@ -42,6 +42,7 @@ type ListingChoice = 'sell' | 'rent' | 'sell_and_rent'
 const DEFAULT_LISTING_CHOICE: ListingChoice = 'sell_and_rent'
 const NOT_AVAILABLE_STATUSES: PropertyStatus[] = ['reserved', 'sold', 'unavailable', 'owner_update']
 const BATHROOM_CHOICES = Array.from({ length: 10 }, (_, i) => i + 1)
+const BEDROOM_CHOICES = Array.from({ length: 10 }, (_, i) => i + 1)
 const PANEL_VIEWPORT_MARGIN = 8
 const PANEL_GAP = 6
 const PANEL_MIN_HEIGHT = 240
@@ -362,6 +363,49 @@ function RangeInputs({ min, max, onMin, onMax }: RangePanelProps) {
   )
 }
 
+function RangeSelects({ min, max, onMin, onMax, choices }: RangePanelProps & { choices: number[] }) {
+  const { t } = useTranslation()
+  const selectClass =
+    'h-11 w-full min-w-0 rounded-lg border border-input bg-background px-3 text-sm outline-none focus:ring-1 focus:ring-ring'
+  const minValue = min ? Number(min) : undefined
+  const maxValue = max ? Number(max) : undefined
+
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      <select
+        value={min}
+        onChange={(e) => onMin(e.target.value)}
+        className={selectClass}
+        aria-label={t('home.rangeMin')}
+      >
+        <option value="">{t('home.rangeMin')}</option>
+        {choices
+          .filter((n) => maxValue == null || n <= maxValue)
+          .map((n) => (
+            <option key={n} value={n}>
+              {n}
+            </option>
+          ))}
+      </select>
+      <select
+        value={max}
+        onChange={(e) => onMax(e.target.value)}
+        className={selectClass}
+        aria-label={t('home.rangeMax')}
+      >
+        <option value="">{t('home.rangeMax')}</option>
+        {choices
+          .filter((n) => minValue == null || n >= minValue)
+          .map((n) => (
+            <option key={n} value={n}>
+              {n}
+            </option>
+          ))}
+      </select>
+    </div>
+  )
+}
+
 function PanelSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="px-4 py-3 border-b border-border/60 last:border-b-0">
@@ -673,11 +717,12 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
         <FilterDropdown label={bedLabel} active={Boolean(bedroomsMin || bedroomsMax)} minWidth={300} fullWidth>
           {() => (
             <PanelSection title={t('home.filterLabel.bed')}>
-              <RangeInputs
+              <RangeSelects
                 min={bedroomsMin}
                 max={bedroomsMax}
                 onMin={setBedroomsMin}
                 onMax={setBedroomsMax}
+                choices={BEDROOM_CHOICES}
               />
             </PanelSection>
           )}

@@ -286,7 +286,9 @@ function CartItemRow({ item }: { item: CartItem }) {
         <div className="flex-1 min-w-0">
           <p className="font-medium text-sm line-clamp-2">{item.propertyTitle}</p>
           <p className="text-primary font-semibold text-sm mt-0.5">{formatPrice(item.propertyPrice)}</p>
-          <span className="text-xs text-muted-foreground">{t(`property.${item.propertyType}`)}</span>
+          <span className="text-xs text-muted-foreground">
+            {item.propertyListing ? t(`property.listing.${item.propertyListing}`) : t(`property.${item.propertyType}`)}
+          </span>
         </div>
         <Button
           variant="ghost"

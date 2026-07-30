@@ -175,6 +175,7 @@ type FinancialRecord struct {
 	AgentName     string  `json:"agentName"`
 	Amount        float64 `json:"amount"`
 	Type          string  `json:"type"`
+	Listing       string  `json:"listing"`
 	ClosedAt      string  `json:"closedAt"`
 }
 
@@ -197,6 +198,7 @@ func (s *AdminService) GetFinancialReport() ([]FinancialRecord, error) {
 			AgentName:     agentName,
 			Amount:        p.ClosedAmount(),
 			Type:          string(p.Type),
+			Listing:       string(p.Listing),
 			ClosedAt:      p.UpdatedAt.Format("2006-01-02"),
 		}
 	}
@@ -223,7 +225,7 @@ func (s *AdminService) ExportFinancial(w http.ResponseWriter) error {
 	f.NewSheet(sheet)
 	f.DeleteSheet("Sheet1")
 
-	headers := []string{"ID", "Project Name", "Location", "Rent Price", "Sale Price", "Type", "Size (sqm)", "Agent", "Owner Info", "Created At"}
+	headers := []string{"ID", "Project Name", "Location", "Rent Price", "Sale Price", "Listing", "Size (sqm)", "Agent", "Owner Info", "Created At"}
 	for i, h := range headers {
 		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
 		f.SetCellValue(sheet, cell, h)
@@ -241,7 +243,7 @@ func (s *AdminService) ExportFinancial(w http.ResponseWriter) error {
 			p.Location,
 			priceCell(p.RentPrice),
 			priceCell(p.SalePrice),
-			string(p.Type),
+			string(p.Listing),
 			p.SizeSqm,
 			agentName,
 			p.OwnerInfo,
