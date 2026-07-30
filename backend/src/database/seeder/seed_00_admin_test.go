@@ -11,34 +11,61 @@ import (
 	"github.com/wealthy-prime/backend/src/tests/helpers"
 )
 
-func admins(t *testing.T, db *gorm.DB) []model.User {
+func adminEmails(t *testing.T, db *gorm.DB) []string {
 	t.Helper()
 	var out []model.User
-	if err := db.Where("role = ?", model.RoleAdmin).Order("id").Find(&out).Error; err != nil {
+	if err := db.Where("role = ?", model.RoleAdmin).Order("email").Find(&out).Error; err != nil {
 		t.Fatalf("list admins: %v", err)
 	}
-	return out
+	emails := make([]string, len(out))
+	for i, u := range out {
+		emails[i] = u.Email
+	}
+	return emails
 }
 
-func TestSeedAdmin_CreatesTheSeededAdminOnAnEmptyDatabase(t *testing.T) {
+func TestSeedAdmin_CreatesBothAdminsOnAnEmptyDatabase(t *testing.T) {
 	db, cleanup := helpers.TestDB(t)
 	defer cleanup()
 
 	t.Setenv("ADMIN_PASSWORD", "seed-test-secret")
 	seedAdmin(db)
 
-	got := admins(t, db)
-	if len(got) != 1 {
-		t.Fatalf("expected exactly 1 admin, got %d", len(got))
+	got := adminEmails(t, db)
+	if len(got) != len(seededAdmins) {
+		t.Fatalf("expected %d admins, got %d (%v)", len(seededAdmins), len(got), got)
 	}
-	if got[0].Email != seededAdminEmail {
-		t.Errorf("seeded email: got %q, want %q", got[0].Email, seededAdminEmail)
+	for _, want := range []string{"admin@example.com", "wealthyprime.admin@gmail.com"} {
+		found := false
+		for _, e := range got {
+			if e == want {
+				found = true
+			}
+		}
+		if !found {
+			t.Errorf("%s was not seeded; got %v", want, got)
+		}
 	}
-	if !got[0].IsApproved {
-		t.Error("seeded admin must be approved or it cannot be used")
+}
+
+func TestSeedAdmin_BothUseAdminPassword(t *testing.T) {
+	db, cleanup := helpers.TestDB(t)
+	defer cleanup()
+
+	t.Setenv("ADMIN_PASSWORD", "seed-test-secret")
+	seedAdmin(db)
+
+	var users []model.User
+	if err := db.Where("role = ?", model.RoleAdmin).Find(&users).Error; err != nil {
+		t.Fatalf("list admins: %v", err)
 	}
-	if !security.CheckPassword(got[0].PasswordHash, "seed-test-secret") {
-		t.Error("ADMIN_PASSWORD was not used for the seeded admin")
+	for _, u := range users {
+		if !security.CheckPassword(u.PasswordHash, "seed-test-secret") {
+			t.Errorf("%s was not seeded with ADMIN_PASSWORD", u.Email)
+		}
+		if !u.IsApproved {
+			t.Errorf("%s must be approved or it cannot be used", u.Email)
+		}
 	}
 }
 
@@ -51,20 +78,20 @@ func TestSeedAdmin_IsIdempotent(t *testing.T) {
 	seedAdmin(db)
 	seedAdmin(db)
 
-	if got := admins(t, db); len(got) != 1 {
-		t.Fatalf("repeated seeding must not duplicate the admin, got %d", len(got))
+	if got := adminEmails(t, db); len(got) != len(seededAdmins) {
+		t.Fatalf("repeated seeding must not duplicate admins, got %d (%v)", len(got), got)
 	}
 }
 
-func TestSeedAdmin_SkipsWhenAnAdminExistsUnderAnyEmail(t *testing.T) {
+func TestSeedAdmin_FillsOnlyTheMissingOne(t *testing.T) {
 	db, cleanup := helpers.TestDB(t)
 	defer cleanup()
 
 	existing := model.User{
-		Name:         "Renamed Admin",
-		Email:        "someone.else@example.com",
-		PasswordHash: "x",
-		Phone:        "0800000000",
+		Name:         "Already Here",
+		Email:        "wealthyprime.admin@gmail.com",
+		PasswordHash: "untouched",
+		Phone:        "0899999999",
 		Role:         model.RoleAdmin,
 		IsApproved:   true,
 	}
@@ -75,27 +102,16 @@ func TestSeedAdmin_SkipsWhenAnAdminExistsUnderAnyEmail(t *testing.T) {
 	t.Setenv("ADMIN_PASSWORD", "seed-test-secret")
 	seedAdmin(db)
 
-	got := admins(t, db)
-	if len(got) != 1 {
-		t.Fatalf("an admin under a different email must still block seeding, got %d admins", len(got))
+	if got := adminEmails(t, db); len(got) != 2 {
+		t.Fatalf("expected 2 admins, got %d (%v)", len(got), got)
 	}
-	if got[0].Email != "someone.else@example.com" {
-		t.Errorf("existing admin was replaced: got %q", got[0].Email)
+
+	var after model.User
+	if err := db.Where("email = ?", "wealthyprime.admin@gmail.com").First(&after).Error; err != nil {
+		t.Fatalf("reload existing admin: %v", err)
 	}
-}
-
-func TestSeedAdmin_NonAdminsDoNotBlockSeeding(t *testing.T) {
-	db, cleanup := helpers.TestDB(t)
-	defer cleanup()
-
-	helpers.SeedAgent(t, db, "agent.only@test.local")
-	helpers.SeedUser(t, db, "user.only@test.local")
-
-	t.Setenv("ADMIN_PASSWORD", "seed-test-secret")
-	seedAdmin(db)
-
-	if got := admins(t, db); len(got) != 1 {
-		t.Fatalf("agents and users must not block admin seeding, got %d admins", len(got))
+	if after.PasswordHash != "untouched" {
+		t.Error("seeder overwrote the password of an admin that already existed")
 	}
 }
 
@@ -106,11 +122,11 @@ func TestSeedAdmin_FallsBackWhenAdminPasswordUnset(t *testing.T) {
 	os.Unsetenv("ADMIN_PASSWORD")
 	seedAdmin(db)
 
-	got := admins(t, db)
-	if len(got) != 1 {
-		t.Fatalf("expected 1 admin, got %d", len(got))
+	var u model.User
+	if err := db.Where("email = ?", "wealthyprime.admin@gmail.com").First(&u).Error; err != nil {
+		t.Fatalf("load seeded admin: %v", err)
 	}
-	if !security.CheckPassword(got[0].PasswordHash, "admin123") {
+	if !security.CheckPassword(u.PasswordHash, "admin123") {
 		t.Error("documented fallback changed; update ROTATE-SECRETS.md and the handover notes")
 	}
 }

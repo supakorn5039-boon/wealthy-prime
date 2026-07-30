@@ -1,6 +1,7 @@
 package seeder
 
 import (
+	"errors"
 	"log"
 	"os"
 
@@ -10,46 +11,54 @@ import (
 	"github.com/wealthy-prime/backend/src/security"
 )
 
-const seededAdminEmail = "wealthyprime.admin@gmail.com"
+type seededAdmin struct {
+	Name  string
+	Email string
+	Phone string
+}
+
+var seededAdmins = []seededAdmin{
+	{Name: "System Admin", Email: "admin@example.com", Phone: "0811111111"},
+	{Name: "Wealthy Prime Admin", Email: "wealthyprime.admin@gmail.com", Phone: "0812222222"},
+}
 
 func seedAdmin(db *gorm.DB) {
-	var anyAdmin int64
-	if err := db.Model(&model.User{}).Where("role = ?", model.RoleAdmin).Count(&anyAdmin).Error; err != nil {
-		log.Printf("[seeder] failed to count admins: %v", err)
-		return
-	}
-	if anyAdmin > 0 {
-		log.Printf("[seeder] %d admin user(s) already exist, skipping", anyAdmin)
-		return
-	}
-
-	adminEmail := seededAdminEmail
-
 	password := os.Getenv("ADMIN_PASSWORD")
 	if password == "" {
 		password = "admin123"
 		log.Println("[seeder] WARNING: using default admin password 'admin123'. Set ADMIN_PASSWORD env var in production.")
 	}
 
-	hash, err := security.HashPassword(password)
-	if err != nil {
-		log.Printf("[seeder] failed to hash admin password: %v", err)
-		return
-	}
+	for _, a := range seededAdmins {
+		var existing model.User
+		err := db.Where("email = ?", a.Email).First(&existing).Error
+		if err == nil {
+			log.Printf("[seeder] admin %s already exists, skipping", a.Email)
+			continue
+		}
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Printf("[seeder] failed to look up admin %s: %v", a.Email, err)
+			continue
+		}
 
-	admin := model.User{
-		Name:         "Wealthy Prime Admin",
-		Email:        adminEmail,
-		PasswordHash: hash,
-		Phone:        "0811111111",
-		Role:         model.RoleAdmin,
-		IsApproved:   true,
-	}
+		hash, hashErr := security.HashPassword(password)
+		if hashErr != nil {
+			log.Printf("[seeder] failed to hash password for %s: %v", a.Email, hashErr)
+			continue
+		}
 
-	if err := db.Create(&admin).Error; err != nil {
-		log.Printf("[seeder] failed to create admin user: %v", err)
-		return
+		admin := model.User{
+			Name:         a.Name,
+			Email:        a.Email,
+			PasswordHash: hash,
+			Phone:        a.Phone,
+			Role:         model.RoleAdmin,
+			IsApproved:   true,
+		}
+		if err := db.Create(&admin).Error; err != nil {
+			log.Printf("[seeder] failed to create admin %s: %v", a.Email, err)
+			continue
+		}
+		log.Printf("[seeder] admin user created: %s", a.Email)
 	}
-
-	log.Printf("[seeder] admin user created: %s", adminEmail)
 }
