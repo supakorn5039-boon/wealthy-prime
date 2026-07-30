@@ -10,15 +10,20 @@ import (
 	"github.com/wealthy-prime/backend/src/security"
 )
 
-func seedAdmin(db *gorm.DB) {
-	adminEmail := "admin@example.com"
+const seededAdminEmail = "wealthyprime.admin@gmail.com"
 
-	var existing model.User
-	result := db.Where("email = ?", adminEmail).First(&existing)
-	if result.Error == nil {
-		log.Println("[seeder] admin user already exists, skipping")
+func seedAdmin(db *gorm.DB) {
+	var anyAdmin int64
+	if err := db.Model(&model.User{}).Where("role = ?", model.RoleAdmin).Count(&anyAdmin).Error; err != nil {
+		log.Printf("[seeder] failed to count admins: %v", err)
 		return
 	}
+	if anyAdmin > 0 {
+		log.Printf("[seeder] %d admin user(s) already exist, skipping", anyAdmin)
+		return
+	}
+
+	adminEmail := seededAdminEmail
 
 	password := os.Getenv("ADMIN_PASSWORD")
 	if password == "" {
@@ -33,7 +38,7 @@ func seedAdmin(db *gorm.DB) {
 	}
 
 	admin := model.User{
-		Name:         "System Admin",
+		Name:         "Wealthy Prime Admin",
 		Email:        adminEmail,
 		PasswordHash: hash,
 		Phone:        "0811111111",
