@@ -277,6 +277,7 @@
     "typeCol": "类型",
     "price": "价格",
     "statusCol": "状态",
+    "createdCol": "发布日期",
     "management": "操作",
     "updateStatus": "更新状态",
     "addProperty": "添加房产",

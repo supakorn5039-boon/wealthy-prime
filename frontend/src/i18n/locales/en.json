@@ -277,6 +277,7 @@
     "typeCol": "Type",
     "price": "Price",
     "statusCol": "Status",
+    "createdCol": "Created",
     "management": "Management",
     "updateStatus": "Update Status",
     "addProperty": "Add Property",

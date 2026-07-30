@@ -277,6 +277,7 @@
     "typeCol": "ประเภท",
     "price": "ราคา",
     "statusCol": "สถานะ",
+    "createdCol": "วันที่ลง",
     "management": "การจัดการ",
     "updateStatus": "อัปเดตสถานะ",
     "addProperty": "เพิ่มทรัพย์สิน",
