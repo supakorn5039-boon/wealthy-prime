@@ -98,6 +98,6 @@ export const routes: AppRoute[] = [
     path: ROUTES.ADMIN_ADD_PROPERTY,
     element: wrap(<AddPropertyIndex assignAgent />),
     layout: RouteLayout.PROTECTED,
-    allowedRoles: ADMIN_ONLY,
+    allowedRoles: AGENT_ADMIN,
   },
 ]

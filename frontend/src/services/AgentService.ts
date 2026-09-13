@@ -3,6 +3,7 @@ import { API } from '@/constants/ApiRoutes'
 import type { AgentDashboardStats } from '@/types/Property'
 import type { AppointmentWorkStatus, Booking } from '@/types/Booking'
 import type { ReviewLink } from '@/types/Review'
+import type { AuthUser } from '@/types/Auth'
 import type { ApiResponse } from '@/types/Commons'
 
 export type ContactCase = Booking
@@ -12,10 +13,16 @@ export const AgentService = {
     DASHBOARD: 'agent-dashboard',
     CONTACTS: 'agent-contacts',
     REVIEW_LINKS: 'agent-review-links',
+    ASSIGNABLE_AGENTS: 'agent-assignable-agents',
   },
 
   getDashboard: async (): Promise<AgentDashboardStats> => {
     const res = await fetchClient.get<ApiResponse<AgentDashboardStats>>(API.AGENT_DASHBOARD)
+    return res.data.data
+  },
+
+  getAssignableAgents: async (): Promise<AuthUser[]> => {
+    const res = await fetchClient.get<ApiResponse<AuthUser[]>>(API.AGENT_ASSIGNABLE_AGENTS)
     return res.data.data
   },
 

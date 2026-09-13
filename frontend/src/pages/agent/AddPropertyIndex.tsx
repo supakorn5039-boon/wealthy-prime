@@ -9,6 +9,7 @@ import { ImagePlus, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PropertyService } from "@/services/PropertyService";
 import { AdminService } from "@/services/AdminService";
+import { AgentService } from "@/services/AgentService";
 import { FormInput } from "@/components/form/FormInput";
 import { FormPhoneInput } from "@/components/form/FormPhoneInput";
 import { FormPriceInput } from "@/components/form/FormPriceInput";
@@ -51,8 +52,8 @@ export default function AddPropertyIndex({ assignAgent = false }: AddPropertyInd
   const provinceOptions = PROVINCES.map((p) => ({ value: p, label: localizedProvince(p, i18n.language) }));
 
   const { data: assignableAgents = [] } = useQuery({
-    queryKey: [AdminService.QUERY_KEYS.ASSIGNABLE_AGENTS],
-    queryFn: AdminService.getAssignableAgents,
+    queryKey: [AgentService.QUERY_KEYS.ASSIGNABLE_AGENTS],
+    queryFn: AgentService.getAssignableAgents,
     enabled: assignAgent,
   });
   const agentOptions = useMemo(

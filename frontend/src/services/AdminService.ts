@@ -32,7 +32,6 @@ export const AdminService = {
     DASHBOARD: 'admin-dashboard',
     PENDING_USERS: 'admin-pending-users',
     AGENTS: 'admin-agents',
-    ASSIGNABLE_AGENTS: 'admin-assignable-agents',
     USERS: 'admin-users',
     BOOKINGS: 'admin-bookings',
     VISIT_REQUESTS: 'admin-visit-requests',
@@ -48,11 +47,6 @@ export const AdminService = {
 
   getAgents: async (): Promise<AuthUser[]> => {
     const res = await fetchClient.get<ApiResponse<AuthUser[]>>(API.ADMIN_AGENTS)
-    return res.data.data
-  },
-
-  getAssignableAgents: async (): Promise<AuthUser[]> => {
-    const res = await fetchClient.get<ApiResponse<AuthUser[]>>(API.ADMIN_ASSIGNABLE_AGENTS)
     return res.data.data
   },
 

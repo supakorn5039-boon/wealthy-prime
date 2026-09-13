@@ -31,6 +31,7 @@ export const API = {
 
   AGENT_DASHBOARD: '/agent/dashboard',
   AGENT_PROPERTIES: '/agent/properties',
+  AGENT_ASSIGNABLE_AGENTS: '/agent/assignable-agents',
   AGENT_PROPERTY_DETAIL: (id: number | string) => `/agent/properties/${id}`,
   AGENT_PROPERTY_STATUS: (id: number | string) => `/agent/properties/${id}/status`,
   AGENT_CONTACTS: '/agent/contacts',
@@ -42,7 +43,6 @@ export const API = {
 
   ADMIN_DASHBOARD: '/admin/dashboard',
   ADMIN_AGENTS: '/admin/agents',
-  ADMIN_ASSIGNABLE_AGENTS: '/admin/assignable-agents',
   ADMIN_AGENT_DETAIL: (id: number | string) => `/admin/agents/${id}`,
   ADMIN_AGENT_ROLE: (id: number | string) => `/admin/agents/${id}/role`,
   ADMIN_USERS: '/admin/users',

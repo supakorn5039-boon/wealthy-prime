@@ -38,6 +38,8 @@ func (ctrl *AgentController) RegisterRoutes(r *gin.RouterGroup) {
 
 	agent.GET("/dashboard", ctrl.getDashboard)
 
+	agent.GET("/assignable-agents", ctrl.listAssignableAgents)
+
 	agent.GET("/properties", ctrl.listProperties)
 	agent.POST("/properties", ctrl.createProperty)
 	agent.PUT("/properties/:id", ctrl.editProperty)
@@ -62,6 +64,15 @@ func (ctrl *AgentController) getDashboard(c *gin.Context) {
 		return
 	}
 	successResponse(c, dash)
+}
+
+func (ctrl *AgentController) listAssignableAgents(c *gin.Context) {
+	dtos, err := ctrl.svc.ListAssignableAgents()
+	if err != nil {
+		errorResponse(c, err)
+		return
+	}
+	successResponse(c, dtos)
 }
 
 func (ctrl *AgentController) listProperties(c *gin.Context) {
@@ -137,10 +148,6 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 
 	responsibleAgentID := agentID
 	if v := formVal(form.Value, "agent_id"); v != "" {
-		if middleware.GetRole(c) != model.RoleAdmin {
-			errorResponse(c, apperror.Forbidden("only admins can assign a responsible agent"))
-			return
-		}
 		n, err := strconv.ParseUint(v, 10, 64)
 		if err != nil || n == 0 {
 			badRequest(c, "agent_id must be a positive integer")

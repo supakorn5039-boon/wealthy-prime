@@ -28,6 +28,21 @@ func NewAgentServiceWithDB(db *gorm.DB) *AgentService {
 	return &AgentService{db: db}
 }
 
+func (s *AgentService) ListAssignableAgents() ([]model.UserDto, error) {
+	var users []model.User
+	if err := s.db.
+		Where("role IN ? AND is_approved = ?", ReassignmentPoolRoles, true).
+		Order("name ASC").
+		Find(&users).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to list assignable agents")
+	}
+	dtos := make([]model.UserDto, len(users))
+	for i, u := range users {
+		dtos[i] = *u.ToDto()
+	}
+	return dtos, nil
+}
+
 type AgentDashboard struct {
 	TotalProperties     int64 `json:"totalProperties"`
 	ReservedProperties  int64 `json:"reservedProperties"`

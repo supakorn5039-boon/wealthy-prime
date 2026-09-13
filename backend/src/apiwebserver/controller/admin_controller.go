@@ -31,7 +31,6 @@ func (ctrl *AdminController) RegisterRoutes(r *gin.RouterGroup) {
 	admin.GET("/dashboard", ctrl.getDashboard)
 
 	admin.GET("/agents", ctrl.listAgents)
-	admin.GET("/assignable-agents", ctrl.listAssignableAgents)
 	admin.GET("/agents/:id", ctrl.getAgent)
 	admin.PUT("/agents/:id", ctrl.updateAgent)
 	admin.POST("/agents/:id/role", ctrl.updateAgentRole)
@@ -121,15 +120,6 @@ func (ctrl *AdminController) getDashboard(c *gin.Context) {
 
 func (ctrl *AdminController) listAgents(c *gin.Context) {
 	dtos, err := ctrl.svc.ListAgents()
-	if err != nil {
-		errorResponse(c, err)
-		return
-	}
-	successResponse(c, dtos)
-}
-
-func (ctrl *AdminController) listAssignableAgents(c *gin.Context) {
-	dtos, err := ctrl.svc.ListAssignableAgents()
 	if err != nil {
 		errorResponse(c, err)
 		return
