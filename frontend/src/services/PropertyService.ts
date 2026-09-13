@@ -110,6 +110,7 @@ export const PropertyService = {
   createWithImages: async (payload: CreatePropertyPayload, images: File[]): Promise<Property> => {
     const formData = new FormData()
     appendCommonFields(formData, payload)
+    if (payload.agentId != null) formData.append('agent_id', String(payload.agentId))
     images.forEach((img) => formData.append('images', img))
     const res = await fetchClient.post<ApiResponse<Property>>(API.AGENT_PROPERTIES, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },

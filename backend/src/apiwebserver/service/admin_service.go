@@ -290,6 +290,21 @@ func (s *AdminService) ListAgents() ([]model.UserDto, error) {
 	return dtos, nil
 }
 
+func (s *AdminService) ListAssignableAgents() ([]model.UserDto, error) {
+	var users []model.User
+	if err := s.db.
+		Where("role IN ? AND is_approved = ?", ReassignmentPoolRoles, true).
+		Order("name ASC").
+		Find(&users).Error; err != nil {
+		return nil, apperror.Wrap(err, 500, "failed to list assignable agents")
+	}
+	dtos := make([]model.UserDto, len(users))
+	for i, u := range users {
+		dtos[i] = *u.ToDto()
+	}
+	return dtos, nil
+}
+
 func (s *AdminService) GetAgent(agentID uint) (*model.UserDto, error) {
 	var agent model.User
 	err := s.db.Where("id = ? AND role = ?", agentID, model.RoleAgent).First(&agent).Error

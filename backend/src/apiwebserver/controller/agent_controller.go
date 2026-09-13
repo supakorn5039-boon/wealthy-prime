@@ -135,6 +135,24 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 		return
 	}
 
+	responsibleAgentID := agentID
+	if v := formVal(form.Value, "agent_id"); v != "" {
+		if middleware.GetRole(c) != model.RoleAdmin {
+			errorResponse(c, apperror.Forbidden("only admins can assign a responsible agent"))
+			return
+		}
+		n, err := strconv.ParseUint(v, 10, 64)
+		if err != nil || n == 0 {
+			badRequest(c, "agent_id must be a positive integer")
+			return
+		}
+		if err := ctrl.propertySvc.ValidateResponsibleAgent(uint(n)); err != nil {
+			errorResponse(c, err)
+			return
+		}
+		responsibleAgentID = uint(n)
+	}
+
 	if ownerInfo != "" {
 		isDuplicate, err := ctrl.propertySvc.DuplicateCheck(projectName, ownerInfo)
 		if err != nil {
@@ -153,7 +171,7 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 
 	dto, err := ctrl.propertySvc.CreateProperty(service.CreatePropertyInput{
 		PropertyFields: fields,
-		AgentID:        &agentID,
+		AgentID:        &responsibleAgentID,
 		Images:         images,
 	})
 	if err != nil {
@@ -161,11 +179,16 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 		return
 	}
 
+	summary := fmt.Sprintf("Created property %s (%s)", dto.ProjectName, dto.PropertyCode)
+	if responsibleAgentID != agentID {
+		summary = fmt.Sprintf("%s assigned to agent #%d", summary, responsibleAgentID)
+	}
+
 	ctrl.auditSvc.Log(c, service.AuditEntry{
 		Action:     model.AuditCreate,
 		EntityType: model.EntityProperty,
 		EntityID:   &dto.ID,
-		Summary:    fmt.Sprintf("Created property %s (%s)", dto.ProjectName, dto.PropertyCode),
+		Summary:    summary,
 	})
 	created(c, dto)
 }

@@ -42,6 +42,7 @@ const propertyObject = z.object({
   ownerWechat: z.string().optional(),
   ownerWhatsapp: z.string().optional(),
   ownerDocumentUrl: z.string().optional(),
+  agentId: z.string().optional(),
 })
 
 const propertyRefine = (data: z.infer<typeof propertyObject>, ctx: z.RefinementCtx) => {
@@ -104,6 +105,17 @@ export const propertySchema = propertyObject.superRefine(propertyRefine)
 export type PropertySchema = z.infer<typeof propertySchema>
 
 export const addPropertySchema = propertyObject.superRefine(propertyRefine)
+
+export const assignPropertySchema = propertyObject.superRefine((data, ctx) => {
+  propertyRefine(data, ctx)
+  if (!data.agentId) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'กรุณาเลือกเอเจนต์ผู้รับผิดชอบ',
+      path: ['agentId'],
+    })
+  }
+})
 
 export const propertyStatusSchema = z.object({
   status: z.enum([

@@ -42,6 +42,7 @@ export const API = {
 
   ADMIN_DASHBOARD: '/admin/dashboard',
   ADMIN_AGENTS: '/admin/agents',
+  ADMIN_ASSIGNABLE_AGENTS: '/admin/assignable-agents',
   ADMIN_AGENT_DETAIL: (id: number | string) => `/admin/agents/${id}`,
   ADMIN_AGENT_ROLE: (id: number | string) => `/admin/agents/${id}/role`,
   ADMIN_USERS: '/admin/users',

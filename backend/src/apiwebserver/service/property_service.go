@@ -13,6 +13,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -127,6 +128,21 @@ type PropertyFields struct {
 	OwnerWechat      string
 	OwnerWhatsapp    string
 	OwnerDocumentURL string
+}
+
+func (s *PropertyService) ValidateResponsibleAgent(userID uint) error {
+	var u model.User
+	err := s.db.Select("id", "role", "is_approved").First(&u, userID).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return apperror.BadRequest("responsible agent not found")
+	}
+	if err != nil {
+		return apperror.Wrap(err, 500, "database error fetching responsible agent")
+	}
+	if !slices.Contains(ReassignmentPoolRoles, u.Role) || !u.IsApproved {
+		return apperror.BadRequest("responsible agent must be an approved agent or admin")
+	}
+	return nil
 }
 
 type CreatePropertyInput struct {

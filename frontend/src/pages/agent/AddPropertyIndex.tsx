@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import axios from "axios";
 import { ImagePlus, X } from "lucide-react";
@@ -22,14 +22,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageTitle } from "@/components/shared/PageTitle";
 import { PageContainer } from "@/components/shared/PageContainer";
-import { addPropertySchema, type PropertySchema } from "@/dto/PropertyValidation";
+import { addPropertySchema, assignPropertySchema, type PropertySchema } from "@/dto/PropertyValidation";
 import { ROUTES } from "@/constants/Routes";
 import { PROVINCES, DISTRICTS_BY_PROVINCE, getBtsMrtOptions, localizedProvince, localizedDistrict } from "@/constants/Locations";
 import { usePropertyOptions } from "@/hooks/usePropertyOptions";
 import { useMapUrlCoords } from "@/hooks/useMapUrlCoords";
 import { MapUrlStatusHint } from "@/components/property/MapUrlStatusHint";
 
-export default function AddPropertyIndex() {
+interface AddPropertyIndexProps {
+  assignAgent?: boolean;
+}
+
+export default function AddPropertyIndex({ assignAgent = false }: AddPropertyIndexProps) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -46,8 +50,22 @@ export default function AddPropertyIndex() {
   } = usePropertyOptions();
   const provinceOptions = PROVINCES.map((p) => ({ value: p, label: localizedProvince(p, i18n.language) }));
 
+  const { data: assignableAgents = [] } = useQuery({
+    queryKey: [AdminService.QUERY_KEYS.ASSIGNABLE_AGENTS],
+    queryFn: AdminService.getAssignableAgents,
+    enabled: assignAgent,
+  });
+  const agentOptions = useMemo(
+    () =>
+      assignableAgents.map((a) => ({
+        value: String(a.id),
+        label: a.agentCode ? `${a.name} (${a.agentCode})` : a.name,
+      })),
+    [assignableAgents],
+  );
+
   const { control, handleSubmit, setValue } = useForm<PropertySchema>({
-    resolver: zodResolver(addPropertySchema),
+    resolver: zodResolver(assignAgent ? assignPropertySchema : addPropertySchema),
     defaultValues: {
       projectName: "",
       location: "",
@@ -81,6 +99,7 @@ export default function AddPropertyIndex() {
       ownerWechat: "",
       ownerWhatsapp: "",
       ownerDocumentUrl: "",
+      agentId: "",
     },
   });
 
@@ -142,6 +161,7 @@ export default function AddPropertyIndex() {
           ownerWechat: values.ownerWechat,
           ownerWhatsapp: values.ownerWhatsapp,
           ownerDocumentUrl: values.ownerDocumentUrl,
+          agentId: values.agentId ? Number(values.agentId) : undefined,
         },
         images,
       ),
@@ -183,8 +203,8 @@ export default function AddPropertyIndex() {
   return (
     <PageContainer size="7xl">
       <PageTitle
-        title={t("property.addTitle")}
-        subtitle={t("property.addSubtitle")}
+        title={t(assignAgent ? "property.assignTitle" : "property.addTitle")}
+        subtitle={t(assignAgent ? "property.assignSubtitle" : "property.addSubtitle")}
       />
 
       <form
@@ -492,6 +512,16 @@ export default function AddPropertyIndex() {
               label={t("property.ownerDocumentUrl")}
               placeholder="https://drive.google.com/..."
             />
+            {assignAgent && (
+              <FormCombobox
+                control={control}
+                name="agentId"
+                label={t("property.responsibleAgent")}
+                placeholder={t("property.selectResponsibleAgent")}
+                options={agentOptions}
+                required
+              />
+            )}
             {showExtraField && (
               <div className="border-l-4 border-orange-400 pl-4 space-y-2">
                 <p className="text-sm font-medium text-orange-700">

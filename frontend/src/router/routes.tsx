@@ -94,4 +94,10 @@ export const routes: AppRoute[] = [
   { path: ROUTES.ADMIN_REASSIGN, element: wrap(<CaseReassignmentIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
   { path: ROUTES.ADMIN_FINANCIAL, element: wrap(<FinancialIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
   { path: ROUTES.ADMIN_AUDIT_LOGS, element: wrap(<AuditLogsIndex />), layout: RouteLayout.PROTECTED, allowedRoles: ADMIN_ONLY },
+  {
+    path: ROUTES.ADMIN_ADD_PROPERTY,
+    element: wrap(<AddPropertyIndex assignAgent />),
+    layout: RouteLayout.PROTECTED,
+    allowedRoles: ADMIN_ONLY,
+  },
 ]

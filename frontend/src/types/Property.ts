@@ -149,6 +149,7 @@ export interface PropertyFormFields {
   ownerWechat?: string
   ownerWhatsapp?: string
   ownerDocumentUrl?: string
+  agentId?: number
 }
 
 export type CreatePropertyPayload = PropertyFormFields
