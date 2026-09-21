@@ -83,6 +83,7 @@ type Property struct {
 
 	BtsMrt      pq.Int32Array `gorm:"type:integer[]"`
 	Bedrooms    int
+	IsStudio    bool `gorm:"not null;default:false"`
 	Bathrooms   int
 	Floor       int
 	MinContract int
@@ -176,6 +177,7 @@ type PropertyDto struct {
 	GoogleMapURL       string             `json:"googleMapUrl"`
 	BtsMrt             []int32            `json:"btsMrt"`
 	Bedrooms           int                `json:"bedrooms"`
+	IsStudio           bool               `json:"isStudio"`
 	Bathrooms          int                `json:"bathrooms"`
 	Floor              int                `json:"floor"`
 	MinContract        int                `json:"minContract"`
@@ -222,6 +224,7 @@ func (p *Property) ToDto() *PropertyDto {
 		GoogleMapURL:       p.GoogleMapURL,
 		BtsMrt:             []int32(p.BtsMrt),
 		Bedrooms:           p.Bedrooms,
+		IsStudio:           p.IsStudio,
 		Bathrooms:          p.Bathrooms,
 		Floor:              p.Floor,
 		MinContract:        p.MinContract,

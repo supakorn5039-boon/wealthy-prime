@@ -16,6 +16,7 @@ import {
   type BtsMrtStation,
 } from '@/constants/Locations'
 import { PROPERTY_KINDS } from '@/hooks/usePropertyOptions'
+import { BEDROOM_COUNTS, STUDIO_BEDROOM } from '@/constants/Bedrooms'
 import type { PropertyListParams, ListingFilter, PropertyKind, PetPolicy, PropertyStatus } from '@/types/Property'
 
 interface PropertyFilterProps {
@@ -42,7 +43,7 @@ type ListingChoice = 'sell' | 'rent' | 'sell_and_rent'
 const DEFAULT_LISTING_CHOICE: ListingChoice = 'sell_and_rent'
 const NOT_AVAILABLE_STATUSES: PropertyStatus[] = ['reserved', 'sold', 'unavailable', 'owner_update']
 const BATHROOM_CHOICES = Array.from({ length: 10 }, (_, i) => i + 1)
-const BEDROOM_CHOICES = Array.from({ length: 10 }, (_, i) => i + 1)
+const BEDROOM_CHOICES: string[] = [STUDIO_BEDROOM, ...BEDROOM_COUNTS.map(String)]
 const PANEL_VIEWPORT_MARGIN = 8
 const PANEL_GAP = 6
 const PANEL_MIN_HEIGHT = 240
@@ -363,49 +364,6 @@ function RangeInputs({ min, max, onMin, onMax }: RangePanelProps) {
   )
 }
 
-function RangeSelects({ min, max, onMin, onMax, choices }: RangePanelProps & { choices: number[] }) {
-  const { t } = useTranslation()
-  const selectClass =
-    'h-11 w-full min-w-0 rounded-lg border border-input bg-background px-3 text-sm outline-none focus:ring-1 focus:ring-ring'
-  const minValue = min ? Number(min) : undefined
-  const maxValue = max ? Number(max) : undefined
-
-  return (
-    <div className="grid grid-cols-2 gap-3">
-      <select
-        value={min}
-        onChange={(e) => onMin(e.target.value)}
-        className={selectClass}
-        aria-label={t('home.rangeMin')}
-      >
-        <option value="">{t('home.rangeMin')}</option>
-        {choices
-          .filter((n) => maxValue == null || n <= maxValue)
-          .map((n) => (
-            <option key={n} value={n}>
-              {n}
-            </option>
-          ))}
-      </select>
-      <select
-        value={max}
-        onChange={(e) => onMax(e.target.value)}
-        className={selectClass}
-        aria-label={t('home.rangeMax')}
-      >
-        <option value="">{t('home.rangeMax')}</option>
-        {choices
-          .filter((n) => minValue == null || n >= minValue)
-          .map((n) => (
-            <option key={n} value={n}>
-              {n}
-            </option>
-          ))}
-      </select>
-    </div>
-  )
-}
-
 function PanelSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="px-4 py-3 border-b border-border/60 last:border-b-0">
@@ -451,8 +409,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     listingChoiceFromTypes(initialValues?.types),
   )
   const [kinds, setKinds] = useState<PropertyKind[]>(initialValues?.kinds ?? [])
-  const [bedroomsMin, setBedroomsMin] = useState(initialValues?.minBedrooms?.toString() ?? '')
-  const [bedroomsMax, setBedroomsMax] = useState(initialValues?.maxBedrooms?.toString() ?? '')
+  const [bedroomChoices, setBedroomChoices] = useState<string[]>(initialValues?.bedroomChoices ?? [])
   const [priceMin, setPriceMin] = useState(initialValues?.priceRanges?.[0]?.min?.toString() ?? '')
   const [priceMax, setPriceMax] = useState(initialValues?.priceRanges?.[0]?.max?.toString() ?? '')
   const [bathrooms, setBathrooms] = useState<number | undefined>(initialValues?.bathrooms)
@@ -497,6 +454,10 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
   const bathroomOptions = useMemo<FilterOption<number>[]>(
     () => BATHROOM_CHOICES.map((n) => ({ value: n, label: String(n) })),
     [],
+  )
+  const bedroomOptions = useMemo<FilterOption<string>[]>(
+    () => BEDROOM_CHOICES.map((v) => ({ value: v, label: v === STUDIO_BEDROOM ? t('property.studio') : v })),
+    [t],
   )
   const provinceOptions = useMemo<FilterOption<string>[]>(
     () => PROVINCES.map((p) => ({ value: p, label: localizedProvince(p, i18n.language) })),
@@ -551,8 +512,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
       searchStationIds: stationIdMatches.length > 0 ? stationIdMatches : undefined,
       types: listingChoiceToTypes(listingChoice),
       kinds: kinds.length > 0 ? kinds : undefined,
-      minBedrooms: parseNum(bedroomsMin),
-      maxBedrooms: parseNum(bedroomsMax),
+      bedroomChoices: bedroomChoices.length > 0 ? bedroomChoices : undefined,
       priceRanges,
       bathrooms,
       sizeMin: parseNum(sizeMin),
@@ -571,8 +531,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     setSearch('')
     setListingChoice(DEFAULT_LISTING_CHOICE)
     setKinds([])
-    setBedroomsMin('')
-    setBedroomsMax('')
+    setBedroomChoices([])
     setPriceMin('')
     setPriceMax('')
     setBathrooms(undefined)
@@ -599,8 +558,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     search ||
       listingChoice !== DEFAULT_LISTING_CHOICE ||
       kinds.length ||
-      bedroomsMin ||
-      bedroomsMax ||
+      bedroomChoices.length ||
       priceMin ||
       priceMax ||
       provinces.length ||
@@ -622,9 +580,11 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     return `${compact(priceMin, t('home.rangeMin'))} – ${compact(priceMax, t('home.rangeMax'))}`
   })()
   const bedLabel =
-    bedroomsMin || bedroomsMax
-      ? `${bedroomsMin || t('home.rangeMin')} – ${bedroomsMax || t('home.rangeMax')}`
-      : t('home.filterLabel.bed')
+    bedroomChoices.length === 0
+      ? t('home.filterLabel.bed')
+      : bedroomChoices.length === 1
+        ? bedroomOptions.find((o) => o.value === bedroomChoices[0])?.label ?? t('home.filterLabel.bed')
+        : countLabel(bedroomChoices.length)
   const provinceLabel =
     provinces.length === 0
       ? t('home.filterLabel.province')
@@ -714,17 +674,15 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
           )}
         </FilterDropdown>
 
-        <FilterDropdown label={bedLabel} active={Boolean(bedroomsMin || bedroomsMax)} minWidth={300} fullWidth>
+        <FilterDropdown label={bedLabel} active={bedroomChoices.length > 0} minWidth={240} fullWidth>
           {() => (
-            <PanelSection title={t('home.filterLabel.bed')}>
-              <RangeSelects
-                min={bedroomsMin}
-                max={bedroomsMax}
-                onMin={setBedroomsMin}
-                onMax={setBedroomsMax}
-                choices={BEDROOM_CHOICES}
-              />
-            </PanelSection>
+            <MultiPickPanel
+              allLabel={allLabel}
+              options={bedroomOptions}
+              selected={bedroomChoices}
+              onToggle={(v) => setBedroomChoices((p) => toggleArray(p, v))}
+              onClear={() => setBedroomChoices([])}
+            />
           )}
         </FilterDropdown>
 

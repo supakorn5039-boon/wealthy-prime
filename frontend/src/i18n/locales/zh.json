@@ -353,7 +353,9 @@
     "propertyCode": "房产代码:",
     "downloadAllImages": "下载全部图片",
     "downloadingImages": "下载中…",
-    "existingProjects": "系统中已有的项目"
+    "existingProjects": "系统中已有的项目",
+    "studio": "Studio",
+    "bedroomsPlaceholder": "选择卧室数"
   },
   "inquiries": {
     "title": "咨询",

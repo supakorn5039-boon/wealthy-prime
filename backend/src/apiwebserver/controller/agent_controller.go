@@ -568,6 +568,11 @@ func buildPropertyFields(
 		n, _ := strconv.Atoi(s)
 		return n
 	}
+	isStudio := strings.EqualFold(formVal(values, "is_studio"), "true")
+	bedrooms := atoi(formVal(values, "bedrooms"))
+	if isStudio {
+		bedrooms = 0
+	}
 	return service.PropertyFields{
 		ProjectName:        projectName,
 		Location:           location,
@@ -586,7 +591,8 @@ func buildPropertyFields(
 		District:     formVal(values, "district"),
 		GoogleMapURL: formVal(values, "google_map_url"),
 		BtsMrt:       pq.Int32Array(parseIntCSV(formVal(values, "bts_mrt"))),
-		Bedrooms:     atoi(formVal(values, "bedrooms")),
+		Bedrooms:     bedrooms,
+		IsStudio:     isStudio,
 		Bathrooms:    atoi(formVal(values, "bathrooms")),
 		Floor:        atoi(formVal(values, "floor")),
 		MinContract:  atoi(formVal(values, "min_contract")),

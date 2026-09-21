@@ -353,7 +353,9 @@
     "propertyCode": "Property Code:",
     "downloadAllImages": "Download All Images",
     "downloadingImages": "Downloading…",
-    "existingProjects": "Existing projects in the system"
+    "existingProjects": "Existing projects in the system",
+    "studio": "Studio",
+    "bedroomsPlaceholder": "Select bedrooms"
   },
   "inquiries": {
     "title": "Inquiries",

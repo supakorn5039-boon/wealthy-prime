@@ -81,6 +81,8 @@ type PropertyFilter struct {
 	Pets             []string
 	MinBedrooms      *int
 	MaxBedrooms      *int
+	BedroomCounts    []int
+	BedroomStudio    bool
 	Bathrooms        *int
 	SizeMin          *float64
 	SizeMax          *float64
@@ -113,6 +115,7 @@ type PropertyFields struct {
 	GoogleMapURL string
 	BtsMrt       pq.Int32Array
 	Bedrooms     int
+	IsStudio     bool
 	Bathrooms    int
 	Floor        int
 	MinContract  int
@@ -253,10 +256,23 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 		query = query.Where("pets IN ?", filter.Pets)
 	}
 	if filter.MinBedrooms != nil {
-		query = query.Where("bedrooms >= ?", *filter.MinBedrooms)
+		query = query.Where("bedrooms >= ? AND is_studio = ?", *filter.MinBedrooms, false)
 	}
 	if filter.MaxBedrooms != nil {
-		query = query.Where("bedrooms <= ?", *filter.MaxBedrooms)
+		query = query.Where("bedrooms <= ? AND is_studio = ?", *filter.MaxBedrooms, false)
+	}
+	if len(filter.BedroomCounts) > 0 || filter.BedroomStudio {
+		var parts []string
+		var args []any
+		if len(filter.BedroomCounts) > 0 {
+			parts = append(parts, "(is_studio = ? AND bedrooms IN ?)")
+			args = append(args, false, filter.BedroomCounts)
+		}
+		if filter.BedroomStudio {
+			parts = append(parts, "is_studio = ?")
+			args = append(args, true)
+		}
+		query = query.Where("("+strings.Join(parts, " OR ")+")", args...)
 	}
 	if filter.Bathrooms != nil {
 		query = query.Where("bathrooms = ?", *filter.Bathrooms)
@@ -495,6 +511,7 @@ func (s *PropertyService) CreateProperty(input CreatePropertyInput) (*model.Prop
 		GoogleMapURL: input.GoogleMapURL,
 		BtsMrt:       input.BtsMrt,
 		Bedrooms:     input.Bedrooms,
+		IsStudio:     input.IsStudio,
 		Bathrooms:    input.Bathrooms,
 		Floor:        input.Floor,
 		MinContract:  input.MinContract,
@@ -597,6 +614,7 @@ func (s *PropertyService) UpdateProperty(propertyID, callerID uint, role model.U
 		"google_map_url":     input.GoogleMapURL,
 		"bts_mrt":            input.BtsMrt,
 		"bedrooms":           input.Bedrooms,
+		"is_studio":          input.IsStudio,
 		"bathrooms":          input.Bathrooms,
 		"floor":              input.Floor,
 		"min_contract":       input.MinContract,

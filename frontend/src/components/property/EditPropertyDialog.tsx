@@ -29,6 +29,8 @@ import { resolveImageUrl } from "@/utils/imageUrl";
 import type { Property } from "@/types/Property";
 import { PROVINCES, DISTRICTS_BY_PROVINCE, getBtsMrtOptions, localizedProvince, localizedDistrict } from "@/constants/Locations";
 import { usePropertyOptions } from "@/hooks/usePropertyOptions";
+import { useBedroomOptions } from "@/hooks/useBedroomOptions";
+import { bedroomChoiceOf, bedroomPayload } from "@/constants/Bedrooms";
 import { useMapUrlCoords } from "@/hooks/useMapUrlCoords";
 import { MapUrlStatusHint } from "@/components/property/MapUrlStatusHint";
 
@@ -52,6 +54,9 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
     petsOptions,
     furnitureOptions,
   } = usePropertyOptions();
+  const bedroomOptions = useBedroomOptions(
+    bedroomChoiceOf(property.bedrooms, property.isStudio),
+  );
   const provinceOptions = PROVINCES.map((p) => ({ value: p, label: localizedProvince(p, i18n.language) }));
 
   const { control, handleSubmit, setValue } =
@@ -74,7 +79,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
         district: property.district ?? "",
         googleMapUrl: property.googleMapUrl ?? "",
         btsMrt: (property.btsMrt ?? []).join(", "),
-        bedrooms: property.bedrooms != null ? String(property.bedrooms) : "",
+        bedrooms: bedroomChoiceOf(property.bedrooms, property.isStudio),
         bathrooms: property.bathrooms != null ? String(property.bathrooms) : "",
         floor: property.floor != null ? String(property.floor) : "",
         minContract:
@@ -135,7 +140,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
           district: values.district,
           googleMapUrl: values.googleMapUrl,
           btsMrt: values.btsMrt,
-          bedrooms: values.bedrooms ? Number(values.bedrooms) : undefined,
+          ...bedroomPayload(values.bedrooms),
           bathrooms: values.bathrooms ? Number(values.bathrooms) : undefined,
           floor: values.floor ? Number(values.floor) : undefined,
           minContract: values.minContract
@@ -326,13 +331,12 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <FormInput
+            <FormSelect
               control={control}
               name="bedrooms"
               label={t("property.bedrooms")}
-              type="number"
-              min={0}
-              step={1}
+              options={bedroomOptions}
+              placeholder={t("property.bedroomsPlaceholder")}
             />
             <FormInput
               control={control}

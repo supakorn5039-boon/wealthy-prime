@@ -353,7 +353,9 @@
     "propertyCode": "รหัสทรัพย์:",
     "downloadAllImages": "ดาวน์โหลดรูปทั้งหมด",
     "downloadingImages": "กำลังดาวน์โหลด…",
-    "existingProjects": "โครงการที่มีอยู่ในระบบ"
+    "existingProjects": "โครงการที่มีอยู่ในระบบ",
+    "studio": "Studio",
+    "bedroomsPlaceholder": "เลือกจำนวนห้องนอน"
   },
   "inquiries": {
     "title": "การติดต่อสอบถาม",

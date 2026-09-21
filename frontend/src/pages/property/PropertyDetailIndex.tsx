@@ -31,6 +31,7 @@ import { primaryPrice } from '@/utils/price'
 import { PropertyPrices } from '@/components/property/PropertyPrices'
 import { formatBtsMrt } from '@/utils/btsMrt'
 import { canSeeOwnerInfo } from '@/utils/permissions'
+import { formatBedrooms } from '@/constants/Bedrooms'
 import type { Review } from '@/types/Review'
 
 const REVIEWS_ENABLED = false
@@ -122,6 +123,8 @@ export default function PropertyDetailIndex() {
 
   const myReview = user ? reviews.find((r) => r.userId === user.id) ?? null : null
 
+  const bedroomsText = formatBedrooms(property.bedrooms, property.isStudio, t('property.studio'))
+
   return (
     <PageContainer size="7xl" className="space-y-6">
       <PropertyGallery images={property.imageUrls} title={property.projectName} />
@@ -182,8 +185,8 @@ export default function PropertyDetailIndex() {
                 {property.listing && (
                   <DetailItem icon={<FileText className="size-4" />} label={t('property.listingLabel')} value={t(`property.listing.${property.listing}`, { defaultValue: property.listing })} />
                 )}
-                {property.bedrooms != null && (
-                  <DetailItem icon={<Bed className="size-4" />} label={t('property.bedrooms')} value={String(property.bedrooms)} />
+                {bedroomsText && (
+                  <DetailItem icon={<Bed className="size-4" />} label={t('property.bedrooms')} value={bedroomsText} />
                 )}
                 {property.bathrooms != null && (
                   <DetailItem icon={<Bath className="size-4" />} label={t('property.bathrooms')} value={String(property.bathrooms)} />

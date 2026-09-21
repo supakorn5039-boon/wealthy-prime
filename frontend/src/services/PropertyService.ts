@@ -21,6 +21,7 @@ function appendCommonFields(fd: FormData, payload: PropertyFormFields) {
   if (payload.googleMapUrl) fd.append('google_map_url', payload.googleMapUrl)
   if (payload.btsMrt) fd.append('bts_mrt', payload.btsMrt)
   if (payload.bedrooms != null) fd.append('bedrooms', String(payload.bedrooms))
+  fd.append('is_studio', String(Boolean(payload.isStudio)))
   if (payload.bathrooms != null) fd.append('bathrooms', String(payload.bathrooms))
   if (payload.floor != null) fd.append('floor', String(payload.floor))
   if (payload.minContract != null) fd.append('min_contract', String(payload.minContract))
@@ -67,6 +68,7 @@ export const PropertyService = {
       statuses: csv(p.statuses),
       min_bedrooms: p.minBedrooms,
       max_bedrooms: p.maxBedrooms,
+      bedrooms: csv(p.bedroomChoices),
       bathrooms: p.bathrooms,
       size_min: p.sizeMin,
       size_max: p.sizeMax,

@@ -19,6 +19,8 @@ import { FormCombobox } from "@/components/form/FormCombobox";
 import { FormMultiSelect } from "@/components/form/FormMultiSelect";
 import { FormSuggestInput } from "@/components/form/FormSuggestInput";
 import { scrollToFirstError } from "@/lib/scrollToFirstError";
+import { bedroomPayload } from "@/constants/Bedrooms";
+import { useBedroomOptions } from "@/hooks/useBedroomOptions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageTitle } from "@/components/shared/PageTitle";
@@ -49,6 +51,7 @@ export default function AddPropertyIndex({ assignAgent = false }: AddPropertyInd
     petsOptions,
     furnitureOptions,
   } = usePropertyOptions();
+  const bedroomOptions = useBedroomOptions();
   const provinceOptions = PROVINCES.map((p) => ({ value: p, label: localizedProvince(p, i18n.language) }));
 
   const { data: assignableAgents = [] } = useQuery({
@@ -143,7 +146,7 @@ export default function AddPropertyIndex({ assignAgent = false }: AddPropertyInd
           district: values.district,
           googleMapUrl: values.googleMapUrl,
           btsMrt: values.btsMrt,
-          bedrooms: values.bedrooms ? Number(values.bedrooms) : undefined,
+          ...bedroomPayload(values.bedrooms),
           bathrooms: values.bathrooms ? Number(values.bathrooms) : undefined,
           floor: values.floor ? Number(values.floor) : undefined,
           minContract: values.minContract
@@ -358,14 +361,12 @@ export default function AddPropertyIndex({ assignAgent = false }: AddPropertyInd
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <FormInput
+              <FormSelect
                 control={control}
                 name="bedrooms"
                 label={t("property.bedrooms")}
-                type="number"
-                placeholder="0"
-                min={0}
-                step={1}
+                options={bedroomOptions}
+                placeholder={t("property.bedroomsPlaceholder")}
               />
               <FormInput
                 control={control}

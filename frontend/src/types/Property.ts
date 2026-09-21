@@ -56,6 +56,7 @@ export interface Property {
   googleMapUrl?: string
   btsMrt?: number[]
   bedrooms?: number
+  isStudio?: boolean
   bathrooms?: number
   floor?: number
   minContract?: number
@@ -100,6 +101,7 @@ export interface PropertyListParams {
   pets?: PetPolicy[]
   minBedrooms?: number
   maxBedrooms?: number
+  bedroomChoices?: string[]
   bathrooms?: number
   sizeMin?: number
   sizeMax?: number
@@ -134,6 +136,7 @@ export interface PropertyFormFields {
 
   btsMrt?: string
   bedrooms?: number
+  isStudio?: boolean
   bathrooms?: number
   floor?: number
   minContract?: number

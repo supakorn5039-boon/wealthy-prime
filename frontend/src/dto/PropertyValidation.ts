@@ -1,6 +1,9 @@
 import { z } from 'zod'
 import { optionalPhoneSchema } from '@/dto/AuthValidation'
 import { PROPERTY_KINDS } from '@/hooks/usePropertyOptions'
+import { BEDROOM_COUNTS, STUDIO_BEDROOM } from '@/constants/Bedrooms'
+
+const BEDROOM_CHOICE_VALUES: string[] = [STUDIO_BEDROOM, ...BEDROOM_COUNTS.map(String)]
 
 const propertyObject = z.object({
   projectName: z.string().min(1, 'กรุณากรอกชื่อโครงการ'),
@@ -94,7 +97,9 @@ const propertyRefine = (data: z.infer<typeof propertyObject>, ctx: z.RefinementC
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: `${label}ต้องเป็นจำนวนเต็มไม่ติดลบ`, path: [name as string] })
     }
   }
-  positiveIntOptional('bedrooms', 'จำนวนห้องนอน')
+  if (data.bedrooms && !BEDROOM_CHOICE_VALUES.includes(data.bedrooms)) {
+    positiveIntOptional('bedrooms', 'จำนวนห้องนอน')
+  }
   positiveIntOptional('bathrooms', 'จำนวนห้องน้ำ')
   positiveIntOptional('floor', 'ชั้น')
   positiveIntOptional('minContract', 'สัญญาขั้นต่ำ')

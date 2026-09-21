@@ -46,6 +46,30 @@ func parseStringCSV(s string) []string {
 	return out
 }
 
+func parseBedroomChoices(s string) ([]int, bool) {
+	if s == "" {
+		return nil, false
+	}
+	var counts []int
+	studio := false
+	for _, raw := range strings.Split(s, ",") {
+		token := strings.ToLower(strings.TrimSpace(raw))
+		if token == "" {
+			continue
+		}
+		if token == "studio" {
+			studio = true
+			continue
+		}
+		n, err := strconv.Atoi(token)
+		if err != nil || n < 0 {
+			continue
+		}
+		counts = append(counts, n)
+	}
+	return counts, studio
+}
+
 func parseIntPtr(s string) *int {
 	if s = strings.TrimSpace(s); s == "" {
 		return nil
@@ -142,6 +166,7 @@ func canSeeOwnerInfo(role model.UserRole) bool {
 }
 
 func (ctrl *PropertyController) listProperties(c *gin.Context) {
+	bedroomCounts, bedroomStudio := parseBedroomChoices(c.Query("bedrooms"))
 	filter := service.PropertyFilter{
 		Location:         c.Query("location"),
 		Search:           c.Query("search"),
@@ -156,6 +181,8 @@ func (ctrl *PropertyController) listProperties(c *gin.Context) {
 		Statuses:         parseStringCSV(c.Query("statuses")),
 		MinBedrooms:      parseIntPtr(c.Query("min_bedrooms")),
 		MaxBedrooms:      parseIntPtr(c.Query("max_bedrooms")),
+		BedroomCounts:    bedroomCounts,
+		BedroomStudio:    bedroomStudio,
 		Bathrooms:        parseIntPtr(c.Query("bathrooms")),
 		SizeMin:          parseFloatPtr(c.Query("size_min")),
 		SizeMax:          parseFloatPtr(c.Query("size_max")),

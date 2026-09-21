@@ -17,6 +17,7 @@ import { PropertyService } from "@/services/PropertyService";
 import { PropertyStatusBadge } from "@/components/shared/StatusBadge";
 import { WishlistButton } from "@/components/WishlistButton";
 import { ImageWatermark } from "@/components/property/ImageWatermark";
+import { formatBedrooms } from "@/constants/Bedrooms";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { Hero } from "@/pages/home/components/Hero";
@@ -53,6 +54,7 @@ interface PropertyRowProps {
 function PropertyRow({ property, active, onHover }: PropertyRowProps) {
   const { t, i18n } = useTranslation();
   const petAllowed = property.pets === "allowed";
+  const bedroomsText = formatBedrooms(property.bedrooms, property.isStudio, t("property.studio"));
 
   return (
     <Link
@@ -123,9 +125,9 @@ function PropertyRow({ property, active, onHover }: PropertyRowProps) {
         </div>
 
         <div className="mt-auto pt-2 flex items-center gap-3 text-xs text-muted-foreground">
-          {property.bedrooms != null && (
+          {bedroomsText && (
             <span className="flex items-center gap-1">
-              <Bed className="size-3.5" /> {property.bedrooms}
+              <Bed className="size-3.5" /> {bedroomsText}
             </span>
           )}
           {property.bathrooms != null && (
@@ -176,6 +178,7 @@ export default function HomeIndex() {
       filters.pets?.length ||
       filters.minBedrooms != null ||
       filters.maxBedrooms != null ||
+      filters.bedroomChoices?.length ||
       filters.bathrooms != null ||
       filters.sizeMin != null ||
       filters.sizeMax != null ||

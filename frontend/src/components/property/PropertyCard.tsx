@@ -11,6 +11,7 @@ import { PropertyPrices } from "@/components/property/PropertyPrices";
 import { formatBtsMrt } from "@/utils/btsMrt";
 import { resolveImageUrl } from "@/utils/imageUrl";
 import { ImageWatermark } from "@/components/property/ImageWatermark";
+import { formatBedrooms } from "@/constants/Bedrooms";
 import type { Property } from "@/types/Property";
 
 interface PropertyCardProps {
@@ -29,6 +30,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
 
   const petAllowed = property.pets === "allowed";
   const btsMrtText = formatBtsMrt(property.btsMrt, i18n.language);
+  const bedroomsText = formatBedrooms(property.bedrooms, property.isStudio, t("property.studio"));
 
   return (
     <div className="group bg-card rounded-md overflow-hidden border border-border hover:border-primary/60 transition-colors">
@@ -103,9 +105,9 @@ export function PropertyCard({ property }: PropertyCardProps) {
         )}
 
         <div className="mt-3 pt-3 border-t border-border flex items-center gap-3 text-muted-foreground text-xs">
-          {property.bedrooms != null && (
+          {bedroomsText && (
             <span className="flex items-center gap-1">
-              <Bed className="size-3.5" /> {property.bedrooms}
+              <Bed className="size-3.5" /> {bedroomsText}
             </span>
           )}
           {property.bathrooms != null && (
