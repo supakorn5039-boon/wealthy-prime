@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -14,6 +15,12 @@ import { scrollToFirstError } from '@/lib/scrollToFirstError'
 import { AuthService } from '@/services/AuthService'
 import { registerSchema, type RegisterSchema } from '@/dto/AuthValidation'
 import { ROUTES } from '@/constants/Routes'
+import { cn } from '@/lib/utils'
+import type { UserRole } from '@/types/Auth'
+
+type AgentRole = 'agent' | 'general_agent'
+
+const AGENT_ROLES: AgentRole[] = ['agent', 'general_agent']
 
 interface RegisterIndexProps {
   role?: 'user' | 'agent'
@@ -25,8 +32,10 @@ export default function RegisterIndex({ role = 'user' }: RegisterIndexProps) {
   const location = useLocation()
   const from = (location.state as { from?: { pathname: string } })?.from
   const isAgent = role === 'agent'
+  const [agentRole, setAgentRole] = useState<AgentRole>('agent')
+  const submitRole: UserRole = isAgent ? agentRole : role
 
-  const { control, handleSubmit } = useForm<RegisterSchema>({
+  const { control, handleSubmit, setValue } = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       firstName: '',
@@ -47,7 +56,7 @@ export default function RegisterIndex({ role = 'user' }: RegisterIndexProps) {
   const mutation = useMutation({
     mutationFn: ({ confirmPassword: _confirmPassword, ...payload }: RegisterSchema) => AuthService.register(payload),
     onSuccess: (_, vars) => {
-      const msgKey = vars.role === 'agent' ? 'auth.registerPendingApproval' : 'auth.registerSuccess'
+      const msgKey = vars.role === 'user' ? 'auth.registerSuccess' : 'auth.registerPendingApproval'
       toast.success(t(msgKey))
       navigate(isAgent ? ROUTES.LOGIN_AGENT : ROUTES.LOGIN, { replace: true, state: from ? { from } : undefined })
     },
@@ -66,14 +75,41 @@ export default function RegisterIndex({ role = 'user' }: RegisterIndexProps) {
       <Card>
         <CardHeader>
           <CardTitle className="text-center">
-            {isAgent ? t('auth.registerAgentTitle') : t('auth.registerTitle')}
+            {isAgent ? t(`auth.registerRoleTitle.${agentRole}`) : t('auth.registerTitle')}
           </CardTitle>
           <CardDescription className="text-center">
-            {isAgent ? t('auth.registerAgentSubtitle') : t('auth.registerSubtitle')}
+            {isAgent ? t(`auth.registerRoleSubtitle.${agentRole}`) : t('auth.registerSubtitle')}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit((values) => mutation.mutate(values), scrollToFirstError)} className="space-y-4">
+          {isAgent && (
+            <div className="mb-4 space-y-1.5">
+              <p className="text-sm font-medium">{t('auth.registerRoleLabel')}</p>
+              <div className="grid grid-cols-2 gap-2 rounded-lg border border-input p-1">
+                {AGENT_ROLES.map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => {
+                      setAgentRole(value)
+                      setValue('role', value)
+                    }}
+                    className={cn(
+                      'rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                      agentRole === value
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:bg-muted',
+                    )}
+                  >
+                    {t(`role.${value}`)}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">{t(`auth.registerRoleHint.${agentRole}`)}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit((values) => mutation.mutate({ ...values, role: submitRole }), scrollToFirstError)} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FormInput control={control} name="firstName" label={t('auth.firstName')} placeholder={t('auth.firstNamePlaceholder')} required />
               <FormInput control={control} name="lastName" label={t('auth.lastName')} placeholder={t('auth.lastNamePlaceholder')} required />

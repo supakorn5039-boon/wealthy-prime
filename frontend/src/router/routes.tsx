@@ -50,6 +50,7 @@ const USER_ONLY: UserRole[] = ['user']
 const AGENT_ONLY: UserRole[] = ['agent']
 const ADMIN_ONLY: UserRole[] = ['admin']
 const AGENT_ADMIN: UserRole[] = ['agent', 'admin']
+const PROPERTY_SUBMITTERS: UserRole[] = ['agent', 'general_agent', 'admin']
 
 export const routes: AppRoute[] = [
   { path: ROUTES.HOME, element: wrap(<HomeIndex />), layout: RouteLayout.PUBLIC },
@@ -98,6 +99,6 @@ export const routes: AppRoute[] = [
     path: ROUTES.ADMIN_ADD_PROPERTY,
     element: wrap(<AddPropertyIndex assignAgent />),
     layout: RouteLayout.PROTECTED,
-    allowedRoles: AGENT_ADMIN,
+    allowedRoles: PROPERTY_SUBMITTERS,
   },
 ]

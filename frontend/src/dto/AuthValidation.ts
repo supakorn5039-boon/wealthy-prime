@@ -34,7 +34,7 @@ export const registerSchema = z
     facebook: z.string().optional(),
     wechat: z.string().optional(),
     whatsapp: z.string().optional(),
-    role: z.enum(['user', 'agent']),
+    role: z.enum(['user', 'agent', 'general_agent']),
   })
   .refine((d) => d.password === d.confirmPassword, {
     message: 'รหัสผ่านไม่ตรงกัน',

@@ -14,6 +14,7 @@ interface ProtectedAuthRouteProps {
 const roleHomePage: Record<UserRole, string> = {
   admin: ROUTES.ADMIN_DASHBOARD,
   agent: ROUTES.AGENT_DASHBOARD,
+  general_agent: ROUTES.HOME,
   user: ROUTES.HOME,
 }
 

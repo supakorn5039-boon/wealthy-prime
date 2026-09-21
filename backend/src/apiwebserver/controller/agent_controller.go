@@ -36,12 +36,16 @@ func (ctrl *AgentController) RegisterRoutes(r *gin.RouterGroup) {
 		middleware.Rbac(model.RoleAgent),
 	)
 
+	submitter := r.Group("/agent",
+		middleware.Protected(),
+		middleware.Rbac(model.RoleAgent, model.RoleGeneralAgent),
+	)
+	submitter.GET("/assignable-agents", ctrl.listAssignableAgents)
+	submitter.POST("/properties", ctrl.createProperty)
+
 	agent.GET("/dashboard", ctrl.getDashboard)
 
-	agent.GET("/assignable-agents", ctrl.listAssignableAgents)
-
 	agent.GET("/properties", ctrl.listProperties)
-	agent.POST("/properties", ctrl.createProperty)
 	agent.PUT("/properties/:id", ctrl.editProperty)
 	agent.PUT("/properties/:id/status", ctrl.updateStatus)
 	agent.DELETE("/properties/:id", ctrl.deleteProperty)
@@ -147,7 +151,12 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 	}
 
 	responsibleAgentID := agentID
-	if v := formVal(form.Value, "agent_id"); v != "" {
+	if v := formVal(form.Value, "agent_id"); v == "" {
+		if middleware.GetRole(c) == model.RoleGeneralAgent {
+			badRequest(c, "agent_id is required")
+			return
+		}
+	} else {
 		n, err := strconv.ParseUint(v, 10, 64)
 		if err != nil || n == 0 {
 			badRequest(c, "agent_id must be a positive integer")

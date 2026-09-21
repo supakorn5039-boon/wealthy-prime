@@ -65,7 +65,7 @@ func (s *AuthService) Register(input RegisterInput) (*model.UserDto, error) {
 	if input.Role == "" {
 		input.Role = model.RoleUser
 	}
-	if input.Role != model.RoleUser && input.Role != model.RoleAgent {
+	if input.Role != model.RoleUser && input.Role != model.RoleAgent && input.Role != model.RoleGeneralAgent {
 		input.Role = model.RoleUser
 	}
 

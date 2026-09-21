@@ -47,7 +47,7 @@ const ENTITY_VALUES: AuditEntityType[] = [
   'review',
 ]
 
-const ROLE_VALUES: UserRole[] = ['admin', 'agent', 'user']
+const ROLE_VALUES: UserRole[] = ['admin', 'agent', 'general_agent', 'user']
 
 function HeaderT({ k }: { k: string }) {
   const { t } = useTranslation()

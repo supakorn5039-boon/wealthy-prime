@@ -21,6 +21,7 @@ import { FormSuggestInput } from "@/components/form/FormSuggestInput";
 import { scrollToFirstError } from "@/lib/scrollToFirstError";
 import { bedroomPayload } from "@/constants/Bedrooms";
 import { useBedroomOptions } from "@/hooks/useBedroomOptions";
+import { useAuthStore } from "@/store/authStore";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageTitle } from "@/components/shared/PageTitle";
@@ -38,6 +39,8 @@ interface AddPropertyIndexProps {
 
 export default function AddPropertyIndex({ assignAgent = false }: AddPropertyIndexProps) {
   const { t, i18n } = useTranslation();
+  const { user } = useAuthStore();
+  const isGeneralAgent = user?.role === "general_agent";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [images, setImages] = useState<File[]>([]);
@@ -68,7 +71,7 @@ export default function AddPropertyIndex({ assignAgent = false }: AddPropertyInd
     [assignableAgents],
   );
 
-  const { control, handleSubmit, setValue } = useForm<PropertySchema>({
+  const { control, handleSubmit, setValue, reset } = useForm<PropertySchema>({
     resolver: zodResolver(assignAgent ? assignPropertySchema : addPropertySchema),
     defaultValues: {
       projectName: "",
@@ -178,6 +181,13 @@ export default function AddPropertyIndex({ assignAgent = false }: AddPropertyInd
         queryKey: [PropertyService.QUERY_KEYS.LIST],
       });
       queryClient.invalidateQueries({ queryKey: [AdminService.QUERY_KEYS.PROPERTIES] });
+      if (isGeneralAgent) {
+        reset();
+        setImages([]);
+        setPreviews([]);
+        window.scrollTo({ top: 0 });
+        return;
+      }
       navigate(ROUTES.AGENT_PROPERTIES);
     },
     onError: (error) => {
@@ -546,7 +556,7 @@ export default function AddPropertyIndex({ assignAgent = false }: AddPropertyInd
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigate(ROUTES.AGENT_PROPERTIES)}
+            onClick={() => navigate(isGeneralAgent ? ROUTES.HOME : ROUTES.AGENT_PROPERTIES)}
           >
             {t("common.cancel")}
           </Button>

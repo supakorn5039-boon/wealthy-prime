@@ -58,6 +58,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     { labelKey: 'sidebar.visitRequests', href: ROUTES.AGENT_CONTACT_HISTORY, icon: <Calendar className="size-4" /> },
   ]
 
+  const generalAgentMenu: MenuItem[] = [
+    profileItem,
+    { labelKey: 'sidebar.addProperty', href: ROUTES.ADMIN_ADD_PROPERTY, icon: <Building2 className="size-4" /> },
+  ]
+
   const adminMenu: MenuItem[] = [
     profileItem,
     { labelKey: 'sidebar.dashboard', href: ROUTES.ADMIN_DASHBOARD, icon: <LayoutDashboard className="size-4" /> },
@@ -71,7 +76,13 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   ]
 
   const menu =
-    user?.role === 'admin' ? adminMenu : user?.role === 'agent' ? agentMenu : userMenu
+    user?.role === 'admin'
+      ? adminMenu
+      : user?.role === 'agent'
+        ? agentMenu
+        : user?.role === 'general_agent'
+          ? generalAgentMenu
+          : userMenu
 
   return (
     <>

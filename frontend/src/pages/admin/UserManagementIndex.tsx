@@ -17,7 +17,7 @@ import { EditProfileDialog } from '@/components/admin/EditProfileDialog'
 import { formatDate } from '@/utils/date'
 import type { AuthUser, UserRole } from '@/types/Auth'
 
-const ROLE_VALUES: UserRole[] = ['user', 'agent', 'admin']
+const ROLE_VALUES: UserRole[] = ['user', 'agent', 'general_agent', 'admin']
 
 export default function UserManagementIndex() {
   const { t } = useTranslation()

@@ -11,7 +11,8 @@
     "user": "User",
     "agent": "Agent",
     "admin": "Admin",
-    "superadmin": "Super Admin"
+    "superadmin": "Super Admin",
+    "general_agent": "General Agent"
   },
   "sidebar": {
     "back": "Back to Home",
@@ -176,7 +177,20 @@
     "confirmPasswordPlaceholder": "Re-enter the new password",
     "backToLogin": "Back to login",
     "registerAgentTitle": "Agent Registration",
-    "registerAgentSubtitle": "Create an agent account — the team will review and approve it before you can log in"
+    "registerAgentSubtitle": "Create an agent account — the team will review and approve it before you can log in",
+    "registerRoleLabel": "Register as",
+    "registerRoleHint": {
+      "agent": "Full agent — dashboard, own listings and visit requests",
+      "general_agent": "Can only add listings; no owner contact details and no other menus"
+    },
+    "registerRoleTitle": {
+      "agent": "Agent Registration",
+      "general_agent": "General Agent Registration"
+    },
+    "registerRoleSubtitle": {
+      "agent": "Create an agent account — the team will review and approve it before you can log in",
+      "general_agent": "Create a general agent account for adding listings — the team will review and approve it before you can log in"
+    }
   },
   "profile": {
     "title": "Personal Information",

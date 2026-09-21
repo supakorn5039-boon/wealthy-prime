@@ -11,7 +11,8 @@
     "user": "用户",
     "agent": "代理",
     "admin": "管理员",
-    "superadmin": "超级管理员"
+    "superadmin": "超级管理员",
+    "general_agent": "普通代理"
   },
   "sidebar": {
     "back": "返回首页",
@@ -176,7 +177,20 @@
     "confirmPasswordPlaceholder": "请再次输入新密码",
     "backToLogin": "返回登录",
     "registerAgentTitle": "代理注册",
-    "registerAgentSubtitle": "创建代理账户，团队审核通过后即可登录"
+    "registerAgentSubtitle": "创建代理账户，团队审核通过后即可登录",
+    "registerRoleLabel": "注册身份",
+    "registerRoleHint": {
+      "agent": "完整代理权限：仪表板、自有房源与看房预约",
+      "general_agent": "仅可添加房源，无法查看业主信息及其他菜单"
+    },
+    "registerRoleTitle": {
+      "agent": "代理注册",
+      "general_agent": "普通代理注册"
+    },
+    "registerRoleSubtitle": {
+      "agent": "创建代理账户，团队审核通过后即可登录",
+      "general_agent": "创建用于添加房源的普通代理账户，团队审核通过后即可登录"
+    }
   },
   "profile": {
     "title": "个人信息",
