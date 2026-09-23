@@ -1,9 +1,9 @@
 import { z } from 'zod'
 import { optionalPhoneSchema } from '@/dto/AuthValidation'
 import { PROPERTY_KINDS } from '@/hooks/usePropertyOptions'
-import { BEDROOM_COUNTS, STUDIO_BEDROOM } from '@/constants/Bedrooms'
+import { BEDROOM_ORDER } from '@/constants/Bedrooms'
 
-const BEDROOM_CHOICE_VALUES: string[] = [STUDIO_BEDROOM, ...BEDROOM_COUNTS.map(String)]
+const BEDROOM_CHOICE_VALUES: string[] = BEDROOM_ORDER
 
 const propertyObject = z.object({
   projectName: z.string().min(1, 'กรุณากรอกชื่อโครงการ'),

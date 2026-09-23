@@ -1,8 +1,23 @@
 export const STUDIO_BEDROOM = 'studio'
 
-export const BEDROOM_COUNTS = Array.from({ length: 11 }, (_, i) => i)
+const BEDROOM_COUNTS = Array.from({ length: 11 }, (_, i) => i)
+
+export const BEDROOM_ORDER: string[] = [
+  '0',
+  STUDIO_BEDROOM,
+  ...BEDROOM_COUNTS.slice(1).map(String),
+]
 
 export type BedroomChoice = string
+
+export function customBedroomValue(query: string): string | null {
+  const raw = query.trim()
+  if (!raw) return null
+  if (!/^\d+$/.test(raw)) return null
+  const n = Number(raw)
+  if (!Number.isSafeInteger(n) || n < 0 || n > 999) return null
+  return String(n)
+}
 
 export function bedroomChoiceOf(bedrooms?: number | null, isStudio?: boolean): BedroomChoice {
   if (isStudio) return STUDIO_BEDROOM

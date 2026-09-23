@@ -19,7 +19,7 @@ import { FormCombobox } from "@/components/form/FormCombobox";
 import { FormMultiSelect } from "@/components/form/FormMultiSelect";
 import { FormSuggestInput } from "@/components/form/FormSuggestInput";
 import { scrollToFirstError } from "@/lib/scrollToFirstError";
-import { bedroomPayload } from "@/constants/Bedrooms";
+import { bedroomPayload, customBedroomValue } from "@/constants/Bedrooms";
 import { useBedroomOptions } from "@/hooks/useBedroomOptions";
 import { useAuthStore } from "@/store/authStore";
 import { Button } from "@/components/ui/button";
@@ -371,12 +371,14 @@ export default function AddPropertyIndex({ assignAgent = false }: AddPropertyInd
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <FormSelect
+              <FormCombobox
                 control={control}
                 name="bedrooms"
                 label={t("property.bedrooms")}
                 options={bedroomOptions}
                 placeholder={t("property.bedroomsPlaceholder")}
+                allowCustom={customBedroomValue}
+                customLabel={(v) => t("property.bedroomsUseTyped", { value: v })}
               />
               <FormInput
                 control={control}

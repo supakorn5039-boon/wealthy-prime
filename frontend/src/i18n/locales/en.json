@@ -369,7 +369,8 @@
     "downloadingImages": "Downloading…",
     "existingProjects": "Existing projects in the system",
     "studio": "Studio",
-    "bedroomsPlaceholder": "Select bedrooms"
+    "bedroomsPlaceholder": "Select bedrooms",
+    "bedroomsUseTyped": "Use \"{{value}}\" bedrooms"
   },
   "inquiries": {
     "title": "Inquiries",

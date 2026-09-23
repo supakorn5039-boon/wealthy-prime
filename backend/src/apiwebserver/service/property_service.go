@@ -68,6 +68,8 @@ func priceRangeCond(column string, listings []string, r PriceRange) (string, []a
 	return "(" + cond + ")", args
 }
 
+const bedroomRankSQL = "(CASE WHEN is_studio THEN 1 WHEN bedrooms = 0 THEN 0 ELSE bedrooms + 1 END)"
+
 type PropertyFilter struct {
 	Location         string
 	Search           string
@@ -81,8 +83,8 @@ type PropertyFilter struct {
 	Pets             []string
 	MinBedrooms      *int
 	MaxBedrooms      *int
-	BedroomCounts    []int
-	BedroomStudio    bool
+	BedroomRankMin   *int
+	BedroomRankMax   *int
 	Bathrooms        *int
 	SizeMin          *float64
 	SizeMax          *float64
@@ -261,18 +263,11 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 	if filter.MaxBedrooms != nil {
 		query = query.Where("bedrooms <= ? AND is_studio = ?", *filter.MaxBedrooms, false)
 	}
-	if len(filter.BedroomCounts) > 0 || filter.BedroomStudio {
-		var parts []string
-		var args []any
-		if len(filter.BedroomCounts) > 0 {
-			parts = append(parts, "(is_studio = ? AND bedrooms IN ?)")
-			args = append(args, false, filter.BedroomCounts)
-		}
-		if filter.BedroomStudio {
-			parts = append(parts, "is_studio = ?")
-			args = append(args, true)
-		}
-		query = query.Where("("+strings.Join(parts, " OR ")+")", args...)
+	if filter.BedroomRankMin != nil {
+		query = query.Where(bedroomRankSQL+" >= ?", *filter.BedroomRankMin)
+	}
+	if filter.BedroomRankMax != nil {
+		query = query.Where(bedroomRankSQL+" <= ?", *filter.BedroomRankMax)
 	}
 	if filter.Bathrooms != nil {
 		query = query.Where("bathrooms = ?", *filter.Bathrooms)

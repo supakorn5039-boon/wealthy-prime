@@ -20,6 +20,8 @@ interface FormComboboxProps<T extends FieldValues> {
   placeholder?: string
   required?: boolean
   disabled?: boolean
+  allowCustom?: (query: string) => string | null
+  customLabel?: (value: string) => string
 }
 
 export function FormCombobox<T extends FieldValues>({
@@ -30,6 +32,8 @@ export function FormCombobox<T extends FieldValues>({
   placeholder,
   required,
   disabled,
+  allowCustom,
+  customLabel,
 }: FormComboboxProps<T>) {
   const { t } = useTranslation()
   const { field, fieldState } = useController({ control, name })
@@ -41,7 +45,16 @@ export function FormCombobox<T extends FieldValues>({
     return options.filter((o) => o.label.toLowerCase().includes(q))
   }, [options, query])
 
-  const selectedLabel = options.find((o) => o.value === field.value)?.label ?? ''
+  const customValue = useMemo(() => {
+    if (!allowCustom) return null
+    const candidate = allowCustom(query)
+    if (!candidate) return null
+    return options.some((o) => o.value === candidate) ? null : candidate
+  }, [allowCustom, query, options])
+
+  const selectedLabel =
+    options.find((o) => o.value === field.value)?.label ??
+    (field.value ? String(field.value) : '')
 
   return (
     <div className="space-y-1.5">
@@ -73,7 +86,23 @@ export function FormCombobox<T extends FieldValues>({
           onQueryChange={setQuery}
           container={triggerRef.current?.closest<HTMLElement>('[role="dialog"]') || document.body}
         >
-          {filtered.length === 0 ? (
+          {customValue && (
+            <button
+              type="button"
+              onClick={() => {
+                field.onChange(customValue)
+                setQuery('')
+                setOpen(false)
+              }}
+              className="flex items-center gap-2 w-full px-2 py-1.5 rounded hover:bg-muted text-sm text-left text-primary font-medium"
+            >
+              <Check className="size-3.5 shrink-0 opacity-0" />
+              <span className="truncate">
+                {customLabel ? customLabel(customValue) : customValue}
+              </span>
+            </button>
+          )}
+          {filtered.length === 0 && !customValue ? (
             <p className="px-3 py-2 text-sm text-muted-foreground">{t('common.noResults')}</p>
           ) : (
             filtered.map((opt) => {

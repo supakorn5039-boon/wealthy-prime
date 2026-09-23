@@ -101,7 +101,8 @@ export interface PropertyListParams {
   pets?: PetPolicy[]
   minBedrooms?: number
   maxBedrooms?: number
-  bedroomChoices?: string[]
+  bedroomFrom?: string
+  bedroomTo?: string
   bathrooms?: number
   sizeMin?: number
   sizeMax?: number

@@ -16,7 +16,7 @@ import {
   type BtsMrtStation,
 } from '@/constants/Locations'
 import { PROPERTY_KINDS } from '@/hooks/usePropertyOptions'
-import { BEDROOM_COUNTS, STUDIO_BEDROOM } from '@/constants/Bedrooms'
+import { BEDROOM_ORDER, STUDIO_BEDROOM } from '@/constants/Bedrooms'
 import type { PropertyListParams, ListingFilter, PropertyKind, PetPolicy, PropertyStatus } from '@/types/Property'
 
 interface PropertyFilterProps {
@@ -43,7 +43,7 @@ type ListingChoice = 'sell' | 'rent' | 'sell_and_rent'
 const DEFAULT_LISTING_CHOICE: ListingChoice = 'sell_and_rent'
 const NOT_AVAILABLE_STATUSES: PropertyStatus[] = ['reserved', 'sold', 'unavailable', 'owner_update']
 const BATHROOM_CHOICES = Array.from({ length: 10 }, (_, i) => i + 1)
-const BEDROOM_CHOICES: string[] = [STUDIO_BEDROOM, ...BEDROOM_COUNTS.map(String)]
+const BEDROOM_CHOICES: string[] = BEDROOM_ORDER
 const PANEL_VIEWPORT_MARGIN = 8
 const PANEL_GAP = 6
 const PANEL_MIN_HEIGHT = 240
@@ -364,6 +364,75 @@ function RangeInputs({ min, max, onMin, onMax }: RangePanelProps) {
   )
 }
 
+function OrderedRangeCombo({
+  min,
+  max,
+  onMin,
+  onMax,
+  options,
+}: RangePanelProps & { options: FilterOption<string>[] }) {
+  const { t } = useTranslation()
+  const [active, setActive] = useState<'min' | 'max' | null>(null)
+
+  const labelOf = (value: string) => options.find((o) => o.value === value)?.label ?? value
+  const boxClass =
+    'h-11 w-full min-w-0 rounded-lg border border-input bg-background px-3 text-sm outline-none focus:ring-1 focus:ring-ring'
+
+  const handleType = (raw: string, set: (v: string) => void) => {
+    const digits = raw.replace(/[^0-9]/g, '')
+    set(digits)
+  }
+
+  const current = active === 'min' ? min : max
+  const setCurrent = active === 'min' ? onMin : onMax
+
+  return (
+    <div className="space-y-2">
+      <div className="grid grid-cols-2 gap-3">
+        <input
+          type="text"
+          inputMode="numeric"
+          value={labelOf(min)}
+          onChange={(e) => handleType(e.target.value, onMin)}
+          onFocus={() => setActive('min')}
+          placeholder={t('home.rangeMin')}
+          aria-label={t('home.rangeMin')}
+          className={cn(boxClass, active === 'min' && 'ring-1 ring-ring')}
+        />
+        <input
+          type="text"
+          inputMode="numeric"
+          value={labelOf(max)}
+          onChange={(e) => handleType(e.target.value, onMax)}
+          onFocus={() => setActive('max')}
+          placeholder={t('home.rangeMax')}
+          aria-label={t('home.rangeMax')}
+          className={cn(boxClass, active === 'max' && 'ring-1 ring-ring')}
+        />
+      </div>
+
+      {active && (
+        <div className="flex flex-wrap gap-1.5 pt-0.5">
+          {options.map((o) => (
+            <button
+              key={o.value}
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => setCurrent(o.value)}
+              className={cn(
+                'rounded-md border border-input px-2.5 py-1 text-sm hover:bg-muted',
+                current === o.value && 'border-primary text-primary',
+              )}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function PanelSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="px-4 py-3 border-b border-border/60 last:border-b-0">
@@ -409,7 +478,8 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     listingChoiceFromTypes(initialValues?.types),
   )
   const [kinds, setKinds] = useState<PropertyKind[]>(initialValues?.kinds ?? [])
-  const [bedroomChoices, setBedroomChoices] = useState<string[]>(initialValues?.bedroomChoices ?? [])
+  const [bedroomsMin, setBedroomsMin] = useState(initialValues?.bedroomFrom ?? '')
+  const [bedroomsMax, setBedroomsMax] = useState(initialValues?.bedroomTo ?? '')
   const [priceMin, setPriceMin] = useState(initialValues?.priceRanges?.[0]?.min?.toString() ?? '')
   const [priceMax, setPriceMax] = useState(initialValues?.priceRanges?.[0]?.max?.toString() ?? '')
   const [bathrooms, setBathrooms] = useState<number | undefined>(initialValues?.bathrooms)
@@ -512,7 +582,8 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
       searchStationIds: stationIdMatches.length > 0 ? stationIdMatches : undefined,
       types: listingChoiceToTypes(listingChoice),
       kinds: kinds.length > 0 ? kinds : undefined,
-      bedroomChoices: bedroomChoices.length > 0 ? bedroomChoices : undefined,
+      bedroomFrom: bedroomsMin || undefined,
+      bedroomTo: bedroomsMax || undefined,
       priceRanges,
       bathrooms,
       sizeMin: parseNum(sizeMin),
@@ -531,7 +602,8 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     setSearch('')
     setListingChoice(DEFAULT_LISTING_CHOICE)
     setKinds([])
-    setBedroomChoices([])
+    setBedroomsMin('')
+    setBedroomsMax('')
     setPriceMin('')
     setPriceMax('')
     setBathrooms(undefined)
@@ -558,7 +630,8 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     search ||
       listingChoice !== DEFAULT_LISTING_CHOICE ||
       kinds.length ||
-      bedroomChoices.length ||
+      bedroomsMin ||
+      bedroomsMax ||
       priceMin ||
       priceMax ||
       provinces.length ||
@@ -579,12 +652,12 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     }
     return `${compact(priceMin, t('home.rangeMin'))} – ${compact(priceMax, t('home.rangeMax'))}`
   })()
-  const bedLabel =
-    bedroomChoices.length === 0
-      ? t('home.filterLabel.bed')
-      : bedroomChoices.length === 1
-        ? bedroomOptions.find((o) => o.value === bedroomChoices[0])?.label ?? t('home.filterLabel.bed')
-        : countLabel(bedroomChoices.length)
+  const bedLabel = (() => {
+    if (!bedroomsMin && !bedroomsMax) return t('home.filterLabel.bed')
+    const labelOf = (v: string, fallback: string) =>
+      v ? bedroomOptions.find((o) => o.value === v)?.label ?? v : fallback
+    return `${labelOf(bedroomsMin, t('home.rangeMin'))} – ${labelOf(bedroomsMax, t('home.rangeMax'))}`
+  })()
   const provinceLabel =
     provinces.length === 0
       ? t('home.filterLabel.province')
@@ -674,15 +747,17 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
           )}
         </FilterDropdown>
 
-        <FilterDropdown label={bedLabel} active={bedroomChoices.length > 0} minWidth={240} fullWidth>
+        <FilterDropdown label={bedLabel} active={Boolean(bedroomsMin || bedroomsMax)} minWidth={300} fullWidth>
           {() => (
-            <MultiPickPanel
-              allLabel={allLabel}
-              options={bedroomOptions}
-              selected={bedroomChoices}
-              onToggle={(v) => setBedroomChoices((p) => toggleArray(p, v))}
-              onClear={() => setBedroomChoices([])}
-            />
+            <PanelSection title={t('home.filterLabel.bed')}>
+              <OrderedRangeCombo
+                min={bedroomsMin}
+                max={bedroomsMax}
+                onMin={setBedroomsMin}
+                onMax={setBedroomsMax}
+                options={bedroomOptions}
+              />
+            </PanelSection>
           )}
         </FilterDropdown>
 

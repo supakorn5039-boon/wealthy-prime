@@ -178,7 +178,8 @@ export default function HomeIndex() {
       filters.pets?.length ||
       filters.minBedrooms != null ||
       filters.maxBedrooms != null ||
-      filters.bedroomChoices?.length ||
+      filters.bedroomFrom != null ||
+      filters.bedroomTo != null ||
       filters.bathrooms != null ||
       filters.sizeMin != null ||
       filters.sizeMax != null ||

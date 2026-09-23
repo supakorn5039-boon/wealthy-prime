@@ -30,7 +30,7 @@ import type { Property } from "@/types/Property";
 import { PROVINCES, DISTRICTS_BY_PROVINCE, getBtsMrtOptions, localizedProvince, localizedDistrict } from "@/constants/Locations";
 import { usePropertyOptions } from "@/hooks/usePropertyOptions";
 import { useBedroomOptions } from "@/hooks/useBedroomOptions";
-import { bedroomChoiceOf, bedroomPayload } from "@/constants/Bedrooms";
+import { bedroomChoiceOf, bedroomPayload, customBedroomValue } from "@/constants/Bedrooms";
 import { useMapUrlCoords } from "@/hooks/useMapUrlCoords";
 import { MapUrlStatusHint } from "@/components/property/MapUrlStatusHint";
 
@@ -331,12 +331,14 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <FormSelect
+            <FormCombobox
               control={control}
               name="bedrooms"
               label={t("property.bedrooms")}
               options={bedroomOptions}
               placeholder={t("property.bedroomsPlaceholder")}
+              allowCustom={customBedroomValue}
+              customLabel={(v) => t("property.bedroomsUseTyped", { value: v })}
             />
             <FormInput
               control={control}

@@ -369,7 +369,8 @@
     "downloadingImages": "กำลังดาวน์โหลด…",
     "existingProjects": "โครงการที่มีอยู่ในระบบ",
     "studio": "Studio",
-    "bedroomsPlaceholder": "เลือกจำนวนห้องนอน"
+    "bedroomsPlaceholder": "เลือกจำนวนห้องนอน",
+    "bedroomsUseTyped": "ใช้ \"{{value}}\" ห้องนอน"
   },
   "inquiries": {
     "title": "การติดต่อสอบถาม",
