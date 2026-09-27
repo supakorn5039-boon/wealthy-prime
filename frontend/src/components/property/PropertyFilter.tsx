@@ -16,7 +16,7 @@ import {
   type BtsMrtStation,
 } from '@/constants/Locations'
 import { PROPERTY_KINDS } from '@/hooks/usePropertyOptions'
-import { BEDROOM_ORDER, STUDIO_BEDROOM } from '@/constants/Bedrooms'
+import { BEDROOM_ORDER, STUDIO_BEDROOM, DUPLEX_BEDROOM } from '@/constants/Bedrooms'
 import type { PropertyListParams, ListingFilter, PropertyKind, PetPolicy, PropertyStatus } from '@/types/Property'
 
 interface PropertyFilterProps {
@@ -526,7 +526,16 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
     [],
   )
   const bedroomOptions = useMemo<FilterOption<string>[]>(
-    () => BEDROOM_CHOICES.map((v) => ({ value: v, label: v === STUDIO_BEDROOM ? t('property.studio') : v })),
+    () =>
+      BEDROOM_CHOICES.map((v) => ({
+        value: v,
+        label:
+          v === STUDIO_BEDROOM
+            ? t('property.studio')
+            : v === DUPLEX_BEDROOM
+              ? t('property.duplex')
+              : v,
+      })),
     [t],
   )
   const provinceOptions = useMemo<FilterOption<string>[]>(

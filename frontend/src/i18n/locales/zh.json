@@ -371,6 +371,7 @@
     "downloadingImages": "下载中…",
     "existingProjects": "系统中已有的项目",
     "studio": "Studio",
+    "duplex": "复式",
     "bedroomsPlaceholder": "选择卧室数",
     "bedroomsUseTyped": "使用 \"{{value}}\" 间卧室"
   },

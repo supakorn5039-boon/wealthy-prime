@@ -55,13 +55,17 @@ func parseBedroomRank(s string) *int {
 		rank := 1
 		return &rank
 	}
+	if token == "duplex" {
+		rank := 2
+		return &rank
+	}
 	n, err := strconv.Atoi(token)
 	if err != nil || n < 0 {
 		return nil
 	}
 	rank := n
 	if n > 0 {
-		rank = n + 1
+		rank = n + 2
 	}
 	return &rank
 }

@@ -30,7 +30,13 @@ export function PropertyCard({ property }: PropertyCardProps) {
 
   const petAllowed = property.pets === "allowed";
   const btsMrtText = formatBtsMrt(property.btsMrt, i18n.language);
-  const bedroomsText = formatBedrooms(property.bedrooms, property.isStudio, t("property.studio"));
+  const bedroomsText = formatBedrooms(
+    property.bedrooms,
+    property.isStudio,
+    property.isDuplex,
+    t("property.studio"),
+    t("property.duplex")
+  );
 
   return (
     <div className="group bg-card rounded-md overflow-hidden border border-border hover:border-primary/60 transition-colors">

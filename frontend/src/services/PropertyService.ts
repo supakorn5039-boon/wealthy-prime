@@ -22,6 +22,7 @@ function appendCommonFields(fd: FormData, payload: PropertyFormFields) {
   if (payload.btsMrt) fd.append('bts_mrt', payload.btsMrt)
   if (payload.bedrooms != null) fd.append('bedrooms', String(payload.bedrooms))
   fd.append('is_studio', String(Boolean(payload.isStudio)))
+  fd.append('is_duplex', String(Boolean(payload.isDuplex)))
   if (payload.bathrooms != null) fd.append('bathrooms', String(payload.bathrooms))
   if (payload.floor != null) fd.append('floor', String(payload.floor))
   if (payload.minContract != null) fd.append('min_contract', String(payload.minContract))

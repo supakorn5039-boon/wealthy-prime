@@ -58,6 +58,7 @@ export interface Property {
   btsMrt?: number[]
   bedrooms?: number
   isStudio?: boolean
+  isDuplex?: boolean
   bathrooms?: number
   floor?: number
   minContract?: number
@@ -139,6 +140,7 @@ export interface PropertyFormFields {
   btsMrt?: string
   bedrooms?: number
   isStudio?: boolean
+  isDuplex?: boolean
   bathrooms?: number
   floor?: number
   minContract?: number

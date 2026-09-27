@@ -109,3 +109,39 @@ func TestParseICTDateEndIsExclusiveNextMidnight(t *testing.T) {
 		t.Error("23:59:59 on the selected day must fall inside the range")
 	}
 }
+
+func TestParseBedroomRank(t *testing.T) {
+	intPtr := func(v int) *int { return &v }
+	cases := []struct {
+		in   string
+		want *int
+	}{
+		{"", nil},
+		{"   ", nil},
+		{"abc", nil},
+		{"-1", nil},
+		{"0", intPtr(0)},
+		{"studio", intPtr(1)},
+		{"Studio", intPtr(1)},
+		{"STUDIO", intPtr(1)},
+		{"duplex", intPtr(2)},
+		{"Duplex", intPtr(2)},
+		{"DUPLEX", intPtr(2)},
+		{"1", intPtr(3)},
+		{"2", intPtr(4)},
+		{"3", intPtr(5)},
+		{"10", intPtr(12)},
+	}
+	for _, tc := range cases {
+		got := parseBedroomRank(tc.in)
+		if tc.want == nil {
+			if got != nil {
+				t.Errorf("parseBedroomRank(%q) = %v, want nil", tc.in, *got)
+			}
+		} else {
+			if got == nil || *got != *tc.want {
+				t.Errorf("parseBedroomRank(%q) = %v, want %v", tc.in, got, *tc.want)
+			}
+		}
+	}
+}

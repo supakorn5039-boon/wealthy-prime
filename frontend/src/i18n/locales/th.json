@@ -371,6 +371,7 @@
     "downloadingImages": "กำลังดาวน์โหลด…",
     "existingProjects": "โครงการที่มีอยู่ในระบบ",
     "studio": "Studio",
+    "duplex": "Duplex",
     "bedroomsPlaceholder": "เลือกจำนวนห้องนอน",
     "bedroomsUseTyped": "ใช้ \"{{value}}\" ห้องนอน"
   },

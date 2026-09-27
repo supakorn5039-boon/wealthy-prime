@@ -68,7 +68,7 @@ func priceRangeCond(column string, listings []string, r PriceRange) (string, []a
 	return "(" + cond + ")", args
 }
 
-const bedroomRankSQL = "(CASE WHEN is_studio THEN 1 WHEN bedrooms = 0 THEN 0 ELSE bedrooms + 1 END)"
+const bedroomRankSQL = "(CASE WHEN is_studio THEN 1 WHEN is_duplex OR kind = 'duplex' THEN 2 WHEN bedrooms = 0 THEN 0 ELSE bedrooms + 2 END)"
 
 type PropertyFilter struct {
 	Location         string
@@ -118,6 +118,7 @@ type PropertyFields struct {
 	BtsMrt       pq.Int32Array
 	Bedrooms     int
 	IsStudio     bool
+	IsDuplex     bool
 	Bathrooms    int
 	Floor        int
 	MinContract  int
@@ -258,10 +259,10 @@ func (s *PropertyService) ListProperties(filter PropertyFilter) ([]model.Propert
 		query = query.Where("pets IN ?", filter.Pets)
 	}
 	if filter.MinBedrooms != nil {
-		query = query.Where("bedrooms >= ? AND is_studio = ?", *filter.MinBedrooms, false)
+		query = query.Where("bedrooms >= ? AND is_studio = ? AND is_duplex = ?", *filter.MinBedrooms, false, false)
 	}
 	if filter.MaxBedrooms != nil {
-		query = query.Where("bedrooms <= ? AND is_studio = ?", *filter.MaxBedrooms, false)
+		query = query.Where("bedrooms <= ? AND is_studio = ? AND is_duplex = ?", *filter.MaxBedrooms, false, false)
 	}
 	if filter.BedroomRankMin != nil {
 		query = query.Where(bedroomRankSQL+" >= ?", *filter.BedroomRankMin)
@@ -507,6 +508,7 @@ func (s *PropertyService) CreateProperty(input CreatePropertyInput) (*model.Prop
 		BtsMrt:       input.BtsMrt,
 		Bedrooms:     input.Bedrooms,
 		IsStudio:     input.IsStudio,
+		IsDuplex:     input.IsDuplex,
 		Bathrooms:    input.Bathrooms,
 		Floor:        input.Floor,
 		MinContract:  input.MinContract,
@@ -610,6 +612,7 @@ func (s *PropertyService) UpdateProperty(propertyID, callerID uint, role model.U
 		"bts_mrt":            input.BtsMrt,
 		"bedrooms":           input.Bedrooms,
 		"is_studio":          input.IsStudio,
+		"is_duplex":          input.IsDuplex,
 		"bathrooms":          input.Bathrooms,
 		"floor":              input.Floor,
 		"min_contract":       input.MinContract,

@@ -55,7 +55,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
     furnitureOptions,
   } = usePropertyOptions();
   const bedroomOptions = useBedroomOptions(
-    bedroomChoiceOf(property.bedrooms, property.isStudio),
+    bedroomChoiceOf(property.bedrooms, property.isStudio, property.isDuplex),
   );
   const provinceOptions = PROVINCES.map((p) => ({ value: p, label: localizedProvince(p, i18n.language) }));
 
@@ -79,7 +79,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
         district: property.district ?? "",
         googleMapUrl: property.googleMapUrl ?? "",
         btsMrt: (property.btsMrt ?? []).join(", "),
-        bedrooms: bedroomChoiceOf(property.bedrooms, property.isStudio),
+        bedrooms: bedroomChoiceOf(property.bedrooms, property.isStudio, property.isDuplex),
         bathrooms: property.bathrooms != null ? String(property.bathrooms) : "",
         floor: property.floor != null ? String(property.floor) : "",
         minContract:

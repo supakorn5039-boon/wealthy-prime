@@ -578,8 +578,9 @@ func buildPropertyFields(
 		return n
 	}
 	isStudio := strings.EqualFold(formVal(values, "is_studio"), "true")
+	isDuplex := strings.EqualFold(formVal(values, "is_duplex"), "true")
 	bedrooms := atoi(formVal(values, "bedrooms"))
-	if isStudio {
+	if isStudio || isDuplex {
 		bedrooms = 0
 	}
 	return service.PropertyFields{
@@ -602,6 +603,7 @@ func buildPropertyFields(
 		BtsMrt:       pq.Int32Array(parseIntCSV(formVal(values, "bts_mrt"))),
 		Bedrooms:     bedrooms,
 		IsStudio:     isStudio,
+		IsDuplex:     isDuplex,
 		Bathrooms:    atoi(formVal(values, "bathrooms")),
 		Floor:        atoi(formVal(values, "floor")),
 		MinContract:  atoi(formVal(values, "min_contract")),

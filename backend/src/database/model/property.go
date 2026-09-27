@@ -85,6 +85,7 @@ type Property struct {
 	BtsMrt      pq.Int32Array `gorm:"type:integer[]"`
 	Bedrooms    int
 	IsStudio    bool `gorm:"not null;default:false"`
+	IsDuplex    bool `gorm:"not null;default:false"`
 	Bathrooms   int
 	Floor       int
 	MinContract int
@@ -179,6 +180,7 @@ type PropertyDto struct {
 	BtsMrt             []int32            `json:"btsMrt"`
 	Bedrooms           int                `json:"bedrooms"`
 	IsStudio           bool               `json:"isStudio"`
+	IsDuplex           bool               `json:"isDuplex"`
 	Bathrooms          int                `json:"bathrooms"`
 	Floor              int                `json:"floor"`
 	MinContract        int                `json:"minContract"`
@@ -226,6 +228,7 @@ func (p *Property) ToDto() *PropertyDto {
 		BtsMrt:             []int32(p.BtsMrt),
 		Bedrooms:           p.Bedrooms,
 		IsStudio:           p.IsStudio,
+		IsDuplex:           p.IsDuplex,
 		Bathrooms:          p.Bathrooms,
 		Floor:              p.Floor,
 		MinContract:        p.MinContract,

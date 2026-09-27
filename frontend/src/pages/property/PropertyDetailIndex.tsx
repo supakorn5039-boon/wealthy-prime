@@ -123,7 +123,13 @@ export default function PropertyDetailIndex() {
 
   const myReview = user ? reviews.find((r) => r.userId === user.id) ?? null : null
 
-  const bedroomsText = formatBedrooms(property.bedrooms, property.isStudio, t('property.studio'))
+  const bedroomsText = formatBedrooms(
+    property.bedrooms,
+    property.isStudio,
+    property.isDuplex,
+    t('property.studio'),
+    t('property.duplex')
+  )
 
   return (
     <PageContainer size="7xl" className="space-y-6">

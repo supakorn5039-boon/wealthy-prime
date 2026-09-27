@@ -54,7 +54,13 @@ interface PropertyRowProps {
 function PropertyRow({ property, active, onHover }: PropertyRowProps) {
   const { t, i18n } = useTranslation();
   const petAllowed = property.pets === "allowed";
-  const bedroomsText = formatBedrooms(property.bedrooms, property.isStudio, t("property.studio"));
+  const bedroomsText = formatBedrooms(
+    property.bedrooms,
+    property.isStudio,
+    property.isDuplex,
+    t("property.studio"),
+    t("property.duplex")
+  );
 
   return (
     <Link

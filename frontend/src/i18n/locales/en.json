@@ -371,6 +371,7 @@
     "downloadingImages": "Downloading…",
     "existingProjects": "Existing projects in the system",
     "studio": "Studio",
+    "duplex": "Duplex",
     "bedroomsPlaceholder": "Select bedrooms",
     "bedroomsUseTyped": "Use \"{{value}}\" bedrooms"
   },
