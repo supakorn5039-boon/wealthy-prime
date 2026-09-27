@@ -7,6 +7,7 @@ dist/
 build/
 *.exe
 *.bin
+*.tsbuildinfo
 
 # Environment files (keep .env.production but not local secrets)
 .env

@@ -7,18 +7,20 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/wealthy-prime/backend/src/config"
 	"github.com/wealthy-prime/backend/src/database/model"
 	"github.com/wealthy-prime/backend/src/security"
 )
 
 type seededAdmin struct {
-	Name  string
-	Email string
-	Phone string
+	Name    string
+	Email   string
+	Phone   string
+	DevOnly bool
 }
 
 var seededAdmins = []seededAdmin{
-	{Name: "System Admin", Email: "admin@example.com", Phone: "0811111111"},
+	{Name: "System Admin", Email: "admin@example.com", Phone: "0811111111", DevOnly: true},
 	{Name: "Wealthy Prime Admin", Email: "wealthyprime.admin@gmail.com", Phone: "0812222222"},
 }
 
@@ -30,6 +32,11 @@ func seedAdmin(db *gorm.DB) {
 	}
 
 	for _, a := range seededAdmins {
+		if a.DevOnly && config.App.Server.Production {
+			log.Printf("[seeder] skipping dev-only admin %s in production", a.Email)
+			continue
+		}
+
 		var existing model.User
 		err := db.Where("email = ?", a.Email).First(&existing).Error
 		if err == nil {

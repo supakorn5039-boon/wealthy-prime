@@ -833,7 +833,7 @@ export function PropertyFilter({ onFilter, initialValues }: PropertyFilterProps)
                   <ChoiceRow
                     options={petsOptions}
                     isSelected={(v) => pets.includes(v)}
-                    onToggle={(v) => setPets((p) => toggleArray(p, v))}
+                    onToggle={(v) => setPets((p) => (p.includes(v) ? [] : [v]))}
                   />
                 </PanelSection>
                 <PanelSection title={t('home.filterLabel.size')}>

@@ -8,8 +8,16 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { PropertyService } from "@/services/PropertyService";
 import { AdminService } from "@/services/AdminService";
+import { AgentService } from "@/services/AgentService";
 import { useAuthStore } from "@/store/authStore";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { PropertyStatusBadge } from "@/components/shared/StatusBadge";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -149,19 +157,21 @@ export default function MyPropertiesIndex() {
   const [typeFilters, setTypeFilters] = useState<ListingFilter[]>([]);
   const [kindFilters, setKindFilters] = useState<Exclude<PropertyKind, ''>[]>([]);
   const [projectFilter, setProjectFilter] = useState('');
+  const [agentFilter, setAgentFilter] = useState('');
   const [createdFrom, setCreatedFrom] = useState('');
   const [createdTo, setCreatedTo] = useState('');
 
   const baseKey = isAdmin ? AdminService.QUERY_KEYS.PROPERTIES : PropertyService.QUERY_KEYS.AGENT_LIST;
 
   const { data: properties = [], isLoading } = useQuery({
-    queryKey: [baseKey, { statusFilters, typeFilters, kindFilters, projectFilter, createdFrom, createdTo }],
+    queryKey: [baseKey, { statusFilters, typeFilters, kindFilters, projectFilter, agentFilter, createdFrom, createdTo }],
     queryFn: () => {
       const params = {
         statuses: statusFilters.length ? statusFilters : undefined,
         types: typeFilters.length ? typeFilters : undefined,
         kinds: kindFilters.length ? kindFilters : undefined,
         projectName: projectFilter || undefined,
+        agentId: agentFilter ? Number(agentFilter) : undefined,
         createdFrom: createdFrom || undefined,
         createdTo: createdTo || undefined,
       };
@@ -170,15 +180,22 @@ export default function MyPropertiesIndex() {
         : PropertyService.getAgentProperties(params);
     },
   });
-  const hasFilters = !!(statusFilters.length || typeFilters.length || kindFilters.length || projectFilter || createdFrom || createdTo);
+  const hasFilters = !!(statusFilters.length || typeFilters.length || kindFilters.length || projectFilter || agentFilter || createdFrom || createdTo);
   const clearFilters = () => {
     setStatusFilters([]);
     setTypeFilters([]);
     setKindFilters([]);
     setProjectFilter('');
+    setAgentFilter('');
     setCreatedFrom('');
     setCreatedTo('');
   };
+
+  const { data: agents = [] } = useQuery({
+    queryKey: [AgentService.QUERY_KEYS.ASSIGNABLE_AGENTS],
+    queryFn: AgentService.getAssignableAgents,
+    enabled: isAdmin,
+  });
 
   const statusOptions = useMemo(() => STATUS_VALUES.map((s) => ({ value: s, label: t(`property.status.${s}`) })), [t]);
   const typeOptions = useMemo(() => TYPE_VALUES.map((v) => ({ value: v, label: t(`property.listing.${v}`) })), [t]);
@@ -214,7 +231,7 @@ export default function MyPropertiesIndex() {
         }
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
+      <div className={`grid grid-cols-2 md:grid-cols-4 gap-2 mb-4 ${isAdmin ? "xl:grid-cols-7" : "lg:grid-cols-6"}`}>
         <MultiSelectFilter
           placeholder={t('property.statusCol')}
           selected={statusFilters}
@@ -233,6 +250,21 @@ export default function MyPropertiesIndex() {
           options={kindOptions}
           onChange={(next) => setKindFilters(next as Exclude<PropertyKind, ''>[])}
         />
+        {isAdmin && (
+          <Select value={agentFilter || 'all'} onValueChange={(v) => setAgentFilter(v === 'all' ? '' : v)}>
+            <SelectTrigger className="h-9" aria-label={t('property.responsibleAgent')}>
+              <SelectValue placeholder={t('property.responsibleAgent')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t('property.allAgents')}</SelectItem>
+              {agents.map((a) => (
+                <SelectItem key={a.id} value={String(a.id)}>
+                  {a.agentCode ? `${a.name} (${a.agentCode})` : a.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
         <Input
           type="date"
           value={createdFrom}
@@ -291,6 +323,7 @@ export default function MyPropertiesIndex() {
                   <TableHead className="whitespace-nowrap">{t("property.createdCol")}</TableHead>
                   <TableHead>{t("property.code")}</TableHead>
                   <TableHead>{t("property.project")}</TableHead>
+                  {isAdmin && <TableHead>{t("property.responsibleAgent")}</TableHead>}
                   <TableHead>{t("property.typeCol")}</TableHead>
                   <TableHead>{t("property.price")}</TableHead>
                   <TableHead>{t("property.statusCol")}</TableHead>
@@ -311,6 +344,9 @@ export default function MyPropertiesIndex() {
                     <TableCell>
                       <p className="font-medium">{p.projectName}</p>
                     </TableCell>
+                    {isAdmin && (
+                      <TableCell className="text-sm">{p.agentName || "-"}</TableCell>
+                    )}
                     <TableCell>
                       {p.listing ? t(`property.listing.${p.listing}`) : "-"}
                     </TableCell>

@@ -6,6 +6,7 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/wealthy-prime/backend/src/config"
 	"github.com/wealthy-prime/backend/src/database/model"
 	"github.com/wealthy-prime/backend/src/security"
 	"github.com/wealthy-prime/backend/src/tests/helpers"
@@ -128,5 +129,27 @@ func TestSeedAdmin_FallsBackWhenAdminPasswordUnset(t *testing.T) {
 	}
 	if !security.CheckPassword(u.PasswordHash, "admin123") {
 		t.Error("documented fallback changed; update ROTATE-SECRETS.md and the handover notes")
+	}
+}
+
+func TestSeedAdmin_SkipsDevOnlyAdminInProduction(t *testing.T) {
+	db, cleanup := helpers.TestDB(t)
+	defer cleanup()
+
+	t.Setenv("ADMIN_PASSWORD", "seed-test-secret")
+	prev := config.App.Server.Production
+	config.App.Server.Production = true
+	defer func() { config.App.Server.Production = prev }()
+
+	seedAdmin(db)
+
+	got := adminEmails(t, db)
+	for _, e := range got {
+		if e == "admin@example.com" {
+			t.Fatalf("dev-only admin was seeded in production; got %v", got)
+		}
+	}
+	if len(got) != 1 || got[0] != "wealthyprime.admin@gmail.com" {
+		t.Fatalf("expected only the real admin in production, got %v", got)
 	}
 }

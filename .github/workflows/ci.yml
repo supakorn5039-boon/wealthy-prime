@@ -16,7 +16,7 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   backend:
@@ -71,3 +71,139 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  deploy:
+    name: Deploy to EC2
+    needs: [backend, frontend]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      AWS_REGION: ap-southeast-1
+      SG_ID: sg-0cdc853f92dcb555b
+      EC2_HOST: ${{ vars.EC2_HOST }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.25.x
+          cache-dependency-path: backend/go.sum
+
+      - name: Build backend (linux/arm64)
+        working-directory: backend
+        run: |
+          GOOS=linux GOARCH=arm64 CGO_ENABLED=0 \
+            go build -ldflags="-w -s" -o "$GITHUB_WORKSPACE/server" ./src
+          ls -lh "$GITHUB_WORKSPACE/server"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Open SSH for this runner
+        id: sg
+        run: |
+          RUNNER_IP=$(curl -sS --retry 3 https://checkip.amazonaws.com | tr -d '[:space:]')
+          [ -n "$RUNNER_IP" ] || { echo "could not determine runner IP"; exit 1; }
+          echo "runner_ip=$RUNNER_IP" >> "$GITHUB_OUTPUT"
+          aws ec2 authorize-security-group-ingress \
+            --group-id "$SG_ID" \
+            --ip-permissions "IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges=[{CidrIp=${RUNNER_IP}/32,Description='github-actions run ${{ github.run_id }}'}]"
+          echo "opened 22 for ${RUNNER_IP}/32"
+
+      - name: Load SSH key
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Deploy backend
+        run: |
+          scp -i ~/.ssh/deploy_key -o BatchMode=yes \
+            "$GITHUB_WORKSPACE/server" .github/deploy/config.prod.ini \
+            "ubuntu@$EC2_HOST:/tmp/"
+          ssh -i ~/.ssh/deploy_key -o BatchMode=yes "ubuntu@$EC2_HOST" '
+            set -e
+            sudo install -o wealthy -g wealthy -m 755 /tmp/server /opt/wealthy-prime/server
+            sudo install -o wealthy -g wealthy -m 644 /tmp/config.prod.ini /opt/wealthy-prime/config.ini
+            rm -f /tmp/server /tmp/config.prod.ini
+            sudo systemctl restart wealthy-prime'
+
+      - name: Deploy frontend
+        run: |
+          rsync -az --delete -e "ssh -i ~/.ssh/deploy_key -o BatchMode=yes" \
+            --rsync-path="sudo rsync" \
+            frontend/dist/ "ubuntu@$EC2_HOST:/var/www/wealthy-prime/"
+          ssh -i ~/.ssh/deploy_key -o BatchMode=yes "ubuntu@$EC2_HOST" '
+            set -e
+            sudo chown -R ubuntu:www-data /var/www/wealthy-prime
+            sudo find /var/www/wealthy-prime -type d -exec chmod 755 {} +
+            sudo find /var/www/wealthy-prime -type f -exec chmod 644 {} +
+            sudo nginx -t && sudo systemctl reload nginx'
+
+      - name: Health check
+        run: |
+          ssh -i ~/.ssh/deploy_key -o BatchMode=yes "ubuntu@$EC2_HOST" '
+            for i in $(seq 1 10); do
+              code=$(curl -sS -m 5 -o /dev/null -w "%{http_code}" http://127.0.0.1:8080/healthz || true)
+              if [ "$code" = "200" ]; then
+                echo "healthz OK after ${i} attempt(s)"
+                free -h | head -2
+                exit 0
+              fi
+              sleep 3
+            done
+            echo "health check FAILED - last 40 log lines:"
+            sudo journalctl -u wealthy-prime -n 40 --no-pager
+            exit 1'
+
+      - name: Public smoke test
+        run: |
+          curl -sS -o /dev/null -m 20 -w "site  HTTP %{http_code}\n" \
+            https://wealthyprimeestate.com/
+          curl -sS -o /dev/null -m 20 -w "api   HTTP %{http_code}\n" \
+            "https://api.wealthyprimeestate.com/api/properties?limit=1"
+
+      - name: Close SSH
+        if: always() && steps.sg.outputs.runner_ip != ''
+        run: |
+          IP="${{ steps.sg.outputs.runner_ip }}"
+          if aws ec2 revoke-security-group-ingress \
+               --group-id "$SG_ID" \
+               --ip-permissions "IpProtocol=tcp,FromPort=22,ToPort=22,IpRanges=[{CidrIp=${IP}/32}]" 2>/dev/null; then
+            echo "closed 22 for ${IP}/32"
+          elif aws ec2 describe-security-groups --group-id "$SG_ID" \
+                 --query "SecurityGroups[].IpPermissions[?FromPort==\`22\`].IpRanges[?CidrIp=='${IP}/32']" \
+                 --output text | grep -q .; then
+            echo "::error::port 22 STILL OPEN for ${IP}/32 - revoke it manually"
+            exit 1
+          else
+            echo "nothing to revoke (rule was never created)"
+          fi
