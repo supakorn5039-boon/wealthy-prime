@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 export const PROPERTY_KINDS = [
   'condo',
   'studio',
+  'duplex',
   'house',
   'semi_detached_house',
   'townhouse',

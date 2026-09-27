@@ -9,6 +9,7 @@ export type PropertyStatus =
 export type PropertyKind =
   | 'condo'
   | 'studio'
+  | 'duplex'
   | 'house'
   | 'semi_detached_house'
   | 'townhouse'

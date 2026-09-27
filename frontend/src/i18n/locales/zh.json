@@ -235,6 +235,7 @@
     "kind": {
       "condo": "公寓",
       "studio": "开间公寓",
+      "duplex": "复式公寓",
       "house": "独栋别墅",
       "semi_detached_house": "双拼别墅",
       "townhouse": "联排别墅",
@@ -338,6 +339,7 @@
     "basicInfo": "基本信息",
     "projectName": "项目名称",
     "projectSearchPlaceholder": "按楼盘名称或房产编号搜索",
+    "allAgents": "全部代理",
     "createdFrom": "发布日期从",
     "createdTo": "发布日期至",
     "rentPrice": "租金",

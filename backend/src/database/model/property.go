@@ -32,6 +32,7 @@ const (
 
 	KindCondo             PropertyKind = "condo"
 	KindStudio            PropertyKind = "studio"
+	KindDuplex            PropertyKind = "duplex"
 	KindHouse             PropertyKind = "house"
 	KindSemiDetachedHouse PropertyKind = "semi_detached_house"
 	KindTownhouse         PropertyKind = "townhouse"
