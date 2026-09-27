@@ -297,7 +297,7 @@ export default function AddPropertyIndex({ assignAgent = false }: AddPropertyInd
               name="adCaption"
               label={t("property.adCaption")}
               placeholder={t("property.adCaption")}
-              rows={2}
+              rows={4}
             />
           </CardContent>
         </Card>

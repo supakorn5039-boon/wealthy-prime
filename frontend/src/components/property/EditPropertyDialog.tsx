@@ -269,7 +269,7 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
             control={control}
             name="adCaption"
             label={t("property.adCaption")}
-            rows={2}
+            rows={4}
           />
 
           <div className="grid gap-4 sm:grid-cols-2">
