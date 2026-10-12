@@ -24,6 +24,16 @@ import { useBedroomOptions } from "@/hooks/useBedroomOptions";
 import { useAuthStore } from "@/store/authStore";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { PageTitle } from "@/components/shared/PageTitle";
 import { PageContainer } from "@/components/shared/PageContainer";
 import { addPropertySchema, assignPropertySchema, type PropertySchema } from "@/dto/PropertyValidation";
@@ -45,7 +55,7 @@ export default function AddPropertyIndex({ assignAgent = false }: AddPropertyInd
   const queryClient = useQueryClient();
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [showExtraField, setShowExtraField] = useState(false);
+  const [pendingDuplicate, setPendingDuplicate] = useState<PropertySchema | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -80,7 +90,6 @@ export default function AddPropertyIndex({ assignAgent = false }: AddPropertyInd
       salePrice: "",
       sizeSqm: "",
       ownerInfo: "",
-      ownerExtraDetail: "",
       lat: "",
       lng: "",
 
@@ -130,16 +139,16 @@ export default function AddPropertyIndex({ assignAgent = false }: AddPropertyInd
   });
 
   const mutation = useMutation({
-    mutationFn: (values: PropertySchema) =>
+    mutationFn: ({ values, confirmDuplicate }: { values: PropertySchema; confirmDuplicate?: boolean }) =>
       PropertyService.createWithImages(
         {
+          confirmDuplicate,
           projectName: values.projectName,
           location: values.location || values.province || "",
           rentPrice: values.rentPrice ? Number(values.rentPrice) : undefined,
           salePrice: values.salePrice ? Number(values.salePrice) : undefined,
           sizeSqm: values.sizeSqm ? Number(values.sizeSqm) : undefined,
           ownerInfo: values.ownerInfo ?? "",
-          ownerExtraDetail: values.ownerExtraDetail ?? "",
           lat: values.lat ? Number(values.lat) : undefined,
           lng: values.lng ? Number(values.lng) : undefined,
 
@@ -190,10 +199,9 @@ export default function AddPropertyIndex({ assignAgent = false }: AddPropertyInd
       }
       navigate(ROUTES.AGENT_PROPERTIES);
     },
-    onError: (error) => {
+    onError: (error, { values }) => {
       if (axios.isAxiosError(error) && error.response?.status === 409) {
-        toast.error(t("property.duplicateError"));
-        setShowExtraField(true);
+        setPendingDuplicate(values);
         return;
       }
       toast.error(t("common.error"));
@@ -222,7 +230,7 @@ export default function AddPropertyIndex({ assignAgent = false }: AddPropertyInd
       />
 
       <form
-        onSubmit={handleSubmit((values) => mutation.mutate(values), scrollToFirstError)}
+        onSubmit={handleSubmit((values) => mutation.mutate({ values }), scrollToFirstError)}
         className="space-y-6"
       >
         <Card>
@@ -536,21 +544,6 @@ export default function AddPropertyIndex({ assignAgent = false }: AddPropertyInd
                 required
               />
             )}
-            {showExtraField && (
-              <div className="border-l-4 border-orange-400 pl-4 space-y-2">
-                <p className="text-sm font-medium text-orange-700">
-                  {t("property.duplicateWarning")}
-                </p>
-                <FormTextarea
-                  control={control}
-                  name="ownerExtraDetail"
-                  label={t("property.ownerExtraDetail")}
-                  placeholder={t("property.ownerExtraDetail")}
-                  required
-                  rows={3}
-                />
-              </div>
-            )}
           </CardContent>
         </Card>
 
@@ -569,6 +562,33 @@ export default function AddPropertyIndex({ assignAgent = false }: AddPropertyInd
           </Button>
         </div>
       </form>
+
+      <AlertDialog
+        open={pendingDuplicate !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDuplicate(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("property.duplicateConfirmTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("property.duplicateConfirmDesc")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (pendingDuplicate) {
+                  mutation.mutate({ values: pendingDuplicate, confirmDuplicate: true });
+                }
+                setPendingDuplicate(null);
+              }}
+            >
+              {t("property.duplicateConfirmAction")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </PageContainer>
   );
 }

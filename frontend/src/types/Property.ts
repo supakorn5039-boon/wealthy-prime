@@ -127,7 +127,6 @@ export interface PropertyFormFields {
   salePrice?: number
   sizeSqm?: number
   ownerInfo: string
-  ownerExtraDetail?: string
   lat?: number
   lng?: number
 
@@ -159,7 +158,7 @@ export interface PropertyFormFields {
   agentId?: number
 }
 
-export type CreatePropertyPayload = PropertyFormFields
+export type CreatePropertyPayload = PropertyFormFields & { confirmDuplicate?: boolean }
 
 export interface UpdatePropertyStatusPayload {
   status: PropertyStatus

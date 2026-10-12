@@ -169,21 +169,21 @@ func (ctrl *AgentController) createProperty(c *gin.Context) {
 		responsibleAgentID = uint(n)
 	}
 
-	if ownerInfo != "" {
-		isDuplicate, err := ctrl.propertySvc.DuplicateCheck(projectName, ownerInfo)
+	images := form.File["images"]
+
+	fields := buildPropertyFields(form.Value, projectName, location, ownerInfo, rentPrice, salePrice, sizeSqm, model.PropertyType(propType), rentalPeriodMonths, lat, lng)
+
+	if !strings.EqualFold(formVal(form.Value, "confirm_duplicate"), "true") {
+		isDuplicate, err := ctrl.propertySvc.DuplicateCheck(fields)
 		if err != nil {
 			errorResponse(c, err)
 			return
 		}
 		if isDuplicate {
-			errorResponse(c, apperror.Conflict("property with same project name and owner already exists"))
+			errorResponse(c, apperror.Conflict("property with same project name, prices, bedrooms and owner name already exists"))
 			return
 		}
 	}
-
-	images := form.File["images"]
-
-	fields := buildPropertyFields(form.Value, projectName, location, ownerInfo, rentPrice, salePrice, sizeSqm, model.PropertyType(propType), rentalPeriodMonths, lat, lng)
 
 	dto, err := ctrl.propertySvc.CreateProperty(service.CreatePropertyInput{
 		PropertyFields: fields,

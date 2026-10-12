@@ -12,7 +12,6 @@ const propertyObject = z.object({
   salePrice: z.string().optional(),
   sizeSqm: z.string().optional(),
   ownerInfo: z.string().optional(),
-  ownerExtraDetail: z.string().optional(),
   lat: z.string().optional(),
   lng: z.string().optional(),
 

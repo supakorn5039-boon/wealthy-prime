@@ -115,6 +115,7 @@ export const PropertyService = {
     const formData = new FormData()
     appendCommonFields(formData, payload)
     if (payload.agentId != null) formData.append('agent_id', String(payload.agentId))
+    if (payload.confirmDuplicate) formData.append('confirm_duplicate', 'true')
     images.forEach((img) => formData.append('images', img))
     const res = await fetchClient.post<ApiResponse<Property>>(API.AGENT_PROPERTIES, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },

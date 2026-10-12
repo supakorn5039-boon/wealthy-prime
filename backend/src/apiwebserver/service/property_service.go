@@ -366,10 +366,24 @@ func (s *PropertyService) GetPropertyReviews(propertyID uint) ([]model.ReviewDto
 	return dtos, nil
 }
 
-func (s *PropertyService) DuplicateCheck(projectName, ownerInfo string) (bool, error) {
+const normalizedTextSQL = `lower(regexp_replace(trim(%s), '\s+', ' ', 'g'))`
+
+func normalizeDuplicateKey(s string) string {
+	return strings.ToLower(strings.Join(strings.Fields(s), " "))
+}
+
+func (s *PropertyService) DuplicateCheck(f PropertyFields) (bool, error) {
+	ownerName := normalizeDuplicateKey(f.OwnerName)
+	if ownerName == "" {
+		return false, nil
+	}
 	var count int64
 	err := s.db.Model(&model.Property{}).
-		Where("project_name = ? AND owner_info = ?", projectName, ownerInfo).
+		Where(fmt.Sprintf(normalizedTextSQL, "project_name")+" = ?", normalizeDuplicateKey(f.ProjectName)).
+		Where(fmt.Sprintf(normalizedTextSQL, "owner_name")+" = ?", ownerName).
+		Where("rent_price IS NOT DISTINCT FROM ?", f.RentPrice).
+		Where("sale_price IS NOT DISTINCT FROM ?", f.SalePrice).
+		Where("bedrooms = ? AND is_studio = ? AND is_duplex = ?", f.Bedrooms, f.IsStudio, f.IsDuplex).
 		Count(&count).Error
 	if err != nil {
 		return false, apperror.Wrap(err, 500, "database error checking duplicate")

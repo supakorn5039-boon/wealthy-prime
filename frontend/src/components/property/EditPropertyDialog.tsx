@@ -69,7 +69,6 @@ export function EditPropertyDialog({ property, open, onClose }: Props) {
         salePrice: property.salePrice != null ? String(property.salePrice) : "",
         sizeSqm: property.sizeSqm ? String(property.sizeSqm) : "",
         ownerInfo: property.ownerInfo,
-        ownerExtraDetail: "",
         lat: property.lat != null ? String(property.lat) : "",
         lng: property.lng != null ? String(property.lng) : "",
 
