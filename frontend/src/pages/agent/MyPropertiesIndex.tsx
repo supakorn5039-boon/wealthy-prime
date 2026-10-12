@@ -54,6 +54,7 @@ import {
 import type { Property, PropertyKind, PropertyStatus, ListingFilter } from "@/types/Property";
 import { ROUTES } from "@/constants/Routes";
 import { formatDate } from "@/utils/date";
+import { useSessionState } from "@/hooks/useSessionState";
 
 const STATUS_VALUES: PropertyStatus[] = ['available', 'reserved', 'sold', 'unavailable', 'owner_update']
 const TYPE_VALUES: ListingFilter[] = ['sell', 'rent', 'both']
@@ -153,13 +154,14 @@ export default function MyPropertiesIndex() {
   );
   const [editTarget, setEditTarget] = useState<Property | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Property | null>(null);
-  const [statusFilters, setStatusFilters] = useState<PropertyStatus[]>([]);
-  const [typeFilters, setTypeFilters] = useState<ListingFilter[]>([]);
-  const [kindFilters, setKindFilters] = useState<Exclude<PropertyKind, ''>[]>([]);
-  const [projectFilter, setProjectFilter] = useState('');
-  const [agentFilter, setAgentFilter] = useState('');
-  const [createdFrom, setCreatedFrom] = useState('');
-  const [createdTo, setCreatedTo] = useState('');
+  const filterKey = `properties.filters.${user?.id ?? "anon"}`;
+  const [statusFilters, setStatusFilters] = useSessionState<PropertyStatus[]>(`${filterKey}.statuses`, []);
+  const [typeFilters, setTypeFilters] = useSessionState<ListingFilter[]>(`${filterKey}.types`, []);
+  const [kindFilters, setKindFilters] = useSessionState<Exclude<PropertyKind, ''>[]>(`${filterKey}.kinds`, []);
+  const [projectFilter, setProjectFilter] = useSessionState(`${filterKey}.project`, '');
+  const [agentFilter, setAgentFilter] = useSessionState(`${filterKey}.agent`, '');
+  const [createdFrom, setCreatedFrom] = useSessionState(`${filterKey}.createdFrom`, '');
+  const [createdTo, setCreatedTo] = useSessionState(`${filterKey}.createdTo`, '');
 
   const baseKey = isAdmin ? AdminService.QUERY_KEYS.PROPERTIES : PropertyService.QUERY_KEYS.AGENT_LIST;
 

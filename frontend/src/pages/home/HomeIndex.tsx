@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -35,6 +35,7 @@ import { PropertyPrices } from "@/components/property/PropertyPrices";
 import { formatBtsMrt } from "@/utils/btsMrt";
 import { resolveImageUrl } from "@/utils/imageUrl";
 import { cn } from "@/lib/utils";
+import { useSessionState } from "@/hooks/useSessionState";
 import {
   FlyTo,
   MapStatusLegend,
@@ -44,16 +45,6 @@ import {
 import type { Property, PropertyListParams } from "@/types/Property";
 
 const iconFor = buildStatusIconResolver(28);
-const FILTERS_STORAGE_KEY = "home.propertyFilters";
-
-function loadStoredFilters(): PropertyListParams {
-  try {
-    const raw = sessionStorage.getItem(FILTERS_STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as PropertyListParams) : {};
-  } catch {
-    return {};
-  }
-}
 
 interface PropertyRowProps {
   property: Property;
@@ -165,7 +156,7 @@ function PropertyRow({ property, active, onHover }: PropertyRowProps) {
 
 export default function HomeIndex() {
   const { t } = useTranslation();
-  const [filters, setFilters] = useState<PropertyListParams>(loadStoredFilters);
+  const [filters, setFilters] = useSessionState<PropertyListParams>("home.propertyFilters", {});
   const [selected, setSelected] = useState<Property | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [flyTarget, setFlyTarget] = useState<[number, number] | null>(null);
@@ -175,14 +166,6 @@ export default function HomeIndex() {
     queryKey: [PropertyService.QUERY_KEYS.LIST, filters],
     queryFn: () => PropertyService.list(filters),
   });
-
-  useEffect(() => {
-    try {
-      sessionStorage.setItem(FILTERS_STORAGE_KEY, JSON.stringify(filters));
-    } catch {
-      return;
-    }
-  }, [filters]);
 
   const filteredProperties = data?.data ?? [];
 
