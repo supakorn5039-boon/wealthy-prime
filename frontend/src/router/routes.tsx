@@ -12,6 +12,7 @@ const ForgotPasswordIndex = lazyWithReload(() => import('@/pages/forgot-password
 const ResetPasswordIndex = lazyWithReload(() => import('@/pages/reset-password/ResetPasswordIndex'))
 const HomeIndex = lazyWithReload(() => import('@/pages/home/HomeIndex'))
 const PropertyDetailIndex = lazyWithReload(() => import('@/pages/property/PropertyDetailIndex'))
+const PropertyImagesDownloadIndex = lazyWithReload(() => import('@/pages/property/PropertyImagesDownloadIndex'))
 const ReviewIndex = lazyWithReload(() => import('@/pages/review/ReviewIndex'))
 const ProfileIndex = lazyWithReload(() => import('@/pages/user/ProfileIndex'))
 const WishlistIndex = lazyWithReload(() => import('@/pages/user/WishlistIndex'))
@@ -62,6 +63,13 @@ export const routes: AppRoute[] = [
   { path: ROUTES.RESET_PASSWORD, element: wrap(<ResetPasswordIndex />), layout: RouteLayout.BLANK },
   { path: ROUTES.PROPERTY_DETAIL, element: wrap(<PropertyDetailIndex />), layout: RouteLayout.PUBLIC },
   { path: ROUTES.REVIEW, element: wrap(<ReviewIndex />), layout: RouteLayout.BLANK },
+
+  {
+    path: ROUTES.PROPERTY_IMAGES_DOWNLOAD,
+    element: wrap(<PropertyImagesDownloadIndex />),
+    layout: RouteLayout.PROTECTED,
+    allowedRoles: AGENT_ADMIN,
+  },
 
   { path: ROUTES.PROFILE, element: wrap(<ProfileIndex />), layout: RouteLayout.PROTECTED },
 

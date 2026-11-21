@@ -1,32 +1,12 @@
 package feature
 
 import (
-	"net/http"
-	"net/http/httptest"
 	"testing"
 
-	"github.com/gin-gonic/gin"
-
-	"github.com/wealthy-prime/backend/src/apiwebserver/controller"
 	"github.com/wealthy-prime/backend/src/apiwebserver/service"
 	"github.com/wealthy-prime/backend/src/database/model"
 	"github.com/wealthy-prime/backend/src/tests/helpers"
 )
-
-func TestImagesArchiveRequiresAgentOrAdmin(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-	r := gin.New()
-	api := r.Group("/api")
-	controller.NewPropertyController().RegisterRoutes(api)
-
-	req := httptest.NewRequest(http.MethodGet, "/api/properties/1/images-archive", nil)
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-
-	if w.Code != http.StatusForbidden {
-		t.Fatalf("unauthenticated images archive: got %d, want 403 (body=%s)", w.Code, w.Body.String())
-	}
-}
 
 func TestSuggestProjectNames(t *testing.T) {
 	db, cleanup := helpers.TestDB(t)

@@ -97,11 +97,13 @@ export const PropertyService = {
     return res.data.data ?? []
   },
 
-  downloadImagesArchive: async (id: number | string): Promise<Blob> => {
-    const res = await fetchClient.get<Blob>(API.PROPERTY_IMAGES_ARCHIVE(id), {
+  downloadImagesArchive: async (id: number | string): Promise<{ blob: Blob; filename: string }> => {
+    const res = await fetchClient.get<Blob>(API.PROPERTY_IMAGES_DOWNLOAD(id), {
       responseType: 'blob',
     })
-    return res.data
+    const disposition = String(res.headers['content-disposition'] ?? '')
+    const filename = /filename="([^"]+)"/.exec(disposition)?.[1] ?? `${id}-images.zip`
+    return { blob: res.data, filename }
   },
 
   getListingOwner: async (id: number | string): Promise<ListingOwnerPreview | null> => {

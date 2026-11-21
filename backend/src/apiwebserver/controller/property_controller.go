@@ -159,6 +159,7 @@ func (ctrl *PropertyController) RegisterRoutes(r *gin.RouterGroup) {
 	props.GET("/:id/booked-slots", ctrl.getBookedSlots)
 	props.GET("/:id/listing-owner", ctrl.getListingOwner)
 	props.GET("/:id/images-archive", ctrl.downloadImagesArchive)
+	props.GET("/:id/download", ctrl.downloadImagesArchive)
 }
 
 func canSeeOwnerInfo(role model.UserRole) bool {

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { MapPin, Maximize2, ShoppingCart, Pencil, Copy, Bed, Bath, Building, Train, PawPrint, Sofa, FileText, MessageSquare, Star, Download } from 'lucide-react'
+import { MapPin, Maximize2, ShoppingCart, Pencil, Copy, Bed, Bath, Building, Train, PawPrint, Sofa, FileText, MessageSquare, Star } from 'lucide-react'
 import { formatPropertyArea } from '@/utils/propertyArea'
 import { localizedProvince, localizedDistrict } from '@/constants/Locations'
 import { toast } from 'sonner'
@@ -43,7 +43,6 @@ export default function PropertyDetailIndex() {
   const { user } = useAuthStore()
   const [editOpen, setEditOpen] = useState(false)
   const [writeReviewOpen, setWriteReviewOpen] = useState(false)
-  const [downloadingImages, setDownloadingImages] = useState(false)
 
   const { data: property, isLoading } = useQuery({
     queryKey: [PropertyService.QUERY_KEYS.DETAIL, id],
@@ -71,26 +70,6 @@ export default function PropertyDetailIndex() {
     })
     openCart()
     toast.success(t('property.addedToCart'))
-  }
-
-  const handleDownloadImages = async () => {
-    if (!property) return
-    setDownloadingImages(true)
-    try {
-      const blob = await PropertyService.downloadImagesArchive(property.id)
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `${property.propertyCode || property.id}-images.zip`
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-      URL.revokeObjectURL(url)
-    } catch {
-      toast.error(t('common.error'))
-    } finally {
-      setDownloadingImages(false)
-    }
   }
 
   const handleCopyCaption = async () => {
@@ -317,19 +296,6 @@ export default function PropertyDetailIndex() {
                 </Button>
                 {ownerInfoAllowed && id && (
                   <ListingOwnerPreviewDialog propertyId={id} fullWidth />
-                )}
-                {ownerInfoAllowed && (property.imageUrls?.length ?? 0) > 0 && (
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={handleDownloadImages}
-                    disabled={downloadingImages}
-                  >
-                    <Download className="size-4 mr-2" />
-                    {downloadingImages
-                      ? t('property.downloadingImages')
-                      : t('property.downloadAllImages')}
-                  </Button>
                 )}
                 {canEdit && (
                   <Button variant="outline" className="w-full" onClick={() => setEditOpen(true)}>

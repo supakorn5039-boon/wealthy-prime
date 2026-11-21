@@ -21,6 +21,7 @@ export const ROUTES = {
   CONTACTS: '/contacts',
 
   PROPERTY_DETAIL: '/property/:id',
+  PROPERTY_IMAGES_DOWNLOAD: '/property/:id/download',
 
   REVIEW: '/review/:token',
 
